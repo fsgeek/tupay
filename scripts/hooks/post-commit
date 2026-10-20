@@ -1,0 +1,60 @@
+#!/bin/bash
+# Post-commit OpenTimestamps hook: on every non-ots commit, write the hash to
+# timestamps/<hash>, stamp it, and commit the .ots proof.
+#
+# 2026-10-09 fixes ported from hamutay 50a44a4 (found by its custodian and
+# Codex's suite, tests in hamutay c4c2965): merges are stamped via post-merge;
+# a linked worktree finds ots in the main checkout's venv; already-stamped
+# commits are skipped; the stamp's identity is set explicitly, because git
+# exports the triggering commit's GIT_AUTHOR_* into this hook.
+set -e
+
+GIT_ROOT=$(git rev-parse --show-toplevel)
+MAIN_ROOT=$(cd "$(git rev-parse --path-format=absolute --git-common-dir)/.." && pwd)
+OTS="$GIT_ROOT/.venv/bin/ots"
+[ -x "$OTS" ] || OTS="$MAIN_ROOT/.venv/bin/ots"
+
+# Guard: don't stamp OTS commits (--no-verify skips pre-commit but not post-commit)
+COMMIT_MSG=$(git log -1 --format="%s")
+if [[ "$COMMIT_MSG" == ots:* ]]; then
+    exit 0
+fi
+
+if [ ! -x "$OTS" ]; then
+    echo "ots: client not found in $GIT_ROOT/.venv or $MAIN_ROOT/.venv, skipping timestamp" >&2
+    exit 0
+fi
+
+HASH=$(git rev-parse HEAD)
+TIMESTAMP_DIR="$GIT_ROOT/timestamps"
+mkdir -p "$TIMESTAMP_DIR"
+
+# Idempotent: fast-forwards and pulls land on commits already stamped.
+if [ -e "$TIMESTAMP_DIR/$HASH.ots" ] || [ -e "$TIMESTAMP_DIR/anchored/$HASH.ots" ]; then
+    exit 0
+fi
+
+HASH_FILE="$TIMESTAMP_DIR/$HASH"
+echo "$HASH" > "$HASH_FILE"
+"$OTS" stamp "$HASH_FILE"
+
+# The stamp commit uses the repo's own identity, not whatever the triggering
+# commit exported; dates dropped so the stamp carries its own time.
+OTS_NAME=$(git config user.name)
+OTS_EMAIL=$(git config user.email)
+export GIT_AUTHOR_NAME="$OTS_NAME" GIT_AUTHOR_EMAIL="$OTS_EMAIL"
+export GIT_COMMITTER_NAME="$OTS_NAME" GIT_COMMITTER_EMAIL="$OTS_EMAIL"
+unset GIT_AUTHOR_DATE GIT_COMMITTER_DATE
+
+# Plumbing, not `git commit`: when run from post-merge, git's merge state is
+# still present and `git commit` would make the stamp a second merge commit
+# (two parents). commit-tree takes exactly one parent, HEAD, and runs no hooks.
+# It does NOT honor commit.gpgSign (verified 2026-10-10: 0edcac1 came out
+# unsigned), so pass -S explicitly when the repo signs.
+git -C "$GIT_ROOT" add "$TIMESTAMP_DIR/"
+TREE=$(git -C "$GIT_ROOT" write-tree)
+SIGN=()
+[ "$(git -C "$GIT_ROOT" config --bool commit.gpgsign)" = "true" ] && SIGN=(-S)
+STAMP=$(git -C "$GIT_ROOT" commit-tree "${SIGN[@]}" "$TREE" -p "$HASH" -m "ots: stamp $HASH")
+git -C "$GIT_ROOT" update-ref -m "ots: stamp $HASH" HEAD "$STAMP" "$HASH"
+echo "[ots] stamp ${STAMP:0:7} for ${HASH:0:7}"

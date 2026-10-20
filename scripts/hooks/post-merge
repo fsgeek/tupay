@@ -1,0 +1,9 @@
+#!/bin/bash
+# Post-merge hook: git-lfs's step, then the OpenTimestamps stamp (ported from
+# hamutay 50a44a4). git fires post-merge, not post-commit, for a merge, so
+# merges went unstamped before 2026-10-10. $1 = 1 is a squash merge: no commit.
+if command -v git-lfs >/dev/null 2>&1; then
+    git lfs post-merge "$@" || exit $?
+fi
+[ "$1" = "1" ] && exit 0
+exec "$(git rev-parse --show-toplevel)/scripts/hooks/post-commit"

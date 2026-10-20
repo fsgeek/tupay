@@ -1,0 +1,19 @@
+[project]
+name = "tupay"
+version = "0.1.0"
+description = "Contract and failure model in, paired formal and implementation artifacts out: a workflow tested end to end"
+readme = "README.md"
+authors = [
+    { name = "Tupay Research Project", email = "research@wamason.com" }
+]
+requires-python = ">=3.14"
+dependencies = [
+    "opentimestamps-client>=0.7.2",
+]
+
+[project.scripts]
+tupay = "tupay:main"
+
+[build-system]
+requires = ["uv_build>=0.12.23,<0.13.0"]
+build-backend = "uv_build"

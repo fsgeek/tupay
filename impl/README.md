@@ -7,6 +7,11 @@ The permitted brief, contract, failure model, pairs, schedule format, schema and
 AGENTS.md were read. The brief's explicit access list supersedes AGENTS.md's
 request to read and append steward seed documents.
 
+Current verified results: [RESULTS.md](RESULTS.md). All twelve pairs pass all
+three seeds, all twelve mutations fail their intended clauses on all three
+seeds, and nothing remains blocked. Historical stopped states below are retained
+for provenance.
+
 ## Design and plan
 
 <!-- derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3 -->
@@ -292,3 +297,33 @@ no findings. The initial mutation matrix reported the predicted clause on every
 pair/seed, but its P10 result alone was not discriminating because the initial
 baseline also failed. A fresh complete baseline and mutation matrix follows the
 fix, with the original predictions unchanged.
+
+## Verified first-version delivery
+
+<!-- derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3 -->
+The complete corrected matrix is recorded in [RESULTS.md](RESULTS.md): all twelve
+baseline pairs PASS on each of seeds 1, 2 and 3; all twelve mutations FAIL their
+predeclared clauses on each seed (36 baseline passes, 36 expected mutation
+failures, 12/12 mutations killed across three seeds). The standalone
+false-suspicion observation and its repeats in --all pass all three seeds, with
+complete authority provenance and both grantor incarnations. All three final
+runner commands exit 0. Go build, the complete fixture suite and go vet pass.
+No final UNEXPLAINED result or outstanding blocker remains. These are bounded
+sample results; the finite liveness certificate limitation remains as recorded.
+
+The bootstrap setup barrier is the only outcome-informed behavior correction.
+The initial failure and all command receipts are preserved. The original
+preregistration remains byte-for-byte intact, followed by its additive
+outcome-informed amendment. No prediction, pair schedule, mutation, clause,
+scoring rule or horizon was revised in response to a result.
+
+<!-- derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3 -->
+28. Generated run outputs are ignored by default. The 159 reference runs used
+    for initial/final matrices and the focused P10 verification are explicitly
+    retained in this first-version commit, including their JSONL and liveness
+    sidecars. JSONL keeps the shared schema without added comment records.
+    `evidence/manifest.tsv` supplies per-file `# derives:` comments and SHA-256
+    bindings to the originating schedule; `evidence/logs/` retains raw command
+    receipts, and the provenance TSV lists each false-suspicion storage decision.
+    Go caches, binaries and temporary files remain excluded. Rerunning produces
+    new unique run IDs rather than overwriting reference evidence.

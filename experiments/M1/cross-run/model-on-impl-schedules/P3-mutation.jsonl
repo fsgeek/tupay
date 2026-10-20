@@ -1,0 +1,5 @@
+{"proc": "c1", "seq": 1, "event": "Request", "client": "c1", "key": "k", "causes": [], "run": "P3-mutation", "side": "model"}
+{"proc": "n1", "seq": 1, "event": "Grant", "client": "c1", "key": "k", "token": 1, "lifetime": 1, "grantor_term": 1, "causes": [{"proc": "c1", "seq": 1}], "run": "P3-mutation", "side": "model"}
+{"proc": "env", "seq": 1, "event": "Fault", "cell": "F1.3", "pause": "c1", "causes": [], "run": "P3-mutation", "side": "model"}
+{"proc": "c2", "seq": 1, "event": "Request", "client": "c2", "key": "k", "causes": [], "run": "P3-mutation", "side": "model"}
+{"proc": "n1", "seq": 2, "event": "Grant", "client": "c2", "key": "k", "token": 1, "lifetime": 1, "grantor_term": 1, "causes": [{"proc": "c2", "seq": 1}], "run": "P3-mutation", "side": "model"}

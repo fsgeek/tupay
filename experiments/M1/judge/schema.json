@@ -1,0 +1,2 @@
+{"type":"object","properties":{"D1":{"$ref":"#/$defs/v"},"D2":{"$ref":"#/$defs/v"},"D3":{"$ref":"#/$defs/v"}},"required":["D1","D2","D3"],
+ "$defs":{"v":{"type":"object","properties":{"verdict":{"type":"string","enum":["explained","unexplained"]},"locus":{"type":"string","enum":["model","implementation","inputs","interface","both","none"]},"evidence":{"type":"string"},"reasoning":{"type":"string"},"what_would_settle_it":{"type":"string"}},"required":["verdict","locus","evidence","reasoning","what_would_settle_it"]}}}

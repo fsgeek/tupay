@@ -1,0 +1,55 @@
+=== impl on model schedule P1
+UNEXPLAINED invalid crash/restart schedule=testbed/schedules/cross/P1.yaml
+exit 1
+=== impl on model schedule P10
+UNEXPLAINED invalid crash/restart schedule=testbed/schedules/cross/P10.yaml
+exit 1
+=== impl on model schedule P11
+PASS schedule=testbed/schedules/cross/P11.yaml seed=1 trace=observe/P11-baseline-seed-1-f2d8f3da74f1fc2a.jsonl
+PASS schedule=testbed/schedules/cross/P11.yaml seed=2 trace=observe/P11-baseline-seed-2-35859de11c5a4c07.jsonl
+PASS schedule=testbed/schedules/cross/P11.yaml seed=3 trace=observe/P11-baseline-seed-3-1211c1c9797361e8.jsonl
+exit 0
+=== impl on model schedule P12
+UNEXPLAINED invalid pause/resume schedule=testbed/schedules/cross/P12.yaml
+exit 1
+=== impl on model schedule P2
+PASS schedule=testbed/schedules/cross/P2.yaml seed=1 trace=observe/P2-baseline-seed-1-9df9744c4ee18eb3.jsonl
+PASS schedule=testbed/schedules/cross/P2.yaml seed=2 trace=observe/P2-baseline-seed-2-c73e9e744c99602a.jsonl
+PASS schedule=testbed/schedules/cross/P2.yaml seed=3 trace=observe/P2-baseline-seed-3-77298cd960e38465.jsonl
+exit 0
+=== impl on model schedule P3
+UNEXPLAINED invalid pause/resume schedule=testbed/schedules/cross/P3.yaml
+exit 1
+=== impl on model schedule P4
+PASS schedule=testbed/schedules/cross/P4.yaml seed=1 trace=observe/P4-baseline-seed-1-70ff14b4ef3f0664.jsonl
+PASS schedule=testbed/schedules/cross/P4.yaml seed=2 trace=observe/P4-baseline-seed-2-2f728c0aa8f00da4.jsonl
+PASS schedule=testbed/schedules/cross/P4.yaml seed=3 trace=observe/P4-baseline-seed-3-fb25465bb0ea3f86.jsonl
+exit 0
+=== impl on model schedule P5
+PASS schedule=testbed/schedules/cross/P5.yaml seed=1 trace=observe/P5-baseline-seed-1-a52059e8576da864.jsonl
+PASS schedule=testbed/schedules/cross/P5.yaml seed=2 trace=observe/P5-baseline-seed-2-b109a4396101b204.jsonl
+PASS schedule=testbed/schedules/cross/P5.yaml seed=3 trace=observe/P5-baseline-seed-3-ff7c83cc04b83f8e.jsonl
+exit 0
+=== impl on model schedule P6
+UNEXPLAINED invalid pause/resume schedule=testbed/schedules/cross/P6.yaml
+exit 1
+=== impl on model schedule P7
+PASS schedule=testbed/schedules/cross/P7.yaml seed=1 trace=observe/P7-baseline-seed-1-ad5d482940c05c87.jsonl
+PASS schedule=testbed/schedules/cross/P7.yaml seed=2 trace=observe/P7-baseline-seed-2-f9cbeaafb462cc0f.jsonl
+PASS schedule=testbed/schedules/cross/P7.yaml seed=3 trace=observe/P7-baseline-seed-3-059f79f723c7fbb5.jsonl
+exit 0
+=== impl on model schedule P8
+PASS schedule=testbed/schedules/cross/P8.yaml seed=1 trace=observe/P8-baseline-seed-1-ca4abf3693196220.jsonl
+PASS schedule=testbed/schedules/cross/P8.yaml seed=2 trace=observe/P8-baseline-seed-2-7f8616c8106805df.jsonl
+PASS schedule=testbed/schedules/cross/P8.yaml seed=3 trace=observe/P8-baseline-seed-3-8604ac252555669a.jsonl
+exit 0
+=== impl on model schedule P9
+PASS schedule=testbed/schedules/cross/P9.yaml seed=1 trace=observe/P9-baseline-seed-1-d2a657fdb0c30573.jsonl
+PASS schedule=testbed/schedules/cross/P9.yaml seed=2 trace=observe/P9-baseline-seed-2-3a5dd6f25b488ed2.jsonl
+PASS schedule=testbed/schedules/cross/P9.yaml seed=3 trace=observe/P9-baseline-seed-3-3e3e637bc4250560.jsonl
+exit 0
+=== impl on model schedule false-suspicion-v1
+PASS schedule=testbed/schedules/cross/false-suspicion-v1.yaml seed=1 trace=observe/false-suspicion-v1-baseline-seed-1-4d835cfaa1e3ce21.jsonl
+PASS schedule=testbed/schedules/cross/false-suspicion-v1.yaml seed=2 trace=observe/false-suspicion-v1-baseline-seed-2-7dd0b6e399bb0412.jsonl
+PASS schedule=testbed/schedules/cross/false-suspicion-v1.yaml seed=3 trace=observe/false-suspicion-v1-baseline-seed-3-0026b55b500ef58b.jsonl
+exit 0

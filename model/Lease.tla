@@ -175,6 +175,25 @@ StepDown(n) ==
                    toAck, grants, decisions, told>>
     /\ Internal("StepDown", n)
 
+\* derives: C1.4, F1.1, F1.2 -- the P10 fix (judge's verdict, locus: model).
+\* A leader brings a reachable, up, lagging node into its term: the node raises its
+\* promise to the leader's term (and, if it was a stale leader, stops leading).
+\* Without this, a leader elected by a non-maximal majority whose other member then
+\* crashes can never assemble a grant majority, while no election or step-down is
+\* enabled either: C1.4 fails with a majority, storage and the requester all up and
+\* connected. Raising a promise is always safe here: promises only grow, and a grant
+\* still needs a majority promised to exactly the leader's term.
+Join(n, q) ==
+    /\ up[n] /\ leader[n] /\ up[q] /\ q # n
+    /\ Conn(n, q)
+    /\ promised[q] < term[n]
+    /\ promised' = [promised EXCEPT ![q] = term[n]]
+    /\ leader' = [leader EXCEPT ![q] = FALSE]
+    /\ UNCHANGED <<up, paused, sideA, maxTok, term, ltok, reqs, pending, tok, myToks,
+                   awaiting, grantMsgs, writeMsgs, ackMsgs, dups, highest, stval,
+                   toAck, grants, decisions, told>>
+    /\ Internal("Join", q)
+
 \* derives: C1.1, C1.4, F1.1, F1.2
 \* The leader issues a grant to a requester it can reach, once a majority still
 \* promised to its term durably confirms the new token.
@@ -425,6 +444,7 @@ ScheduleStep ==
 \* derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3
 Protocol ==
     \/ \E n \in Nodes : Elect(n) \/ StepDown(n)
+    \/ \E n, q \in Nodes : Join(n, q)
     \/ \E n \in Nodes, c \in Clients : Grant(n, c)
     \/ \E m \in grantMsgs : RecvGrant(m)
     \/ \E m \in writeMsgs, d \in BOOLEAN : StorageDecide(m, d)
@@ -438,6 +458,7 @@ Next == Protocol \/ ScheduleStep
 \* (the environment does eventually perform each scheduled step whose trigger held)
 Fairness ==
     /\ \A n \in Nodes : WF_vars(Elect(n)) /\ WF_vars(StepDown(n))
+    /\ \A n, q \in Nodes : WF_vars(Join(n, q))  \* derives: C1.4, F1.1 (P10 fix)
     /\ \A n \in Nodes, c \in Clients : WF_vars(Grant(n, c))
     /\ WF_vars(\E m \in grantMsgs : RecvGrant(m))
     /\ WF_vars(\E m \in writeMsgs : StorageDecide(m, FALSE))

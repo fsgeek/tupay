@@ -1,0 +1,27 @@
+schedule: false-suspicion-v1
+derives: [F1.2, C1.1, C1.2, C1.3]
+processes:
+  lease: [n1, n2, n3]
+  clients: [c1, c2]
+  storage: [s]
+# derives: M1 false-suspicion run (F1.2; observed, not judged). The grantor is isolated from
+# the other two lease nodes; the holder stays reachable from the old grantor and storage.
+steps:
+  - at: start
+    do: {request: c1}
+  - at: {event: Grant, client: c1}
+    do: {write: c1, value: v1}
+  - at: {event: WriteAck, client: c1}
+    do: {cell: F1.2, partition: [[grantor, holder, s], [rest]]}
+  - at: start
+    do: {request: c2}
+  - at: {event: Grant, client: c2}
+    do: {write: c1, value: v2}
+  - at: {event: WriteAck, client: c1}
+    do: {cell: F1.2, heal: true}
+  - at: start
+    do: {write: c2, value: v3}
+  - at: {event: WriteAck, client: c2}
+    do: {write: c1, value: v4}
+end: {event: WriteAck, client: c1}
+bound: {events: 200}

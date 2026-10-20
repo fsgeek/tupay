@@ -1,0 +1,24 @@
+schedule: P1
+derives: [C1.1, F1.1]
+processes:
+  lease: [n1, n2, n3]
+  clients: [c1, c2]
+  storage: [s]
+# derives: P1 (C1.1, F1.1). Grantor crashes and restarts twice; tokens must still increase.
+steps:
+  - at: start
+    do: {request: c1}
+  - at: {event: Grant, client: c1}
+    do: {cell: F1.1, crash: grantor}
+  - at: start
+    do: {cell: F1.1, restart: grantor}
+  - at: start
+    do: {request: c2}
+  - at: {event: Grant, client: c2}
+    do: {cell: F1.1, crash: grantor}
+  - at: start
+    do: {cell: F1.1, restart: grantor}
+  - at: start
+    do: {request: c1}
+end: start
+bound: {events: 200}

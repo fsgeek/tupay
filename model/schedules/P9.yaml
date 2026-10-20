@@ -1,0 +1,23 @@
+schedule: P9
+derives: [C1.3, F1.3]
+processes:
+  lease: [n1, n2, n3]
+  clients: [c1, c2]
+  storage: [s]
+# derives: P9 (C1.3, F1.3). Client paused with a write in flight; a newer grant's write may
+# overtake it; on resume the late ack must refer to a write storage actually accepted.
+steps:
+  - at: start
+    do: {request: c1}
+  - at: {event: Grant, client: c1}
+    do: {write: c1, value: v1}
+  - at: {event: WriteAttempt, client: c1}
+    do: {cell: F1.3, pause: c1}
+  - at: start
+    do: {request: c2}
+  - at: {event: Grant, client: c2}
+    do: {write: c2, value: v2}
+  - at: {event: WriteAck, client: c2, outcome: accepted}
+    do: {cell: F1.3, resume: c1}
+end: start
+bound: {events: 200}

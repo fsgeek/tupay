@@ -93,3 +93,82 @@ After a setup barrier waits for the exact three-voter configuration at every
 node, predict this regression and P10 seeds 1–3 pass. Do not change P10 or any
 mutation, clause, threshold, or original expected result. This is a source/setup
 hypothesis, not attribution based on agreement with another artifact.
+
+## Schedule-format v2 adaptation — registered before adaptation or v2 runs
+
+<!-- derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, T1, T2, T3, A1, A2, E1, E2 -->
+Round start: 2026-10-20 23:33:13 UTC. Branch impl-v2, full clone in the same
+worktree path. Only the adaptation brief, permitted contract/failure/pair inputs,
+v2 format, observable schema, AGENTS.md, own impl/ and shared testbed/schedules/
+were read. No model artifact, other documentation or git history was read.
+No v2 build, test, schedule or mutation has run before this registration.
+Original M1 predictions above remain historical and unchanged.
+
+Predictions for the adapted runner, committed before adaptation:
+
+| Shared schedule | Seed 1 | Seed 2 | Seed 3 |
+|---|---|---|---|
+| P1 | PASS | PASS | PASS |
+| P2 | PASS | PASS | PASS |
+| P3 | PASS | PASS | PASS |
+| P4 | PASS | PASS | PASS |
+| P5 | PASS | PASS | PASS |
+| P6 | PASS | PASS | PASS |
+| P7 | PASS | PASS | PASS |
+| P8 | PASS | PASS | PASS |
+| P9 | PASS | PASS | PASS |
+| P10 | PASS | PASS | PASS |
+| P11 | PASS | PASS | PASS |
+| P12 | PASS | PASS | PASS |
+| false-suspicion-v1 | PASS (observed) | PASS (observed) | PASS (observed) |
+
+The unadapted compiler would reject the shared schedules' quiescent end and some
+aliases; its default private schedules are history and provide no v2 evidence.
+The table predicts post-adaptation outcomes before any adaptation, not a scored
+run of the stale compiler. False suspicion remains an observation/provenance run.
+
+| Mutation | Will old placement still fail? | Placement for v2 | Predicted seeds 1 / 2 / 3 |
+|---|---|---|---|
+| P1 | Yes | Reused allocation watermark after crash | FAIL C1.1 / FAIL C1.1 / FAIL C1.1 |
+| P2 | Yes | Reused token after partition | FAIL C1.1 / FAIL C1.1 / FAIL C1.1 |
+| P3 | Yes | Reused token after pause | FAIL C1.1 / FAIL C1.1 / FAIL C1.1 |
+| P4 | Yes | Lost ledger on storage restart | FAIL C1.2 / FAIL C1.2 / FAIL C1.2 |
+| P5 | Yes | Fence comparison bypass after partition | FAIL C1.2 / FAIL C1.2 / FAIL C1.2 |
+| P6 | Yes | Fence comparison bypass after resume | FAIL C1.2 / FAIL C1.2 / FAIL C1.2 |
+| P7 | No: schedule restarts storage before the next workload write | At storage receipt after crash/restart, skip acceptance and enqueue an accepted ack for that unaccepted attempt | FAIL C1.3 / FAIL C1.3 / FAIL C1.3 |
+| P8 | Yes | Fabricated success for the write lost across cut | FAIL C1.3 / FAIL C1.3 / FAIL C1.3 |
+| P9 | Yes | Turn resumed stale rejection into accepted ack | FAIL C1.3 / FAIL C1.3 / FAIL C1.3 |
+| P10 | Yes | Suppress grants after minority crash | FAIL C1.4 / FAIL C1.4 / FAIL C1.4 |
+| P11 | Yes | Suppress grants after partition | FAIL C1.4 / FAIL C1.4 / FAIL C1.4 |
+| P12 | Yes | Suppress grants after pause | FAIL C1.4 / FAIL C1.4 / FAIL C1.4 |
+
+Scoring stays clause-specific: a mutation is killed only by its predicted clause,
+not by compiler rejection, operational error, missing trigger or end timeout.
+E2 retains a witnessed clause failure on an incomplete trace. E1 waits at most
+five seconds for workload quiescence and records the existing three-second
+stable-eligibility certificate for pending requests. C1.4 requires that certificate;
+no eligible witness means UNEXPLAINED end unreachable, never a fabricated kill.
+Samples remain seeds 1–3 with existing delivery jitter/duplication and Raft
+randomness. T2 additionally samples 0–2 ms between trigger and action.
+
+Design/implementation plan: retain the existing Raft and observe/checker layers;
+load only root shared basenames; implement T1 event cursors, capturing the next
+cursor immediately before the previous action's side effects so synchronous
+Request/WriteAttempt emissions remain eligible; freeze A1 selectors when the
+trigger fires, then sample T2 delay and wait for T3 readiness; statically reject
+invalid explicit transitions and aliases with no possible preceding Grant, and
+validate dynamic A2 state before any action side effects; drain active workload
+for E1 and apply E2 independently of completion; re-place only P7; run all
+thirteen shared schedules and twelve mutations for three seeds; preserve raw
+results, new interpretations, checksums and wall time; commit adapted version.
+An event subscription rewrite or new transport/protocol is unnecessary: cursor
+arming makes the existing single-loop action boundary explicit.
+
+Focused regression predictions: old matching events never satisfy a newly armed
+trigger; synchronous action events can satisfy the next trigger; end triggers
+are fresh too; aliases freeze at firing; aliases before a possible Grant and
+invalid A2 transitions reject; workload waits instead of returning errors; stale
+means token strictly below the maximum granted, not merely expired; quiescence
+ignores paused/crashed clients but waits for active messages/requests; eligible
+unanswered work fails C1.4 and witnessed safety failure survives an unreachable
+end. These tests are expected to pass after adaptation.

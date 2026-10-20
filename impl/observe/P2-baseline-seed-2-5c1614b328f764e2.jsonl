@@ -1,0 +1,6 @@
+{"proc":"c1","seq":1,"event":"Request","client":"c1","key":"k","causes":[],"run":"P2-baseline-seed-2-5c1614b328f764e2","side":"impl"}
+{"proc":"n1","seq":1,"event":"Grant","client":"c1","key":"k","token":3,"lifetime":40,"grantor_term":2,"causes":[{"proc":"c1","seq":1}],"run":"P2-baseline-seed-2-5c1614b328f764e2","side":"impl"}
+{"proc":"env","seq":1,"event":"Fault","causes":[{"proc":"n1","seq":1}],"run":"P2-baseline-seed-2-5c1614b328f764e2","side":"impl","cell":"F1.2","partition":[["c1","n1","s"],["c2","n2","n3"]]}
+{"proc":"c2","seq":1,"event":"Request","client":"c2","key":"k","causes":[{"proc":"env","seq":1}],"run":"P2-baseline-seed-2-5c1614b328f764e2","side":"impl"}
+{"proc":"n2","seq":1,"event":"Grant","client":"c2","key":"k","token":5,"lifetime":40,"grantor_term":3,"causes":[{"proc":"env","seq":1},{"proc":"c2","seq":1},{"proc":"n1","seq":1}],"run":"P2-baseline-seed-2-5c1614b328f764e2","side":"impl"}
+{"proc":"env","seq":2,"event":"Fault","causes":[{"proc":"env","seq":1},{"proc":"n2","seq":1}],"run":"P2-baseline-seed-2-5c1614b328f764e2","side":"impl","cell":"F1.2","heal":true}

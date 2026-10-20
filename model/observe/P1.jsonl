@@ -1,0 +1,10 @@
+{"proc": "c1", "seq": 1, "event": "Request", "client": "c1", "key": "k", "causes": [], "run": "P1", "side": "model"}
+{"proc": "n1", "seq": 1, "event": "Grant", "client": "c1", "key": "k", "token": 1, "lifetime": 1, "grantor_term": 1, "causes": [{"proc": "c1", "seq": 1}], "run": "P1", "side": "model"}
+{"proc": "env", "seq": 1, "event": "Fault", "cell": "F1.1", "crash": "n1", "causes": [], "run": "P1", "side": "model"}
+{"proc": "env", "seq": 2, "event": "Fault", "cell": "F1.1", "restart": "n1", "causes": [], "run": "P1", "side": "model"}
+{"proc": "c2", "seq": 1, "event": "Request", "client": "c2", "key": "k", "causes": [], "run": "P1", "side": "model"}
+{"proc": "n2", "seq": 1, "event": "Grant", "client": "c2", "key": "k", "token": 2, "lifetime": 1, "grantor_term": 2, "causes": [{"proc": "c2", "seq": 1}], "run": "P1", "side": "model"}
+{"proc": "env", "seq": 3, "event": "Fault", "cell": "F1.1", "crash": "n2", "causes": [], "run": "P1", "side": "model"}
+{"proc": "env", "seq": 4, "event": "Fault", "cell": "F1.1", "restart": "n2", "causes": [], "run": "P1", "side": "model"}
+{"proc": "c1", "seq": 2, "event": "Request", "client": "c1", "key": "k", "causes": [], "run": "P1", "side": "model"}
+{"proc": "n3", "seq": 1, "event": "Grant", "client": "c1", "key": "k", "token": 3, "lifetime": 1, "grantor_term": 3, "causes": [{"proc": "c1", "seq": 2}], "run": "P1", "side": "model"}

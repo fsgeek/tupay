@@ -1,0 +1,17 @@
+# P10: independently authored implementation half
+# derives: C1.4, F1.1
+schedule: P10
+derives: ["C1.4", "F1.1"]
+processes:
+  lease: [n1, n2, n3]
+  clients: [c1, c2]
+  storage: [s]
+steps:
+  # derives: C1.4, F1.1
+  - at: start
+    do: {"cell": "F1.1", "crash": "n1"}
+  # derives: C1.4, F1.1
+  - at: start
+    do: {"request": "c1"}
+end: {"event": "Grant", "client": "c1"}
+bound: {events: 200}

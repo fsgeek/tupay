@@ -1,0 +1,26 @@
+# P8: independently authored implementation half
+# derives: C1.3, F1.2
+schedule: P8
+derives: ["C1.3", "F1.2"]
+processes:
+  lease: [n1, n2, n3]
+  clients: [c1, c2]
+  storage: [s]
+steps:
+  # derives: C1.3, F1.2
+  - at: start
+    do: {"request": "c1"}
+  # derives: C1.3, F1.2
+  - at: {"event": "Grant", "client": "c1"}
+    do: {"write": "c1", "value": "accepted-ack-lost"}
+  # derives: C1.3, F1.2
+  - at: {"event": "WriteAccept"}
+    do: {"cell": "F1.2", "partition": [["c1"], ["rest"]]}
+  # derives: C1.3, F1.2
+  - at: start
+    do: {"write": "c1", "value": "request-lost"}
+  # derives: C1.3, F1.2
+  - at: start
+    do: {"request": "c2"}
+end: {"event": "Grant", "client": "c2"}
+bound: {events: 200}

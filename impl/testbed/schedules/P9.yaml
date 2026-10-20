@@ -1,0 +1,32 @@
+# P9: independently authored implementation half
+# derives: C1.3, F1.3
+schedule: P9
+derives: ["C1.3", "F1.3"]
+processes:
+  lease: [n1, n2, n3]
+  clients: [c1, c2]
+  storage: [s]
+steps:
+  # derives: C1.3, F1.3
+  - at: start
+    do: {"request": "c1"}
+  # derives: C1.3, F1.3
+  - at: {"event": "Grant", "client": "c1"}
+    do: {"write": "c1", "value": "accepted-late-ack"}
+  # derives: C1.3, F1.3
+  - at: {"event": "WriteAccept"}
+    do: {"cell": "F1.3", "pause": "c1"}
+  # derives: C1.3, F1.3
+  - at: start
+    do: {"request": "c2"}
+  # derives: C1.3, F1.3
+  - at: {"event": "Grant", "client": "c2"}
+    do: {"write": "c2", "value": "new"}
+  # derives: C1.3, F1.3
+  - at: {"event": "WriteAck", "client": "c2", "outcome": "accepted"}
+    do: {"cell": "F1.3", "resume": "c1"}
+  # derives: C1.3, F1.3
+  - at: start
+    do: {"write": "c1", "value": "late-stale-rejection", "token": "stale"}
+end: {"event": "WriteAck", "client": "c1", "outcome": "rejected"}
+bound: {events: 200}

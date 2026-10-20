@@ -1,0 +1,14 @@
+{"proc":"c1","seq":1,"event":"Request","client":"c1","key":"k","causes":[],"run":"P7-baseline-seed-2-306c2e5a371461ce","side":"impl"}
+{"proc":"n1","seq":1,"event":"Grant","client":"c1","key":"k","token":3,"lifetime":40,"grantor_term":2,"causes":[{"proc":"c1","seq":1}],"run":"P7-baseline-seed-2-306c2e5a371461ce","side":"impl"}
+{"proc":"c1","seq":2,"event":"WriteAttempt","client":"c1","key":"k","token":3,"grantor_term":2,"value":"accepted-before-crash","causes":[{"proc":"c1","seq":1},{"proc":"n1","seq":1}],"run":"P7-baseline-seed-2-306c2e5a371461ce","side":"impl"}
+{"proc":"s","seq":1,"event":"WriteAccept","key":"k","token":3,"grantor_term":2,"highest_before":0,"causes":[{"proc":"c1","seq":2}],"run":"P7-baseline-seed-2-306c2e5a371461ce","side":"impl"}
+{"proc":"env","seq":1,"event":"Fault","causes":[{"proc":"s","seq":1}],"run":"P7-baseline-seed-2-306c2e5a371461ce","side":"impl","cell":"F1.1","crash":"s"}
+{"proc":"c1","seq":3,"event":"WriteAttempt","client":"c1","key":"k","token":3,"grantor_term":2,"value":"never-reached-crashed-storage","causes":[{"proc":"c1","seq":2},{"proc":"env","seq":1},{"proc":"n1","seq":1}],"run":"P7-baseline-seed-2-306c2e5a371461ce","side":"impl"}
+{"proc":"c2","seq":1,"event":"Request","client":"c2","key":"k","causes":[{"proc":"env","seq":1}],"run":"P7-baseline-seed-2-306c2e5a371461ce","side":"impl"}
+{"proc":"n1","seq":2,"event":"Grant","client":"c2","key":"k","token":4,"lifetime":40,"grantor_term":2,"causes":[{"proc":"n1","seq":1},{"proc":"env","seq":1},{"proc":"c2","seq":1}],"run":"P7-baseline-seed-2-306c2e5a371461ce","side":"impl"}
+{"proc":"env","seq":2,"event":"Fault","causes":[{"proc":"env","seq":1},{"proc":"n1","seq":2}],"run":"P7-baseline-seed-2-306c2e5a371461ce","side":"impl","cell":"F1.1","restart":"s"}
+{"proc":"c2","seq":2,"event":"WriteAttempt","client":"c2","key":"k","token":4,"grantor_term":2,"value":"recovery","causes":[{"proc":"c2","seq":1},{"proc":"env","seq":2},{"proc":"n1","seq":2}],"run":"P7-baseline-seed-2-306c2e5a371461ce","side":"impl"}
+{"proc":"s","seq":2,"event":"WriteAccept","key":"k","token":4,"grantor_term":2,"highest_before":3,"causes":[{"proc":"s","seq":1},{"proc":"env","seq":2},{"proc":"c2","seq":2}],"run":"P7-baseline-seed-2-306c2e5a371461ce","side":"impl"}
+{"proc":"s","seq":3,"event":"WriteAccept","key":"k","token":4,"grantor_term":2,"highest_before":4,"causes":[{"proc":"s","seq":2},{"proc":"env","seq":2},{"proc":"c2","seq":2}],"run":"P7-baseline-seed-2-306c2e5a371461ce","side":"impl"}
+{"proc":"c2","seq":3,"event":"WriteAck","client":"c2","key":"k","token":4,"outcome":"accepted","causes":[{"proc":"c2","seq":2},{"proc":"env","seq":2},{"proc":"s","seq":3}],"run":"P7-baseline-seed-2-306c2e5a371461ce","side":"impl"}
+{"proc":"c2","seq":4,"event":"WriteAck","client":"c2","key":"k","token":4,"outcome":"accepted","causes":[{"proc":"c2","seq":3},{"proc":"env","seq":2},{"proc":"s","seq":2}],"run":"P7-baseline-seed-2-306c2e5a371461ce","side":"impl"}

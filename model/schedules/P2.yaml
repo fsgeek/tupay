@@ -1,0 +1,21 @@
+schedule: P2
+derives: [C1.1, F1.2]
+processes:
+  lease: [n1, n2, n3]
+  clients: [c1, c2]
+  storage: [s]
+# derives: P2 (C1.1, F1.2). Old grantor and its holder cut off from the other lease nodes;
+# both sides see a requester; tokens must still increase across the two grantor incarnations.
+steps:
+  - at: start
+    do: {request: c1}
+  - at: {event: Grant, client: c1}
+    do: {cell: F1.2, partition: [[grantor, holder], [rest]]}
+  - at: start
+    do: {request: c1}
+  - at: start
+    do: {request: c2}
+  - at: {event: Grant, client: c2}
+    do: {cell: F1.2, heal: true}
+end: start
+bound: {events: 200}

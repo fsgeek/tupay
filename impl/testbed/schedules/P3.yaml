@@ -1,0 +1,23 @@
+# P3: independently authored implementation half
+# derives: C1.1, F1.3
+schedule: P3
+derives: ["C1.1", "F1.3"]
+processes:
+  lease: [n1, n2, n3]
+  clients: [c1, c2]
+  storage: [s]
+steps:
+  # derives: C1.1, F1.3
+  - at: start
+    do: {"request": "c1"}
+  # derives: C1.1, F1.3
+  - at: {"event": "Grant", "client": "c1"}
+    do: {"cell": "F1.3", "pause": "c1"}
+  # derives: C1.1, F1.3
+  - at: start
+    do: {"request": "c2"}
+  # derives: C1.1, F1.3
+  - at: {"event": "Grant", "client": "c2"}
+    do: {"cell": "F1.3", "resume": "c1"}
+end: {"event": "Grant", "client": "c2"}
+bound: {events: 200}

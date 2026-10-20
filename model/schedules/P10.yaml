@@ -1,0 +1,17 @@
+schedule: P10
+derives: [C1.4, F1.1]
+processes:
+  lease: [n1, n2, n3]
+  clients: [c1, c2]
+  storage: [s]
+# derives: P10 (C1.4, F1.1). The grantor (a minority of one) crashes; another requester
+# must still eventually get a grant.
+steps:
+  - at: start
+    do: {request: c1}
+  - at: {event: Grant, client: c1}
+    do: {cell: F1.1, crash: grantor}
+  - at: start
+    do: {request: c2}
+end: start
+bound: {events: 200}

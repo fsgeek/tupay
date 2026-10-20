@@ -1,0 +1,4 @@
+{"proc": "c1", "seq": 1, "event": "Request", "client": "c1", "key": "k", "causes": [], "run": "P11", "side": "model"}
+{"proc": "n1", "seq": 1, "event": "Grant", "client": "c1", "key": "k", "token": 1, "lifetime": 1, "grantor_term": 1, "causes": [{"proc": "c1", "seq": 1}], "run": "P11", "side": "model"}
+{"proc": "env", "seq": 1, "event": "Fault", "cell": "F1.2", "partition": [["n1"], ["c1", "c2", "n2", "n3", "s"]], "causes": [], "run": "P11", "side": "model"}
+{"proc": "env", "seq": 2, "event": "Fault", "cell": "F1.2", "heal": true, "causes": [], "run": "P11", "side": "model"}

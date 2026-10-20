@@ -1,0 +1,3 @@
+{"proc":"env","seq":1,"event":"Fault","causes":[],"run":"P11-P11-seed-3-5d14af6fa0deed3d","side":"impl","cell":"F1.2","partition":[["c1","n1"],["c2","n2","n3","s"]]}
+{"proc":"c2","seq":1,"event":"Request","client":"c2","key":"k","causes":[{"proc":"env","seq":1}],"run":"P11-P11-seed-3-5d14af6fa0deed3d","side":"impl"}
+{"proc":"env","seq":2,"event":"Fault","causes":[{"proc":"env","seq":1},{"proc":"c2","seq":1}],"run":"P11-P11-seed-3-5d14af6fa0deed3d","side":"impl","cell":"F1.2","heal":true}

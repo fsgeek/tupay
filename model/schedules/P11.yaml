@@ -1,0 +1,17 @@
+schedule: P11
+derives: [C1.4, F1.2]
+processes:
+  lease: [n1, n2, n3]
+  clients: [c1, c2]
+  storage: [s]
+# derives: P11 (C1.4, F1.2). The grantor is isolated while its grant reply may be in flight;
+# the requester is on the majority side and must eventually get a grant; the partition heals.
+steps:
+  - at: start
+    do: {request: c1}
+  - at: {event: Grant, client: c1}
+    do: {cell: F1.2, partition: [[grantor], [rest]]}
+  - at: start
+    do: {cell: F1.2, heal: true}
+end: start
+bound: {events: 200}

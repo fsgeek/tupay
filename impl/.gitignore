@@ -1,0 +1,5 @@
+# derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3
+/observe/*.jsonl
+/bin/
+/.cache/
+/observe/*.meta.json

@@ -1,0 +1,19 @@
+schedule: P7
+derives: [C1.3, F1.1]
+processes:
+  lease: [n1, n2, n3]
+  clients: [c1, c2]
+  storage: [s]
+steps:
+  # derives: P7 (C1.3, F1.1). Storage crashes between receipt and ack, then the client crashes after an accept; no client is told success for a write storage did not accept.
+  - {at: start, do: {request: c1}}
+  - {at: {event: Grant, client: c1}, do: {write: c1, value: v1}}
+  - {at: {event: WriteAttempt, client: c1}, do: {cell: F1.1, crash: s}}
+  - {at: start, do: {cell: F1.1, restart: s}}
+  - {at: start, do: {write: c1, value: v2}}
+  - {at: {event: WriteAccept}, do: {cell: F1.1, crash: c1}}
+  - {at: start, do: {cell: F1.1, restart: c1}}
+  - {at: start, do: {request: c2}}
+  - {at: {event: Grant, client: c2}, do: {write: c2, value: v3}}
+end: quiescent
+bound: {events: 200}

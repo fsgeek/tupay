@@ -1,0 +1,17 @@
+schedule: P6
+derives: [C1.2, F1.3]
+processes:
+  lease: [n1, n2, n3]
+  clients: [c1, c2]
+  storage: [s]
+steps:
+  # derives: P6 (C1.2, F1.3). Holder writes, is paused past lifetime; a newer holder writes; the resumed holder's write with its old token is rejected.
+  - {at: start, do: {request: c1}}
+  - {at: {event: Grant, client: c1}, do: {write: c1, value: v1}}
+  - {at: {event: WriteAck, client: c1, outcome: accepted}, do: {cell: F1.3, pause: c1}}
+  - {at: start, do: {request: c2}}
+  - {at: {event: Grant, client: c2}, do: {write: c2, value: v2}}
+  - {at: {event: WriteAck, client: c2, outcome: accepted}, do: {cell: F1.3, resume: c1}}
+  - {at: start, do: {write: c1, value: v3}}
+end: quiescent
+bound: {events: 200}

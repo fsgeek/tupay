@@ -1,8 +1,8 @@
-# Fault schedule format v1 (shared interface)
+# Fault schedule format v2 (shared interface)
 
-Fixed 2026-10-20 by the steward. A schedule is one YAML file. The same file compiles to TLC environment actions (model side) and to fault injection against the implementation (impl side). Each side writes its own compiler. This file is the only definition of the format.
+v2 fixed 2026-10-20 by the steward, after M1's cross-run. v1 is kept as `schedule-format-v1.md`; nothing in it is removed. v2 adds the rules that v1 left open and that the judge named (M1 result, D2 and D3). Every schedule compiler derives from this file; a compiler that implements v1 is stale under v2.
 
-## Shape
+## Shape (unchanged from v1)
 ```yaml
 schedule: <name>                 # unique; used as the run id
 derives: [F1.2, C1.2]            # cells and clauses this schedule exercises
@@ -13,40 +13,56 @@ processes:
 steps:                           # applied in order; each waits for its trigger
   - at: <trigger>
     do: <action>
-end: <trigger>                   # the run stops when this trigger fires, or at `bound`
+end: <trigger>                   # see "End of a run"
 bound: {events: 200}             # safety bound for both sides
 ```
 
 ## Triggers
-A trigger names an observable event from `contract/v1.md`, with optional field filters. `start` fires immediately. Examples:
+A trigger is `start` or an observable event from `contract/v1.md` with optional field filters:
 ```yaml
 at: start
 at: {event: Grant, client: c1}
 at: {event: WriteAck, client: c2, outcome: accepted}
 at: {event: WriteReject}
 ```
-On the model side a trigger is a predicate on the trace; the step's action becomes enabled once the predicate has held. On the impl side the injector watches the observe log and acts when the event appears. Both sides may take the action at any later point before the next step's trigger fires; neither side may act before.
 
-## Actions
-Workload (drives clients; derives from the contract, not a cell):
+**Rule T1, arming (new in v2; settles D2).** Step 1's trigger is armed at the start of the run. Step *i*'s trigger (*i* > 1) is armed at the moment step *i*−1's action is taken. A trigger matches only events emitted **after** it was armed. An event emitted before the trigger was armed never satisfies it, however well it matches. `start` fires the moment it is armed.
+
+**Rule T2, taking the action.** Once a step's trigger has fired, the action is taken at some later point. The model side explores every such point; the impl side samples one. The next step's trigger is not armed until the action is taken, so no two steps are ever pending at once.
+
+**Rule T3, waiting workload.** A workload action (`request`, `write`) whose client is crashed or paused waits until the client is running. A `request` by a client that already has a request outstanding waits until that request is answered. A `write` by a client that holds no token waits until it holds one, except `token: stale`, which waits until the client has a superseded token.
+
+## Actions (unchanged from v1 except as marked)
+Workload:
 ```yaml
-do: {request: c1}                       # c1 requests a grant for the key
-do: {write: c1, value: v1}              # c1 writes with whatever token it holds
-do: {write: c1, value: v2, token: stale}  # c1 writes with its most recent *expired or superseded* token
+do: {request: c1}
+do: {write: c1, value: v1}                # with the client's current token
+do: {write: c1, value: v2, token: stale}  # with the client's most recent token that is lower than the highest token granted so far
 ```
-Faults (one per cell):
+Faults, one per cell:
 ```yaml
 do: {cell: F1.1, crash: n2}
 do: {cell: F1.1, restart: n2}
-do: {cell: F1.2, partition: [[grantor, c1, s], [rest]]}   # two sides; `grantor` and `holder` resolve at trigger time; `rest` is everyone else
+do: {cell: F1.2, partition: [[grantor, c1, s], [rest]]}
 do: {cell: F1.2, heal: true}
 do: {cell: F1.3, pause: c1}
 do: {cell: F1.3, resume: c1}
 ```
-`pause` must last longer than the grant's lifetime: a `resume` step must be triggered by an event that can only happen after expiry (for example a later `Grant` to another client).
+A `pause` must outlast the grant's lifetime: the matching `resume` must be triggered by an event that can only happen after expiry (a later `Grant` to another client, or an ack of a write made under a later grant).
 
-## Rules
-- A schedule may not name an action the failure model does not contain. The compiler on each side rejects it.
-- `grantor` means the node that issued the most recent `Grant`; `holder` means the client that received it.
-- Nondeterminism left open by the schedule (message order within a side, timing between trigger and action) is explored by TLC and sampled by the impl. A pair passing on the model side and failing on the impl side, or the reverse, is a divergence, not a bug on either side.
-- Schedules live in `testbed/schedules/<name>.yaml`. The twelve pairs and the false-suspicion run each have one.
+**Rule A1, aliases (new in v2; settles D3).** `grantor`, `holder` and `rest` are process selectors and may appear **wherever a process name may appear**: as the target of `crash`, `restart`, `pause`, `resume`, `request` and `write`, and as members of a partition side. `grantor` is the node that issued the most recent `Grant` event; `holder` is the client that received it; `rest` is every process not named on the other side of the same partition. Aliases are resolved at the moment the step's trigger fires. A schedule that uses `grantor` or `holder` before any `Grant` can have occurred is rejected by the compiler.
+
+**Rule A2, crash and restart.** `restart` of a process that is not crashed, `crash` of a process already crashed, `pause` of a paused client, `resume` of a running client, and `pause` of a lease node or storage are all rejected by the compiler.
+
+## End of a run
+**Rule E1 (new in v2).** `end:` is either an event trigger, armed when the last step's action is taken and matched by Rule T1, or the word `quiescent`. `quiescent` means: every step has been applied and no request, write or ack is in flight and no client is waiting for a grant, with crashed and paused processes not counted. On the model side `quiescent` is a state predicate; on the impl side it is a bounded wait for in-flight work, after which an unanswered request is reported through the liveness checker, not as `end` unreachable. The shared schedules use `quiescent` unless the end must be a specific event.
+
+**Rule E2.** A clause violation witnessed before the end is a `FAIL` whether or not the end is reached. `UNEXPLAINED end unreachable` is reported only when no violation was witnessed.
+
+## Rules carried from v1
+- A schedule may not name an action the failure model does not contain; the compiler rejects it.
+- Nondeterminism the schedule leaves open (message order within a side, delay between trigger and action) is explored by TLC and sampled by the impl. A pass on one side and a failure on the other is a divergence, not a bug on either side.
+- **Schedules live in `testbed/schedules/<name>.yaml` and nowhere else.** Both runners resolve a name there. The authors' private schedule sets from M1 are kept under their own directories as history and are no longer run.
+
+## Changelog
+- v2 (2026-10-20): T1 arming, T2, T3, A1 aliases, A2, E1 `quiescent`, E2; schedules shared. Reasons: M1 result D2 and D3.

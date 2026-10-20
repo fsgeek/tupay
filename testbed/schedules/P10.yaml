@@ -1,0 +1,15 @@
+schedule: P10
+derives: [C1.4, F1.1]
+processes:
+  lease: [n1, n2, n3]
+  clients: [c1, c2]
+  storage: [s]
+steps:
+  # derives: P10 (C1.4, F1.1). A non-leader crashes before the first grant (the M1 cross-run case); then the grantor crashes after a grant; a requester still eventually gets a grant each time.
+  - {at: start, do: {cell: F1.1, crash: n1}}
+  - {at: start, do: {request: c1}}
+  - {at: {event: Grant, client: c1}, do: {cell: F1.1, restart: n1}}
+  - {at: start, do: {cell: F1.1, crash: grantor}}
+  - {at: start, do: {request: c2}}
+end: quiescent
+bound: {events: 200}

@@ -1,0 +1,17 @@
+schedule: P9
+derives: [C1.3, F1.3]
+processes:
+  lease: [n1, n2, n3]
+  clients: [c1, c2]
+  storage: [s]
+steps:
+  # derives: P9 (C1.3, F1.3). Client paused after its write is accepted; a newer holder writes; the late ack and the resumed client's stale write refer only to decisions storage made.
+  - {at: start, do: {request: c1}}
+  - {at: {event: Grant, client: c1}, do: {write: c1, value: v1}}
+  - {at: {event: WriteAccept}, do: {cell: F1.3, pause: c1}}
+  - {at: start, do: {request: c2}}
+  - {at: {event: Grant, client: c2}, do: {write: c2, value: v2}}
+  - {at: {event: WriteAck, client: c2, outcome: accepted}, do: {cell: F1.3, resume: c1}}
+  - {at: start, do: {write: c1, value: v3, token: stale}}
+end: quiescent
+bound: {events: 200}

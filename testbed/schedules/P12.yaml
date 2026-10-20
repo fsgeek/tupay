@@ -1,0 +1,14 @@
+schedule: P12
+derives: [C1.4, F1.3]
+processes:
+  lease: [n1, n2, n3]
+  clients: [c1, c2]
+  storage: [s]
+steps:
+  # derives: P12 (C1.4, F1.3). Holder paused past lifetime; another requester eventually gets a grant; the paused holder resumes afterwards.
+  - {at: start, do: {request: c1}}
+  - {at: {event: Grant, client: c1}, do: {cell: F1.3, pause: holder}}
+  - {at: start, do: {request: c2}}
+  - {at: {event: Grant, client: c2}, do: {cell: F1.3, resume: c1}}
+end: quiescent
+bound: {events: 200}

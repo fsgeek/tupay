@@ -1,0 +1,15 @@
+schedule: P11
+derives: [C1.4, F1.2]
+processes:
+  lease: [n1, n2, n3]
+  clients: [c1, c2]
+  storage: [s]
+steps:
+  # derives: P11 (C1.4, F1.2). Grantor isolated alone; a requester on the majority side gets a grant; after the heal a requester on the old grantor's side gets one too.
+  - {at: start, do: {request: c1}}
+  - {at: {event: Grant, client: c1}, do: {cell: F1.2, partition: [[grantor, holder], [rest]]}}
+  - {at: start, do: {request: c2}}
+  - {at: {event: Grant, client: c2}, do: {request: c1}}
+  - {at: {event: Request, client: c1}, do: {cell: F1.2, heal: true}}
+end: quiescent
+bound: {events: 200}

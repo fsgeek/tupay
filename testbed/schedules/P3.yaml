@@ -1,0 +1,15 @@
+schedule: P3
+derives: [C1.1, F1.3]
+processes:
+  lease: [n1, n2, n3]
+  clients: [c1, c2]
+  storage: [s]
+steps:
+  # derives: P3 (C1.1, F1.3). Holder paused past lifetime; the next grant's token exceeds the paused holder's.
+  - {at: start, do: {request: c1}}
+  - {at: {event: Grant, client: c1}, do: {cell: F1.3, pause: holder}}
+  - {at: start, do: {request: c2}}
+  - {at: {event: Grant, client: c2}, do: {cell: F1.3, resume: c1}}
+  - {at: start, do: {request: c1}}
+end: quiescent
+bound: {events: 200}

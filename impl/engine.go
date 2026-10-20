@@ -76,7 +76,7 @@ type ProgressWitness struct {
 }
 
 // RunEvidence contains operational horizon certificates, never event ordering.
-// derives: C1.4, F1.1, F1.2, F1.3
+// derives: C1.4, F1.1, F1.2, F1.3, E1, E2
 type RunEvidence struct {
 	Derives     []string          `json:"derives"`
 	Operational string            `json:"operational_error,omitempty"`
@@ -86,7 +86,7 @@ type RunEvidence struct {
 }
 
 // Engine serializes workload actions while Raft runs its existing goroutines.
-// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3
+// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, A1, T1, T2, T3, E1
 type Engine struct {
 	schedule                                        Schedule
 	out                                             *Emitter
@@ -95,6 +95,7 @@ type Engine struct {
 	network                                         *RaftNetwork
 	clients                                         map[string]*Client
 	sides                                           map[string]int
+	rest                                            []string
 	storage                                         string
 	storageUp                                       bool
 	ledger                                          uint64
@@ -365,7 +366,7 @@ func (e *Engine) finishAllocation(v completedAllocation) {
 }
 
 // write selects the client's actual grant and queues delivery to storage.
-// derives: C1.2, C1.3, F1.1, F1.2, F1.3
+// derives: C1.2, C1.3, F1.1, F1.2, F1.3, T3
 func (e *Engine) write(id, value, selection string) error {
 	c := e.clients[id]
 	if !c.up || c.paused || len(c.grants) == 0 {
@@ -376,14 +377,14 @@ func (e *Engine) write(id, value, selection string) error {
 		found := false
 		for i := len(c.grants) - 1; i >= 0; i-- {
 			candidate := c.grants[i]
-			if time.Now().After(candidate.expires) || candidate.ref != e.lastGrant {
+			if candidate.token < e.highestGranted() {
 				g = candidate
 				found = true
 				break
 			}
 		}
 		if !found {
-			return fmt.Errorf("stale token requested before expiry/supersession")
+			return fmt.Errorf("T3: no numerically superseded token")
 		}
 	}
 	ref := e.out.emit(Event{Proc: id, Event: "WriteAttempt", Client: id, Key: "k", Token: g.token, Term: g.term, Value: value}, g.ref)
@@ -410,16 +411,25 @@ func (e *Engine) ghostAck(m WireMessage) {
 	if !c.up || c.paused || c.generation != m.generation {
 		return
 	}
-	// mutation: P7 manufacture success for an undelivered write while storage is crashed.
 	// mutation: P8 manufacture success for an undelivered write across a partition.
-	if e.mutation == "P7" && e.crashSeen || e.mutation == "P8" && e.partitionSeen {
+	if e.mutation == "P8" && e.partitionSeen {
 		e.out.emit(Event{Proc: m.client, Event: "WriteAck", Client: m.client, Key: "k", Token: m.grant.token, Outcome: "accepted"}, m.attempt)
 	}
 }
 
 // storageDecision compares against the retained ledger atomically.
-// derives: C1.2, C1.3, F1.1, F1.2, F1.3
+// derives: C1.2, C1.3, F1.1, F1.2, F1.3, T1, E2
 func (e *Engine) storageDecision(m WireMessage) {
+	// mutation: P7 after storage restart, bypass acceptance and fabricate its success reply.
+	// derives: C1.3, F1.1, T1, E2
+	if e.mutation == "P7" && e.crashSeen {
+		m.kind = "ack"
+		m.decision = m.attempt
+		m.outcome = "accepted"
+		m.due = time.Now().Add(e.jitter())
+		e.wire = append(e.wire, m)
+		return
+	}
 	before := e.ledger
 	accept := m.grant.token >= before
 	// mutation: P5 bypass the fencing comparison in the partition path.
@@ -482,7 +492,7 @@ func (e *Engine) deliver(now time.Time) {
 }
 
 // expandPartition resolves aliases at the trigger, not when the YAML is parsed.
-// derives: F1.2, C1.1, C1.2, C1.4
+// derives: F1.2, C1.1, C1.2, C1.4, A1
 func (e *Engine) expandPartition(input [][]string) ([][]string, error) {
 	output := [][]string{{}, {}}
 	used := map[string]bool{}
@@ -657,75 +667,5 @@ func (e *Engine) witnesses() []ProgressWitness {
 			result = append(result, ProgressWitness{r.ref, e.out.fault, progressHorizon.Milliseconds()})
 		}
 	}
-	return result
-}
-
-// drive gives each step a finite progress opportunity and drains sent replies.
-// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3
-func (e *Engine) drive() RunEvidence {
-	result := RunEvidence{Derives: []string{"C1.4", "F1.1", "F1.2", "F1.3"}}
-	wait := func(trigger Trigger) (Ref, bool) {
-		deadline := time.Now().Add(progressHorizon + 2*time.Second)
-		for {
-			if ref, ok := triggerRef(trigger, e.out.events); ok {
-				return ref, true
-			}
-			if len(e.out.events) >= e.schedule.Bound.Events {
-				result.Reason = "event bound reached"
-				return Ref{}, false
-			}
-			e.pump()
-			if err := e.network.issue(); err != nil {
-				result.Reason = err.Error()
-				result.Operational = err.Error()
-				return Ref{}, false
-			}
-			if e.out.err != nil {
-				result.Reason = e.out.err.Error()
-				return Ref{}, false
-			}
-			if len(e.witnesses()) > 0 {
-				result.Reason = "progress horizon exhausted"
-				return Ref{}, false
-			}
-			if time.Now().After(deadline) {
-				result.Reason = "trigger not witnessed within operational horizon"
-				return Ref{}, false
-			}
-			time.Sleep(time.Millisecond)
-		}
-	}
-	for _, step := range e.schedule.Steps {
-		ref, ok := wait(step.At)
-		if !ok {
-			result.Witnesses = e.witnesses()
-			return result
-		}
-		if len(e.out.events) >= e.schedule.Bound.Events {
-			result.Reason = "event bound reached"
-			return result
-		}
-		if err := e.act(step.Do, ref); err != nil {
-			result.Reason = err.Error()
-			return result
-		}
-	}
-	if _, ok := wait(e.schedule.End); !ok {
-		result.Witnesses = e.witnesses()
-		return result
-	}
-	// Allow queued acknowledgements (including deliberate ghost replies) to be observed.
-	deadline := time.Now().Add(50 * time.Millisecond)
-	for time.Now().Before(deadline) && len(e.out.events) < e.schedule.Bound.Events {
-		e.pump()
-		time.Sleep(time.Millisecond)
-	}
-	result.Completed = true
-	if err := e.network.issue(); err != nil {
-		result.Completed = false
-		result.Reason = err.Error()
-		result.Operational = err.Error()
-	}
-	result.Witnesses = e.witnesses()
 	return result
 }

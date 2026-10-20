@@ -1,4 +1,4 @@
-// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3
+// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, T1, T2, T3, A1, A2, E1
 package main
 
 import (
@@ -11,17 +11,22 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-// Trigger is a monotone predicate over previously emitted events.
-// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3
+// Trigger describes a freshly armed event predicate or terminal quiescence.
+// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, T1, T2, T3, A1, A2, E1
 type Trigger struct {
-	Start   bool
-	Filters map[string]string
+	Start     bool
+	Quiescent bool
+	Filters   map[string]string
 }
 
 // UnmarshalYAML rejects unknown or non-observable trigger fields.
-// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3
+// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, T1, T2, T3, A1, A2, E1
 func (t *Trigger) UnmarshalYAML(n *yaml.Node) error {
 	if n.Kind == yaml.ScalarNode {
+		if n.Value == "quiescent" {
+			t.Quiescent = true
+			return nil
+		}
 		if n.Value != "start" {
 			return fmt.Errorf("unknown trigger %q", n.Value)
 		}
@@ -60,7 +65,7 @@ func observable(s string) bool {
 }
 
 // Action is the complete, closed action language; there is no arbitrary sleep.
-// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3
+// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, T1, T2, T3, A1, A2, E1
 type Action struct {
 	Request   string     `yaml:"request,omitempty"`
 	Write     string     `yaml:"write,omitempty"`
@@ -76,14 +81,14 @@ type Action struct {
 }
 
 // Step waits for its trigger and then applies exactly one action.
-// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3
+// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, T1, T2, T3, A1, A2, E1
 type Step struct {
 	At Trigger `yaml:"at"`
 	Do Action  `yaml:"do"`
 }
 
 // Schedule is the shared YAML interface interpreted independently here.
-// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3
+// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, T1, T2, T3, A1, A2, E1
 type Schedule struct {
 	Name      string   `yaml:"schedule"`
 	Derives   []string `yaml:"derives"`
@@ -99,29 +104,28 @@ type Schedule struct {
 	} `yaml:"bound"`
 }
 
-// loadSchedule reads only this author's own directory, never shared artifacts.
-// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3
+// loadSchedule resolves only the repository-root shared schedule directory.
+// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, T1, T2, T3, A1, A2, E1
 func loadSchedule(name string) (Schedule, error) {
 	var s Schedule
-	path := name
-	if !strings.HasSuffix(path, ".yaml") {
-		path = filepath.Join("testbed", "schedules", path+".yaml")
+	base := strings.TrimSuffix(name, ".yaml")
+	if base == "" || filepath.Base(base) != base || strings.ContainsAny(base, "/\\") {
+		return s, fmt.Errorf("schedule must be a shared basename")
 	}
-	root, err := filepath.Abs(".")
+	root, err := filepath.Abs(filepath.Join("..", "testbed", "schedules"))
 	if err != nil {
 		return s, err
 	}
-	abs, err := filepath.EvalSymlinks(path)
+	canonicalRoot, err := filepath.EvalSymlinks(root)
 	if err != nil {
 		return s, err
 	}
-	abs, err = filepath.Abs(abs)
+	abs, err := filepath.EvalSymlinks(filepath.Join(root, base+".yaml"))
 	if err != nil {
 		return s, err
 	}
-	rel, err := filepath.Rel(root, abs)
-	if err != nil || rel == ".." || strings.HasPrefix(rel, ".."+string(os.PathSeparator)) {
-		return s, fmt.Errorf("schedule outside impl/ is forbidden")
+	if filepath.Dir(abs) != canonicalRoot {
+		return s, fmt.Errorf("schedule escapes shared directory")
 	}
 	f, err := os.Open(abs)
 	if err != nil {
@@ -155,7 +159,7 @@ func loadSchedule(name string) (Schedule, error) {
 			ids[id] = group.role
 		}
 	}
-	known := map[string]bool{"C1.1": true, "C1.2": true, "C1.3": true, "C1.4": true, "F1.1": true, "F1.2": true, "F1.3": true}
+	known := map[string]bool{"C1.1": true, "C1.2": true, "C1.3": true, "C1.4": true, "F1.1": true, "F1.2": true, "F1.3": true, "T1": true, "T2": true, "T3": true, "A1": true, "A2": true, "E1": true, "E2": true}
 	if len(s.Derives) == 0 {
 		return s, fmt.Errorf("missing derivations")
 	}
@@ -165,21 +169,27 @@ func loadSchedule(name string) (Schedule, error) {
 		}
 	}
 	for _, step := range s.Steps {
-		if !step.At.Start && len(step.At.Filters) == 0 {
+		if step.At.Quiescent || !step.At.Start && len(step.At.Filters) == 0 {
 			return s, fmt.Errorf("missing trigger")
 		}
 		if err := validateAction(step.Do, ids); err != nil {
 			return s, err
 		}
 	}
-	if !s.End.Start && len(s.End.Filters) == 0 {
+	if s.End.Start || !s.End.Quiescent && len(s.End.Filters) == 0 {
 		return s, fmt.Errorf("missing end trigger")
+	}
+	if s.Name != base {
+		return s, fmt.Errorf("schedule name differs from shared basename")
+	}
+	if err := validateSequence(s, ids); err != nil {
+		return s, err
 	}
 	return s, nil
 }
 
 // validateAction rejects out-of-model faults and malformed workload actions.
-// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3
+// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, T1, T2, T3, A1, A2, E1
 func validateAction(a Action, ids map[string]string) error {
 	count := 0
 	for _, v := range []bool{a.Request != "", a.Write != "", a.Crash != "", a.Restart != "", a.Partition != nil, a.Heal, a.Pause != "", a.Resume != ""} {
@@ -195,7 +205,7 @@ func validateAction(a Action, ids map[string]string) error {
 		if a.Write != "" {
 			id = a.Write
 		}
-		if ids[id] != "client" || a.Cell != "" || a.Request != "" && (a.Token != "" || a.Value != "") || a.Token != "" && a.Token != "stale" {
+		if selectorRole(id, ids) != "client" && selectorRole(id, ids) != "selector" || a.Cell != "" || a.Request != "" && (a.Token != "" || a.Value != "") || a.Token != "" && a.Token != "stale" {
 			return fmt.Errorf("invalid workload action")
 		}
 		return nil
@@ -208,7 +218,7 @@ func validateAction(a Action, ids map[string]string) error {
 		if id == "" {
 			id = a.Restart
 		}
-		if ids[id] == "" || a.Cell != "F1.1" {
+		if selectorRole(id, ids) == "" || a.Cell != "F1.1" {
 			return fmt.Errorf("invalid crash/restart")
 		}
 		return nil
@@ -235,19 +245,19 @@ func validateAction(a Action, ids map[string]string) error {
 	if id == "" {
 		id = a.Resume
 	}
-	if a.Cell != "F1.3" || ids[id] != "client" {
+	if a.Cell != "F1.3" || selectorRole(id, ids) != "client" && selectorRole(id, ids) != "selector" {
 		return fmt.Errorf("invalid pause/resume")
 	}
 	return nil
 }
 
-// triggerRef returns the first historical event satisfying all filters.
-// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3
-func triggerRef(t Trigger, events []Event) (Ref, bool) {
+// triggerRef matches only events emitted after the trigger was armed.
+// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, T1, T2, T3, A1, A2, E1
+func triggerRef(t Trigger, events []Event, armed int) (Ref, bool) {
 	if t.Start {
 		return Ref{}, true
 	}
-	for _, e := range events {
+	for _, e := range events[armed:] {
 		fields := map[string]string{"event": e.Event, "client": e.Client, "key": e.Key, "token": fmt.Sprint(e.Token), "lifetime": fmt.Sprint(e.Lifetime), "grantor_term": fmt.Sprint(e.Term), "value": e.Value, "outcome": e.Outcome, "proc": e.Proc}
 		if e.HighestBefore != nil {
 			fields["highest_before"] = fmt.Sprint(*e.HighestBefore)

@@ -172,3 +172,13 @@ means token strictly below the maximum granted, not merely expired; quiescence
 ignores paused/crashed clients but waits for active messages/requests; eligible
 unanswered work fails C1.4 and witnessed safety failure survives an unreachable
 end. These tests are expected to pass after adaptation.
+
+### V2 additive outcome note: first fixture execution
+
+<!-- derives: C1.1, F1.2, A1 -->
+Outcome-informed: the first v2 fixture suite failed TestV2A1_FrozenSelectors with
+an empty partition member. The hand-built Engine fixture omitted storage="s";
+production newEngine initializes that field. The partition complement correctly
+exposed the omission. Correcting the fixture's storage identity is expected to
+make that test pass. No baseline or mutation schedule has run yet. Original
+schedule/mutation predictions and compiler semantics are unchanged.

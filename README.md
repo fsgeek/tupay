@@ -6,6 +6,8 @@
 
 **The question.** When the contract or the failure model changes, does the workflow adapt its artifacts, or is it better to regenerate them? Regenerating is restart (the coarsest fence); adapting is recovery. The yardstick, inherited from the cloudflare project: *adaptation must match regeneration on correctness and beat it on cost.*
 
+**Status (2026-10-20):** pre-M1. Inputs are defined (contract v1, failure model v1); no artifacts yet. The repo is private until M1, then public before the first change-experiment pre-registration (`docs/seed-log.md`).
+
 Start with `docs/seed.md`. `docs/seed-log.md` is the append-only record of how the idea evolved.
 
 Layout (planned): `contract/` and `failure-model/` (the inputs, versioned), `model/` (TLA+), `impl/` (Go), `tests/` (paired), `testbed/`, `observe/`, `experiments/` (pre-registrations and results), `docs/`, `timestamps/` (OpenTimestamps proofs, one per commit; run `scripts/install-hooks.sh` once per clone).

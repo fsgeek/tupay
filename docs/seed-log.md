@@ -8,3 +8,6 @@ Corrections to the setup:
 - `.gitignore` was added: `.venv`, `tmp/`.
 - The placeholder description in `pyproject.toml` was replaced.
 Name chosen jointly: *tupay*, "to meet, to fit together" (gloss unverified). The first choice, *tinkuy*, is already taken by another of Tony's projects.
+
+## Visibility (2026-10-20, steward's recommendation to Tony)
+Private until M1; public **before** the X1 pre-registration. OTS stamps preserve priority while the repo is private. Public pre-registration is what makes the change experiments' predictions checkable by others. The full paper will need an anonymized mirror for double-blind review. At publication, add to the README: how it is built (AI instances from different families, with Tony in the loop), how to verify stamps, a license (Tony's call), and the verified gloss.

@@ -1,6 +1,6 @@
 # tupay
 
-*Tupay* (Quechua): to meet, to fit together. The gloss is the steward's, unverified; check before using it publicly.
+*Tupay* (Quechua): to meet, to run into; in some dictionaries also to collide or clash. Verified against several dictionaries on 2026-10-20 (see `docs/seed-log.md`).
 
 **What it is.** An end-to-end test of a software-engineering workflow. Start from two inputs, a **service contract** and a **failure model**. Derive paired artifacts from them: a formal model, an implementation, paired tests, a fault-injection testbed, and an observability layer. Use divergence between the model and the implementation as the analytic signal. The system built here is deliberately small (a 3-node lease service with fencing tokens). The subject is the workflow, not the system.
 

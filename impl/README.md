@@ -250,3 +250,17 @@ an explicit writable root. This is the current blocker under Blocked above,
 refined by direct mount evidence. No source build, test, schedule or mutation has
 run; the original preregistration file and predictions remain unchanged. No
 outcome has informed this entry. The branch remains impl-v1.
+
+## Execution resumed; initial observations
+
+<!-- derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3 -->
+The steward removed the filesystem sandbox; ordinary Git operations now work.
+Preregistration commit: `37283d5`; its hook stamp commit: `61050e7`.
+The previous Blocked entries are historical. The first build succeeded, and the
+false-suspicion observation passed seeds 1–3. In the initial pair matrix P1–P9,
+P11 and P12 passed all three seeds; P10 failed C1.4 on all three. Predictions
+were not rewritten. A clearly outcome-informed amendment records the setup
+hypothesis and a new startup-voter regression before that test is executed.
+The P10 trace contains only the n1 crash and c1 request, with a qualifying finite
+progress certificate. Diagnosis remains unexplained pending direct configuration
+evidence; no model artifact or model comparison is involved.

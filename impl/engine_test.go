@@ -1,0 +1,47 @@
+// derives: C1.4, F1.1
+package main
+
+import (
+	"path/filepath"
+	"testing"
+
+	"github.com/hashicorp/raft"
+)
+
+// TestC14_F11_StartupVotersBeforeFaults probes the setup boundary before start faults.
+// derives: C1.4, F1.1
+func TestC14_F11_StartupVotersBeforeFaults(t *testing.T) {
+	s := fixtureSchedule()
+	s.Name = "bootstrap-regression"
+	out, err := newEmitter(filepath.Join(t.TempDir(), "bootstrap.jsonl"), s.Name)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer out.close()
+	e, err := newEngine(s, out, 1, "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer e.close()
+	for _, id := range s.Processes.Lease {
+		configuration := e.nodes[id].peer.GetConfiguration()
+		if err := configuration.Error(); err != nil {
+			t.Fatalf("%s: %v", id, err)
+		}
+		voters := map[string]bool{}
+		for _, server := range configuration.Configuration().Servers {
+			if server.Suffrage == raft.Voter {
+				voters[string(server.ID)] = true
+			}
+		}
+		if len(voters) != 3 {
+			t.Errorf("%s exposes start before fixed cluster is ready: voters=%v", id, voters)
+			continue
+		}
+		for _, want := range s.Processes.Lease {
+			if !voters[want] {
+				t.Errorf("%s missing voter %s before start", id, want)
+			}
+		}
+	}
+}

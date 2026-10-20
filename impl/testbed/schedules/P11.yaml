@@ -1,0 +1,20 @@
+# P11: independently authored implementation half
+# derives: C1.4, F1.2
+schedule: P11
+derives: ["C1.4", "F1.2"]
+processes:
+  lease: [n1, n2, n3]
+  clients: [c1, c2]
+  storage: [s]
+steps:
+  # derives: C1.4, F1.2
+  - at: start
+    do: {"cell": "F1.2", "partition": [["n1", "c1"], ["rest"]]}
+  # derives: C1.4, F1.2
+  - at: start
+    do: {"request": "c2"}
+  # derives: C1.4, F1.2
+  - at: {event: Request, client: c2}
+    do: {"cell": "F1.2", "heal": true}
+end: {"event": "Grant", "client": "c2"}
+bound: {events: 200}

@@ -1,0 +1,32 @@
+# P5: independently authored implementation half
+# derives: C1.2, F1.2
+schedule: P5
+derives: ["C1.2", "F1.2"]
+processes:
+  lease: [n1, n2, n3]
+  clients: [c1, c2]
+  storage: [s]
+steps:
+  # derives: C1.2, F1.2
+  - at: start
+    do: {"request": "c1"}
+  # derives: C1.2, F1.2
+  - at: {"event": "Grant", "client": "c1"}
+    do: {"cell": "F1.2", "partition": [["c1", "s"], ["rest"]]}
+  # derives: C1.2, F1.2
+  - at: start
+    do: {"request": "c2"}
+  # derives: C1.2, F1.2
+  - at: {"event": "Grant", "client": "c2"}
+    do: {"cell": "F1.2", "heal": true}
+  # derives: C1.2, F1.2
+  - at: start
+    do: {"write": "c2", "value": "new"}
+  # derives: C1.2, F1.2
+  - at: {"event": "WriteAck", "client": "c2", "outcome": "accepted"}
+    do: {"cell": "F1.2", "partition": [["c1", "s"], ["rest"]]}
+  # derives: C1.2, F1.2
+  - at: start
+    do: {"write": "c1", "value": "stale-in-cut", "token": "stale"}
+end: {"event": "WriteAck", "client": "c1", "outcome": "rejected"}
+bound: {events: 200}

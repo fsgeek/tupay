@@ -75,3 +75,21 @@ fixtures reject sends across a cut permanently, reject an in-flight reply after
 cut/heal or node replacement, and retain replies inside the connected majority.
 The implementation uses a gated adapter for existing Raft RPCs, with pipelining
 disabled, to enforce these properties without inventing a consensus protocol.
+
+## Outcome-informed additive amendment: bootstrap investigation
+
+<!-- derives: C1.4, F1.1 -->
+The first baseline matrix produced FAIL C1.4 for P10 seeds 1, 2 and 3; all
+other pairs and false suspicion passed their three seeds. These outcomes informed
+this amendment. The original predictions and scoring remain unchanged.
+
+Hypothesis to discriminate: the runner starts P10 before the fixed three-voter
+configuration has replicated beyond n1. The schedule's immediate n1 crash then
+leaves n2/n3 without any voting configuration, rather than an established grantor
+with a surviving majority. The initial source bootstraps n1 and returns without
+waiting for replication. Add TestC14_F11_StartupVotersBeforeFaults: predict it
+fails on the initial implementation because at least n2/n3 lack all three voters.
+After a setup barrier waits for the exact three-voter configuration at every
+node, predict this regression and P10 seeds 1–3 pass. Do not change P10 or any
+mutation, clause, threshold, or original expected result. This is a source/setup
+hypothesis, not attribution based on agreement with another artifact.

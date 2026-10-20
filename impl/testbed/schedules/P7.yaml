@@ -1,0 +1,32 @@
+# P7: independently authored implementation half
+# derives: C1.3, F1.1
+schedule: P7
+derives: ["C1.3", "F1.1"]
+processes:
+  lease: [n1, n2, n3]
+  clients: [c1, c2]
+  storage: [s]
+steps:
+  # derives: C1.3, F1.1
+  - at: start
+    do: {"request": "c1"}
+  # derives: C1.3, F1.1
+  - at: {"event": "Grant", "client": "c1"}
+    do: {"write": "c1", "value": "accepted-before-crash"}
+  # derives: C1.3, F1.1
+  - at: {"event": "WriteAccept"}
+    do: {"cell": "F1.1", "crash": "s"}
+  # derives: C1.3, F1.1
+  - at: start
+    do: {"write": "c1", "value": "never-reached-crashed-storage"}
+  # derives: C1.3, F1.1
+  - at: start
+    do: {"request": "c2"}
+  # derives: C1.3, F1.1
+  - at: {"event": "Grant", "client": "c2"}
+    do: {"cell": "F1.1", "restart": "s"}
+  # derives: C1.3, F1.1
+  - at: start
+    do: {"write": "c2", "value": "recovery"}
+end: {"event": "WriteAck", "client": "c2", "outcome": "accepted"}
+bound: {events: 200}

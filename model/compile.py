@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-# derives: F1.1, F1.2, F1.3 (schedule compiler: testbed/schedule-format.md -> TLC configuration)
-"""Compile a fault schedule (testbed/schedule-format.md v1) into a TLC model.
+# derives: F1.1, F1.2, F1.3; format v2 T1, T2, T3, A1, A2, E1, E2 (schedule compiler)
+"""Compile a fault schedule (testbed/schedule-format.md v2) into a TLC model.
 
 Usage: compile.py <schedule.yaml> <outdir> [--lease <Lease.tla>]
 
@@ -86,9 +86,9 @@ def trigger(t, procs):
     return out
 
 
-def proc_name(x, procs, allowed):
-    # derives: F1.1, F1.2, F1.3
-    if x in ALIASES - {"rest"} or x in allowed:
+def proc_name(x, procs, allowed, aliases=("grantor", "holder")):
+    # derives: F1.1, F1.2, F1.3; format v2 A1 -- a process name, or an alias where one may stand
+    if x in aliases or x in allowed:
         return x
     raise ScheduleError(f"unknown or ill-typed process {x!r}")
 
@@ -113,9 +113,9 @@ def action(d, procs):
         if verb in ("crash", "restart"):
             return {"kind": verb, "p": proc_name(arg, procs, allp)}
         if verb in ("pause", "resume"):
-            if arg == "grantor":
-                raise ScheduleError("only clients can be paused (F1.3 is a holder pause)")
-            return {"kind": verb, "p": proc_name(arg, procs, clients)}
+            if arg == "grantor" or arg in set(procs["lease"]) | set(procs["storage"]):
+                raise ScheduleError("A2: only clients can be paused or resumed")
+            return {"kind": verb, "p": proc_name(arg, procs, clients, ("holder",))}
         if verb == "heal":
             if arg is not True:
                 raise ScheduleError("heal must be `heal: true`")
@@ -143,16 +143,70 @@ def action(d, procs):
     if "request" in d:
         if set(d) != {"request"}:
             raise ScheduleError(f"bad request {d!r}")
-        return {"kind": "request", "p": proc_name(d["request"], procs, clients)}
+        return {"kind": "request", "p": proc_name(d["request"], procs, clients, ("holder",))}
     if "write" in d:
         if "value" not in d:
             raise ScheduleError("write needs a value")
         tokspec = d.get("token")
         if tokspec not in (None, "stale"):
             raise ScheduleError(f"write token must be omitted or `stale`, got {tokspec!r}")
-        return {"kind": "write", "p": proc_name(d["write"], procs, clients),
+        return {"kind": "write", "p": proc_name(d["write"], procs, clients, ("holder",)),
                 "v": str(d["value"]), "stale": tokspec == "stale"}
     raise ScheduleError(f"unknown action {d!r}")
+
+
+def static_checks(steps, procs):
+    # derives: F1.1, F1.3; format v2 A1, A2 -- reject what can be decided without running:
+    # an alias used before any Grant can have occurred (no earlier request step), and
+    # crash/restart/pause/resume of a process in the wrong state. An alias target is
+    # tracked as "maybe" for every process it could denote; the model's own guards make
+    # a step that is illegal at run time wait rather than act.
+    lease, clients = set(procs["lease"]), set(procs["clients"])
+    allp = lease | clients | set(procs["storage"])
+    down, maybe_down = set(), set()          # crashed for sure / possibly crashed
+    paused, maybe_paused = set(), set()
+    requested = False
+    for i, (a, _) in enumerate(steps, 1):
+        names = {a.get("p")} | set(a.get("a", ())) | set(a.get("b", ()))
+        if names & {"grantor", "holder"} and not requested:
+            raise ScheduleError(f"A1: step {i} uses grantor/holder before any Grant can have occurred")
+        k, p = a["kind"], a.get("p")
+        if k == "request":
+            requested = True
+        if k in ("crash", "restart"):
+            cands = lease if p == "grantor" else clients if p == "holder" else {p}
+            if k == "crash":
+                if len(cands) == 1 and cands <= down:
+                    raise ScheduleError(f"A2: step {i} crashes {p}, already crashed")
+                if len(cands) == 1:
+                    down |= cands
+                    if p in clients:
+                        paused.discard(p)
+                        maybe_paused.discard(p)
+                else:
+                    maybe_down |= cands
+            else:
+                if not (cands & (down | maybe_down)):
+                    raise ScheduleError(f"A2: step {i} restarts {p}, which is not crashed")
+                if len(cands) == 1:
+                    down -= cands
+                    maybe_down -= cands
+        if k in ("pause", "resume"):
+            cands = clients if p == "holder" else {p}
+            if k == "pause":
+                if len(cands) == 1 and cands <= paused:
+                    raise ScheduleError(f"A2: step {i} pauses {p}, already paused")
+                if len(cands) == 1:
+                    paused |= cands
+                else:
+                    maybe_paused |= cands
+            else:
+                if not (cands & (paused | maybe_paused)):
+                    raise ScheduleError(f"A2: step {i} resumes {p}, which is running")
+                if len(cands) == 1:
+                    paused -= cands
+                    maybe_paused -= cands
+    return True
 
 
 def tla_step(st, trig):
@@ -178,7 +232,9 @@ def compile_schedule(path, outdir, lease):
         if set(s) != {"at", "do"}:
             raise ScheduleError(f"step {i}: needs exactly `at` and `do`")
         steps.append((action(s["do"], procs), trigger(s["at"], procs)))
-    end = trigger(doc["end"], procs)
+    # derives: format v2 E1 -- `quiescent` or an event trigger
+    end = {"event": "quiescent"} if doc["end"] == "quiescent" else trigger(doc["end"], procs)
+    static_checks(steps, procs)
     bound = int((doc.get("bound") or {}).get("events", 200))
     nfault = sum(1 for a, _ in steps if a["kind"] in ("crash", "partition", "restart", "heal"))
     max_term = 2 + 2 * nfault          # elections happen only when no reachable leader exists

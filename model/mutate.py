@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# derives: P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12 (mutation half of every pair)
+# derives: P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12 (mutation half of every pair); round 2: P11 re-placed, P8 keeps Join
 """Generate the twelve mutated models, model/mutations/<P>/Lease.tla.
 
 Each mutation is a copy of model/Lease.tla with one deliberate break on the path
@@ -98,7 +98,9 @@ StorageDecide(m, dup) ==
 """)]),
     ("P8", "C1.3, F1.2", "C1_3",
      "a client cut off from storage presumes its outstanding write succeeded",
-     [("def", "Protocol", r"""\* derives: C1.3, F1.2
+     [("str", r"""\* derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3
+Protocol ==
+""", r"""\* derives: C1.3, F1.2
 \* mutation: P8 a client that cannot reach storage treats its outstanding write as acked
 PresumeAck(c) ==
     /\ up[c] /\ ~paused[c]
@@ -114,14 +116,9 @@ PresumeAck(c) ==
 
 \* derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3
 Protocol ==
-    \/ \E n \in Nodes : Elect(n) \/ StepDown(n)
-    \/ \E n \in Nodes, c \in Clients : Grant(n, c)
-    \/ \E m \in grantMsgs : RecvGrant(m)
-    \/ \E m \in writeMsgs, d \in BOOLEAN : StorageDecide(m, d)
-    \/ \E a \in toAck : SendAck(a)
-    \/ \E a \in ackMsgs : RecvAck(a)
     \/ \E c \in Clients : PresumeAck(c) \* mutation: P8
-""")]),
+"""),
+      ]),
     ("P9", "C1.3, F1.3", "C1_3",
      "a client records any ack carrying its current token as success, ignoring the outcome",
      [("str", r"""            /\ told' = IF a.outcome = "accept" THEN""",
@@ -136,10 +133,12 @@ Protocol ==
        r"""        /\ Q = Nodes \* mutation: P10 unanimity instead of a majority
         /\ LET t == 1 + Max""")]),
     ("P11", "C1.4, F1.2", "C1_4",
-     "a grant consumes the request when issued, so a reply lost in a partition is never reissued",
-     [("str", r"""           /\ UNCHANGED <<up, paused, sideA, promised, leader, term, reqs, pending, tok,""",
-       r"""           /\ reqs' = reqs \ {c} \* mutation: P11 one-shot request: served once, never retried
-           /\ UNCHANGED <<up, paused, sideA, promised, leader, term, pending, tok,""")]),
+     "(round 2, re-placed) a request made while the requester cannot reach a majority of lease nodes is lost and never retried",
+     [("str", r"""    /\ reqs' = reqs \cup {c}
+""", r"""    \* mutation: P11 the request reaches the grantor only if a majority is reachable when it is
+    \* made; it is not retried after a heal, although the client keeps waiting
+    /\ reqs' = IF Majority({n \in Nodes : up[n] /\ Conn(c, n)}) THEN reqs \cup {c} ELSE reqs
+""")]),
     ("P12", "C1.4, F1.3", "C1_4",
      "the grantor will not grant to another client until the previous holder releases (expiry ignored)",
      [("str", r"""    /\ c \in reqs

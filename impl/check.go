@@ -295,7 +295,7 @@ acks:
 }
 
 // checkC14 independently reconstructs the final environment from Fault records.
-// derives: C1.4, F1.1, F1.2, F1.3
+// derives: C1.4, F1.1, F1.2, F1.3, E1
 func (g *traceGraph) checkC14(s Schedule, evidence RunEvidence) Verdict {
 	if len(evidence.Witnesses) == 0 {
 		return Verdict{}
@@ -373,11 +373,8 @@ func (g *traceGraph) checkC14(s Schedule, evidence RunEvidence) Verdict {
 }
 
 // checkTrace reports clause failures before operational incompleteness.
-// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3
+// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, E1, E2
 func checkTrace(path string, s Schedule, evidence RunEvidence) Verdict {
-	if evidence.Operational != "" {
-		return Verdict{Reason: evidence.Operational}
-	}
 	g, err := readTrace(path)
 	if err != nil {
 		return Verdict{Reason: err.Error()}
@@ -387,6 +384,9 @@ func checkTrace(path string, s Schedule, evidence RunEvidence) Verdict {
 		if v.Clause != "" {
 			return v
 		}
+	}
+	if evidence.Operational != "" {
+		return Verdict{Reason: evidence.Operational}
 	}
 	for _, v := range checks {
 		if v.Reason != "" {

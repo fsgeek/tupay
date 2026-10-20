@@ -1,0 +1,8 @@
+{"proc":"c1","seq":1,"event":"Request","client":"c1","key":"k","causes":[],"run":"P11-v2-baseline-seed-3-ba353bc87ee8c9f6","side":"impl"}
+{"proc":"n1","seq":1,"event":"Grant","client":"c1","key":"k","token":3,"lifetime":40,"grantor_term":2,"causes":[{"proc":"c1","seq":1}],"run":"P11-v2-baseline-seed-3-ba353bc87ee8c9f6","side":"impl"}
+{"proc":"env","seq":1,"event":"Fault","causes":[{"proc":"n1","seq":1}],"run":"P11-v2-baseline-seed-3-ba353bc87ee8c9f6","side":"impl","cell":"F1.2","partition":[["c1","n1"],["c2","n2","n3","s"]]}
+{"proc":"c2","seq":1,"event":"Request","client":"c2","key":"k","causes":[{"proc":"env","seq":1}],"run":"P11-v2-baseline-seed-3-ba353bc87ee8c9f6","side":"impl"}
+{"proc":"n3","seq":1,"event":"Grant","client":"c2","key":"k","token":5,"lifetime":40,"grantor_term":3,"causes":[{"proc":"env","seq":1},{"proc":"c2","seq":1},{"proc":"n1","seq":1}],"run":"P11-v2-baseline-seed-3-ba353bc87ee8c9f6","side":"impl"}
+{"proc":"c1","seq":2,"event":"Request","client":"c1","key":"k","causes":[{"proc":"c1","seq":1},{"proc":"env","seq":1}],"run":"P11-v2-baseline-seed-3-ba353bc87ee8c9f6","side":"impl"}
+{"proc":"env","seq":2,"event":"Fault","causes":[{"proc":"env","seq":1},{"proc":"c1","seq":2}],"run":"P11-v2-baseline-seed-3-ba353bc87ee8c9f6","side":"impl","cell":"F1.2","heal":true}
+{"proc":"n3","seq":2,"event":"Grant","client":"c1","key":"k","token":6,"lifetime":40,"grantor_term":3,"causes":[{"proc":"n3","seq":1},{"proc":"env","seq":2},{"proc":"c1","seq":2}],"run":"P11-v2-baseline-seed-3-ba353bc87ee8c9f6","side":"impl"}

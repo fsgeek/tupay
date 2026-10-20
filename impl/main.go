@@ -100,7 +100,7 @@ func expectedClause(pair string) string {
 }
 
 // runOne writes a fresh trace and scores only its decoded observable evidence.
-// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3
+// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, T1, T2, T3, A1, A2, E1, E2
 func runOne(s Schedule, seed int64, mutation string) (Verdict, string) {
 	var nonce [8]byte
 	if _, err := rand.Read(nonce[:]); err != nil {
@@ -110,7 +110,7 @@ func runOne(s Schedule, seed int64, mutation string) (Verdict, string) {
 	if mutation != "" {
 		mode = mutation
 	}
-	run := fmt.Sprintf("%s-%s-seed-%d-%s", s.Name, mode, seed, hex.EncodeToString(nonce[:]))
+	run := fmt.Sprintf("%s-v2-%s-seed-%d-%s", s.Name, mode, seed, hex.EncodeToString(nonce[:]))
 	if err := os.MkdirAll("observe", 0755); err != nil {
 		return Verdict{Reason: err.Error()}, ""
 	}

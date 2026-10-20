@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3 (checking runs for P1-P12 and M1)
+# derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3; format v2 E1, E2 (checking runs for P1-P12 and M1)
 """Driver behind model/run.sh.
 
   run.py <schedule-name>   check the model on one schedule; print PASS | FAIL <inv> | UNEXPLAINED <why>
@@ -27,13 +27,10 @@ ORDER = [f"P{i}" for i in range(1, 13)] + ["false-suspicion-v1"]
 
 
 def find_schedule(name):
-    # derives: F1.1, F1.2, F1.3 -- the shared location first, then the model author's copies
-    for d in (ROOT / "testbed" / "schedules", HERE / "schedules"):
-        for n in (name, name + "-v1"):
-            p = d / f"{n}.yaml"
-            if p.exists():
-                return p
-    return None
+    # derives: F1.1, F1.2, F1.3; format v2 "Schedules live in testbed/schedules/<name>.yaml and
+    # nowhere else" -- model/schedules/ (M1) is history and is never run
+    p = ROOT / "testbed" / "schedules" / f"{name}.yaml"
+    return p if p.exists() else None
 
 
 def tlc(dirp, cfg):
@@ -93,7 +90,7 @@ def check(name, lease=None, run_id=None, quiet=False):
         if "Invariant NotEnded is violated" not in wout:
             wout = tlc(dirp, "Done.cfg")
             if "Invariant NotDone is violated" not in wout:
-                return f"UNEXPLAINED end of schedule unreachable ({distinct} states)"
+                return f"UNEXPLAINED end unreachable ({distinct} states, no violation witnessed)"
             note = " (witness not quiescent)"
         trace = wout
     elif v == "FAIL":

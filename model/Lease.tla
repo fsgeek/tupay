@@ -87,12 +87,13 @@ MaxGranted == Max({grants[i].token : i \in 1..Len(grants)})
 Trig(i) == IF i <= Len(Steps) THEN Steps[i].trig ELSE EndTrig
 \* derives: F1.1, F1.2, F1.3
 IsStart(T) == T.event = "start"
-\* derives: F1.1, F1.2, F1.3 -- an event matches a trigger: same event and every filter field equal
-Matches(T, e) == /\ T.event # "start"
+\* derives: F1.1, F1.2, F1.3; format v2 T1 -- an event matches a trigger: same event and every
+\* filter field equal. Only events emitted while the trigger is armed are ever offered to it
+\* (Emit and ScheduleStep), which is T1's "matches only events emitted after it was armed".
+\* `quiescent` (E1) is a state predicate, never matched by an event.
+Matches(T, e) == /\ T.event \notin {"start", "quiescent"}
                  /\ e.event = T.event
                  /\ \A f \in (DOMAIN T) \ {"event"} : f \in DOMAIN e /\ e[f] = T[f]
-\* derives: F1.1, F1.2, F1.3 -- the run has reached its end trigger (no more stimuli)
-Done == pc = Len(Steps) + 1 /\ fired
 
 \* derives: C1.1, C1.2, C1.3, F1.1, F1.2, F1.3
 \* Protocol step emitting event e: record it, and advance the current trigger.
@@ -173,6 +174,25 @@ StepDown(n) ==
                    awaiting, grantMsgs, writeMsgs, ackMsgs, dups, highest, stval,
                    toAck, grants, decisions, told>>
     /\ Internal("StepDown", n)
+
+\* derives: C1.4, F1.1, F1.2 -- the P10 fix (judge's verdict, locus: model).
+\* A leader brings a reachable, up, lagging node into its term: the node raises its
+\* promise to the leader's term (and, if it was a stale leader, stops leading).
+\* Without this, a leader elected by a non-maximal majority whose other member then
+\* crashes can never assemble a grant majority, while no election or step-down is
+\* enabled either: C1.4 fails with a majority, storage and the requester all up and
+\* connected. Raising a promise is always safe here: promises only grow, and a grant
+\* still needs a majority promised to exactly the leader's term.
+Join(n, q) ==
+    /\ up[n] /\ leader[n] /\ up[q] /\ q # n
+    /\ Conn(n, q)
+    /\ promised[q] < term[n]
+    /\ promised' = [promised EXCEPT ![q] = term[n]]
+    /\ leader' = [leader EXCEPT ![q] = FALSE]
+    /\ UNCHANGED <<up, paused, sideA, maxTok, term, ltok, reqs, pending, tok, myToks,
+                   awaiting, grantMsgs, writeMsgs, ackMsgs, dups, highest, stval,
+                   toAck, grants, decisions, told>>
+    /\ Internal("Join", q)
 
 \* derives: C1.1, C1.4, F1.1, F1.2
 \* The leader issues a grant to a requester it can reach, once a majority still
@@ -392,9 +412,17 @@ SideOf(st) ==
         b == {Resolve(x) : x \in st.b \ {"rest"}} IN
     IF "rest" \in st.a THEN Procs \ b ELSE a
 
-\* derives: C1.2, C1.4, F1.1, F1.2, F1.3 -- the effect of one schedule step
+\* derives: F1.1, F1.2, F1.3; format v2 A1 -- every alias in the step resolved to a process
+\* (an alias that names no Grant yet leaves the step waiting; the compiler rejects the
+\* statically detectable cases)
+Resolved(st) == /\ st.p = "none" \/ Resolve(st.p) \in Procs
+                /\ \A x \in (st.a \cup st.b) \ {"rest"} : Resolve(x) \in Procs
+
+\* derives: C1.2, C1.4, F1.1, F1.2, F1.3; format v2 A1, T3 -- the effect of one schedule step
+\* (each workload action's own guard makes it wait as T3 requires)
 DoStep(st) ==
-    CASE st.kind = "request"   -> DoRequest(Resolve(st.p))
+    /\ Resolved(st)
+    /\ CASE st.kind = "request"   -> DoRequest(Resolve(st.p))
       [] st.kind = "write"     -> DoWrite(Resolve(st.p), st.v, st.stale)
       [] st.kind = "crash"     -> Crash(Resolve(st.p))
       [] st.kind = "restart"   -> Restart(Resolve(st.p))
@@ -416,6 +444,7 @@ ScheduleStep ==
 \* derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3
 Protocol ==
     \/ \E n \in Nodes : Elect(n) \/ StepDown(n)
+    \/ \E n, q \in Nodes : Join(n, q)
     \/ \E n \in Nodes, c \in Clients : Grant(n, c)
     \/ \E m \in grantMsgs : RecvGrant(m)
     \/ \E m \in writeMsgs, d \in BOOLEAN : StorageDecide(m, d)
@@ -429,6 +458,7 @@ Next == Protocol \/ ScheduleStep
 \* (the environment does eventually perform each scheduled step whose trigger held)
 Fairness ==
     /\ \A n \in Nodes : WF_vars(Elect(n)) /\ WF_vars(StepDown(n))
+    /\ \A n, q \in Nodes : WF_vars(Join(n, q))  \* derives: C1.4, F1.1 (P10 fix)
     /\ \A n \in Nodes, c \in Clients : WF_vars(Grant(n, c))
     /\ WF_vars(\E m \in grantMsgs : RecvGrant(m))
     /\ WF_vars(\E m \in writeMsgs : StorageDecide(m, FALSE))
@@ -484,8 +514,21 @@ C1_4 == \A c \in Clients : (<>[]Good(c)) => [](pending[c] => <>(~pending[c]))
 TermHeadroom == \A n \in Nodes : promised[n] < MaxTerm
 
 \* derives: F1.1, F1.2, F1.3 -- witness target: the run ended and the system is quiescent
-Quiescent == /\ grantMsgs = {} /\ writeMsgs = {} /\ ackMsgs = {} /\ toAck = {}
-             /\ \A c \in Clients : ~pending[c] \/ ~up[c]
+\* derives: F1.1, F1.2, F1.3; format v2 E1 -- quiescent: no request, write or ack in flight
+\* and no client waiting for a grant, with crashed and paused processes not counted
+\* (a message counts as in flight when its receiver is running)
+Active(c) == up[c] /\ ~paused[c]
+\* derives: F1.1, F1.2, F1.3; format v2 E1
+Quiescent == /\ \A m \in grantMsgs : ~Active(m.c)
+             /\ writeMsgs = {} \/ ~up[Store]
+             /\ \A a \in ackMsgs : ~Active(a.c)
+             /\ \A a \in toAck : ~up[Store] \/ ~Active(a.c)
+             /\ \A c \in Clients : Active(c) => ~pending[c]
+\* derives: F1.1, F1.2, F1.3; format v2 E1 -- the run has reached its end: every step applied,
+\* and either the end trigger fired (armed when the last step was taken) or, for
+\* `end: quiescent`, the state is quiescent
+Done == /\ pc = Len(Steps) + 1
+        /\ IF EndTrig.event = "quiescent" THEN Quiescent ELSE fired
 \* derives: F1.1, F1.2, F1.3 -- violated by any trace that reaches the end of the schedule
 NotEnded == ~(Done /\ Quiescent)
 \* derives: F1.1, F1.2, F1.3 -- weaker witness: the schedule's end trigger fired

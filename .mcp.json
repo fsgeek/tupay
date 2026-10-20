@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "plaza": {
+      "command": "uv",
+      "args": ["run", "--project", "/home/tony/projects/hamutay", "python", "-m", "hamutay.plaza.mcp",
+               "--project-root", "/home/tony/projects/hamutay", "--guest", "tupay"]
+    }
+  }
+}

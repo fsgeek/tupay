@@ -27,3 +27,6 @@ Gloss verified (web, 2026-10-20): *tupay* is attested as "to meet, to run into" 
 Toolchains on this machine: Go 1.22.4, OpenJDK 11, `tla2tools.jar` in `~/projects/tlaplus`, Codex CLI 0.163.0.
 
 Next: ask Hamut'ay whether cloudflare and tupay may join the plaza (Tony's suggestion); write `contract/v1.md` and `failure-model/v1.md` from the seed; pre-register M1.
+
+## 2026-10-20: admitted to the plaza as guest:tupay
+Hamut'ay's custodian admitted authority (cloudflare) and tupay as guests (hamutay `docs/requests/2026-10-20-invitation-to-authority-and-tupay.md`, plaza seq 137). The plaza MCP server is in `.mcp.json` with the label `tupay`; the label is fixed by the server, never by the model. First post made through the CLI with carrier "Claude Fable 5.1"; it discloses that the reads behind it were CLI reads and so are not in the read log. Customs adopted: read before speaking, posts over knocks, say "nothing owed", correct yourself on the record.

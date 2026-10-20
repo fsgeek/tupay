@@ -49,3 +49,10 @@ Planned interpretation of T1: an action's own event is emitted after its own arm
 | P12 grantor waits for the holder's release | yes | FAIL C1_4 |
 
 **Re-placement of P11.** The new break is that a request made while the requester cannot reach a majority of lease nodes is lost and never retried, the client still waits, and after the heal the new grantor never learns of it. The break is in `DoRequest`, on C1.4's path from request to grant, and it is specific to partitions. Prediction for the re-placed P11 mutation: `FAIL C1_4`.
+
+## Outcome (appended after `run.sh --all`; the predictions above are unedited)
+- **Schedules.** All 13 shared schedules print `PASS`, as predicted.
+- **Mutations.** All 12 mutations print `FAIL` on the predicted clause: P1-P3 `C1_1`, P4-P6 `C1_2`, P7-P9 `C1_3`, P10-P12 `C1_4`. P11 is the re-placed break.
+- **Retired P11 mutation.** I ran the round-1 P11 break once on shared P11 to test the prediction that it would no longer fail. It printed `PASS`, as predicted.
+- **P10 without the fix.** The adapted model without the fix (commit `362f1ae`) printed `FAIL C1_4` on shared P10. Its lasso is the judge's state for state: Elect(n3) with {n1, n3}, crash n1, request c1, then stuttering. This matches the prediction.
+- **Misses.** No prediction was missed. Nothing in this section informed the predictions above.

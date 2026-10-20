@@ -7,3 +7,8 @@
 {"proc": "s", "seq": 1, "event": "WriteAccept", "key": "k", "token": 1, "highest_before": 0, "grantor_term": 1, "causes": [{"proc": "c1", "seq": 3}], "run": "P7", "side": "model"}
 {"proc": "env", "seq": 3, "event": "Fault", "cell": "F1.1", "crash": "c1", "causes": [], "run": "P7", "side": "model"}
 {"proc": "env", "seq": 4, "event": "Fault", "cell": "F1.1", "restart": "c1", "causes": [], "run": "P7", "side": "model"}
+{"proc": "c2", "seq": 1, "event": "Request", "client": "c2", "key": "k", "causes": [], "run": "P7", "side": "model"}
+{"proc": "n1", "seq": 2, "event": "Grant", "client": "c2", "key": "k", "token": 2, "lifetime": 1, "grantor_term": 1, "causes": [{"proc": "c2", "seq": 1}], "run": "P7", "side": "model"}
+{"proc": "c2", "seq": 2, "event": "WriteAttempt", "client": "c2", "key": "k", "token": 2, "value": "v3", "grantor_term": 1, "causes": [{"proc": "n1", "seq": 2}], "run": "P7", "side": "model"}
+{"proc": "s", "seq": 2, "event": "WriteAccept", "key": "k", "token": 2, "highest_before": 1, "grantor_term": 1, "causes": [{"proc": "c2", "seq": 2}], "run": "P7", "side": "model"}
+{"proc": "c2", "seq": 3, "event": "WriteAck", "client": "c2", "key": "k", "token": 2, "outcome": "accepted", "causes": [{"proc": "s", "seq": 2}], "run": "P7", "side": "model"}

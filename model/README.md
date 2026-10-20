@@ -1,13 +1,98 @@
-# tupay model (TLA+), v1
+# tupay model (TLA+), v2 round (schedule format v2, shared schedules, P10 fix)
 
-derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3
+derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3; format v2 T1, T2, T3, A1, A2, E1, E2
+
+Round 2 adds three things: the format v2 adaptation, the P10 fix, and a re-placed P11 mutation.
+They are described in the "Round 2" section below. Everything after that section is the round-1 text, with each change marked **[v2]**.
+The round-2 predictions and their outcome are in `PREDICTIONS-v2.md`.
+
+## Round 2
+### Changes for format v2
+- **Schedule resolution.** `run.sh <name>` resolves only `testbed/schedules/<name>.yaml`. `model/schedules/` is M1 history and is never run.
+  The v1 alias `false-suspicion` is gone: use `false-suspicion-v1`.
+  `derives: F1.1-F1.3; format v2 "Schedules live in testbed/schedules/"`
+- **E1.** `end: quiescent` compiles to `EndTrig = [event |-> "quiescent"]`, and `Done` becomes "every step applied, and `Quiescent`".
+  `Quiescent` is a state predicate: no request, write or ack in flight to a running receiver, and no running, unpaused client waiting for a grant.
+  An event `end` is still matched after the last step. `derives: F1.1-F1.3; format v2 E1`
+- **E2.** The checking run is judged first, and the end is looked for only after it passes. So a clause violation is `FAIL` whether or not the end is reachable, and `UNEXPLAINED end unreachable` is printed only when no violation was witnessed. This was already the round-1 order; only the message changed. `derives: format v2 E2`
+- **T1, T2, T3.** No change in behaviour. The round-1 trigger semantics already armed step *i* when step *i*−1's action was taken, and offered a trigger only the events emitted while it was armed. The round-1 workload guards already made a step wait as T3 says (client crashed or paused, a request outstanding, no token, no superseded token).
+  The `derives` tags now name the rules. `derives: format v2 T1, T2, T3`
+- **A1.**
+  - `holder` is accepted as the target of `request`, `write`, `pause`, `resume`, `crash` and `restart`.
+  - `grantor` is accepted for `crash`, `restart` and partition sides.
+  - The compiler rejects a schedule that uses either alias before any request step, since no Grant can have occurred by then.
+  - At run time, a step whose alias resolves to no process waits (the `Resolved` guard in `DoStep`).
+  `derives: F1.1-F1.3; format v2 A1`
+- **A2.**
+  - The compiler rejects restarting a process that is not crashed, crashing one that already is, pausing a paused client, resuming a running client, and pausing a lease node or storage.
+  - An alias target makes the check conservative: `crash grantor` marks every lease node "possibly crashed".
+  - The model's own guards make a step that is illegal at run time wait rather than act.
+  `derives: F1.1, F1.3; format v2 A2`
+
+### The P10 fix (judge's verdict, locus: model)
+The defect was the one the judge described.
+1. n3 is elected for term 1 by the non-maximal majority {n1, n3}.
+2. n1 crashes.
+3. c1 requests.
+4. Grant needs a majority promised to term 1, and only n3 is. Elect(n2) is disabled because n2 can reach a leader whose term is at least its own promise. StepDown(n3) is disabled because nobody has promised higher.
+5. The model stutters with a majority, storage and the requester all up and connected.
+
+The adapted model without the fix (commit `362f1ae`) reproduces this lasso on shared P10 state for state.
+
+**Change.** A new action, `Join(n, q)`, under weak fairness. A leader `n` that can reach an up node `q` whose promise is below `n`'s term raises `promised[q]` to that term. If `q` was a stale leader, it stops leading. This is the abstract counterpart of a leader's heartbeat or append bringing a follower into its term.
+
+**Why it is safe.**
+- Promises only grow.
+- A grant still needs a majority promised to exactly the leader's term.
+- An election still takes `max(maxTok)` over a majority. Any grant's confirming majority intersects that majority, and each member of the intersection recorded the token before it raised its promise.
+
+C1_1, C1_2 and C1_3 still hold on every shared schedule, and the mutations still break them.
+
+**Not changed:** `C1_4`, `Good`, every fairness condition except the added `WF(Join)`, and every failure-model action. `derives: C1.4, F1.1, F1.2`
+
+### Mutations, round 2
+- **P11 re-placed.** The round-1 break (the request is consumed when the grant is issued) needs a grant reply to be lost across the cut. Shared P11 never loses one: the partition keeps the grantor and the holder together. Run once on shared P11, it printed `PASS`, as predicted.
+  The new break is in `DoRequest`. A request made while the requester cannot reach a majority of lease nodes never reaches the grantor and is not retried after the heal, while the client keeps waiting. It sits on C1.4's path from request to grant, and it is specific to partitions. On shared P11 it prints `FAIL C1_4`.
+- **P8 re-applied.** P8's edit now inserts its extra action into `Protocol` instead of replacing the whole definition, so the copy keeps `Join`. The break itself is unchanged.
+- **Unchanged.** Every other mutation is unchanged and still fails on its shared schedule.
+
+### New interpretations (round 2)
+- **R2.1, T1 and an action's own event.** The event that step *i*−1's action emits is emitted after step *i* is armed, so it can satisfy step *i*'s trigger.
+  Shared P11 needs this: step 5 `{event: Request, client: c1}` is satisfied by the Request emitted by step 4's own `request: c1`. Under the strict reading P11 could never end. `format v2 T1`
+- **R2.2, E1 "in flight".** A message counts as in flight when its receiver is running. Acks and grant replies to a crashed or paused client are not counted, and neither are writes to a crashed storage.
+  A write the client still awaits, but whose message was lost, is not in flight. The client simply never hears back.
+  "No client is waiting for a grant" applies only to running, unpaused clients. `format v2 E1`
+- **R2.3, A1 at run time.** "Resolved at the moment the step's trigger fires" is kept from round 1. If no Grant has happened by then, the alias names nothing, and the step waits for ever. The run is then UNEXPLAINED end unreachable, unless a violation is witnessed first. `format v2 A1`
+- **R2.4, A2 with aliases.** The static check is conservative wherever an alias makes the target unknowable before running. `format v2 A2`
+- **R2.5, the P10 fix as an interpretation of "the grantor".** The contract leaves how the nodes agree to the implementation. The model's abstract grantor must not lose liveness through its own bookkeeping, so it includes a leader bringing a lagging node into its term. Round 1 omitted this, and that was a modelling error, not a reading of the contract.
+
+### Results, round 2 (`run.sh --all`, about 115 s)
+| Run | Verdict | Distinct states | Depth | MaxTerm |
+|---|---|---|---|---|
+| P1 | PASS | 20,700 | 23 | 18 |
+| P2 | PASS | 725 | 15 | 6 |
+| P3 | PASS | 728 | 14 | 2 |
+| P4 | PASS | 4,232 | 26 | 6 |
+| P5 | PASS | 2,654 | 27 | 6 |
+| P6 | PASS | 5,375 | 26 | 2 |
+| P7 | PASS | 31,646 | 28 | 10 |
+| P8 | PASS | 3,122 | 19 | 6 |
+| P9 | PASS | 17,123 | 26 | 2 |
+| P10 | PASS | 250 | 13 | 8 |
+| P11 | PASS | 611 | 15 | 6 |
+| P12 | PASS | 467 | 11 | 2 |
+| false-suspicion-v1 | PASS | 8,672 | 31 | 6 |
+
+- **Mutations.** All 12 fail on their pair's clause: P1-P3 `FAIL C1_1`, P4-P6 `FAIL C1_2`, P7-P9 `FAIL C1_3`, P10-P12 `FAIL C1_4`.
+- **Bound.** `TermHeadroom` held in every run, so the MaxTerm bound never binds.
+- **Other bounds.** Unchanged in kind: 1-3 requests and 0-4 writes per shared schedule, `MaxDups = 1`, and every run finite by construction. The deepest state graph is 31, against the schedules' bound of 200 events.
 
 Written only from `contract/v1.md`, `failure-model/v1.md`, `tests/pairs-v1.md`,
 `testbed/schedule-format.md`, `observe/schema.md`, `AGENTS.md` and this directory.
 
 ## How to run
 ```
-model/run.sh <schedule-name>   # e.g. P5, false-suspicion-v1 (or false-suspicion)
+model/run.sh <schedule-name>   # e.g. P5, false-suspicion-v1; resolves only testbed/schedules/<name>.yaml [v2]
 model/run.sh --mutations       # every mutation on its pair's schedule; each must print FAIL <its clause>
 model/run.sh --all             # all 13 schedules, then all 12 mutations
 ```
@@ -37,7 +122,7 @@ Pipeline for one run:
 | `export.py` | TLC trace -> `observe/schema.md` records | C1.1-C1.3, F1.1-F1.3 |
 | `mutate.py` | generates `mutations/<P>/Lease.tla` | P1-P12 |
 | `run.py`, `run.sh` | runner | all |
-| `schedules/*.yaml` | the 12 pair schedules and the false-suspicion run | per file header |
+| `schedules/*.yaml` | **[v2] history only**: my M1 schedules, no longer run; the shared ones are `testbed/schedules/` | per file header |
 | `mutations/<P>/Lease.tla` | the 12 mutated models (regenerated by `--mutations`) | per file header |
 | `observe/*.jsonl` | observe files from the last `--all` | per run |
 | `PREDICTIONS.md` | pre-registered verdicts, committed before any TLC run | |
@@ -52,6 +137,7 @@ Pipeline for one run:
     Each member of that majority durably records the token in `maxTok`.
   - Durable state: `promised` and `maxTok`. Volatile state: `leader`, `term` and `ltok`.
   - A leader that can reach a node promised to a higher term steps down.
+  - **[v2]** A leader brings any reachable node whose promise is lower than its term into that term (`Join`).
 - **Storage.** It accepts a write iff `token >= highest`, and on acceptance sets `highest := token`.
   The ledger and the value are durable.
   The ack is queued in volatile `toAck` and sent by a separate step, so a crash between accept and ack is possible.
@@ -112,14 +198,14 @@ The model checks every interleaving of protocol steps around one scripted run, n
 | P8 | a client cut off from storage presumes its write succeeded | FAIL C1_3 |
 | P9 | a client counts any ack carrying its current token as success | FAIL C1_3 |
 | P10 | election needs every lease node, not a majority | FAIL C1_4 |
-| P11 | a grant consumes the request at issue; a reply lost in a partition is never reissued | FAIL C1_4 |
+| P11 | a grant consumes the request at issue; a reply lost in a partition is never reissued (**[v2] re-placed**, see Round 2) | FAIL C1_4 |
 | P12 | grantor waits for the previous holder to release; expiry ignored | FAIL C1_4 |
 
 ## Interpretations
 Each item is a place where the inputs did not fix the answer, together with the choice made.
 
 **Where things live**
-1. **Schedule location.** `testbed/schedules/` did not exist, so I wrote all 13 schedules from `tests/pairs-v1.md` into `model/schedules/`.
+1. **[v2] superseded by the format: shared schedules only.** **Schedule location.** `testbed/schedules/` did not exist, so I wrote all 13 schedules from `tests/pairs-v1.md` into `model/schedules/`.
    `run.sh` looks in `testbed/schedules/<name>.yaml` first, so a shared schedule replaces mine once it exists.
    The impl side will probably write its own versions of these schedules. Any difference between the two is itself a divergence to examine.
 2. **Observe file location.** `observe/schema.md` names `observe/<run>.jsonl`. To avoid colliding with the impl side's file of the same name, the model writes `model/observe/<run>.jsonl` with `"side": "model"`.
@@ -135,11 +221,11 @@ Each item is a place where the inputs did not fix the answer, together with the 
    - A paused client counts as not "up" in C1.4's condition.
 
 **The grantor**
-5. **Grantor abstraction.**
+5. **[v2] with the P10 fix (`Join`), see R2.5.** **Grantor abstraction.**
    - Election and grant quorums may be any majority subset. They are not forced to be maximal.
    - A node runs an election only when it cannot reach a leader of a term at least its own promise. This is an abstract failure detector. It allows false suspicion under partition and prevents elections that would never end.
    - The token is a plain integer that the majority confirms. It is not term-encoded.
-6. **A request while waiting.** A client that is already waiting for a grant does not send a second request. The step waits until the earlier grant has arrived.
+6. **[v2] now format rule T3.** **A request while waiting.** A client that is already waiting for a grant does not send a second request. The step waits until the earlier grant has arrived.
    This interpretation was adopted after a run: the first P1 witness merged two requests into one. The change tightened what the witness shows. Every verdict was the same before and after.
 7. **Grant event and retries.**
    - `Grant` is recorded by the issuing lease node when it issues the grant, so a `{event: Grant}` trigger fires at issuance, not on receipt. A `write` step then waits until the client actually holds a token.
@@ -147,10 +233,10 @@ Each item is a place where the inputs did not fix the answer, together with the 
    - A grant reply that arrives when the client is no longer waiting is dropped.
 
 **Schedules**
-8. **Trigger semantics.** Steps are strictly sequential. Step *i*'s trigger is matched only against events emitted after step *i−1* was applied, including the event step *i−1* itself emitted. `start` fires immediately.
+8. **[v2] now format rules T1, T2; see R2.1.** **Trigger semantics.** Steps are strictly sequential. Step *i*'s trigger is matched only against events emitted after step *i−1* was applied, including the event step *i−1* itself emitted. `start` fires immediately.
    This reads "both sides may act at any later point before the next step's trigger fires" as "the next trigger is not armed until this step is taken".
-9. **End of a run.** The `end` trigger is matched after the last step. Ending stops the schedule's stimuli, but protocol steps continue, so in-flight work quiesces. Without this, C1.4 would be judged on runs cut off in the middle.
-10. **`grantor` and `holder`.**
+9. **[v2] see E1 and R2.2.** **End of a run.** The `end` trigger is matched after the last step. Ending stops the schedule's stimuli, but protocol steps continue, so in-flight work quiesces. Without this, C1.4 would be judged on runs cut off in the middle.
+10. **[v2] now format rule A1.** **`grantor` and `holder`.**
     - They resolve to the node and the client of the most recent Grant at the moment the step's trigger fired.
     - The format mentions them only for partitions. I also accept them as the target of crash, restart, pause, resume and request.
     - `rest` is every process not named on the other side.
@@ -213,6 +299,9 @@ Each item is a place where the inputs did not fix the answer, together with the 
 
   Every WriteAccept/WriteReject in the file names its token, its grantor_term and, through `causes`, the Grant it traces to.
   Fencing, as specified, allows a superseded holder to keep writing until a newer token reaches storage.
+
+## Round-1 results
+The round-1 bounds table and mutation table above describe M1 on my own schedules. The round-2 results are in the Round 2 section.
 
 ## Blocked
 Nothing in the brief is blocked.

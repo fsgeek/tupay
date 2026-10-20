@@ -1,18 +1,18 @@
 <!-- derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3 -->
-# Implementation author v1
+# Implementation author — current v2, M1 history retained
 
-This directory is the implementation author's independent artifact. No model,
+The M1 implementation below was authored independently. In that round no model,
 steward notes, other documentation, existing schedules, or git history were read.
-The permitted brief, contract, failure model, pairs, schedule format, schema and
-AGENTS.md were read. The brief's explicit access list supersedes AGENTS.md's
+The v2 round additionally reads the expressly permitted adaptation brief and
+shared root schedules. No model artifact or other documentation is consulted. The brief's explicit access list supersedes AGENTS.md's
 request to read and append steward seed documents.
 
-Current verified results: [RESULTS.md](RESULTS.md). All twelve pairs pass all
-three seeds, all twelve mutations fail their intended clauses on all three
-seeds, and nothing remains blocked. Historical stopped states below are retained
-for provenance.
+Current v2 results: [RESULTS-v2.md](RESULTS-v2.md). All thirteen shared schedules
+pass all three seeds; all twelve mutations fail their intended clauses on all
+three seeds. Nothing remains blocked. The v2 section and interpretations 29–42
+supersede conflicting M1 statements. Historical results below are retained.
 
-## Design and plan
+## M1 design and plan (historical)
 
 <!-- derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3 -->
 Use the existing HashiCorp Raft protocol with three nodes and durable in-memory
@@ -43,11 +43,10 @@ outcome-informed amendments additively; (5) commit the first complete version.
 `impl/run.sh --mutations --seeds 3`
 
 Go is `/usr/local/go/bin/go`. The script changes directory to `impl/`.
-Schedules are under `impl/testbed/schedules/`; JSONL output is under
-`impl/observe/`. These relative paths implement the shared interface while
-honouring the instruction to produce everything under `impl/`. Build artifacts,
-module caches and run output are ignored. The runner accepts a schedule basename
-or a YAML path within its own directory tree. Exit 0 means expected results;
+V2 schedules are read from root `testbed/schedules/`; JSONL output is under
+`impl/observe/`. Outputs stay under `impl/`; shared schedules are read-only. Build artifacts,
+module caches and run output are ignored. The runner accepts only a shared schedule basename
+with an optional `.yaml` suffix. Exit 0 means expected results;
 exit 1 means an unexpected result; input/operational errors say UNEXPLAINED.
 
 ## Sampling
@@ -59,7 +58,7 @@ randomness is additional nondeterminism, so a seed does not promise bit-for-bit
 replay. Observe traces are the replay evidence. This is bounded sampling, not
 exhaustive verification. Per-seed results and mutation kills are printed.
 
-## Interpretations
+## M1 interpretations (historical)
 
 <!-- derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3 -->
 1. All generated artifacts, including the shared relative `testbed/schedules/`
@@ -110,8 +109,8 @@ exhaustive verification. Per-seed results and mutation kills are printed.
 
 ## Blocked
 
-None currently. The steward removed the sandbox, and preregistration plus the
-stamp hook now succeed. The earlier permission reports below are historical.
+None currently. V2 runs in the full clone on impl-v2. The earlier permission
+reports below are historical; the OTS stamp hook succeeds.
 
 ### Historical: Git metadata outside writable sandbox
 
@@ -298,7 +297,7 @@ pair/seed, but its P10 result alone was not discriminating because the initial
 baseline also failed. A fresh complete baseline and mutation matrix follows the
 fix, with the original predictions unchanged.
 
-## Verified first-version delivery
+## Verified M1 first-version delivery (historical)
 
 <!-- derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3 -->
 The complete corrected matrix is recorded in [RESULTS.md](RESULTS.md): all twelve
@@ -327,3 +326,115 @@ scoring rule or horizon was revised in response to a result.
     receipts, and the provenance TSV lists each false-suspicion storage decision.
     Go caches, binaries and temporary files remain excluded. Rerunning produces
     new unique run IDs rather than overwriting reference evidence.
+
+## Adaptation to schedule format v2
+
+<!-- derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, T1, T2, T3, A1, A2, E1, E2 -->
+The current runner implements v2 and reads only the thirteen shared root
+`testbed/schedules/` inputs. M1's private `impl/testbed/schedules/` remains history
+and is never resolved by the runner. The v2 predictions were committed before
+adaptation (`5d866a6`, hook stamp `202f2f4`). The adapted implementation checkpoint
+is `1452107` (stamp `c398b86`). No shared input was edited.
+
+Both required commands completed with exit 0:
+
+```sh
+# derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, T1, T2, T3, A1, A2, E1, E2
+impl/run.sh --all --seeds 3
+impl/run.sh --mutations --seeds 3
+```
+
+All 39 schedule/seed results PASS, including the observed false-suspicion run;
+all 36 mutation/seed results FAIL the predicted clause. There were no schedule
+or mutation prediction misses. Raw receipts, traces, horizon sidecars and shared
+input hashes are retained with [RESULTS-v2.md](RESULTS-v2.md). The first fixture
+suite failed because a hand-built test Engine omitted its storage identity; the
+fixture was corrected and the observation recorded additively in preregistration.
+The full fixture suite and go vet now pass. P7 was the only re-placed mutation.
+
+## New interpretations for v2
+
+The entries below supersede the conflicting schedule-location, stale-token,
+sticky-trigger, partition-only-alias and fixed-end-drain statements in the M1
+history above. Contract clauses and failure cells retain their original IDs.
+
+29. Schedule arguments are basenames (optionally `.yaml`), resolved only in the
+    repository-root shared directory. Private/other paths and escaping file
+    symlinks are rejected; the YAML name must match its basename.
+    <!-- derives: C1.1, C1.4, T1, A1, E1 -->
+30. A successor trigger, including an event end, is armed immediately before the
+    preceding action's synchronous effects. Thus its Request or WriteAttempt
+    is eligible; older events are not. `start` fires when armed. Cursors are
+    injector state; checkers still use causal and per-process order only.
+    <!-- derives: C1.1, C1.3, T1, T2, E1 -->
+31. T2 samples a uniform 0, 1 or 2 ms action delay while workload progresses.
+    Selectors freeze when the trigger fires, before that delay and before any
+    T3 readiness wait. Only one step/action is pending at a time.
+    <!-- derives: C1.1, C1.4, F1.2, T1, T2, T3, A1 -->
+32. T3 waits for a running target, an answered prior request in its current
+    incarnation, or an available write token. A multi-target workload waits for
+    all selected clients. A blocked/ineligible workload reaches the operational
+    bound as UNEXPLAINED unless an independently eligible request supplies C1.4
+    evidence. A restarted client's old pending request is not its new request.
+    <!-- derives: C1.1, C1.2, C1.4, F1.1, F1.3, T3, E1 -->
+33. `stale` means the newest client token numerically lower than the highest
+    token ever granted. Expiry alone no longer qualifies, nor does merely having
+    a different Grant reference. The current-token write can still exercise a
+    resumed holder's old token, as the shared schedules require.
+    <!-- derives: C1.1, C1.2, F1.3, T3 -->
+34. Aliases work in every action target, subject to process roles: grantor is a
+    lease node and holder a client. Literal/alias role mismatches reject. Aliases
+    before any possible Grant reject statically; an unresolved actual binding
+    rejects during incremental compilation when the trigger fires.
+    <!-- derives: C1.1, C1.4, F1.1, F1.3, A1, A2 -->
+35. The format defines `rest` relative to a partition but also permits it outside
+    partitions. Outside a partition, this implementation reuses the rest set
+    resolved for the most recent partition containing `rest`, including after
+    heal. Without that context it rejects ambiguity. Group selectors expand to
+    concrete actions; each concrete process must have the operation's valid
+    role. A group fault emits a Fault record per concrete target.
+    <!-- derives: C1.1, C1.4, F1.1, F1.2, F1.3, A1, A2 -->
+36. A2 uses two-phase validation: definite explicit-state errors reject at load;
+    alias-dependent state is validated against frozen concrete IDs before action
+    effects. Uncertain static states are not guessed. Pause/resume retain the
+    F1.3 holder/lifetime checks when applied. Invalid lease/storage pauses reject.
+    <!-- derives: C1.4, F1.1, F1.3, A1, A2 -->
+37. Quiescence counts requests and queued writes/acks for running, unpaused,
+    current client incarnations. Paused/crashed/old-incarnation work is excluded.
+    Raft maintenance RPCs are not client workload. The former unconditional
+    50 ms end drain is replaced by this actual-work predicate. `end: start` is
+    rejected: v2 ends are an observable event or quiescent.
+    <!-- derives: C1.3, C1.4, F1.1, F1.3, T1, E1 -->
+38. E1 uses a five-second operational wait and the existing three-second stable
+    eligibility horizon. An unanswered eligible request is checked through C1.4,
+    including when a pending step prevents reaching the end. No eligible horizon
+    means UNEXPLAINED, not a liveness failure. Duration remains a trusted sidecar
+    certificate, never cross-process event ordering or unbounded liveness proof.
+    <!-- derives: C1.4, F1.1, F1.2, F1.3, T3, E1, E2 -->
+39. A witnessed clause failure takes priority over end/trigger incompleteness
+    and a later operational error. A malformed trace that cannot establish the
+    failure remains UNEXPLAINED. No result attributes a model divergence.
+    <!-- derives: C1.1, C1.2, C1.3, C1.4, E2 -->
+40. P7 now bypasses storage acceptance after restart and enqueues a success reply
+    for that unaccepted attempt. The actual C1.3 path is broken without adding a
+    schedule fault or forging an acceptance event. E2 preserves the resulting
+    failure if the subsequent WriteAccept trigger cannot fire. Other mutations
+    retain their existing enforcing-path placement.
+    <!-- derives: C1.3, F1.1, T1, E2 -->
+41. P10 executes its explicit first target n1. Its descriptive comment calls
+    that node a non-leader, but Raft may elect it during setup; the runner does
+    not rewrite the shared action to choose another node. C1.4 covers either
+    case with the connected surviving majority.
+    <!-- derives: C1.4, F1.1, A1 -->
+42. V2 runs have a v2 marker in their unique IDs and require committed v2
+    preregistration. M1 receipts stay historical. Git's unavailable GPG signer
+    is disabled only for each commit command; the required OTS post-commit hook
+    still runs and adds its stamp commit. The entire round stays in this clone.
+    <!-- derives: C1.1, C1.2, C1.3, C1.4, T1, A1, E1, E2 -->
+
+## V2 timing and blockers
+
+<!-- derives: C1.1, C1.2, C1.3, C1.4, T1, T2, T3, A1, A2, E1, E2 -->
+Wall-clock measurement began at 2026-10-20 23:33:13 UTC, before reading the brief.
+The final reported elapsed time includes the adapted-version commit and its
+stamp hook. It is human workflow metadata, never observe ordering. Blocked: none.

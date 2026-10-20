@@ -1,0 +1,19 @@
+# derives: C1.1, C1.2, C1.3, F1.2, T1, A1, E1
+seed	run	decision	event	token	grantor_term	grant	highest_before
+1	false-suspicion-v1-v2-baseline-seed-1-a39bad721c21af86	s:1	WriteAccept	3	2	n1:1	0
+1	false-suspicion-v1-v2-baseline-seed-1-a39bad721c21af86	s:2	WriteAccept	3	2	n1:1	3
+1	false-suspicion-v1-v2-baseline-seed-1-a39bad721c21af86	s:3	WriteAccept	3	2	n1:1	3
+1	false-suspicion-v1-v2-baseline-seed-1-a39bad721c21af86	s:4	WriteAccept	5	3	n2:1	3
+1	false-suspicion-v1-v2-baseline-seed-1-a39bad721c21af86	s:5	WriteAccept	5	3	n2:1	5
+1	false-suspicion-v1-v2-baseline-seed-1-a39bad721c21af86	s:6	WriteReject	3	2	n1:1	5
+1	false-suspicion-v1-v2-baseline-seed-1-a39bad721c21af86	s:7	WriteReject	3	2	n1:1	5
+2	false-suspicion-v1-v2-baseline-seed-2-37d75cc703d68dca	s:1	WriteAccept	3	2	n1:1	0
+2	false-suspicion-v1-v2-baseline-seed-2-37d75cc703d68dca	s:2	WriteAccept	3	2	n1:1	3
+2	false-suspicion-v1-v2-baseline-seed-2-37d75cc703d68dca	s:3	WriteAccept	3	2	n1:1	3
+2	false-suspicion-v1-v2-baseline-seed-2-37d75cc703d68dca	s:4	WriteAccept	5	3	n2:1	3
+2	false-suspicion-v1-v2-baseline-seed-2-37d75cc703d68dca	s:5	WriteReject	3	2	n1:1	5
+3	false-suspicion-v1-v2-baseline-seed-3-02ed41dd291cf76a	s:1	WriteAccept	3	2	n1:1	0
+3	false-suspicion-v1-v2-baseline-seed-3-02ed41dd291cf76a	s:2	WriteAccept	3	2	n1:1	3
+3	false-suspicion-v1-v2-baseline-seed-3-02ed41dd291cf76a	s:3	WriteAccept	3	2	n1:1	3
+3	false-suspicion-v1-v2-baseline-seed-3-02ed41dd291cf76a	s:4	WriteAccept	5	3	n3:1	3
+3	false-suspicion-v1-v2-baseline-seed-3-02ed41dd291cf76a	s:5	WriteReject	3	2	n1:1	5

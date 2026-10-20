@@ -1,0 +1,49 @@
+# derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, T1, T2, T3, A1, A2, E1, E2
+=== RUN   TestC11C12C13_CausalOrder
+--- PASS: TestC11C12C13_CausalOrder (0.00s)
+=== RUN   TestC11_F11_ReusedToken
+--- PASS: TestC11_F11_ReusedToken (0.00s)
+=== RUN   TestC12_F11_LedgerLoss
+--- PASS: TestC12_F11_LedgerLoss (0.00s)
+=== RUN   TestC12_F12_EqualTokenAllowed
+--- PASS: TestC12_F12_EqualTokenAllowed (0.00s)
+=== RUN   TestC13_F12_UnacceptedAttempt
+--- PASS: TestC13_F12_UnacceptedAttempt (0.00s)
+=== RUN   TestC13_F13_MissingLinkUnexplained
+--- PASS: TestC13_F13_MissingLinkUnexplained (0.00s)
+=== RUN   TestC14_F11_ProgressHorizon
+--- PASS: TestC14_F11_ProgressHorizon (0.00s)
+=== RUN   TestCompiler_F12_F13_RejectUnknown
+--- PASS: TestCompiler_F12_F13_RejectUnknown (0.00s)
+=== RUN   TestC14_F11_StartupVotersBeforeFaults
+--- PASS: TestC14_F11_StartupVotersBeforeFaults (0.13s)
+=== RUN   TestV2T1_FreshTrigger
+--- PASS: TestV2T1_FreshTrigger (0.00s)
+=== RUN   TestV2A1_FrozenSelectors
+--- PASS: TestV2A1_FrozenSelectors (0.00s)
+=== RUN   TestV2A2_InvalidSchedules
+--- PASS: TestV2A2_InvalidSchedules (0.00s)
+=== RUN   TestV2T3_ExpiredIsNotSuperseded
+--- PASS: TestV2T3_ExpiredIsNotSuperseded (0.00s)
+=== RUN   TestV2E1_ActiveWorkOnly
+--- PASS: TestV2E1_ActiveWorkOnly (0.00s)
+=== RUN   TestV2T1T3_SynchronousEffects
+--- PASS: TestV2T1T3_SynchronousEffects (0.36s)
+=== RUN   TestV2E2_SafetyBeforeUnreachableEnd
+--- PASS: TestV2E2_SafetyBeforeUnreachableEnd (0.00s)
+=== RUN   TestV2SharedSchedules_OnlyRoot
+--- PASS: TestV2SharedSchedules_OnlyRoot (0.00s)
+=== RUN   TestV2T1E1_EndSeesActionEffect
+--- PASS: TestV2T1E1_EndSeesActionEffect (0.11s)
+=== RUN   TestV2A1_AllHolderTargets
+--- PASS: TestV2A1_AllHolderTargets (0.00s)
+=== RUN   TestF12_SendAcrossCutLostAfterHeal
+--- PASS: TestF12_SendAcrossCutLostAfterHeal (0.00s)
+=== RUN   TestF12_ReplyCannotSurviveCutHeal
+--- PASS: TestF12_ReplyCannotSurviveCutHeal (0.00s)
+=== RUN   TestF12_ConnectedSideRetainsReplies
+--- PASS: TestF12_ConnectedSideRetainsReplies (0.00s)
+=== RUN   TestF11_OldReplyCannotReachNewIncarnation
+--- PASS: TestF11_OldReplyCannotReachNewIncarnation (0.00s)
+PASS
+ok  	tupay/impl	0.624s

@@ -197,3 +197,46 @@ func TestV2SharedSchedules_OnlyRoot(t *testing.T) {
 		t.Fatal("private path accepted")
 	}
 }
+
+// TestV2T1E1_EndSeesActionEffect checks an end armed at the final action boundary.
+// derives: C1.1, C1.4, T1, E1
+func TestV2T1E1_EndSeesActionEffect(t *testing.T) {
+	s := fixtureSchedule()
+	s.Name = "v2-end-action"
+	s.Bound.Events = 200
+	s.Steps = []Step{{At: Trigger{Start: true}, Do: Action{Request: "c1"}}}
+	s.End = Trigger{Filters: map[string]string{"event": "Request", "client": "c1"}}
+	out, err := newEmitter(filepath.Join(t.TempDir(), "end.jsonl"), s.Name)
+	if err != nil {
+		t.Fatal(err)
+	}
+	e, err := newEngine(s, out, 2, "")
+	if err != nil {
+		out.close()
+		t.Fatal(err)
+	}
+	evidence := e.drive()
+	e.close()
+	if err := out.close(); err != nil {
+		t.Fatal(err)
+	}
+	if !evidence.Completed {
+		t.Fatalf("end missed synchronous final-action event: %+v", evidence)
+	}
+}
+
+// TestV2A1_AllHolderTargets checks selector placement on every role-valid operation.
+// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.3, A1, A2, T3
+func TestV2A1_AllHolderTargets(t *testing.T) {
+	e := &Engine{schedule: fixtureSchedule(), holder: "c2", grantor: "n2", storage: "s"}
+	actions := []Action{{Request: "holder"}, {Write: "holder"}, {Cell: "F1.1", Crash: "holder"}, {Cell: "F1.1", Restart: "holder"}, {Cell: "F1.3", Pause: "holder"}, {Cell: "F1.3", Resume: "holder"}}
+	for _, a := range actions {
+		f, err := e.freezeAction(a)
+		if err != nil {
+			t.Fatalf("alias rejected for %+v: %v", a, err)
+		}
+		if len(f.Actions) != 1 || actionTarget(f.Actions[0]) != "c2" {
+			t.Fatalf("holder binding: %+v", f)
+		}
+	}
+}

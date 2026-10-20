@@ -27,3 +27,6 @@ Recorded per author in `experiments/M1-result.md`:
 
 ## Not in M1
 Hold-out cells. Family swap. Fixing divergences before they are recorded. Anything shaped for a paper.
+
+## Amendment A (2026-10-20, additive; no outcome informed it: both authors are still running)
+The judge for any M1 divergence is Gemini, run through the `agy` CLI in non-interactive print mode, model `gemini-4-argon-high`, chosen explicitly because `agy` also serves Claude models and the judge must be from a family that authored neither side. The judge receives only: the three input files, both sides' READMEs, the observe traces for the pair in question, and the two verdicts. It returns a structured verdict: explained (naming the discriminating evidence and which side it points at) or unexplained. Tony offered Grok as well; it is held for a later family-swap round.

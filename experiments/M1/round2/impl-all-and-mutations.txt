@@ -1,0 +1,78 @@
+PASS schedule=P1 seed=1 trace=observe/P1-v2-baseline-seed-1-39f9e3fc565ae11c.jsonl
+PASS schedule=P1 seed=2 trace=observe/P1-v2-baseline-seed-2-32d2e81de4acf4df.jsonl
+PASS schedule=P1 seed=3 trace=observe/P1-v2-baseline-seed-3-bf851e98e6b41ac8.jsonl
+PASS schedule=P2 seed=1 trace=observe/P2-v2-baseline-seed-1-e59f07ecc606285d.jsonl
+PASS schedule=P2 seed=2 trace=observe/P2-v2-baseline-seed-2-38e07d67133ead28.jsonl
+PASS schedule=P2 seed=3 trace=observe/P2-v2-baseline-seed-3-d33ba821a5d9a2de.jsonl
+PASS schedule=P3 seed=1 trace=observe/P3-v2-baseline-seed-1-9664b4a81fe36100.jsonl
+PASS schedule=P3 seed=2 trace=observe/P3-v2-baseline-seed-2-320edfcf0fcc79f4.jsonl
+PASS schedule=P3 seed=3 trace=observe/P3-v2-baseline-seed-3-7b8988c24155e78a.jsonl
+PASS schedule=P4 seed=1 trace=observe/P4-v2-baseline-seed-1-80fa0386ef54d7f8.jsonl
+PASS schedule=P4 seed=2 trace=observe/P4-v2-baseline-seed-2-a3fb5223056e8b55.jsonl
+PASS schedule=P4 seed=3 trace=observe/P4-v2-baseline-seed-3-4fd38525c80bf16d.jsonl
+PASS schedule=P5 seed=1 trace=observe/P5-v2-baseline-seed-1-988b175d61410971.jsonl
+PASS schedule=P5 seed=2 trace=observe/P5-v2-baseline-seed-2-c3eb23f77505e109.jsonl
+PASS schedule=P5 seed=3 trace=observe/P5-v2-baseline-seed-3-b80103955484cc8a.jsonl
+PASS schedule=P6 seed=1 trace=observe/P6-v2-baseline-seed-1-cf13396af7e6b9d6.jsonl
+PASS schedule=P6 seed=2 trace=observe/P6-v2-baseline-seed-2-76e1e3dabfbe10e1.jsonl
+PASS schedule=P6 seed=3 trace=observe/P6-v2-baseline-seed-3-88b3d13dc1442bc1.jsonl
+PASS schedule=P7 seed=1 trace=observe/P7-v2-baseline-seed-1-c7e1fb86e6e9bc31.jsonl
+PASS schedule=P7 seed=2 trace=observe/P7-v2-baseline-seed-2-cdd2cd22b891a335.jsonl
+PASS schedule=P7 seed=3 trace=observe/P7-v2-baseline-seed-3-8c37a8d1bacb73ca.jsonl
+PASS schedule=P8 seed=1 trace=observe/P8-v2-baseline-seed-1-64a67b05a2d871cc.jsonl
+PASS schedule=P8 seed=2 trace=observe/P8-v2-baseline-seed-2-803acd27f82243f5.jsonl
+PASS schedule=P8 seed=3 trace=observe/P8-v2-baseline-seed-3-9ace891680e4d55b.jsonl
+PASS schedule=P9 seed=1 trace=observe/P9-v2-baseline-seed-1-6b4950a9637b508e.jsonl
+PASS schedule=P9 seed=2 trace=observe/P9-v2-baseline-seed-2-37778d05eb95d245.jsonl
+PASS schedule=P9 seed=3 trace=observe/P9-v2-baseline-seed-3-1260a047243ef9ed.jsonl
+PASS schedule=P10 seed=1 trace=observe/P10-v2-baseline-seed-1-8eef5180c202c24f.jsonl
+PASS schedule=P10 seed=2 trace=observe/P10-v2-baseline-seed-2-3218fdb2543e1fe9.jsonl
+PASS schedule=P10 seed=3 trace=observe/P10-v2-baseline-seed-3-be7673e057f0e040.jsonl
+PASS schedule=P11 seed=1 trace=observe/P11-v2-baseline-seed-1-83eef45c65ca0823.jsonl
+PASS schedule=P11 seed=2 trace=observe/P11-v2-baseline-seed-2-1dea77dc27ddd711.jsonl
+PASS schedule=P11 seed=3 trace=observe/P11-v2-baseline-seed-3-3482041ad989d380.jsonl
+PASS schedule=P12 seed=1 trace=observe/P12-v2-baseline-seed-1-f3e17bf9fe2893ee.jsonl
+PASS schedule=P12 seed=2 trace=observe/P12-v2-baseline-seed-2-32142655844da7cc.jsonl
+PASS schedule=P12 seed=3 trace=observe/P12-v2-baseline-seed-3-ea3ee227c50e67af.jsonl
+PASS schedule=false-suspicion-v1 seed=1 observed=true trace=observe/false-suspicion-v1-v2-baseline-seed-1-d91f697ef97df86f.jsonl
+PASS schedule=false-suspicion-v1 seed=2 observed=true trace=observe/false-suspicion-v1-v2-baseline-seed-2-2b38c3858c04ed61.jsonl
+PASS schedule=false-suspicion-v1 seed=3 observed=true trace=observe/false-suspicion-v1-v2-baseline-seed-3-ad30c3b315d9df63.jsonl
+exit 0
+FAIL C1.1 schedule=P1 seed=1 mutation=P1 expected=FAIL_C1.1 trace=observe/P1-v2-P1-seed-1-ac518be2ed806617.jsonl detail="grant {n3 1} token 1 follows token 3"
+FAIL C1.1 schedule=P1 seed=2 mutation=P1 expected=FAIL_C1.1 trace=observe/P1-v2-P1-seed-2-050043ee4d4248f1.jsonl detail="grant {n2 1} token 1 follows token 3"
+FAIL C1.1 schedule=P1 seed=3 mutation=P1 expected=FAIL_C1.1 trace=observe/P1-v2-P1-seed-3-4c2229cd69bbcf95.jsonl detail="grant {n3 1} token 1 follows token 3"
+FAIL C1.1 schedule=P2 seed=1 mutation=P2 expected=FAIL_C1.1 trace=observe/P2-v2-P2-seed-1-a51b6f40f46af254.jsonl detail="grant {n2 1} token 1 follows token 3"
+FAIL C1.1 schedule=P2 seed=2 mutation=P2 expected=FAIL_C1.1 trace=observe/P2-v2-P2-seed-2-aaaa589595ea8e2a.jsonl detail="grant {n2 1} token 1 follows token 3"
+FAIL C1.1 schedule=P2 seed=3 mutation=P2 expected=FAIL_C1.1 trace=observe/P2-v2-P2-seed-3-793ece13d9a2b819.jsonl detail="grant {n2 1} token 1 follows token 3"
+FAIL C1.1 schedule=P3 seed=1 mutation=P3 expected=FAIL_C1.1 trace=observe/P3-v2-P3-seed-1-38e629f6da0f7c3a.jsonl detail="grant {n1 2} token 3 follows token 3"
+FAIL C1.1 schedule=P3 seed=2 mutation=P3 expected=FAIL_C1.1 trace=observe/P3-v2-P3-seed-2-6c8893fcd3ac9b0c.jsonl detail="grant {n1 2} token 3 follows token 3"
+FAIL C1.1 schedule=P3 seed=3 mutation=P3 expected=FAIL_C1.1 trace=observe/P3-v2-P3-seed-3-2f0b38d6654c0b33.jsonl detail="grant {n1 2} token 3 follows token 3"
+FAIL C1.2 schedule=P4 seed=1 mutation=P4 expected=FAIL_C1.2 trace=observe/P4-v2-P4-seed-1-35f787e0797b9e1f.jsonl detail="storage seq 3 ledger 0, reconstructed 4"
+FAIL C1.2 schedule=P4 seed=2 mutation=P4 expected=FAIL_C1.2 trace=observe/P4-v2-P4-seed-2-2856f23fb28f8cbc.jsonl detail="storage seq 4 ledger 0, reconstructed 4"
+FAIL C1.2 schedule=P4 seed=3 mutation=P4 expected=FAIL_C1.2 trace=observe/P4-v2-P4-seed-3-83610085aaeda0a6.jsonl detail="storage seq 5 ledger 0, reconstructed 4"
+FAIL C1.2 schedule=P5 seed=1 mutation=P5 expected=FAIL_C1.2 trace=observe/P5-v2-P5-seed-1-aba7d2c8566f8c20.jsonl detail="storage accepted stale token 3 below 5"
+FAIL C1.2 schedule=P5 seed=2 mutation=P5 expected=FAIL_C1.2 trace=observe/P5-v2-P5-seed-2-182fffb828fd4c5e.jsonl detail="storage accepted stale token 3 below 5"
+FAIL C1.2 schedule=P5 seed=3 mutation=P5 expected=FAIL_C1.2 trace=observe/P5-v2-P5-seed-3-c5599c5f6e580e04.jsonl detail="storage accepted stale token 3 below 5"
+FAIL C1.2 schedule=P6 seed=1 mutation=P6 expected=FAIL_C1.2 trace=observe/P6-v2-P6-seed-1-d1f1343f9f6d2c45.jsonl detail="storage accepted stale token 3 below 4"
+FAIL C1.2 schedule=P6 seed=2 mutation=P6 expected=FAIL_C1.2 trace=observe/P6-v2-P6-seed-2-9108bd1953c55214.jsonl detail="storage accepted stale token 3 below 4"
+FAIL C1.2 schedule=P6 seed=3 mutation=P6 expected=FAIL_C1.2 trace=observe/P6-v2-P6-seed-3-136a0e8072ec78ba.jsonl detail="storage accepted stale token 3 below 4"
+FAIL C1.3 schedule=P7 seed=1 mutation=P7 expected=FAIL_C1.3 trace=observe/P7-v2-P7-seed-1-5094181de3cf1b2b.jsonl detail="success ack c1:4 refers to an attempt never accepted"
+FAIL C1.3 schedule=P7 seed=2 mutation=P7 expected=FAIL_C1.3 trace=observe/P7-v2-P7-seed-2-ff76901a6f10b23a.jsonl detail="success ack c1:4 refers to an attempt never accepted"
+FAIL C1.3 schedule=P7 seed=3 mutation=P7 expected=FAIL_C1.3 trace=observe/P7-v2-P7-seed-3-25e93663cbf1a06f.jsonl detail="success ack c1:4 refers to an attempt never accepted"
+FAIL C1.3 schedule=P8 seed=1 mutation=P8 expected=FAIL_C1.3 trace=observe/P8-v2-P8-seed-1-9bc4ee159aafccb9.jsonl detail="success ack c1:4 refers to an attempt never accepted"
+FAIL C1.3 schedule=P8 seed=2 mutation=P8 expected=FAIL_C1.3 trace=observe/P8-v2-P8-seed-2-854d2226c87d1366.jsonl detail="success ack c1:4 refers to an attempt never accepted"
+FAIL C1.3 schedule=P8 seed=3 mutation=P8 expected=FAIL_C1.3 trace=observe/P8-v2-P8-seed-3-cd33c1636ffa8cd9.jsonl detail="success ack c1:4 refers to an attempt never accepted"
+FAIL C1.3 schedule=P9 seed=1 mutation=P9 expected=FAIL_C1.3 trace=observe/P9-v2-P9-seed-1-f21ff84ef3b9df4d.jsonl detail="success ack c1:5 refers to an attempt never accepted"
+FAIL C1.3 schedule=P9 seed=2 mutation=P9 expected=FAIL_C1.3 trace=observe/P9-v2-P9-seed-2-84bd2ad1d76a8dc8.jsonl detail="success ack c1:5 refers to an attempt never accepted"
+FAIL C1.3 schedule=P9 seed=3 mutation=P9 expected=FAIL_C1.3 trace=observe/P9-v2-P9-seed-3-e920c5e7c6f5a69e.jsonl detail="success ack c1:6 refers to an attempt never accepted"
+FAIL C1.4 schedule=P10 seed=1 mutation=P10 expected=FAIL_C1.4 trace=observe/P10-v2-P10-seed-1-ac1de72a11de98db.jsonl detail="eligible request {c1 1} unfulfilled through finite horizon"
+FAIL C1.4 schedule=P10 seed=2 mutation=P10 expected=FAIL_C1.4 trace=observe/P10-v2-P10-seed-2-38c159d3fc6de3ff.jsonl detail="eligible request {c1 1} unfulfilled through finite horizon"
+FAIL C1.4 schedule=P10 seed=3 mutation=P10 expected=FAIL_C1.4 trace=observe/P10-v2-P10-seed-3-965059c5d3763a0c.jsonl detail="eligible request {c1 1} unfulfilled through finite horizon"
+FAIL C1.4 schedule=P11 seed=1 mutation=P11 expected=FAIL_C1.4 trace=observe/P11-v2-P11-seed-1-23039c72bc30e7c6.jsonl detail="eligible request {c2 1} unfulfilled through finite horizon"
+FAIL C1.4 schedule=P11 seed=2 mutation=P11 expected=FAIL_C1.4 trace=observe/P11-v2-P11-seed-2-f72b80d06874edcb.jsonl detail="eligible request {c2 1} unfulfilled through finite horizon"
+FAIL C1.4 schedule=P11 seed=3 mutation=P11 expected=FAIL_C1.4 trace=observe/P11-v2-P11-seed-3-753673ef327a5470.jsonl detail="eligible request {c2 1} unfulfilled through finite horizon"
+FAIL C1.4 schedule=P12 seed=1 mutation=P12 expected=FAIL_C1.4 trace=observe/P12-v2-P12-seed-1-716e5fc0aa0713b0.jsonl detail="eligible request {c2 1} unfulfilled through finite horizon"
+FAIL C1.4 schedule=P12 seed=2 mutation=P12 expected=FAIL_C1.4 trace=observe/P12-v2-P12-seed-2-0b8dbd4a62328684.jsonl detail="eligible request {c2 1} unfulfilled through finite horizon"
+FAIL C1.4 schedule=P12 seed=3 mutation=P12 expected=FAIL_C1.4 trace=observe/P12-v2-P12-seed-3-4ef5e94dc9b88114.jsonl detail="eligible request {c2 1} unfulfilled through finite horizon"
+Mutation kills: 12/12 across 3 seed(s)
+exit 0

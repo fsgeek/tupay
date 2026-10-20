@@ -69,3 +69,22 @@ Tally: one model defect, two interface defects, zero implementation defects from
 - The workflow's weakest point in M1 was the steward's own interface work: the schedule set was not shared, and the schedule format left trigger arming and alias scope open. Both authors filled the gaps differently, and the cross-run is where it showed.
 - No fix has been made to either side. Any fix follows the judge's verdict and is logged as such. The model side's P10 result is an observation that the model, under a schedule it did not write, reports a liveness violation; whether that is the model's fault, the inputs', or the interface's is the judge's call, not the steward's.
 - The next change to the project is to the schedule format, not to the contract or the failure model. That is an interface change, and under the hereditary fence it invalidates both compilers' derivations from `testbed/schedule-format.md`. It happens before X1 and is logged, not pre-registered as an experiment.
+
+## Round 2: shared schedules, both sides adapted (2026-10-20, 23:48Z to 23:51Z)
+Merge `9c10cc4`. Steward's runs on the thirteen shared schedules, format v2, no edits by the steward on either side:
+| Side | Schedules | Mutations | Provenance (steward's checker) | Time |
+|---|---|---|---|---|
+| model v2 (P10 fixed) | 13 of 13 PASS | 12 of 12 FAIL on the predicted invariant | 25 of 25 files, every decision traceable | 2 min |
+| impl v2 | 39 of 39 PASS (12 pairs plus false-suspicion, 3 seeds) | 12 of 12 killed on every seed | 39 of 39 traces, every decision traceable | 1 min |
+
+**This is the first paired run on one schedule set, and it has zero divergences.** M1 is closed on both its stated criteria and its findings. Logs in `experiments/M1/round2/`.
+
+**Cost of the first adaptation** (uncontrolled; no regenerate arm; for the record only):
+| | Wall-clock | Tokens (approx.) | Commits |
+|---|---|---|---|
+| model author, v2 + P10 fix | 7 min | 48k | 4, predictions first |
+| impl author, v2 | 13 min 40 s | 116k | 3, predictions first |
+| steward: format v2, 13 schedules, briefs, isolation, merge, runs | about 50 min | not measured | 4 |
+Compare M1's regeneration from nothing: 24 and 31 minutes, 164k and 234k tokens. The adaptation cost roughly a third to a half of regeneration per author, and both authors' predictions were all met. The steward's share was the largest and is the part a regenerate arm would also pay.
+
+**Two residues for the format, not fixed this round:** T1 does not say whether a step's own synchronous events count as after the next trigger was armed (both authors read yes; shared P11 depends on it). Shared P10's first phase crashes literal n1, which on the implementation side may or may not be a non-leader; the steward's schedule should have constrained it.

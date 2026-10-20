@@ -105,14 +105,10 @@ exhaustive verification. Per-seed results and mutation kills are printed.
 
 ## Blocked
 
-Current blocker after the steward's parent-root change: the exact directory
-`/home/tony/projects/tupay/.git/worktrees/tupay-impl` is still a separate read-only
-mount. `findmnt` reports the parent `.git` as rw and this child as ro. Retrying
-`git add` and `git commit` still fails creating `index.lock`. The child needs an
-explicit writable-root entry. No outcome-bearing run has occurred; preregistration
-is unchanged and uncommitted. The historical initial report follows below.
+None currently. The steward removed the sandbox, and preregistration plus the
+stamp hook now succeed. The earlier permission reports below are historical.
 
-### Git metadata is outside writable sandbox
+### Historical: Git metadata outside writable sandbox
 
 <!-- derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3 -->
 The initial preregistration `git add` and `git commit` both failed before any
@@ -200,7 +196,7 @@ source/dependency work continue. No outcome has informed this entry.
     limit; exhaustion is not a new admitted failure cell and must be treated as
     an operational limitation if encountered.
 
-## Current delivery and remaining execution
+## Initial delivery and remaining execution (historical)
 
 <!-- derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3 -->
 The Go module, pinned dependencies/checksums, compiler, causal emitter, three
@@ -264,3 +260,35 @@ hypothesis and a new startup-voter regression before that test is executed.
 The P10 trace contains only the n1 crash and c1 request, with a qualifying finite
 progress certificate. Diagnosis remains unexplained pending direct configuration
 evidence; no model artifact or model comparison is involved.
+
+## Outcome-informed bootstrap correction
+
+<!-- derives: C1.4, F1.1 -->
+The registered startup-voter regression failed before the fix: n2 and n3 each
+reported an empty configuration immediately after newEngine returned. This
+observation discriminates the initial P10 failure as an implementation setup
+defect. The fixed grantor was not fully established before the start-triggered
+crash. The correction waits until all three Raft nodes expose the exact fixed
+three-voter configuration, using the existing library's replication. The fault
+schedule and the original baseline/mutation predictions are unchanged.
+
+<!-- derives: C1.1, C1.4, F1.1, F1.2 -->
+26. `start` begins after the fixed grantor is initialized at all three lease
+    nodes. Bootstrap/configuration replication is setup, not a workload grant.
+    The setup barrier is limited to the same three-second operational horizon;
+    setup failure is UNEXPLAINED, not a paired clause violation. The barrier
+    applies to all schedules and mutations, without changing injected faults.
+
+<!-- derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3 -->
+27. Go build caches, module caches, test temporary directories and runner output
+    are directed into impl/.cache or impl/observe. The runner sets TMPDIR too.
+    Normal Git metadata writes and the authorized stamp hook are part of commits;
+    no alternative checkout or other project artifact is used.
+
+<!-- derives: C1.4, F1.1 -->
+Bootstrap-fix validation: the startup-voter regression now passes; P10 baseline
+seeds 1, 2 and 3 each PASS. The complete Go fixture suite passes and go vet reports
+no findings. The initial mutation matrix reported the predicted clause on every
+pair/seed, but its P10 result alone was not discriminating because the initial
+baseline also failed. A fresh complete baseline and mutation matrix follows the
+fix, with the original predictions unchanged.

@@ -11,7 +11,8 @@ fi
 export GOMODCACHE="$PWD/.cache/mod"
 export GOPATH="$PWD/.cache/gopath"
 export GOCACHE="$PWD/.cache/build"
-mkdir -p bin observe
+export TMPDIR="$PWD/.cache/tmp"
+mkdir -p bin observe "$TMPDIR"
 if ! /usr/local/go/bin/go build -mod=readonly -o bin/tupay .; then
   echo 'UNEXPLAINED Go build failed'
   exit 2

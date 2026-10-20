@@ -134,7 +134,56 @@ func newEngine(s Schedule, out *Emitter, seed int64, mutation string) (*Engine, 
 		e.close()
 		return nil, err
 	}
+	if err := e.awaitBootstrap(); err != nil {
+		e.close()
+		return nil, err
+	}
 	return e, nil
+}
+
+// awaitBootstrap establishes the fixed grantor before start-triggered faults.
+// derives: C1.1, C1.4, F1.1, F1.2
+func (e *Engine) awaitBootstrap() error {
+	deadline := time.NewTimer(progressHorizon)
+	defer deadline.Stop()
+	ticker := time.NewTicker(time.Millisecond)
+	defer ticker.Stop()
+	for {
+		ready := true
+		for _, id := range e.schedule.Processes.Lease {
+			configuration := e.nodes[id].peer.GetConfiguration()
+			if err := configuration.Error(); err != nil {
+				return fmt.Errorf("bootstrap configuration %s: %w", id, err)
+			}
+			servers := configuration.Configuration().Servers
+			if len(servers) != len(e.schedule.Processes.Lease) {
+				ready = false
+				continue
+			}
+			for _, want := range e.schedule.Processes.Lease {
+				found := false
+				for _, server := range servers {
+					if string(server.ID) == want && string(server.Address) == want && server.Suffrage == raft.Voter {
+						found = true
+					}
+				}
+				if !found {
+					ready = false
+				}
+			}
+		}
+		if err := e.network.issue(); err != nil {
+			return err
+		}
+		if ready {
+			return nil
+		}
+		select {
+		case <-deadline.C:
+			return fmt.Errorf("initial fixed grantor configuration did not replicate")
+		case <-ticker.C:
+		}
+	}
 }
 
 // rpcTimeout samples the Raft RPC timeout (not an observation timestamp).

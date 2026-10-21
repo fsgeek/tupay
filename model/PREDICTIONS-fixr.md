@@ -47,3 +47,12 @@ All are unchanged in intent: P1-P3, P19 and P20 `FAIL C1_1`; P4-P6, P21 and P22 
 - **X2.5**: contradicted. Replaced by the one-hop relay through a lease node.
 - **7 (grant retries)**: extended. The same leader retransmits the same token; only a new leader issues a fresh one.
 - **Fairness table**: extended with `WF(Resend)`, and `Grant`'s enablement is restated in terms of routes.
+
+## Outcome (appended after the runs; the predictions above are unedited)
+- **Evidence first.** Before the fix, the model printed `FAIL C1_4` on H8 and H9 and `PASS` on H7 and H10. The counterexamples are in `evidence/`.
+- **Schedules.** All 35 print `PASS`, as predicted. P1-P30 and false-suspicion-v1 have exactly their X2 distinct-state counts.
+- **H8 route.** As predicted, the grant reaches c2 through a follower.
+- **Mutations.** All 30 print `FAIL` on the predicted clause.
+- **Miss (mechanical).** The P12 and P25 anchors matched the new `Resend` action as well as `Grant`, so mutation generation stopped on the first `--all`. I fixed the anchors; their breaks are unchanged.
+- **Not predicted.** In the no-relay check, H8 passed. Recording an undeliverable `Grant` is enough for H8, and H9 alone needs the relay. I had predicted that both would fail without the relay.
+- **Interpretations.** X2.4 and X2.5 were contradicted, 7 and the fairness table were extended, and FR.1 and FR.2 are new, all as predicted. The declared limitations are in the README.

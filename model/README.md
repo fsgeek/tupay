@@ -104,6 +104,81 @@ Additive. The predictions and their outcome are in `PREDICTIONS-v2.2.md`.
 - **Interpretation V22.1.** When an ack has no storage decision behind it, which only happens in mutation counterexamples (P7, P8, P16, P17), `answers` still names the attempt the client attributes the ack to, and `causes` is empty. I read `answers` as the client's view and `causes` as storage's. Their disagreement is exactly what those mutations break.
 - **Results.** All 19 schedules print `PASS`, and all 18 mutations print `FAIL` on the same clause as in X1. No verdict changed. The model is unchanged apart from comments, so the state counts are as in X1.
 
+## Routing fix (after X2 scoring; H7-H10 shared)
+derives: C1.1, C1.4, F2.1, F2.2; format v4 L3; observe v4 "Grants and retransmission"
+
+Additive. The predictions and their outcome are in `PREDICTIONS-fixr.md`. The pre-fix counterexamples are in `evidence/H8-prefix-*` and `evidence/H9-prefix-*`.
+
+### The defect (judge's verdict, locus: model)
+In X2 the model failed C1.4 on H8 and H9. Both failures were genuine.
+- **H9.** The grantor kept its lease-node quorum but could not exchange messages with c2. Nothing relayed c2's request, nothing replaced the grantor, and C1.4's premise held through the followers (L3).
+- **H8.** The grantor heard c2 but could not answer it. The model would not record a `Grant` it could not deliver (X2.4), so the crash step, which is triggered by that `Grant`, never fired.
+
+Two of my X2 interpretations misread format v4 Rule L3 and failure model v2:
+- X2.4 (grants go only to a connected requester) misread F2.2, under which a grantor may hear a requester it cannot answer.
+- X2.5 (no forwarding) misread L3: "how a request reaches a node that can grant, and how the grant comes back, is the artifact's business".
+
+### The fix (in `Lease.tla`)
+- **One-hop relay through a lease node.**
+  - `ReqRoute(c, n)` holds if c→n is up, or some up lease node f has c→f and f→n up. `RepRoute(n, c)` is the same in the other direction.
+  - `Grant` needs `ReqRoute`. The reply is put in flight only if `RepRoute` holds when the leader sends it; the relay is taken to forward at once, so the fate is fixed at that moment.
+  - Tags: C1.4, F2.1, F2.2; format v4 L3.
+- **A grant is recorded when the request is heard.**
+  - The `Grant` record is made whether or not a reply route exists. If none exists, the reply is lost.
+  - A leader answers each request (`rq[c]`) at most once per term, which is recorded in `issued`.
+  - `Resend(n, c)` retransmits the same token while the request still reaches the leader and a reply route exists. It records no `Grant`, as the observe v4 addendum says of retransmissions. A new leader issues a fresh grant, which has a higher token.
+  - Tags: C1.1, C1.4, F2.2; observe v4.
+- **New variables.** `rq` (C1.4) and `issued` (C1.1, C1.4, F2.2).
+  - `issued` is a leader's volatile memory, keyed by term. A node never leads the same term twice, because its new term exceeds its own durable promise. So the model does not need to clear `issued` on a crash.
+- **Fairness.** `WF(Resend(n, c))` is added. Its enablement is the leader's own record plus links that are up, which is allowed by the X2 rule. `WF(Grant)` is now enabled by a route over up links instead of a direct connection.
+
+### Stale tags fixed
+- `run.py`: the header said "checking runs for P1-P12 and M1" and named no C2.x or F2.x. `mutations()` was tagged P1-P12.
+- `mutate.py`: the docstring said "twelve", `build()` was tagged P1-P12, and `replace_def()` named P8, which never used it, instead of P13, which does.
+
+### Mutations: mechanical changes only
+- Every replacement text's `UNCHANGED` list now includes `rq, issued`.
+- The P12 and P25 anchors (`/\ c \in reqs`) also matched `Resend`, so they now include the following `ReqRoute` line. Their breaks are unchanged.
+- No mutation was added, because no pair was added.
+
+### Check, not a registered mutation: what each half of the fix does
+The model was run with the relay removed (direct routes only) and everything else kept.
+- **H9: `FAIL C1_4`.** The relay is what fixes H9.
+- **H8: `PASS`.** Without a relay, the grant to c2 really is lost and the crash fires. A new leader learns token 2 from its quorum and grants c2 a higher token. So it is recording an undeliverable `Grant` that fixes H8.
+
+With the relay, the unmutated model takes another route on H8. The grant reaches c2 through a follower (n1→f→c2 is up), so c2 holds t2 itself; its write is accepted with `highest_before = 1`, and c1's stale read is rejected. H8's comment expects a "grant nobody received" and a token above t2. That is a different artifact's route, not a clause: C1.4 asks only that c2 obtain a grant. An artifact that does not relay will show a different `Grant` token in its observe file. I expect that as a divergence in the observe files, with the same verdict.
+
+### Interpretations (routing fix)
+**New**
+- **FR.1, relay (C1.4, F2.1, F2.2; L3).**
+  - Requests and grant replies may take one hop through any up lease node. Relays through storage or another client are not modelled.
+  - Why one hop suffices: a leader that keeps its place (CheckQuorum) is connected to a majority M. C1.4's premise gives a majority Q connected to the requester. M and Q share a lease node, and that node is connected both ways to both.
+- **FR.2, a grant is recorded when heard, delivered by route, and retransmitted (C1.1, C1.4, F2.2; observe v4).** This is described under "The fix" above.
+
+**Contradicted**
+- **X2.4, "A grant is issued only to a requester the grantor is connected to."** Under F2.2 a grantor may hear a requester it cannot answer, and the judge found the omission was not harmless (H8). Replaced by FR.2.
+- **X2.5, "No forwarding."** Format v4 L3 makes routing the artifact's business, and the judge found the H9 shape to be a violation, not a limit. Replaced by FR.1.
+
+**Extended**
+- **7 (grant retries).** The same leader now retransmits the same token (`Resend`). Only a different leader issues a fresh grant with a new token. Before, a lost reply led to a fresh grant from any leader, including the same one.
+- **X2 fairness table.** `WF(Resend)` is added. `WF(Grant)` is enabled by routes over up links.
+
+### Declared limitations
+1. **Relays are lease nodes only, and one hop.** A schedule whose only path between the requester and every grant-capable node runs through storage or the other client would fail C1.4 here. Under L3's premise I believe that cannot happen (FR.1's argument). It could happen if a reader took "connected to some requester" more loosely than L3 does.
+2. **A relay forwards atomically.** The reply's fate is fixed when the leader sends it, not when the relay forwards. If the relay's outgoing link goes down in between, a real system loses the reply and the model delivers it. This under-approximates loss. Liveness is not hurt, because `Resend` would cover it, but any safety consequence of that loss is not explored. I see none, since C1.1 depends on recorded grants, not delivered ones.
+3. **Retransmission is not exercised by any unmutated shared run.** H8 is answered by the relay, and no shared schedule leaves a heard requester with no reply route while the premise holds. `Resend` and the lost-grant path were exercised only by the no-relay check above.
+4. **Liveness depends on voter stickiness and CheckQuorum (X2.2, X2.3).** With three lease nodes, I argue that stickiness rules out election cycles: a voter that does not hear the leader cannot form a majority with the other non-hearer. With more lease nodes, or with schedules that crash and restart nodes repeatedly, terms could climb to `MaxTerm`. The run would then be `UNEXPLAINED` (bound), not PASS or FAIL. The topology is fixed at 3/2/1.
+5. **A grant sent to a requester that crashes and restarts** is answered under the new request counter. A retransmission of an old request's token is never offered, because `Resend` requires the current `rq[c]`. A reader who expects an old grant to be honoured would see a fresh one instead.
+6. **The model checks only the schedules it is given.** Every shape above is argued, not model-checked, except the 35 shared schedules and the no-relay check.
+
+### Results (routing fix, `run.sh --all` then `run.sh --mutations`)
+- **All 35 shared schedules print `PASS`.**
+  - P1-P30 and false-suspicion-v1 have exactly their X2 distinct-state counts. The new variables only shadow the grant history on those schedules.
+  - H7: 123,836 distinct states, depth 40. H8: 14,111, depth 26. H9: 347, depth 10. H10: 2,168, depth 21.
+  - H7 and H10 also passed before the fix.
+- **All 30 mutations print `FAIL` on their pair's clause.**
+- **First run.** The first `--all` stopped at mutation generation, because P12's anchor matched twice. I fixed the anchor; the result above is from the rerun of the mutations. The schedule verdicts were from the first run and did not depend on it.
+
 ## X2 adapt arm (failure model v2: partial and simplex partitions)
 derives: C1.1, C1.2, C1.3, C1.4, C2.1, C2.2, F1.1, F1.2, F1.3, F2.1, F2.2; format v4 (cut, drop, L1, L2, L3, E1, E3, T3); observe v4 addendum; pairs v3
 
@@ -373,13 +448,15 @@ Pipeline for one run:
 | `Lease.tla` | state machine, environment actions, invariants, liveness | all clauses and cells, per definition |
 | `compile.py` | schedule compiler (YAML -> TLC model) | F1.1, F1.2, F1.3, F2.1, F2.2 (X2) |
 | `export.py` | TLC trace -> `observe/schema.md` records | C1.1-C1.3, F1.1-F1.3 |
-| `mutate.py` | generates `mutations/<P>/Lease.tla` | P1-P12 |
+| `mutate.py` | generates `mutations/<P>/Lease.tla` | P1-P30 (stale P1-P12 tag fixed in the routing round) |
 | `run.py`, `run.sh` | runner | all |
 | `schedules/*.yaml` | **[v2] history only**: my M1 schedules, no longer run; the shared ones are `testbed/schedules/` | per file header |
 | `mutations/<P>/Lease.tla` | the 12 mutated models (regenerated by `--mutations`) | per file header |
 | `observe/*.jsonl` | observe files from the last `--all` | per run |
 | `PREDICTIONS.md` | pre-registered verdicts, committed before any TLC run | |
 | `PREDICTIONS-x2.md` | X2 predictions and outcome | F2.1, F2.2 |
+| `PREDICTIONS-fixr.md` | routing-fix predictions and outcome | C1.4, F2.1, F2.2 |
+| `evidence/H8-prefix-*`, `evidence/H9-prefix-*` | pre-fix C1.4 counterexamples | C1.4, F2.1, F2.2 |
 
 ## Model summary
 - **Processes.** Three lease nodes, two clients and one storage process, with names taken from the schedule. The key is `"k"`.

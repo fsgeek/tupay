@@ -147,7 +147,9 @@ Protocol ==
     ("P12", "C1.4, F1.3", "C1_4",
      "the grantor will not grant to another client until the previous holder releases (expiry ignored)",
      [("str", r"""    /\ c \in reqs
+    /\ ReqRoute(c, n)
 """, r"""    /\ c \in reqs
+    /\ ReqRoute(c, n)
     /\ ~\E d \in Clients : d # c /\ tok[d].t > 0 \* mutation: P12 waits for a release that never comes; expiry ignored
 """)]),
     # ---- X1 (contract v2): mutations for P13-P18, named in PREDICTIONS-x1.md before running
@@ -307,7 +309,9 @@ Protocol ==
     ("P25", "C1.4, F2.1", "C1_4",
      "the grantor will not grant while any lease node is unreachable (it waits for the whole configuration)",
      [("str", r"""    /\ c \in reqs
+    /\ ReqRoute(c, n)
 """, r"""    /\ c \in reqs
+    /\ ReqRoute(c, n)
     /\ \A q \in Nodes : Conn(n, q) \* mutation: P25 a majority is not enough while a follower is unreachable
 """)]),
     ("P26", "C1.4, F2.2", "C1_4",

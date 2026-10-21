@@ -1,0 +1,8 @@
+You are auditing a restatement for fidelity to its source. In this directory: spec-D.md (the source: an extract of a published design, with two transcribed figures), spec-F.md (a restatement of that design in different vocabulary: member = server, epoch = term, coordinator = leader, journal = log), and F-sources.md (a table claiming, for each statement in F, the passage of D it comes from).
+
+Do three things, and write your report to audit.md in this directory:
+1. For each row of F-sources.md, check that the anchor phrase actually appears in spec-D.md (search for it) and that the passage around it supports F's statement as F words it. Give every row a verdict: confirmed, wrong anchor, unsupported, or status wrong (say what it should be).
+2. Find every statement in spec-F.md that the table does not cover, and say whether D supports it.
+3. Find everything in D's design that F leaves out, changes, strengthens, weakens, or gives more or less emphasis than D does (order, bold, placing a claim among rules versus in an argument). Restrict yourself to the design; ignore D's motivation and history passages.
+
+Judge fidelity only. Do not assess whether the design is correct or safe, and do not propose improvements to it. Do not use the web. Do not modify any file except audit.md.

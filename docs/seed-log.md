@@ -132,3 +132,6 @@ Judge D4: R1's H3 stall is explained, locus model, a deposed lower-term leader t
 
 ## 2026-10-21: handoff note written while the context is intact
 Tony noted the session's context is large and that an orderly handoff will be needed. `docs/handoff/2026-10-21-first-steward.md` is written now, not later: state, the first three things to do, the recipes with the mistakes that produced them, decisions a successor may revisit, warnings, open threads. The steward continues until a boundary; the clean one is after interface v2.2 and before the X2 pre-registration, so that the successor writes X2's predictions fresh.
+
+## 2026-10-21: interface v2.2 (format) and schema v3, before X2
+Format v2.2 defines `restart: non-grantor`. Schema v3 adds `answers: {proc, seq}` to acks, with tessera's E-02 cited as the real-world instance; the steward's provenance checker now checks it. Brief `docs/briefs/adapt-v2.2.md`; both current authors adapt from the X1 arm A state. Logged for cost only.

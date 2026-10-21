@@ -1,0 +1,5 @@
+In this directory: spec-D.md (the source: an extract of a published design, with two transcribed figures; its opening paragraph, Source note and closing section were written by the person who assembled it, not by the design's author), spec-F.md (a restatement of D's design in different vocabulary: member = server, epoch = term, coordinator = leader, journal = log), and changes.diff (the edits just made to F; spec-F-before.md is F before them).
+
+For each changed line in changes.diff, check whether the new wording is supported by the design text of D (not by D's assembler-written sections). Give each change a verdict: supported (quote the D passage), unsupported, or changes the design relative to D (say how). Also say whether any change gives a statement more emphasis or prominence than D gives it. Write the report to recheck.md in this directory.
+
+Judge fidelity only. Do not assess whether the design is correct or safe, and do not propose improvements. Do not use the web. Do not modify any file except recheck.md.

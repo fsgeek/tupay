@@ -16,7 +16,7 @@ Durable (survives a crash): `epoch`, `votedFor` (a member name or none, for the 
 Volatile (lost on a crash, reset on restart): `role` (follower on restart), `commitIndex` (0 on restart), and, for a coordinator, `nextIndex` and `matchIndex` for each other member.
 
 ## Messages
-Requests and replies may be lost, delayed or reordered. A member that gets no timely reply to a request retries it; requests to different members are sent in parallel. Every message carries the sender's `epoch`. On receiving any message with an epoch higher than its own, a member sets its `epoch` to that value, clears `votedFor`, and becomes a follower, before processing the message further. A member ignores a request whose epoch is lower than its own, replying with its own epoch.
+Every message carries the sender's `epoch`. On receiving any message with an epoch higher than its own, a member sets its `epoch` to that value, clears `votedFor`, and becomes a follower, before processing the message further. A member ignores a request whose epoch is lower than its own, replying with its own epoch. Requests and replies may be lost, delayed or reordered. A member that gets no timely reply to a request retries it; requests to different members are sent in parallel.
 
 Members process incoming requests without consulting their own configuration. In particular a member grants votes to, and accepts journal extensions from, members that are not in its configuration.
 

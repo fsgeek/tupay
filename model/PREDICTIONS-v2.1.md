@@ -28,3 +28,11 @@ Additive. `PREDICTIONS.md` and `PREDICTIONS-v2.md` are not edited. Committed aft
 | P11, P12 | FAIL C1_4 |
 
 No mutation needs re-placing.
+
+## Outcome (appended after `run.sh --all`; the predictions above are unedited)
+- **Schedules.** All 13 print `PASS`, as predicted. The rewritten P10 has 1,145 distinct states; every other schedule's state count is unchanged from round 2, apart from P1's depth, which went from 23 to 24.
+- **Mutations.** All 12 print `FAIL` on the predicted clause.
+  P10's counterexample follows the predicted route: a grant to c1, `crash: non-grantor` takes n1, a grant to c2, n1 restarts, the grantor n3 crashes, c1 requests, then the run stutters.
+- **Discrimination check.** The rewritten P10 on the model with only `Join` removed printed `FAIL C1_4`, as predicted.
+  The route: Elect(n3) with {n1, n3}, a grant to c1, `crash: non-grantor` takes n1, c2 requests, then the run stutters.
+- **Misses.** None.

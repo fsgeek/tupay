@@ -54,12 +54,14 @@ VARIABLES
     pc,         \* derives: F1.1, F1.2, F1.3 -- index of the next schedule step
     fired,      \* derives: F1.1, F1.2, F1.3 -- trigger of step pc has held since step pc-1
     trigG,      \* derives: F1.2, F1.3 -- most recent grant at trigger time (resolves grantor/holder)
+    trigNG,     \* derives: F1.1; format v2.1 A1 -- lease nodes other than grantor up at trigger time
+    ngDown,     \* derives: F1.1; format v2.1 A1 -- node crashed by the most recent `crash: non-grantor`
     lastEv      \* derives: C1.1, C1.2, C1.3 -- the event emitted by the last step (for the exporter)
 
 \* derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3 -- all state variables
 vars == <<up, paused, sideA, promised, maxTok, leader, term, ltok, reqs,
           pending, tok, myToks, awaiting, grantMsgs, writeMsgs, ackMsgs, dups,
-          highest, stval, toAck, grants, decisions, told, pc, fired, trigG, lastEv>>
+          highest, stval, toAck, grants, decisions, told, pc, fired, trigG, trigNG, ngDown, lastEv>>
 
 \* derives: F1.1, F1.2 -- every process
 Procs == Nodes \cup Clients \cup {Store}
@@ -89,7 +91,7 @@ MaxGranted == Max({grants[i].token : i \in 1..Len(grants)})
 Trig(i) == IF i <= Len(Steps) THEN Steps[i].trig ELSE EndTrig
 \* derives: F1.1, F1.2, F1.3
 IsStart(T) == T.event = "start"
-\* derives: F1.1, F1.2, F1.3; format v2 T1 -- an event matches a trigger: same event and every
+\* derives: F1.1, F1.2, F1.3; format v2.1 T1 -- an event matches a trigger: same event and every
 \* filter field equal. Only events emitted while the trigger is armed are ever offered to it
 \* (Emit and ScheduleStep), which is T1's "matches only events emitted after it was armed".
 \* `quiescent` (E1) is a state predicate, never matched by an event.
@@ -103,7 +105,9 @@ Matches(T, e) == /\ T.event \notin {"start", "quiescent"}
 Emit(e) == /\ lastEv' = e
            /\ fired' = (fired \/ Matches(Trig(pc), e))
            /\ trigG' = IF ~fired /\ Matches(Trig(pc), e) THEN LastGrant' ELSE trigG
-           /\ UNCHANGED pc
+           /\ trigNG' = IF ~fired /\ Matches(Trig(pc), e)
+                        THEN {n \in Nodes : up'[n]} \ {LastGrant'.node} ELSE trigNG
+           /\ UNCHANGED <<pc, ngDown>>
 
 \* derives: C1.1, C1.4 -- internal (non-observable) protocol step
 Internal(what, p) == Emit([event |-> "Internal", what |-> what, proc |-> p])
@@ -137,6 +141,8 @@ Init ==
     /\ pc = 1
     /\ fired = IsStart(Trig(1))
     /\ trigG = [node |-> "none", client |-> "none"]
+    /\ trigNG = Nodes
+    /\ ngDown = "none"
     /\ lastEv = [event |-> "Init"]
 
 \* ===========================================================================
@@ -298,9 +304,11 @@ RecvAck(a) ==
 \* Schedule steps: workload (derives from the contract) and faults (one per cell)
 \* ===========================================================================
 
-\* derives: F1.2, F1.3 -- resolve "grantor"/"holder" at trigger time
-Resolve(x) == IF x = "grantor" THEN trigG.node
-              ELSE IF x = "holder" THEN trigG.client ELSE x
+\* derives: F1.1, F1.2, F1.3; format v2.1 A1 -- resolve "grantor"/"holder"/"non-grantor" at trigger time
+\* format v2.1 A1: `non-grantor` resolves to ng, one of the candidates chosen by ScheduleStep
+Resolve(x, ng) == IF x = "grantor" THEN trigG.node
+                  ELSE IF x = "holder" THEN trigG.client
+                  ELSE IF x = "non-grantor" THEN ng ELSE x
 
 \* derives: C1.2, F1.3 -- the client's most recent superseded token (lower than the highest granted)
 StaleTok(c) ==
@@ -410,38 +418,52 @@ Resume(c) ==
     /\ lastEv' = [event |-> "Fault", cell |-> "F1.3", action |-> "resume", target |-> c]
 
 \* derives: F1.2 -- the side of a partition step, after resolving grantor/holder/rest
-SideOf(st) ==
-    LET a == {Resolve(x) : x \in st.a \ {"rest"}}
-        b == {Resolve(x) : x \in st.b \ {"rest"}} IN
+SideOf(st, ng) ==
+    LET a == {Resolve(x, ng) : x \in st.a \ {"rest"}}
+        b == {Resolve(x, ng) : x \in st.b \ {"rest"}} IN
     IF "rest" \in st.a THEN Procs \ b ELSE a
 
 \* derives: F1.1, F1.2, F1.3; format v2 A1 -- every alias in the step resolved to a process
 \* (an alias that names no Grant yet leaves the step waiting; the compiler rejects the
 \* statically detectable cases)
-Resolved(st) == /\ st.p = "none" \/ Resolve(st.p) \in Procs
-                /\ \A x \in (st.a \cup st.b) \ {"rest"} : Resolve(x) \in Procs
+Resolved(st, ng) == /\ st.p = "none" \/ Resolve(st.p, ng) \in Procs
+                    /\ \A x \in (st.a \cup st.b) \ {"rest"} : Resolve(x, ng) \in Procs
 
 \* derives: C1.2, C1.4, F1.1, F1.2, F1.3; format v2 A1, T3 -- the effect of one schedule step
 \* (each workload action's own guard makes it wait as T3 requires)
-DoStep(st) ==
-    /\ Resolved(st)
-    /\ CASE st.kind = "request"   -> DoRequest(Resolve(st.p))
-      [] st.kind = "write"     -> DoWrite(Resolve(st.p), st.v, st.stale)
-      [] st.kind = "crash"     -> Crash(Resolve(st.p))
-      [] st.kind = "restart"   -> Restart(Resolve(st.p))
-      [] st.kind = "partition" -> Partition(SideOf(st))
+DoStep(st, ng) ==
+    /\ Resolved(st, ng)
+    /\ CASE st.kind = "request"   -> DoRequest(Resolve(st.p, ng))
+      [] st.kind = "write"     -> DoWrite(Resolve(st.p, ng), st.v, st.stale)
+      [] st.kind = "crash"     -> Crash(Resolve(st.p, ng))
+      [] st.kind = "restart"   -> Restart(Resolve(st.p, ng))
+      [] st.kind = "partition" -> Partition(SideOf(st, ng))
       [] st.kind = "heal"      -> Heal
-      [] st.kind = "pause"     -> Pause(Resolve(st.p))
-      [] st.kind = "resume"    -> Resume(Resolve(st.p))
+      [] st.kind = "pause"     -> Pause(Resolve(st.p, ng))
+      [] st.kind = "resume"    -> Resume(Resolve(st.p, ng))
 
-\* derives: F1.1, F1.2, F1.3 -- apply step pc once its trigger has held; arm the next trigger
+\* derives: F1.1; format v2.1 A1 -- candidate resolutions of `non-grantor` for step st
+\* format v2.1 T1: the next trigger is offered lastEv', the event this step's own action emitted
+\* synchronously, so a step may be triggered by its predecessor's own event.
+\* format v2.1 A1: `non-grantor` is explored over every candidate (the lease nodes other than
+\* grantor that were up when the trigger fired); `restart: non-grantor` names the node the most
+\* recent `crash: non-grantor` crashed.
+NGChoices(st) ==
+    IF "non-grantor" \notin ({st.p} \cup st.a \cup st.b) THEN {"none"}
+    ELSE IF st.kind = "restart" THEN {ngDown}
+    ELSE trigNG
+
+\* derives: F1.1, F1.2, F1.3; format v2.1 T1, A1 -- apply step pc once its trigger has held; arm the next trigger
 ScheduleStep ==
     /\ pc <= Len(Steps)
     /\ fired
-    /\ DoStep(Steps[pc])
+    /\ \E ng \in NGChoices(Steps[pc]) :
+        /\ DoStep(Steps[pc], ng)
+        /\ ngDown' = IF Steps[pc].kind = "crash" /\ Steps[pc].p = "non-grantor" THEN ng ELSE ngDown
     /\ pc' = pc + 1
     /\ fired' = (IsStart(Trig(pc + 1)) \/ Matches(Trig(pc + 1), lastEv'))
     /\ trigG' = IF fired' THEN LastGrant ELSE trigG
+    /\ trigNG' = IF fired' THEN {n \in Nodes : up'[n]} \ {LastGrant.node} ELSE trigNG
 
 \* ===========================================================================
 \* derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3

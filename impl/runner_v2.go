@@ -9,9 +9,10 @@ import (
 // FrozenAction captures selectors when a trigger fires, before delay or waiting.
 // derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, T2, T3, A1, A2
 type FrozenAction struct {
-	Actions []Action
-	Rest    []string
-	HasRest bool
+	Actions         []Action
+	Rest            []string
+	HasRest         bool
+	NonGrantorCrash string
 }
 
 // freezeAction resolves aliases everywhere and checks concrete operation roles.
@@ -41,6 +42,23 @@ func (e *Engine) freezeAction(a Action) (FrozenAction, error) {
 			targets = []string{e.grantor}
 		case "holder":
 			targets = []string{e.holder}
+		case "non-grantor":
+			selected := e.lastNonGrantor
+			if a.Restart != "" {
+				if selected == "" {
+					return frozen, fmt.Errorf("A1: restart non-grantor without a preceding crash non-grantor")
+				}
+			} else {
+				var err error
+				selected, err = e.nonGrantor()
+				if err != nil {
+					return frozen, err
+				}
+			}
+			targets = []string{selected}
+			if a.Crash != "" {
+				frozen.NonGrantorCrash = selected
+			}
 		case "rest":
 			targets = append([]string{}, e.rest...)
 		}
@@ -222,13 +240,18 @@ func (e *Engine) drive() RunEvidence {
 				return finish()
 			}
 		}
-		// Arm the successor at the action boundary, before synchronous observable effects.
+		// v2.1 T1: the predecessor's own Request, WriteAttempt and Fault
+		// count as after successor arming; this preserves the existing v2 behavior.
+		// derives: C1.1, C1.3, F1.1, T1, E1
 		armed = len(e.out.events)
 		for _, a := range frozen.Actions {
 			if err := e.act(a, trigger); err != nil {
 				result.Reason = err.Error()
 				return finish()
 			}
+		}
+		if frozen.NonGrantorCrash != "" {
+			e.lastNonGrantor = frozen.NonGrantorCrash
 		}
 		if frozen.HasRest {
 			e.rest = append([]string{}, frozen.Rest...)

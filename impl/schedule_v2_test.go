@@ -127,6 +127,7 @@ func TestV2E1_ActiveWorkOnly(t *testing.T) {
 }
 
 // TestV2T1T3_SynchronousEffects exercises fresh arming and both workload waits.
+// v2.1 T1 makes this existing predecessor-event behavior normative.
 // derives: C1.1, C1.2, C1.3, C1.4, T1, T2, T3, E1
 func TestV2T1T3_SynchronousEffects(t *testing.T) {
 	for _, second := range []Action{{Write: "c1", Value: "waiting-for-token"}, {Request: "c1"}} {

@@ -153,7 +153,7 @@ func loadSchedule(name string) (Schedule, error) {
 		role string
 	}{{s.Processes.Lease, "lease"}, {s.Processes.Clients, "client"}, {s.Processes.Storage, "storage"}} {
 		for _, id := range group.ids {
-			if id == "" || id == "env" || id == "rest" || id == "grantor" || id == "holder" || ids[id] != "" {
+			if id == "" || id == "env" || id == "rest" || id == "grantor" || id == "holder" || id == "non-grantor" || ids[id] != "" {
 				return s, fmt.Errorf("invalid process %q", id)
 			}
 			ids[id] = group.role
@@ -233,7 +233,7 @@ func validateAction(a Action, ids map[string]string) error {
 			}
 			for _, side := range a.Partition {
 				for _, id := range side {
-					if ids[id] == "" && id != "grantor" && id != "holder" && id != "rest" {
+					if ids[id] == "" && id != "grantor" && id != "holder" && id != "rest" && id != "non-grantor" {
 						return fmt.Errorf("unknown partition member %s", id)
 					}
 				}

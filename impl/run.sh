@@ -9,8 +9,8 @@ if ! git cat-file -e HEAD:impl/PREREGISTRATION.md 2>/dev/null; then
   exit 2
 fi
 # derives: C1.1, C1.2, C1.3, C1.4, T1, A1, E1
-if ! git show HEAD:impl/PREREGISTRATION.md | rg '^## Schedule-format v2 adaptation' >/dev/null; then
-  echo 'UNEXPLAINED v2 predictions are not committed'
+if ! git show HEAD:impl/PREREGISTRATION.md | rg '^## Schedule-format v2[.]1 adaptation' >/dev/null; then
+  echo 'UNEXPLAINED v2.1 predictions are not committed'
   exit 2
 fi
 export GOMODCACHE="$PWD/.cache/mod"

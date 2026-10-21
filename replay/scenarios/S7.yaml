@@ -1,0 +1,9 @@
+scenario: S7
+derives: [J1.2, G1.4]
+initial: [m1, m2, m3, m4]
+steps:
+  # derives: S7 (J1.2, G1.4). A member is removed and later added back; committed entries persist.
+  - {at: {event: Elected}, do: {remove: m4, at: coordinator}}
+  - {at: {event: ChangeReplied, status: ok}, do: {add: m4, at: coordinator}}
+end: quiescent
+bound: {events: 400}

@@ -1,0 +1,9 @@
+scenario: S6
+derives: [J1.2, G1.3]
+initial: [m1, m2, m3, m4]
+steps:
+  # derives: S6 (J1.2, G1.3). After a commit, the coordinator and one follower are cut from the other two; heal; committed entries persist.
+  - {at: {event: Committed}, do: {cut: [[m1, m3], [m1, m4], [m2, m3], [m2, m4]]}}
+  - {at: {event: Elected}, do: {heal: true}}
+end: quiescent
+bound: {events: 400}

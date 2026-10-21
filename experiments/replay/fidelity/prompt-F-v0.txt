@@ -1,0 +1,244 @@
+# Fidelity check: is specification F a faithful restatement of the dissertation's single-server membership change?
+
+You are a reviewer from a model family that did not write F. Work only from the text below; do not read files or run commands.
+
+Background: a research project will have independent authors build Ongaro's single-server membership change (from his 2014 Stanford dissertation, "Consensus: Bridging Theory and Practice", chapter 3's basic algorithm and chapter 4's §4.1 with Figure 4.1) in order to see whether its workflow finds a known safety problem in that algorithm, without telling the authors what the problem is. One arm of the experiment gets the dissertation's own words; the other gets specification F, a neutral restatement with renamed concepts (epoch for term, coordinator for leader, journal for log, ballot for vote, extend for AppendEntries). F must be faithful in both directions: it must not fix any defect of the original design (including any defect you know of from later literature), and it must not drop, weaken or add any rule in a way that removes or creates a defect.
+
+Compare F against (a) the dissertation's chapter 3 basic algorithm, as summarised in its Figure 3.1 (which you will have to recall; it is not reproduced here), and (b) chapter 4's introduction, Figure 4.1 and §4.1, reproduced below. Report: every difference you find between F and the original, each classed as harmless renaming, harmless omission (not needed by this design), or **material** (changes what the design permits or forbids); whether any known safety defect of the original single-server change design is present in F exactly as it is in the original, absent, or altered, with the specific rule in F that decides it; and anything in F that is ambiguous enough that two careful authors could build different things. Be concrete and brief; cite F's section headings.
+
+===== Dissertation chapter 4 introduction and §4.1 (pdftotext, verbatim; Figure 4.1's image text is unreadable here, see the transcription that follows) =====
+
+on understandability, we hope to have provided a solid foundation for implementers to adjust Raft
+according to their experiences. Since Raft works in our testing environment, we expect these to be
+straightforward extensions rather than fundamental changes.
+Chapter 4
+
+Cluster membership changes
+
+Up until now we have assumed that the cluster configuration (the set of servers participating in the
+consensus algorithm) is fixed. In practice, it will occasionally be necessary to change the configura-
+tion, for example to replace servers when they fail or to change the degree of replication. This could
+be done manually, using one of two approaches:
+
+   • Configuration changes could be done by taking the entire cluster off-line, updating configu-
+      ration files, and then restarting the cluster. However, this would leave the cluster unavailable
+      during the changeover.
+
+   • Alternatively, a new server could replace a cluster member by acquiring its network address.
+      However, the administrator must guarantee that the replaced server will never come back up,
+      or else the system would lose its safety properties (for example, there would be an extra vote).
+
+Both of these approaches to membership changes have significant downsides, and if there are any
+manual steps, they risk operator error.
+    In order to avoid these issues, we decided to automate configuration changes and incorporate
+them into the Raft consensus algorithm. Raft allows the cluster to continue operating normally
+during changes, and membership changes can be implemented with only a few extensions to the
+basic consensus algorithm. Figure 4.1 summarizes the RPCs used to change cluster membership,
+whose elements are described in the remainder of this chapter.
+
+                                                 32
+CHAPTER 4. CLUSTER MEMBERSHIP CHANGES                                                               33
+
+      &                   '
+          (
+
+                      "                                   !
+ #    !                                                    "
+       "                                              #
+ "                                                                $                   %
+              $                %                                      "
+                  "                                   "
+ )                                                         "
+
+  Figure 4.1: RPCs used to change cluster membership. The AddServer RPC is used to add a
+  new server to the current configuration, and the RemoveServer RPC is used to remove a server
+  from the current configuration. Section numbers such as §4.1 indicate where particular features
+  are discussed. Section 4.4 discusses ways to use these RPCs in a complete system.
+
+4.1        Safety
+
+Preserving safety is the first challenge for configuration changes. For the mechanism to be safe, there
+must be no point during the transition where it is possible for two leaders to be elected for the same
+term. If a single configuration change adds or removes many servers, switching the cluster directly
+from the old configuration to the new configuration can be unsafe; it isn’t possible to atomically
+switch all of the servers at once, so the cluster can potentially split into two independent majorities
+during the transition (see Figure 4.2).
+     Most membership change algorithms introduce additional mechanism to deal with such prob-
+lems. This is what we did for Raft initially, but we later discovered a simpler approach, which is to
+disallow membership changes that could result in disjoint majorities. Thus, Raft restricts the types
+of changes that are allowed: only one server can be added or removed from the cluster at a time.
+More complex changes in membership are implemented as a series of single-server changes. Most
+of this chapter describes the single-server approach, which is easier to understand than our original
+approach. For completeness, Section 4.3 describes the original approach, which incurs additional
+complexity to handle arbitrary configuration changes. We implemented the more complex approach
+in LogCabin prior to discovering the simpler single-server change approach; it still uses the more
+34                                              CHAPTER 4. CLUSTER MEMBERSHIP CHANGES
+
+ Figure 4.2: Switching directly from one configuration to another can be unsafe because differ-
+ ent servers will switch at different times. In this example, the cluster grows from three servers
+ to five. Unfortunately, there is a point in time where two different leaders can be elected for the
+ same term, one with a majority of the old configuration (Cold ) and another with a majority of
+ the new configuration (Cnew ).
+
+       (a) Adding one server to a 4-server cluster.      (b) Adding one server to a 3-server cluster.
+
+     (c) Removing one server from a 5-server cluster. (d) Removing one server from a 4-server cluster.
+
+ Figure 4.3: The addition and removal of a single server from an even- and an odd-sized cluster.
+ In each figure, the blue rectangle shows a majority of the old cluster, and the red rectangle
+ shows a majority of the new cluster. In every single-server membership change, an overlap
+ between any majority of the old cluster and any majority of the new cluster is preserved, as
+ needed for safety. For example in (b), a majority of the old cluster must include two of the left
+ three servers, and a majority of the new cluster must include three of the servers in the new
+ cluster, of which at least two must come from the old cluster.
+CHAPTER 4. CLUSTER MEMBERSHIP CHANGES                                                                35
+
+complex approach at the time of this writing.
+    When adding a single server to a cluster or removing a single server from a cluster, any ma-
+jority of the old cluster overlaps with any majority of the new cluster; see Figure 4.3. This overlap
+prevents the cluster from splitting into two independent majorities; in terms of the safety argument
+of Section 3.6.3, it guarantees the existence of “the voter”. Thus, when adding or removing just a
+single server, it is safe to switch directly to the new configuration. Raft exploits this property to
+change cluster membership safely using little additional mechanism.
+    Cluster configurations are stored and communicated using special entries in the replicated log.
+This leverages the existing mechanisms in Raft to replicate and persist configuration information.
+It also allows the cluster to continue to service client requests while configuration changes are in
+progress, by imposing ordering between configuration changes and client requests (while allowing
+both to be replicated concurrently in a pipeline and/or in batches).
+    When the leader receives a request to add or remove a server from its current configuration
+(Cold ), it appends the new configuration (Cnew ) as an entry in its log and replicates that entry using
+the normal Raft mechanism. The new configuration takes effect on each server as soon as it is added
+to that server’s log: the Cnew entry is replicated to the Cnew servers, and a majority of the new
+configuration is used to determine the Cnew entry’s commitment. This means that servers do not
+wait for configuration entries to be committed, and each server always uses the latest configuration
+found in its log.
+    The configuration change is complete once the Cnew entry is committed. At this point, the leader
+knows that a majority of the Cnew servers have adopted Cnew . It also knows that any servers that have
+not moved to Cnew can no longer form a majority of the cluster, and servers without Cnew cannot be
+elected leader. Commitment of Cnew allows three things to continue:
+
+   1. The leader can acknowledge the successful completion of the configuration change.
+
+   2. If the configuration change removed a server, that server can be shut down.
+
+   3. Further configuration changes can be started. Before this point, overlapped configuration
+      changes could degrade to unsafe situations like the one in Figure 4.2.
+
+    As stated above, servers always use the latest configuration in their logs, regardless of whether
+that configuration entry has been committed. This allows leaders to easily avoid overlapping config-
+uration changes (the third item above), by not beginning a new change until the previous change’s
+entry has committed. It is only safe to start another membership change once a majority of the old
+36                                              CHAPTER 4. CLUSTER MEMBERSHIP CHANGES
+
+cluster has moved to operating under the rules of Cnew . If servers adopted Cnew only when they
+learned that Cnew was committed, Raft leaders would have a difficult time knowing when a major-
+ity of the old cluster had adopted it. They would need to track which servers know of the entry’s
+commitment, and the servers would need to persist their commit index to disk; neither of these
+mechanisms is required in Raft. Instead, each server adopts Cnew as soon as that entry exists in its
+log, and the leader knows it’s safe to allow further configuration changes as soon as the Cnew entry
+has been committed. Unfortunately, this decision does imply that a log entry for a configuration
+change can be removed (if leadership changes); in this case, a server must be prepared to fall back
+to the previous configuration in its log.
+     In Raft, it is the caller’s configuration that is used in reaching consensus, both for voting and for
+log replication:
+
+     • A server accepts AppendEntries requests from a leader that is not part of the server’s latest
+       configuration. Otherwise, a new server could never be added to the cluster (it would never
+       accept any log entries preceding the configuration entry that adds the server).
+
+     • A server also grants its vote to a candidate that is not part of the server’s latest configuration (if
+       the candidate has a sufficiently up-to-date log and a current term). This vote may occasionally
+       be needed to keep the cluster available. For example, consider adding a fourth server to a
+       three-server cluster. If one server were to fail, the new server’s vote would be needed to form
+       a majority and elect a leader.
+
+Thus, servers process incoming RPC requests without consulting their current configurations.
+
+4.2     Availability
+
+===== Figure 4.1, transcribed by the project's steward from the rendered page =====
+# Figure 4.1, transcribed verbatim from the rendered page (Ongaro, "Consensus: Bridging Theory and Practice", Stanford PhD dissertation, 2014, p. 33)
+Transcribed by the steward from page 51 of the PDF at https://web.stanford.edu/~ouster/cgi-bin/papers/OngaroPhD.pdf (pdftotext cannot read the figure). For arm D of the replay. Not yet checked by a second reader.
+
+## AddServer RPC
+Invoked by admin to add a server to the cluster configuration.
+Arguments: newServer — address of server to add to configuration
+Results: status — OK if server was added successfully; leaderHint — address of recent leader, if known
+Receiver implementation:
+1. Reply NOT_LEADER if not leader (§6.2)
+2. Catch up new server for fixed number of rounds. Reply TIMEOUT if new server does not make progress for an election timeout or if the last round takes longer than the election timeout. (§4.2.1)
+3. Wait until previous configuration in log is committed (§4.1)
+4. Append new configuration entry to log (old configuration plus newServer), commit it using majority of new configuration (§4.1)
+5. Reply OK
+
+## RemoveServer RPC
+Invoked by admin to remove a server from the cluster configuration.
+Arguments: oldServer — address of server to remove from configuration
+Results: status — OK if server was removed successfully; leaderHint — address of recent leader, if known
+Receiver implementation:
+1. Reply NOT_LEADER if not leader (§6.2)
+2. Wait until previous configuration in log is committed (§4.1)
+3. Append new configuration entry to log (old configuration without oldServer), commit it using majority of new configuration (§4.1)
+4. Reply OK and, if this server was removed, step down (§4.2.2)
+
+Figure 4.1: RPCs used to change cluster membership. The AddServer RPC is used to add a new server to the current configuration, and the RemoveServer RPC is used to remove a server from the current configuration. Section numbers such as §4.1 indicate where particular features are discussed. Section 4.4 discusses ways to use these RPCs in a complete system.
+
+===== Specification F =====
+# Specification F: a replicated journal with single-member configuration changes
+
+This is the design you are to build, exactly as written. It is not a contract you may satisfy by any design you like: where this specification says how something is done, do it that way, even if you believe another way is better. If you find a place where you think the design is wrong, do not fix it; record it in your README as an interpretation or a concern, and build what is written. Where the specification is silent, choose, and record the choice.
+
+## Vocabulary
+- **Member.** A process that stores a journal and takes part in agreement. Members are named `m1`, `m2`, … .
+- **Journal.** An append-only sequence of entries, indexed from 1. Each entry carries the **epoch** in which it was first appended and a payload. A payload is either a **command** (opaque) or a **configuration** (a set of member names).
+- **Epoch.** A non-negative integer each member stores. Epochs only increase.
+- **Coordinator.** A member that has won an election for its current epoch. Other members are **followers** or **candidates**.
+- **Configuration of a member.** The payload of the latest configuration entry in that member's journal, whether or not that entry is committed. If the journal has no configuration entry, the member's configuration is the initial configuration it was started with.
+- **Majority of a configuration C.** Any set containing more than half of the members of C.
+- **Committed.** An entry is committed once the coordinator that appended it, or a later coordinator, has applied the commitment rule below to it or to a later entry. Committed entries are never removed from any member's journal.
+
+## State each member keeps
+Durable (survives a crash): `epoch`, `votedFor` (a member name or none, for the current epoch), `journal`.
+Volatile (lost on a crash, reset on restart): `role` (follower on restart), `commitIndex` (0 on restart), and, for a coordinator, `nextIndex` and `matchIndex` for each other member.
+
+## Messages
+Every message carries the sender's `epoch`. On receiving any message with an epoch higher than its own, a member sets its `epoch` to that value, clears `votedFor`, and becomes a follower, before processing the message further. A member ignores a request whose epoch is lower than its own, replying with its own epoch.
+
+**Members process incoming requests without consulting their own configuration.** In particular a member grants votes to, and accepts journal extensions from, members that are not in its configuration.
+
+### Election
+- A follower or candidate that has heard neither a coordinator nor a candidate it voted for within its election timeout becomes a **candidate**: it increments `epoch`, sets `votedFor` to itself, and sends a **ballot request** to every member of its own configuration, carrying the index and epoch of its last journal entry.
+- A member grants a ballot if (a) the request's epoch is at least its own, (b) it has not voted for a different member in that epoch, and (c) the candidate's journal is at least as up to date as its own: the candidate's last entry has a higher epoch, or the same epoch and an index at least as large. When it grants, it records `votedFor` durably before replying.
+- A candidate that receives grants from a majority **of its own configuration** (counting itself if it is a member of it) becomes coordinator of that epoch. A candidate that hears from a coordinator of an epoch at least its own becomes a follower.
+
+### Journal extension
+- A coordinator sends each other member of its configuration an **extend request**: the index and epoch of the entry immediately before the entries it sends (`prevIndex`, `prevEpoch`), zero or more entries, and the coordinator's `commitIndex`. With no entries it serves as a heartbeat.
+- A receiver whose journal has no entry at `prevIndex` with epoch `prevEpoch` replies failure. Otherwise it deletes any existing entry that conflicts with a sent entry (same index, different epoch) together with all entries after it, appends the sent entries it does not already have, sets its `commitIndex` to the smaller of the coordinator's `commitIndex` and the index of its last new entry, and replies success. If entries it deleted included a configuration entry, its configuration falls back to the latest configuration entry that remains.
+- On failure the coordinator decrements `nextIndex` for that member and retries; on success it updates `nextIndex` and `matchIndex`.
+
+### Commitment rule
+A coordinator may mark the entry at index N committed (set `commitIndex` to N) only if (a) the entry at N carries the coordinator's **current** epoch, and (b) a majority of the coordinator's configuration (counting the coordinator if it is a member) have `matchIndex ≥ N`. Committing N commits every earlier entry. Entries from earlier epochs are therefore committed only indirectly, when a later entry of the current epoch is committed.
+
+## Configuration changes
+Configurations are entries in the journal and are replicated like any other entry.
+- **A configuration takes effect on a member as soon as the entry is in its journal**, before it is committed. Every member always uses the latest configuration in its journal, for elections and for commitment.
+- The commitment of a configuration entry is decided by a majority of the **new** configuration it contains.
+- A change adds exactly one member to, or removes exactly one member from, the configuration in which it is made. Any majority of a configuration and any majority of a configuration that differs from it by one member intersect.
+
+### Adding a member (handled by the member that receives the request)
+1. If not the coordinator, reply "not coordinator".
+2. Bring the new member's journal up to date with the coordinator's, by extend requests, before proceeding.
+3. Wait until the previous configuration entry in the coordinator's journal is committed.
+4. Append a configuration entry containing the current configuration plus the new member; commit it using a majority of the new configuration.
+5. Reply "ok".
+
+### Removing a member
+1. If not the coordinator, reply "not coordinator".
+2. Wait until the previous configuration entry in the coordinator's journal is committed.
+3. Append a configuration entry containing the current configuration without the removed member; commit it using a majority of the new configuration.
+4. Reply "ok". If the coordinator removed itself, it stops being coordinator after the entry is committed.
+
+A coordinator does not begin a new change while the previous configuration entry in its journal is uncommitted. Nothing else restricts when a change may begin.
+
+## What the design does not include
+Client requests other than commands and configuration changes; reads; snapshots or journal compaction; non-voting members; any mechanism not described above. A command is an opaque payload appended by the coordinator on request.

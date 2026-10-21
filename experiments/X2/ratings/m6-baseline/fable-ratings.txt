@@ -1,0 +1,17 @@
+U01 C  model/Lease.tla: StorageRead encodes serve-iff-token>=ledger with value snapshot, C2_1/C2_2 invariants chosen over history (nwrites, held), rid=step index, crash/partition loss of read state, quiescence extended -- all readings of C2.1/C2.2.
+U02 C  model/compile.py: read action grammar (token omitted|stale, no value), per-event OUTCOMES (served|rejected), read event field sets, C2_1/C2_2 added to checked invariants -- encodes a reading of format v3 and the schema.
+U03 C  model/export.py: chooses causes links (ReadAttempt->Grant by token/term, decision->attempt by rid, ack->decision), value only on served ReadAck, problem reporting for unserved acks -- a reading of the schema addendum.
+U04 model/mutate.py: C  designs six new mutations P13-P18 (what to break on the read path, e.g. grace-by-one, early ack, presume-read, value-at-ack-time); rvars propagation in old mutations is incidental.
+U05 P  model/run.py: extends the schedule ORDER range to 18 and updates the tag.
+U06 P  impl/check.go: tag updates, appends checkC21/checkC22 to the check list, and threads ReadAccept/ReadReject through the existing provenance rule with the write-side attempt matching unchanged (borderline; no new rule chosen).
+U07 C  impl/check_reads.go: new checkers encode a reading of C2.1 (write-only ledger reconstruction, reads must report but never advance it) and C2.2 (value snapshot vs attempt, exact attempt/serve/ack linkage, unknown-vs-violation distinctions).
+U08 C  impl/engine.go: read(), readDecision (serve iff token>=ledger, snapshot storageValue, ledger untouched), read-ack delivery, ghostReadAck, and the P13-P18 mutation behaviours are all behaviour choices on the read path.
+U09 P  impl/main.go: extends ranges 12->18, carries the pair->clause scoring table for P13-P18, renames the run-id prefix and messages.
+U10 C  impl/observe.go: custom MarshalJSON/UnmarshalJSON decide that `value` is emitted even when empty for ReadAccept and served ReadAck and absent otherwise, and introduce ValuePresent -- a reading of the schema's value-field semantics.
+U11 C  impl/read_v2_test.go: tests encode expectations about the clauses (equal token served, lower rejected, ledger unchanged, wrong snapshot/reply/client/unserved attempt are C2.x failures, value presence rules).
+U12 P  impl/run.sh: tag updates and the preregistration heading string renamed to the X1 section.
+U13 P  impl/runner_v2.go: threads a.Read through workloadReady, extends the Derives list, tag and comment updates.
+U14 C  impl/schedule.go: mostly threading (Read field, observable list, exactly-one-op list, id selection) but adds the rule that a read with a value is invalid -- a reading of the read action's shape in the format (borderline).
+U15 P  impl/validate_v2.go: threads a.Read through actionTarget and replaceTarget, tag updates.
+U16 P  impl/check_test.go: derivation tag updates only.
+propagation fraction: model (U01-U05) 1/5 = 0.20; impl (U06-U16) 6/11 = 0.545

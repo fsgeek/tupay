@@ -1,0 +1,22 @@
+V01 C  model/Lease.tla: defines Link/Conn (both directions), directional HearsLeader, voter stickiness, new CheckQuorum, Partition no longer drops in-flight messages (fate fixed at send), Good(c) read as a mutually connected majority clique (L3): many readings of F2.1/F2.2/L3 and behaviour choices
+V02 C  model/compile.py: parses cut/drop with L1 rules (pairs, selectors allowed, rest forbidden), reads every heal as restoring all links (L2) while keeping the named cell, counts cut/drop toward the term bound
+V03 P  model/export.py: copies the step's already-computed pairs/links into the Fault record and emits links: [] on heal; field carried through from the model, no new reading
+V04 P  model/run.py: extends the schedule list P1-P18 to P1-P30 and updates the tag
+V05 C  model/mutate.py: sideA->down renames are propagation, but P19-P30 define twelve new broken readings of F2.1/F2.2 (e.g. P23/P29 "lost only the storage link, still reaches a node", P26 quorum over outgoing links only, P24/P30 "can send but hears nothing back")
+V06 C  impl/check.go: checkC14 rebuilds a directed down matrix, defines connected as both directions, and reads the C1.4 premise as a two-node clique connected to client and storage (L3); validates link endpoints
+V07 C  impl/engine.go: introduces canSend (directional) vs connected (both ways), clique eligibility (L3), delivery no longer re-checks the link (fate fixed when sent), pendingSend reply stage, accumulation of failures, removes dropCrossing; chooses mutation activation per cell
+V08 C  impl/links_v2.go: expandLinks encodes L1 (selectors, rest forbidden, self-pairs and duplicates removed), faultLinks encodes cut both ways / drop one way / partition as matrix, canSend directional, queueReply chooses where the reply's send moment lies
+V09 C  impl/links_v2_test.go: tests assert readings: reverse reply ungated by request direction, send-time fate across cut/heal, accumulation, literal clique for C1.4 (L3), E3 bound cannot pass
+V10 P  impl/main.go: extends mutation-to-clause table and P-ranges to 30, renames run id, updates tags
+V11 P  impl/observe.go: adds the Links field and marshals it (empty list on heal) on Fault records; carries the new schema field unchanged
+V12 P  impl/read_v2_test.go: adds one more deliver() call to account for the extra reply stage; threading an existing test through the new pipeline
+V13 P  impl/run.sh: derivation tags and preregistration heading check renamed
+V14 C  impl/runner_v2.go: freezes link selectors at trigger time (L1/A1 reading) and reorders the event-bound check ahead of ready() so the bound cannot be passed (E3 reading)
+V15 C  impl/schedule.go: binds cut to F2.1 and drop to F2.2, allows heal under any link cell, forbids rest in a link, and adds Fault to the observable trigger vocabulary: L1/L2 readings and a trigger-language choice
+V16 C  impl/transport.go: replaces side/cut-history gating with a directed down matrix; reply is admitted on the reverse link at the moment the server replies (F2.2 and fate-fixed-at-send readings)
+V17 C  impl/transport_test.go: flips the expected behaviour so a reply sent after heal survives (encodes fate fixed when sent)
+V18 P  impl/validate_v2.go: adds cut/drop pair names to the existing A1 alias-before-grant target list
+V19 C  impl/engine.go (2nd): storage crash discards unsent (pendingSend) replies but keeps already-sent ones: a choice about how F1.1 interacts with the send stage
+V20 C  impl/links_v2_test.go (2nd): tests assert crash loses only unsent replies, runtime clique (L3), and a lost grant reply leaves the request standing
+V21 P  impl/read_v2_test.go (2nd): derivation tag only
+propagation fraction: model 2/5 = 0.40; impl 6/16 = 0.375

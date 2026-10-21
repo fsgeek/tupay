@@ -1,0 +1,72 @@
+OK model-regen/observe/H10.jsonl: 4 decisions, 0 untraceable
+OK model-regen/observe/H9.jsonl: 0 decisions, 0 untraceable
+OK model-regen/observe/P1-mutant.jsonl: 0 decisions, 0 untraceable
+OK model-regen/observe/P1.jsonl: 0 decisions, 0 untraceable
+OK model-regen/observe/P10-mutant.jsonl: 0 decisions, 0 untraceable
+OK model-regen/observe/P10.jsonl: 0 decisions, 0 untraceable
+OK model-regen/observe/P11-mutant.jsonl: 0 decisions, 0 untraceable
+OK model-regen/observe/P11.jsonl: 0 decisions, 0 untraceable
+OK model-regen/observe/P12-mutant.jsonl: 0 decisions, 0 untraceable
+OK model-regen/observe/P12.jsonl: 0 decisions, 0 untraceable
+OK model-regen/observe/P13-mutant.jsonl: 5 decisions, 0 untraceable
+OK model-regen/observe/P13.jsonl: 8 decisions, 0 untraceable
+OK model-regen/observe/P14-mutant.jsonl: 5 decisions, 0 untraceable
+OK model-regen/observe/P14.jsonl: 8 decisions, 0 untraceable
+OK model-regen/observe/P15-mutant.jsonl: 5 decisions, 0 untraceable
+OK model-regen/observe/P15.jsonl: 6 decisions, 0 untraceable
+FAIL model-regen/observe/P16-mutant.jsonl: 3 decisions, 1 untraceable
+   ReadAck proc=c1 seq=5 token=11: causes chain does not reach answered attempt ('c1', 4)
+OK model-regen/observe/P16.jsonl: 6 decisions, 0 untraceable
+FAIL model-regen/observe/P17-mutant.jsonl: 3 decisions, 1 untraceable
+   ReadAck proc=c1 seq=5 token=11: causes chain does not reach answered attempt ('c1', 4)
+OK model-regen/observe/P17.jsonl: 6 decisions, 0 untraceable
+OK model-regen/observe/P18-mutant.jsonl: 6 decisions, 0 untraceable
+OK model-regen/observe/P18.jsonl: 8 decisions, 0 untraceable
+OK model-regen/observe/P19-mutant.jsonl: 0 decisions, 0 untraceable
+OK model-regen/observe/P19.jsonl: 0 decisions, 0 untraceable
+OK model-regen/observe/P2-mutant.jsonl: 0 decisions, 0 untraceable
+OK model-regen/observe/P2.jsonl: 0 decisions, 0 untraceable
+OK model-regen/observe/P20-mutant.jsonl: 0 decisions, 0 untraceable
+OK model-regen/observe/P20.jsonl: 0 decisions, 0 untraceable
+OK model-regen/observe/P21-mutant.jsonl: 5 decisions, 0 untraceable
+OK model-regen/observe/P21.jsonl: 6 decisions, 0 untraceable
+OK model-regen/observe/P22-mutant.jsonl: 5 decisions, 0 untraceable
+OK model-regen/observe/P22.jsonl: 6 decisions, 0 untraceable
+OK model-regen/observe/P23-mutant.jsonl: 0 decisions, 0 untraceable
+OK model-regen/observe/P23.jsonl: 2 decisions, 0 untraceable
+FAIL model-regen/observe/P24-mutant.jsonl: 1 decisions, 1 untraceable
+   WriteAck proc=c1 seq=3 token=11: causes chain does not reach answered attempt ('c1', 2)
+OK model-regen/observe/P24.jsonl: 2 decisions, 0 untraceable
+OK model-regen/observe/P25-mutant.jsonl: 0 decisions, 0 untraceable
+OK model-regen/observe/P25.jsonl: 0 decisions, 0 untraceable
+OK model-regen/observe/P25.v1-mutant.jsonl: 0 decisions, 0 untraceable
+OK model-regen/observe/P26-mutant.jsonl: 0 decisions, 0 untraceable
+OK model-regen/observe/P26.jsonl: 0 decisions, 0 untraceable
+OK model-regen/observe/P27-mutant.jsonl: 5 decisions, 0 untraceable
+OK model-regen/observe/P27.jsonl: 6 decisions, 0 untraceable
+OK model-regen/observe/P28-mutant.jsonl: 5 decisions, 0 untraceable
+OK model-regen/observe/P28.jsonl: 6 decisions, 0 untraceable
+FAIL model-regen/observe/P29-mutant.jsonl: 3 decisions, 1 untraceable
+   ReadAck proc=c1 seq=5 token=11: causes chain does not reach answered attempt ('c1', 4)
+OK model-regen/observe/P29.jsonl: 6 decisions, 0 untraceable
+OK model-regen/observe/P3-mutant.jsonl: 0 decisions, 0 untraceable
+OK model-regen/observe/P3.jsonl: 0 decisions, 0 untraceable
+FAIL model-regen/observe/P30-mutant.jsonl: 4 decisions, 1 untraceable
+   ReadAck proc=c2 seq=3 token=12: causes chain does not reach answered attempt ('c2', 2)
+OK model-regen/observe/P30.jsonl: 5 decisions, 0 untraceable
+OK model-regen/observe/P4-mutant.jsonl: 5 decisions, 0 untraceable
+OK model-regen/observe/P4.jsonl: 6 decisions, 0 untraceable
+OK model-regen/observe/P5-mutant.jsonl: 5 decisions, 0 untraceable
+OK model-regen/observe/P5.jsonl: 6 decisions, 0 untraceable
+OK model-regen/observe/P6-mutant.jsonl: 1 decisions, 0 untraceable
+OK model-regen/observe/P6.jsonl: 6 decisions, 0 untraceable
+FAIL model-regen/observe/P7-mutant.jsonl: 1 decisions, 1 untraceable
+   WriteAck proc=c1 seq=3 token=11: causes chain does not reach answered attempt ('c1', 2)
+OK model-regen/observe/P7.jsonl: 4 decisions, 0 untraceable
+OK model-regen/observe/P8-mutant.jsonl: 2 decisions, 0 untraceable
+OK model-regen/observe/P8.jsonl: 2 decisions, 0 untraceable
+OK model-regen/observe/P8.v1-mutant.jsonl: 2 decisions, 0 untraceable
+FAIL model-regen/observe/P9-mutant.jsonl: 4 decisions, 1 untraceable
+   WriteAck proc=c1 seq=4 token=11: causes chain does not reach answered attempt ('c1', 3)
+OK model-regen/observe/P9.jsonl: 6 decisions, 0 untraceable
+OK model-regen/observe/false-suspicion-v1.jsonl: 8 decisions, 0 untraceable

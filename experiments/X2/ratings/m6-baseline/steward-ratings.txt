@@ -1,0 +1,20 @@
+# measure 6 baseline, X1 arm A, rater: steward (Opus 5.5), from diffs with messages stripped, before the second rater
+# C = conceptual (encodes a reading of X1's inputs or chooses between permitted behaviours), P = propagation
+U01 C  Lease.tla: read actions, C2.1/C2.2 invariants
+U02 P  compile.py: read action and event names threaded through; choices dictated by format v3
+U03 P  export.py: read events exported with the causes the schema v2 addendum prescribes
+U04 C  mutate.py: where to break P13-P18 is a choice the inputs leave open
+U05 P  run.py: schedule list extended
+U06 P  check.go: read decisions wired into existing provenance and check list
+U07 C  check_reads.go: C2.1/C2.2 checkers encode readings
+U08 C  engine.go: storage read path
+U09 P  main.go: tags, counts, pair-to-clause map from the pairs table
+U10 C  observe.go: empty vs absent value presence, a reading of C2.2 for the initial value (borderline)
+U11 C  read_v2_test.go: tests encode readings (e.g. ledger unchanged by reads, no fabricated values)
+U12 P  run.sh: tags and predictions gate renamed
+U13 P  runner_v2.go: read threaded through, derives list extended
+U14 P  schedule.go: Read field and event names
+U15 P  validate_v2.go: read treated as a workload target
+U16 P  check_test.go: tags only
+# model U01-U05: P 3/5 = 0.60; impl U06-U16: P 7/11 = 0.64
+2026-10-21T05:48:54Z

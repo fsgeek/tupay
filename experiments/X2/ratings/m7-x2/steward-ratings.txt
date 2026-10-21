@@ -1,0 +1,26 @@
+# measure 7, X2 arm A, rater: steward (Opus 5.5), from the diff b632199 vs 51e4569 and both READMEs, before the second rater
+# Operational reading (disclosed): "a situation it covered" = a run admissible under the v1 inputs; contradicted iff such a run is now handled otherwise.
+# Entries not listed are UNCHANGED.
+## model (denominator 37)
+13 CONTRADICTED  messages in flight across a new partition were dropped; now delivered (fate at send)
+5  EXTENDED      election "only when it cannot reach a leader": now directional hearing; identical on every v1 (symmetric) run
+7  EXTENDED      grant event and retries (author's claim; consistent with diff)
+12 EXTENDED      compiler accepts F2 cells; v1 schedules unchanged
+17 EXTENDED      Good(c): side membership -> direct bidirectional clique; equivalent on bipartitions
+20 EXTENDED      observe record gains links
+R2.2 EXTENDED    in-flight definition under links
+R2.5 EXTENDED    Join kept; vote rule and CheckQuorum added around it
+## impl (denominator 66)
+11 CONTRADICTED  messages crossing a cut lost, incl. replies already sent; now delivered if sent before the cut
+21 CONTRADICTED  ack delivery timing vs a decision-triggered fault: an already-sent ack now survives the cut
+25 CONTRADICTED  transport discarded queued messages at a cut
+53 CONTRADICTED  read traffic: delivery-time connectivity check replaced by fate at send
+66 CONTRADICTED(label)  runner id names v22-observe-v3; now x2-links-v4 (version label only)
+8  EXTENDED      liveness window "stable connectivity" now direct bidirectional
+14 EXTENDED      aliases now also in links
+16 EXTENDED      liveness certificate under direct connectivity
+19 EXTENDED      Fault records add resolved links
+38 EXTENDED      E1 wait under direct connectivity
+52 EXTENDED      read workload in link environment
+# model: contradicted 1, extended 7, unchanged 29. impl: contradicted 4 substantive + 1 label, extended 7, unchanged 54.
+2026-10-21T06:40:34Z

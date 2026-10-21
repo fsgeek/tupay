@@ -1,0 +1,24 @@
+# measure 6, X2 arm A, rater: steward (Opus 5.5), diffs with messages stripped, before the second rater; same standard as the X1 baseline
+V01 C  Lease.tla: directed links, fate at send, vote rule, CheckQuorum
+V02 P  compile.py: cut/drop parsed as format L1 prescribes
+V03 P  export.py: links field as schema v4 prescribes
+V04 P  run.py: schedule list extended
+V05 C  mutate.py: P19-P30 break locations chosen
+V06 C  check.go: checker's connectivity rebuilt as directed links; C1.4 premise read as direct bidirectional (L3)
+V07 C  engine.go: link semantics, fate at send
+V08 C  links_v2.go: new link model
+V09 C  links_v2_test.go: tests encode readings of F2.x
+V10 P  main.go: pair lists and counts extended
+V11 P  observe.go: links field emitted as schema v4 prescribes
+V12 P  read_v2_test.go: delivery timing adjusted in a test
+V13 P  run.sh: predictions gate renamed
+V14 P  runner_v2.go: cut/drop threaded through, derives list
+V15 P  schedule.go: Cut/Drop fields, Fault as trigger per format
+V16 C  transport.go: directed delivery
+V17 C  transport_test.go: old test inverted (reply after cut and heal now delivered), contradicts a prior reading
+V18 P  validate_v2.go: link targets collected
+V19 C  engine.go: F1.1 loses unsent replies under F2.x send stage, a reading
+V20 C  links_v2_test.go: tests encode readings
+V21 P  read_v2_test.go: tag only
+# model V01-V05: P 3/5 = 0.60; impl V06-V21: P 8/16 = 0.50
+2026-10-21T06:33:13Z

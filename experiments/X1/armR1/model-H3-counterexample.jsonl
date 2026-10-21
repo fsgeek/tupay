@@ -1,0 +1,15 @@
+{"proc": "c1", "seq": 1, "event": "Request", "client": "c1", "causes": [], "run": "H3", "side": "model"}
+{"proc": "n3", "seq": 1, "event": "Grant", "client": "c1", "token": 1, "grantor_term": 1, "causes": [{"proc": "c1", "seq": 1}], "run": "H3", "side": "model"}
+{"proc": "env", "seq": 1, "event": "Fault", "cell": "F1.2", "action": "F1.2 partition [[\"grantor\", \"holder\", \"s\"], [\"rest\"]]", "target": ["c1", "n3", "s"], "causes": [], "run": "H3", "side": "model"}
+{"proc": "c2", "seq": 1, "event": "Request", "client": "c2", "causes": [], "run": "H3", "side": "model"}
+{"proc": "n2", "seq": 1, "event": "Grant", "client": "c2", "token": 2, "grantor_term": 2, "causes": [{"proc": "c2", "seq": 1}], "run": "H3", "side": "model"}
+{"proc": "env", "seq": 2, "event": "Fault", "cell": "F1.2", "action": "F1.2 heal true", "target": [], "causes": [], "run": "H3", "side": "model"}
+{"proc": "c2", "seq": 2, "event": "WriteAttempt", "client": "c2", "key": "k", "token": 2, "value": "v2", "grantor_term": 2, "causes": [{"proc": "n2", "seq": 1}], "run": "H3", "side": "model"}
+{"proc": "s", "seq": 1, "event": "WriteAccept", "key": "k", "token": 2, "highest_before": 0, "grantor_term": 2, "causes": [{"proc": "c2", "seq": 2}], "run": "H3", "side": "model"}
+{"proc": "c2", "seq": 3, "event": "WriteAck", "client": "c2", "key": "k", "token": 2, "outcome": "accepted", "grantor_term": 2, "causes": [{"proc": "s", "seq": 1}], "run": "H3", "side": "model"}
+{"proc": "s", "seq": 2, "event": "WriteAccept", "key": "k", "token": 2, "highest_before": 2, "grantor_term": 2, "causes": [{"proc": "c2", "seq": 2}], "run": "H3", "side": "model"}
+{"proc": "env", "seq": 3, "event": "Fault", "cell": "F1.1", "action": "F1.1 crash \"grantor\"", "target": ["n2"], "causes": [], "run": "H3", "side": "model"}
+{"proc": "c1", "seq": 2, "event": "ReadAttempt", "client": "c1", "key": "k", "token": 1, "grantor_term": 1, "causes": [{"proc": "n3", "seq": 1}], "run": "H3", "side": "model"}
+{"proc": "s", "seq": 3, "event": "ReadReject", "key": "k", "token": 1, "highest_before": 2, "grantor_term": 1, "causes": [{"proc": "c1", "seq": 2}], "run": "H3", "side": "model"}
+{"proc": "c1", "seq": 3, "event": "ReadAck", "client": "c1", "key": "k", "token": 1, "outcome": "rejected", "grantor_term": 1, "causes": [{"proc": "s", "seq": 3}], "run": "H3", "side": "model"}
+{"proc": "c1", "seq": 4, "event": "Request", "client": "c1", "causes": [], "run": "H3", "side": "model"}

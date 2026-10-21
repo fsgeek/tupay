@@ -135,3 +135,6 @@ Tony noted the session's context is large and that an orderly handoff will be ne
 
 ## 2026-10-21: interface v2.2 (format) and schema v3, before X2
 Format v2.2 defines `restart: non-grantor`. Schema v3 adds `answers: {proc, seq}` to acks, with tessera's E-02 cited as the real-world instance; the steward's provenance checker now checks it. Brief `docs/briefs/adapt-v2.2.md`; both current authors adapt from the X1 arm A state. Logged for cost only.
+
+## 2026-10-21: model adapted to v2.2 and schema v3 (5 minutes)
+Model author, resumed: predictions `884b282`, adapted `18f3c66` (stamped `b84d177`), about 11k tokens. No verdict changed, as predicted. Interpretation V22.1: `answers` is the client's view of which attempt an ack answers, `causes` is storage's; the P7, P8, P16, P17 mutations break exactly that agreement. One descriptive miss in its own predictions, recorded by the author. Waiting on the implementation side.

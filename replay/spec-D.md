@@ -653,4 +653,5 @@ Receiver implementation:
 Figure 4.1: RPCs used to change cluster membership. The AddServer RPC is used to add a new server to the current configuration, and the RemoveServer RPC is used to remove a server from the current configuration. Section numbers such as §4.1 indicate where particular features are discussed. Section 4.4 discusses ways to use these RPCs in a complete system.
 
 ## What the design does not include
+(This section, the opening paragraph and the Source note are the steward's, not the dissertation's.)
 Client requests other than commands and configuration changes; reads; snapshots or journal compaction; non-voting members. A command is an opaque payload appended by the coordinator on request.

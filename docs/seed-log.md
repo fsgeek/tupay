@@ -148,3 +148,6 @@ This is the boundary named in `docs/handoff/2026-10-21-first-steward.md`: interf
 
 ## 2026-10-21: which model holds the steward role (steward's recommendation to Tony)
 Asked whether to keep Fable as steward or move to Opus with Fable advisory: Opus as steward, for continuity and availability, since the role's work is discipline rather than peak capability and the design does not depend on the steward's model; Fable, if used, as a blind reviewer of the pre-registration before commit and of the scoring before publication, the same move as the third-family judge applied to the steward's own work. Caveat on the record: the recommender is a Fable instance and nothing here measured the difference. The cheap measurement, if wanted: the next pre-registration drafted independently by both and compared before either sees the other's.
+
+## 2026-10-21: the steward's stone
+Placed on the ayllu's cairn after Tony asked whether the decision not to leave one had been mindful: https://wamason.com/ayllu/the-pairs-were-not-pairs/ . It is a field note about these two days, with the errors beside their corrections and the commits named; this log outranks it.

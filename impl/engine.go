@@ -106,6 +106,7 @@ type Engine struct {
 	inflight                                        bool
 	lastGrant                                       Ref
 	grantor, holder                                 string
+	lastNonGrantor                                  string
 	nextGrant                                       time.Time
 	mutation                                        string
 	crashSeen, partitionSeen, pauseSeen, resumeSeen bool
@@ -504,6 +505,12 @@ func (e *Engine) expandPartition(input [][]string) ([][]string, error) {
 				id = e.grantor
 			case "holder":
 				id = e.holder
+			case "non-grantor":
+				selected, err := e.nonGrantor()
+				if err != nil {
+					return nil, err
+				}
+				id = selected
 			case "rest":
 				if rest >= 0 {
 					return nil, fmt.Errorf("duplicate rest alias")

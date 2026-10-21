@@ -182,3 +182,72 @@ production newEngine initializes that field. The partition complement correctly
 exposed the omission. Correcting the fixture's storage identity is expected to
 make that test pass. No baseline or mutation schedule has run yet. Original
 schedule/mutation predictions and compiler semantics are unchanged.
+
+## Schedule-format v2.1 adaptation — registered before adaptation or runs
+
+<!-- derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, T1, A1, A2, E1, E2 -->
+Round start: 2026-10-21 00:51:37 UTC. Fresh clone, branch impl-v2.1. Only the
+permitted adaptation brief, v2.1 format, shared inputs and own implementation
+artifacts are used. No other documentation, model artifact or git history is
+read. No v2.1 build, fixture, schedule or mutation run precedes this registration.
+Signing remains enabled; commits run normally and the OTS hook is allowed to run.
+All earlier predictions remain unchanged historical prefixes.
+
+Predicted adapted schedule results, committed before adaptation:
+
+| Shared schedule | Seed 1 | Seed 2 | Seed 3 |
+|---|---|---|---|
+| P1 | PASS | PASS | PASS |
+| P2 | PASS | PASS | PASS |
+| P3 | PASS | PASS | PASS |
+| P4 | PASS | PASS | PASS |
+| P5 | PASS | PASS | PASS |
+| P6 | PASS | PASS | PASS |
+| P7 | PASS | PASS | PASS |
+| P8 | PASS | PASS | PASS |
+| P9 | PASS | PASS | PASS |
+| P10 | PASS | PASS | PASS |
+| P11 | PASS | PASS | PASS |
+| P12 | PASS | PASS | PASS |
+| false-suspicion-v1 | PASS (observed) | PASS (observed) | PASS (observed) |
+
+| Mutation | Placement retained from v2 | Seed 1 | Seed 2 | Seed 3 |
+|---|---|---|---|---|
+| P1 | Reuse token after crash | FAIL C1.1 | FAIL C1.1 | FAIL C1.1 |
+| P2 | Reuse token after partition | FAIL C1.1 | FAIL C1.1 | FAIL C1.1 |
+| P3 | Reuse token after pause | FAIL C1.1 | FAIL C1.1 | FAIL C1.1 |
+| P4 | Forget durable fence on restart | FAIL C1.2 | FAIL C1.2 | FAIL C1.2 |
+| P5 | Bypass fence comparison after partition | FAIL C1.2 | FAIL C1.2 | FAIL C1.2 |
+| P6 | Bypass fence comparison after resume | FAIL C1.2 | FAIL C1.2 | FAIL C1.2 |
+| P7 | Skip acceptance and fabricate success after storage restart | FAIL C1.3 | FAIL C1.3 | FAIL C1.3 |
+| P8 | Fabricate success for partition-lost write | FAIL C1.3 | FAIL C1.3 | FAIL C1.3 |
+| P9 | Turn stale rejection into success after resume | FAIL C1.3 | FAIL C1.3 | FAIL C1.3 |
+| P10 | Suppress grants after minority crash | FAIL C1.4 | FAIL C1.4 | FAIL C1.4 |
+| P11 | Suppress grants after partition | FAIL C1.4 | FAIL C1.4 | FAIL C1.4 |
+| P12 | Suppress grants after pause | FAIL C1.4 | FAIL C1.4 | FAIL C1.4 |
+
+No mutation needs re-placement: P10 now obtains its initial grant before the
+non-grantor crash, then its outstanding second requester triggers the same C1.4
+mutation. The stale v2 compiler would reject the new selector, not score P10.
+Only the thirteen root shared schedules count. Sampling and scoring are unchanged:
+seeds 1–3, expected-clause-only kills, E2 safety priority, five-second operational
+wait and three-second qualified liveness certificate. False suspicion is observed.
+
+Plan: retain T1 cursor behavior and add the explicit v2.1 normative derivation;
+accept/reserve non-grantor as a lease selector in actions and partitions; resolve
+it at firing to the lowest-numbered up lease node other than the most recent
+Grant's issuer; freeze that concrete target through T2 delay; remember only a
+successfully applied crash whose original target was non-grantor; resolve its
+restart from that memory instead of selecting another up node. Preserve A2
+validation, mutation paths and shared files. Use trailing decimal node numbers,
+with a lexical tie-breaker; reject unavailable/unbound selectors or ambiguous
+unnumbered candidates. Run focused fixtures, both required matrices, Go vet,
+record receipts/interpretations additively, and commit the adapted version.
+
+Fixture predictions after adaptation: numeric order beats lexical/list order;
+down nodes and the grantor are excluded; resolution without an observable Grant
+or any eligible node rejects; restart without a prior selector crash rejects;
+restart uses the remembered crashed node despite later grantor/candidate changes;
+non-grantor works in partitions and rejects client-only operations; P10 emits a
+matching follower crash/restart and then the literal resolved grantor crash;
+T1's existing synchronous-effect and fresh-trigger fixtures still pass unchanged.

@@ -90,6 +90,30 @@ C1_1, C1_2 and C1_3 still hold on every shared schedule, and the mutations still
 Written only from `contract/v1.md`, `failure-model/v1.md`, `tests/pairs-v1.md`,
 `testbed/schedule-format.md`, `observe/schema.md`, `AGENTS.md` and this directory.
 
+## Round 2.1 (schedule format v2.1)
+derives: C1.4, F1.1; format v2.1 T1, A1
+
+Additive to the Round 2 section. The predictions and their outcome are in `PREDICTIONS-v2.1.md`.
+
+- **T1 clarified.** v2.1 makes my round-2 interpretation R2.1 the rule, so R2.1 is now format v2.1 T1 and is no longer an interpretation. There is no behaviour change.
+  `Matches`, `Emit` and `ScheduleStep` are tagged `format v2.1 T1`. `ScheduleStep` offers the next trigger `lastEv'`, the event its own action emitted.
+- **New selector `non-grantor` (A1).**
+  - **Model.** At the moment a trigger fires, the model records `trigNG`: the lease nodes that are up, minus the grantor of the most recent Grant. `ScheduleStep` explores every member of `trigNG` as the step's resolution (`NGChoices`, an existential).
+  - **Restart.** `crash: non-grantor` records the chosen node in `ngDown`, and `restart: non-grantor` resolves to `ngDown`.
+  - **Where it is accepted.** The selector is accepted as a target of `crash` and `restart` and as a member of a partition side. It is rejected as a target of `request`, `write`, `pause` and `resume`, since it names a lease node.
+  - **Compiler checks.** The compiler rejects it before any request step (A1, as for `grantor`), and rejects `restart: non-grantor` with no outstanding `crash: non-grantor` (A2).
+  - Two new variables, `trigNG` and `ngDown`, are tagged `derives: F1.1; format v2.1 A1`.
+- **New interpretation, R2.1-a.** "Up at the moment the trigger fires" is evaluated in the state just after the event, or after the step action, that fired the trigger.
+  For a partition side, `non-grantor` is resolved over the same candidates. No shared schedule uses it there.
+- **New interpretation, R2.1-b.** If `trigNG` is empty (every other lease node down), the step waits for ever. The run is then UNEXPLAINED end unreachable, unless a violation is witnessed first. This mirrors R2.3.
+- **Rewritten P10.** Without `Join`, it still exposes the round-2 defect (`FAIL C1_4`, by the predicted route). With `Join`, it prints `PASS` at 1,145 distinct states, depth 15, MaxTerm 8.
+- **Results.**
+  - All 13 shared schedules print `PASS`.
+  - All 12 mutations fail on their clause: P1-P3 `C1_1`, P4-P6 `C1_2`, P7-P9 `C1_3`, P10-P12 `C1_4`.
+  - No mutation needed re-placing.
+  - The state counts for the unchanged schedules are as in Round 2.
+- **Note.** The observe witnesses are produced with 4 TLC workers, so which shortest witness is printed can differ between runs: for example, which node wins the first election. The verdicts are unaffected.
+
 ## How to run
 ```
 model/run.sh <schedule-name>   # e.g. P5, false-suspicion-v1; resolves only testbed/schedules/<name>.yaml [v2]

@@ -7,7 +7,7 @@ import "fmt"
 // derives: C1.1, C1.4, F1.1, F1.3, A1, A2
 func selectorRole(id string, ids map[string]string) string {
 	switch id {
-	case "grantor":
+	case "grantor", "non-grantor":
 		return "lease"
 	case "holder":
 		return "client"
@@ -72,6 +72,7 @@ func validateSequence(s Schedule, ids map[string]string) error {
 	state := map[string]int{}
 	grantPossible := false
 	restContext := false
+	nonCrashPossible := false
 	for index, step := range s.Steps {
 		if step.At.Filters["event"] == "Grant" {
 			grantPossible = true
@@ -84,8 +85,11 @@ func validateSequence(s Schedule, ids map[string]string) error {
 			}
 		}
 		for _, id := range targets {
-			if (id == "holder" || id == "grantor") && !grantPossible {
+			if (id == "holder" || id == "grantor" || id == "non-grantor") && !grantPossible {
 				return fmt.Errorf("step %d: alias %s before any possible Grant", index+1, id)
+			}
+			if id == "non-grantor" && step.Do.Restart != "" && !nonCrashPossible {
+				return fmt.Errorf("step %d: restart non-grantor without a preceding selector crash", index+1)
 			}
 			if id == "rest" && step.Do.Partition == nil && !restContext {
 				return fmt.Errorf("step %d: rest has no partition context", index+1)
@@ -102,7 +106,7 @@ func validateSequence(s Schedule, ids map[string]string) error {
 		}
 		a := step.Do
 		id := actionTarget(a)
-		if id == "grantor" || id == "holder" || id == "rest" {
+		if id == "grantor" || id == "holder" || id == "rest" || id == "non-grantor" {
 			role := selectorRole(id, ids)
 			for process, processRole := range ids {
 				if role == "selector" || role == processRole {
@@ -126,6 +130,9 @@ func validateSequence(s Schedule, ids map[string]string) error {
 			case a.Resume != "":
 				state[id] = 0
 			}
+		}
+		if a.Crash == "non-grantor" {
+			nonCrashPossible = true
 		}
 		if a.Request != "" {
 			grantPossible = true

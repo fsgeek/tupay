@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# derives: F1.1, F1.2, F1.3; format v2 T1, T2, T3, A1, A2, E1, E2 (schedule compiler)
+# derives: F1.1, F1.2, F1.3; format v2.1 T1, A1; format v2 T2, T3, A2, E1, E2 (schedule compiler)
 """Compile a fault schedule (testbed/schedule-format.md v2) into a TLC model.
 
 Usage: compile.py <schedule.yaml> <outdir> [--lease <Lease.tla>]
@@ -39,7 +39,7 @@ EVENT_FIELDS = {
     "WriteReject": {"key", "token", "highest_before", "grantor_term"},
     "WriteAck": {"client", "key", "token", "outcome"},
 }
-ALIASES = {"grantor", "holder", "rest"}
+ALIASES = {"grantor", "holder", "rest", "non-grantor"}   # non-grantor: format v2.1 A1
 
 
 class ScheduleError(Exception):
@@ -111,7 +111,8 @@ def action(d, procs):
             raise ScheduleError(f"action {verb!r} does not belong to cell {cell}")
         arg = d[verb]
         if verb in ("crash", "restart"):
-            return {"kind": verb, "p": proc_name(arg, procs, allp)}
+            # derives: F1.1; format v2.1 A1 -- non-grantor is a lease-node selector
+            return {"kind": verb, "p": proc_name(arg, procs, allp, ("grantor", "holder", "non-grantor"))}
         if verb in ("pause", "resume"):
             if arg == "grantor" or arg in set(procs["lease"]) | set(procs["storage"]):
                 raise ScheduleError("A2: only clients can be paused or resumed")
@@ -129,7 +130,7 @@ def action(d, procs):
                     raise ScheduleError(f"bad partition side {side!r}")
                 for x in side:
                     if x != "rest":
-                        proc_name(x, procs, allp)
+                        proc_name(x, procs, allp, ("grantor", "holder", "non-grantor"))
                 sides.append(set(side))
             if "rest" in sides[0] and "rest" in sides[1]:
                 raise ScheduleError("`rest` may appear on one side only")
@@ -166,11 +167,23 @@ def static_checks(steps, procs):
     down, maybe_down = set(), set()          # crashed for sure / possibly crashed
     paused, maybe_paused = set(), set()
     requested = False
+    ng_down = False
     for i, (a, _) in enumerate(steps, 1):
         names = {a.get("p")} | set(a.get("a", ())) | set(a.get("b", ()))
-        if names & {"grantor", "holder"} and not requested:
-            raise ScheduleError(f"A1: step {i} uses grantor/holder before any Grant can have occurred")
+        if names & {"grantor", "holder", "non-grantor"} and not requested:
+            raise ScheduleError(f"A1: step {i} uses grantor/holder/non-grantor before any Grant can have occurred")
         k, p = a["kind"], a.get("p")
+        # derives: F1.1; format v2.1 A1, A2 -- restart: non-grantor needs an earlier,
+        # not yet restarted, crash: non-grantor; crash: non-grantor is always of an up node
+        if p == "non-grantor":
+            if k == "crash":
+                ng_down = True
+                maybe_down |= lease
+            elif k == "restart":
+                if not ng_down:
+                    raise ScheduleError(f"A2: step {i} restarts non-grantor, but no crash: non-grantor is outstanding")
+                ng_down = False
+            continue
         if k == "request":
             requested = True
         if k in ("crash", "restart"):

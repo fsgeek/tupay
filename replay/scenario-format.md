@@ -26,8 +26,9 @@ do: {restart: m3}                     # G1.1
 do: {cut: [[m1, m2], [m1, m3]]}       # each listed link down in both directions (G1.3)
 do: {drop: [[m2, m1]]}                # messages from m2 to m1 lost; the reverse untouched (G1.3)
 do: {heal: true}                      # every link restored
+do: {command: c1, at: m1}             # an administrator asks m1 to append command c1; a member that is not coordinator ignores it
 ```
-Three selectors may stand for a member name anywhere one is allowed, resolved when the step's trigger fires: `coordinator`, the member most recently `Elected`; `follower`, a member that is up and is not `coordinator` (the model explores every such member, the implementation picks the lowest-numbered); `crashed`, the member most recently crashed by a `crash` step (a scenario that uses it before any crash is rejected). A self-pair in `cut` or `drop` is ignored; link failures accumulate until `heal`.
+Three selectors may stand for a member name anywhere one is allowed, resolved when the step's trigger fires: `coordinator`, the member most recently `Elected`; `follower`, a member that is up and is not `coordinator` (the model explores every such member, the implementation picks the lowest-numbered); `crashed`, the member most recently crashed by a `crash` step (a scenario that uses it before any crash is rejected; likewise `coordinator` before any `Elected`). A self-pair in `cut` or `drop` is ignored; link failures accumulate until `heal`.
 
 ## End and bound
 `quiescent`: every step taken, no change request unanswered, no message in flight, crashed members not counted. Reaching `bound` before the end is `UNEXPLAINED bound`, never PASS. A violation of J1.1, J1.2 or J1.3 witnessed at any point is `FAIL <clause>`, whether or not the end is reached.

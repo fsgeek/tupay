@@ -3,8 +3,8 @@ derives: [J1.2, G1.2]
 initial: [m1, m2, m3, m4]
 steps:
   # derives: S5 (J1.2, G1.2). Messages are lost one way between the coordinator and one follower during a change; committed entries persist.
-  - {at: {event: Elected}, do: {drop: [[coordinator, m4]]}}
-  - {at: start, do: {add: m5, at: coordinator}}
+  - {at: {event: Elected}, do: {add: m5, at: coordinator}}
+  - {at: {event: ChangeRequested}, do: {drop: [[coordinator, m4]]}}
   - {at: {event: ChangeReplied}, do: {heal: true}}
 end: quiescent
 bound: {events: 400}

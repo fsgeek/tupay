@@ -2,7 +2,7 @@ scenario: S8
 derives: [J1.3, G1.4]
 initial: [m1, m2, m3, m4]
 steps:
-  # derives: S8 (J1.3, G1.4). Two members are added one after the other; every configuration entry differs from its predecessor by one member.
+  # derives: S8 (J1.3, G1.4). A member is removed, another added, then the first added back; every configuration entry differs from its predecessor by one member.
   - {at: {event: Elected}, do: {remove: m3, at: coordinator}}
   - {at: {event: ChangeReplied, status: ok}, do: {add: m5, at: coordinator}}
   - {at: {event: ChangeReplied, status: ok}, do: {add: m3, at: coordinator}}

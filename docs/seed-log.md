@@ -271,3 +271,12 @@ Kept from the same review: source fidelity and experimental neutrality are diffe
 
 ## 2026-10-21: both figure transcriptions checked, and the checker checked
 Gemini (`agy`, gemini-4-argon-high, sandboxed, rendered pages at 200 dpi) compared Figures 3.1 and 4.1 in spec D against the PDF pages: 0 differences each. A clean result from a checker is not evidence until the checker is shown to find something, so a fresh instance got the same prompt with three planted differences (`≥` → `>` in Figure 3.1's commitment rule; `§4.1` → `§4.2` in both Figure 4.1 wait steps): it reported exactly those three and nothing else. Evidence in `experiments/replay/fidelity/figures/` (`mutation/planted.diff`). This discharges the second-reader requirement for both transcriptions; Tony is reading D independently, and anything he finds is added here.
+
+## 2026-10-21: the scenario format cannot submit a command; scenario fixes
+While fixing S4, S5 and S8 the steward found a larger defect: the format has no action that submits a command, and nothing else appends an entry outside a configuration change. S1 and S6 arm step 1 on `{event: Committed}`; under an author who appends nothing on election, no entry exists before a change, the step never fires, and the run ends `UNEXPLAINED bound`. Three shared scenarios (S1, S4, S6) therefore ran only for authors who append an entry on election, an unregistered nudge on exactly the choice the previous entries opened. (Not toward the fix: an ungated no-op keeps the bug.) Fixes, before the freeze:
+- Format: a new action `do: {command: <payload>, at: <member>}`, an administrator asks a member to append a command; a member that is not coordinator ignores it (D scopes out §6.2, so this is a disclosed scoping choice). `coordinator` used before any `Elected` is rejected, as `crashed` before a crash already is.
+- S1, S6: a first step submits a command at the coordinator on `Elected`; the old steps follow unchanged.
+- S4 (intent restated: a follower crashes during a membership change and restarts after it is answered): `Elected` → command; that command's `Appended` → add m5; `ChangeRequested` → crash follower; `ChangeReplied` → restart crashed.
+- S5: `Elected` → add m5; `ChangeRequested` → drop coordinator→m4; `ChangeReplied` → heal.
+- S8: comment corrected to its steps (remove m3, add m5, add m3).
+The steward knows the bug and wrote these; none places a coordinator change inside a membership change. K1 uses no command, so its hash is unchanged. Recorded as setup finding 8.

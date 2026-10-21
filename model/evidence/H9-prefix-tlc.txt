@@ -1,0 +1,293 @@
+TLC2 Version 2.19 of 08 August 2024 (rev: 5a47802)
+Running breadth-first search Model-Checking with fp 123 and seed -4591083555466174666 with 4 workers on 128 cores with 27305MB heap and 64MB offheap memory [pid: 405989] (Linux 6.18.54.1-microsoft-standard-WSL2 amd64, Ubuntu 11.0.32.1 x86_64, MSBDiskFPSet, DiskStateQueue).
+Parsing file /home/tony/projects/tupay-fixr-adapt-model/model/.work/H9/MC.tla
+Parsing file /home/tony/projects/tupay-fixr-adapt-model/model/.work/H9/Lease.tla
+Parsing file /home/tony/projects/tupay-fixr-adapt-model/model/.work/jtmp/Integers.tla
+Parsing file /home/tony/projects/tupay-fixr-adapt-model/model/.work/jtmp/Sequences.tla
+Parsing file /home/tony/projects/tupay-fixr-adapt-model/model/.work/jtmp/FiniteSets.tla
+Parsing file /home/tony/projects/tupay-fixr-adapt-model/model/.work/jtmp/TLC.tla
+Parsing file /home/tony/projects/tupay-fixr-adapt-model/model/.work/jtmp/Naturals.tla
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module Lease
+Semantic processing of module MC
+Starting... (2026-10-21 08:01:48)
+Implied-temporal checking--satisfiability problem has 2 branches.
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-10-21 08:01:49.
+Progress(8) at 2026-10-21 08:01:49: 311 states generated, 197 distinct states found, 0 states left on queue.
+Checking 2 branches of temporal properties for the complete state space with 394 total distinct states at (2026-10-21 08:01:49)
+Error: Temporal properties were violated.
+
+Error: The following behavior constitutes a counter-example:
+
+State 1: <Initial predicate>
+/\ leader = [n1 |-> FALSE, n2 |-> FALSE, n3 |-> FALSE]
+/\ toAck = {}
+/\ paused = [c1 |-> FALSE, c2 |-> FALSE]
+/\ reqs = {}
+/\ grantMsgs = {}
+/\ promised = [n1 |-> 0, n2 |-> 0, n3 |-> 0]
+/\ awaitingR = [c1 |-> {}, c2 |-> {}]
+/\ dups = 0
+/\ rdecisions = <<>>
+/\ grants = <<>>
+/\ maxTok = [n1 |-> 0, n2 |-> 0, n3 |-> 0]
+/\ myToks = [c1 |-> {}, c2 |-> {}]
+/\ rAckMsgs = {}
+/\ pc = 1
+/\ tok = [c1 |-> [t |-> 0, g |-> 0], c2 |-> [t |-> 0, g |-> 0]]
+/\ ackMsgs = {}
+/\ told = {}
+/\ ngDown = "none"
+/\ writeMsgs = {}
+/\ trigNG = {"n1", "n2", "n3"}
+/\ pending = [c1 |-> FALSE, c2 |-> FALSE]
+/\ fired = TRUE
+/\ stval = "none"
+/\ lastEv = [event |-> "Init"]
+/\ awaiting = [c1 |-> {}, c2 |-> {}]
+/\ decisions = <<>>
+/\ rToAck = {}
+/\ readMsgs = {}
+/\ down = {}
+/\ up = [s |-> TRUE, n1 |-> TRUE, n2 |-> TRUE, n3 |-> TRUE, c1 |-> TRUE, c2 |-> TRUE]
+/\ term = [n1 |-> 0, n2 |-> 0, n3 |-> 0]
+/\ given = {}
+/\ highest = 0
+/\ ltok = [n1 |-> 0, n2 |-> 0, n3 |-> 0]
+/\ trigG = [client |-> "none", node |-> "none"]
+
+State 2: <ScheduleStep line 662, col 5 to line 670, col 85 of module Lease>
+/\ leader = [n1 |-> FALSE, n2 |-> FALSE, n3 |-> FALSE]
+/\ toAck = {}
+/\ paused = [c1 |-> FALSE, c2 |-> FALSE]
+/\ reqs = {"c1"}
+/\ grantMsgs = {}
+/\ promised = [n1 |-> 0, n2 |-> 0, n3 |-> 0]
+/\ awaitingR = [c1 |-> {}, c2 |-> {}]
+/\ dups = 0
+/\ rdecisions = <<>>
+/\ grants = <<>>
+/\ maxTok = [n1 |-> 0, n2 |-> 0, n3 |-> 0]
+/\ myToks = [c1 |-> {}, c2 |-> {}]
+/\ rAckMsgs = {}
+/\ pc = 2
+/\ tok = [c1 |-> [t |-> 0, g |-> 0], c2 |-> [t |-> 0, g |-> 0]]
+/\ ackMsgs = {}
+/\ told = {}
+/\ ngDown = "none"
+/\ writeMsgs = {}
+/\ trigNG = {"n1", "n2", "n3"}
+/\ pending = [c1 |-> TRUE, c2 |-> FALSE]
+/\ fired = FALSE
+/\ stval = "none"
+/\ lastEv = [event |-> "Request", client |-> "c1", key |-> "k"]
+/\ awaiting = [c1 |-> {}, c2 |-> {}]
+/\ decisions = <<>>
+/\ rToAck = {}
+/\ readMsgs = {}
+/\ down = {}
+/\ up = [s |-> TRUE, n1 |-> TRUE, n2 |-> TRUE, n3 |-> TRUE, c1 |-> TRUE, c2 |-> TRUE]
+/\ term = [n1 |-> 0, n2 |-> 0, n3 |-> 0]
+/\ given = {}
+/\ highest = 0
+/\ ltok = [n1 |-> 0, n2 |-> 0, n3 |-> 0]
+/\ trigG = [client |-> "none", node |-> "none"]
+
+State 3: <Elect line 197, col 5 to line 214, col 27 of module Lease>
+/\ leader = [n1 |-> FALSE, n2 |-> FALSE, n3 |-> TRUE]
+/\ toAck = {}
+/\ paused = [c1 |-> FALSE, c2 |-> FALSE]
+/\ reqs = {"c1"}
+/\ grantMsgs = {}
+/\ promised = [n1 |-> 1, n2 |-> 1, n3 |-> 1]
+/\ awaitingR = [c1 |-> {}, c2 |-> {}]
+/\ dups = 0
+/\ rdecisions = <<>>
+/\ grants = <<>>
+/\ maxTok = [n1 |-> 0, n2 |-> 0, n3 |-> 0]
+/\ myToks = [c1 |-> {}, c2 |-> {}]
+/\ rAckMsgs = {}
+/\ pc = 2
+/\ tok = [c1 |-> [t |-> 0, g |-> 0], c2 |-> [t |-> 0, g |-> 0]]
+/\ ackMsgs = {}
+/\ told = {}
+/\ ngDown = "none"
+/\ writeMsgs = {}
+/\ trigNG = {"n1", "n2", "n3"}
+/\ pending = [c1 |-> TRUE, c2 |-> FALSE]
+/\ fired = FALSE
+/\ stval = "none"
+/\ lastEv = [event |-> "Internal", what |-> "Elect", proc |-> "n3"]
+/\ awaiting = [c1 |-> {}, c2 |-> {}]
+/\ decisions = <<>>
+/\ rToAck = {}
+/\ readMsgs = {}
+/\ down = {}
+/\ up = [s |-> TRUE, n1 |-> TRUE, n2 |-> TRUE, n3 |-> TRUE, c1 |-> TRUE, c2 |-> TRUE]
+/\ term = [n1 |-> 0, n2 |-> 0, n3 |-> 1]
+/\ given = {}
+/\ highest = 0
+/\ ltok = [n1 |-> 0, n2 |-> 0, n3 |-> 0]
+/\ trigG = [client |-> "none", node |-> "none"]
+
+State 4: <Grant line 271, col 5 to line 288, col 81 of module Lease>
+/\ leader = [n1 |-> FALSE, n2 |-> FALSE, n3 |-> TRUE]
+/\ toAck = {}
+/\ paused = [c1 |-> FALSE, c2 |-> FALSE]
+/\ reqs = {"c1"}
+/\ grantMsgs = {[t |-> 1, g |-> 1, n |-> "n3", c |-> "c1"]}
+/\ promised = [n1 |-> 1, n2 |-> 1, n3 |-> 1]
+/\ awaitingR = [c1 |-> {}, c2 |-> {}]
+/\ dups = 0
+/\ rdecisions = <<>>
+/\ grants = <<[client |-> "c1", term |-> 1, node |-> "n3", token |-> 1]>>
+/\ maxTok = [n1 |-> 1, n2 |-> 0, n3 |-> 1]
+/\ myToks = [c1 |-> {}, c2 |-> {}]
+/\ rAckMsgs = {}
+/\ pc = 2
+/\ tok = [c1 |-> [t |-> 0, g |-> 0], c2 |-> [t |-> 0, g |-> 0]]
+/\ ackMsgs = {}
+/\ told = {}
+/\ ngDown = "none"
+/\ writeMsgs = {}
+/\ trigNG = {"n1", "n2"}
+/\ pending = [c1 |-> TRUE, c2 |-> FALSE]
+/\ fired = TRUE
+/\ stval = "none"
+/\ lastEv = [event |-> "Grant", client |-> "c1", node |-> "n3", token |-> 1, key |-> "k", lifetime |-> 1, grantor_term |-> 1]
+/\ awaiting = [c1 |-> {}, c2 |-> {}]
+/\ decisions = <<>>
+/\ rToAck = {}
+/\ readMsgs = {}
+/\ down = {}
+/\ up = [s |-> TRUE, n1 |-> TRUE, n2 |-> TRUE, n3 |-> TRUE, c1 |-> TRUE, c2 |-> TRUE]
+/\ term = [n1 |-> 0, n2 |-> 0, n3 |-> 1]
+/\ given = {}
+/\ highest = 0
+/\ ltok = [n1 |-> 0, n2 |-> 0, n3 |-> 1]
+/\ trigG = [client |-> "c1", node |-> "n3"]
+
+State 5: <ScheduleStep line 662, col 5 to line 670, col 85 of module Lease>
+/\ leader = [n1 |-> FALSE, n2 |-> FALSE, n3 |-> TRUE]
+/\ toAck = {}
+/\ paused = [c1 |-> FALSE, c2 |-> FALSE]
+/\ reqs = {"c1"}
+/\ grantMsgs = {[t |-> 1, g |-> 1, n |-> "n3", c |-> "c1"]}
+/\ promised = [n1 |-> 1, n2 |-> 1, n3 |-> 1]
+/\ awaitingR = [c1 |-> {}, c2 |-> {}]
+/\ dups = 0
+/\ rdecisions = <<>>
+/\ grants = <<[client |-> "c1", term |-> 1, node |-> "n3", token |-> 1]>>
+/\ maxTok = [n1 |-> 1, n2 |-> 0, n3 |-> 1]
+/\ myToks = [c1 |-> {}, c2 |-> {}]
+/\ rAckMsgs = {}
+/\ pc = 3
+/\ tok = [c1 |-> [t |-> 0, g |-> 0], c2 |-> [t |-> 0, g |-> 0]]
+/\ ackMsgs = {}
+/\ told = {}
+/\ ngDown = "none"
+/\ writeMsgs = {}
+/\ trigNG = {"n1", "n2"}
+/\ pending = [c1 |-> TRUE, c2 |-> FALSE]
+/\ fired = TRUE
+/\ stval = "none"
+/\ lastEv = [ event |-> "Fault",
+  cell |-> "F2.1",
+  action |-> "cut",
+  pairs |-> {<<"n3", "c2">>},
+  links |-> {<<"n3", "c2">>, <<"c2", "n3">>} ]
+/\ awaiting = [c1 |-> {}, c2 |-> {}]
+/\ decisions = <<>>
+/\ rToAck = {}
+/\ readMsgs = {}
+/\ down = {<<"n3", "c2">>, <<"c2", "n3">>}
+/\ up = [s |-> TRUE, n1 |-> TRUE, n2 |-> TRUE, n3 |-> TRUE, c1 |-> TRUE, c2 |-> TRUE]
+/\ term = [n1 |-> 0, n2 |-> 0, n3 |-> 1]
+/\ given = {}
+/\ highest = 0
+/\ ltok = [n1 |-> 0, n2 |-> 0, n3 |-> 1]
+/\ trigG = [client |-> "c1", node |-> "n3"]
+
+State 6: <Protocol line 679, col 8 to line 679, col 40 of module Lease>
+/\ leader = [n1 |-> FALSE, n2 |-> FALSE, n3 |-> TRUE]
+/\ toAck = {}
+/\ paused = [c1 |-> FALSE, c2 |-> FALSE]
+/\ reqs = {}
+/\ grantMsgs = {}
+/\ promised = [n1 |-> 1, n2 |-> 1, n3 |-> 1]
+/\ awaitingR = [c1 |-> {}, c2 |-> {}]
+/\ dups = 0
+/\ rdecisions = <<>>
+/\ grants = <<[client |-> "c1", term |-> 1, node |-> "n3", token |-> 1]>>
+/\ maxTok = [n1 |-> 1, n2 |-> 0, n3 |-> 1]
+/\ myToks = [c1 |-> {[t |-> 1, g |-> 1]}, c2 |-> {}]
+/\ rAckMsgs = {}
+/\ pc = 3
+/\ tok = [c1 |-> [t |-> 1, g |-> 1], c2 |-> [t |-> 0, g |-> 0]]
+/\ ackMsgs = {}
+/\ told = {}
+/\ ngDown = "none"
+/\ writeMsgs = {}
+/\ trigNG = {"n1", "n2"}
+/\ pending = [c1 |-> FALSE, c2 |-> FALSE]
+/\ fired = TRUE
+/\ stval = "none"
+/\ lastEv = [event |-> "Internal", what |-> "RecvGrant", proc |-> "c1"]
+/\ awaiting = [c1 |-> {}, c2 |-> {}]
+/\ decisions = <<>>
+/\ rToAck = {}
+/\ readMsgs = {}
+/\ down = {<<"n3", "c2">>, <<"c2", "n3">>}
+/\ up = [s |-> TRUE, n1 |-> TRUE, n2 |-> TRUE, n3 |-> TRUE, c1 |-> TRUE, c2 |-> TRUE]
+/\ term = [n1 |-> 0, n2 |-> 0, n3 |-> 1]
+/\ given = {}
+/\ highest = 0
+/\ ltok = [n1 |-> 0, n2 |-> 0, n3 |-> 1]
+/\ trigG = [client |-> "c1", node |-> "n3"]
+
+State 7: <ScheduleStep line 662, col 5 to line 670, col 85 of module Lease>
+/\ leader = [n1 |-> FALSE, n2 |-> FALSE, n3 |-> TRUE]
+/\ toAck = {}
+/\ paused = [c1 |-> FALSE, c2 |-> FALSE]
+/\ reqs = {"c2"}
+/\ grantMsgs = {}
+/\ promised = [n1 |-> 1, n2 |-> 1, n3 |-> 1]
+/\ awaitingR = [c1 |-> {}, c2 |-> {}]
+/\ dups = 0
+/\ rdecisions = <<>>
+/\ grants = <<[client |-> "c1", term |-> 1, node |-> "n3", token |-> 1]>>
+/\ maxTok = [n1 |-> 1, n2 |-> 0, n3 |-> 1]
+/\ myToks = [c1 |-> {[t |-> 1, g |-> 1]}, c2 |-> {}]
+/\ rAckMsgs = {}
+/\ pc = 4
+/\ tok = [c1 |-> [t |-> 1, g |-> 1], c2 |-> [t |-> 0, g |-> 0]]
+/\ ackMsgs = {}
+/\ told = {}
+/\ ngDown = "none"
+/\ writeMsgs = {}
+/\ trigNG = {"n1", "n2"}
+/\ pending = [c1 |-> FALSE, c2 |-> TRUE]
+/\ fired = FALSE
+/\ stval = "none"
+/\ lastEv = [event |-> "Request", client |-> "c2", key |-> "k"]
+/\ awaiting = [c1 |-> {}, c2 |-> {}]
+/\ decisions = <<>>
+/\ rToAck = {}
+/\ readMsgs = {}
+/\ down = {<<"n3", "c2">>, <<"c2", "n3">>}
+/\ up = [s |-> TRUE, n1 |-> TRUE, n2 |-> TRUE, n3 |-> TRUE, c1 |-> TRUE, c2 |-> TRUE]
+/\ term = [n1 |-> 0, n2 |-> 0, n3 |-> 1]
+/\ given = {}
+/\ highest = 0
+/\ ltok = [n1 |-> 0, n2 |-> 0, n3 |-> 1]
+/\ trigG = [client |-> "c1", node |-> "n3"]
+
+State 8: Stuttering
+Finished checking temporal properties in 00s at 2026-10-21 08:01:49
+311 states generated, 197 distinct states found, 0 states left on queue.
+Finished in 01s at (2026-10-21 08:01:49)

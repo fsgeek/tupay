@@ -630,3 +630,78 @@ snapshot witnesses, input hashes and per-seed table are linked from
 <!-- derives: C2.1, C2.2, C1.4, F1.1, F1.2, F1.3, E1, E2 -->
 Current X1 blocked items: none. Prior rounds and their historical limitations
 remain above; finite sampling and the trusted C1.4 certificate still apply.
+
+## Schedule format v2.2 and observe schema v3
+
+<!-- derives: C1.1, C1.2, C1.3, C1.4, C2.1, C2.2, F1.1, F1.2, F1.3, A1, A2, E1, E2 -->
+This additive section records the v22-impl round. Predictions were signed and
+committed first as `b3cbaf6`, then OTS-stamped by `5adaff8`. Implementation
+checkpoint `a912afc` is signed and stamped by `160a069`. No prediction was revised.
+There is no contract, failure-model or schedule change, and no mutation was
+re-placed. The normative remembered-restart rule now carries v2.2 A1 comments;
+every write/read ack carries explicit schema-v3 answers from its original attempt.
+Independent provenance checking validates those references as well as causes.
+
+Both required commands exit 0:
+
+```sh
+# derives: C1.1, C1.2, C1.3, C1.4, C2.1, C2.2, F1.1, F1.2, F1.3, A1, A2, E1, E2
+impl/run.sh --all --seeds 3
+impl/run.sh --mutations --seeds 3
+```
+
+Every shared schedule passes seeds 1–3 (57/57); every mutation fails its declared
+clause on seeds 1–3 (54/54, 18/18 kills). No verdict changed from the predeclared
+X1 results and no prediction amendment was needed. All 34 top-level Go tests and
+vet pass. Test-first red receipts show the missing fields and same-token retry
+ambiguity before adaptation, followed by passing regressions. Raw traces,
+sidecars, ack-reference audits, hashes and the complete per-seed results are in
+[RESULTS-v2.2.md](RESULTS-v2.2.md). Only own artifacts and brief-permitted inputs
+were read; other docs, model, experiments and git log were not read.
+
+## New v2.2 / schema-v3 interpretations
+
+61. Interpretation 45 is now normative v2.2 A1: restart non-grantor binds to the
+    most recent successfully applied crash non-grantor, even if that node is now
+    the grantor. Missing prior selector crash rejects. Runtime binding, successful
+    crash recording, static rejection and regression carry explicit v2.2 tags;
+    their behavior is unchanged. A2 still rejects restart of a running process.
+    <!-- derives: C1.4, F1.1, A1, A2 -->
+62. Every WriteAck and ReadAck, including rejection, late/duplicate receipt and
+    deliberate mutation reply, names the original wire attempt in answers.
+    It does not name a storage decision, Grant, most recent attempt or retry.
+    Storage-decision causes remain intact. Non-ack emissions omit answers.
+    <!-- derives: C1.3, C2.2, F1.1, F1.2, F1.3 -->
+63. Schema-v3 answers is redundant evidence, not a new causal edge or contract
+    clause. The checker requires an existing operation-appropriate attempt with
+    matching client/process, key and token, and causal reachability through the
+    recorded history. It never inserts an answers edge to make a bad reference
+    appear causal. Missing or mismatched evidence is UNEXPLAINED unless a separate
+    contract violation has already been witnessed under E2.
+    <!-- derives: C1.3, C2.2, F1.1, F1.2, F1.3, E2 -->
+64. Where an ack directly names a storage decision, answers must equal that
+    decision's exact attempt reference. Merely reaching an earlier same-token
+    attempt through local sequence or prior decisions is insufficient. Fabricated
+    mutation replies instead name their direct original attempt, allowing C1.3
+    and C2.2 to retain the discriminated unaccepted/unserved failure evidence.
+    <!-- derives: C1.3, C2.2, F1.1, F1.2, F1.3, E2 -->
+65. Current fixtures explicitly name their attempts; malformed raw-record tests
+    bypass no validation and are not repaired automatically. Historical traces
+    retain their original schema and are not rewritten. The current strict v3
+    provenance checker reports missing answers if asked to check older traces.
+    New runs of every old schedule retain their prior contract verdicts.
+    <!-- derives: C1.3, C2.2, F1.1, F1.2, F1.3 -->
+66. Runner IDs identify v22-observe-v3, and the execution gate requires this
+    round's committed registration. Sampling and all prior operational/liveness
+    bounds stay unchanged: seeds 1–3, T2 0–2 ms, jitter 1–5 ms, reordering and
+    one-third duplicate sends, with unseeded Raft election timing. Normal signed
+    commits run the OTS hook. Wall time starts 2026-10-21 03:57:24 UTC and includes
+    the final commit/hook; it supplies no event ordering. The pre-existing
+    untracked .venv remains untouched and uncommitted.
+    <!-- derives: C1.4, C1.3, C2.2, F1.1, F1.2, F1.3, T2, E1, E2 -->
+
+## Blocked
+
+<!-- derives: C1.4, C1.3, C2.2, F1.1, F1.2, F1.3, E1, E2 -->
+Current v2.2/schema-v3 blocked items: none. Finite sampling and the trusted C1.4
+horizon certificate retain their previously documented limits.

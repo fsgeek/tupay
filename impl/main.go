@@ -114,7 +114,7 @@ func runOne(s Schedule, seed int64, mutation string) (Verdict, string) {
 	if mutation != "" {
 		mode = mutation
 	}
-	run := fmt.Sprintf("%s-x1-v3-%s-seed-%d-%s", s.Name, mode, seed, hex.EncodeToString(nonce[:]))
+	run := fmt.Sprintf("%s-v22-observe-v3-%s-seed-%d-%s", s.Name, mode, seed, hex.EncodeToString(nonce[:]))
 	if err := os.MkdirAll("observe", 0755); err != nil {
 		return Verdict{Reason: err.Error()}, ""
 	}

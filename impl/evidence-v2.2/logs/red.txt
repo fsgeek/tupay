@@ -1,0 +1,64 @@
+go: downloading github.com/hashicorp/raft v1.7.0
+go: downloading gopkg.in/yaml.v3 v3.0.1
+go: downloading github.com/armon/go-metrics v0.4.1
+go: downloading github.com/hashicorp/go-hclog v1.6.2
+go: downloading github.com/hashicorp/go-msgpack/v2 v2.1.1
+go: downloading github.com/hashicorp/go-immutable-radix v1.0.0
+go: downloading github.com/fatih/color v1.13.0
+go: downloading github.com/mattn/go-isatty v0.0.14
+go: downloading github.com/hashicorp/golang-lru v0.5.0
+go: downloading github.com/mattn/go-colorable v0.1.12
+go: downloading golang.org/x/sys v0.13.0
+=== RUN   TestObserveV3Answers
+=== RUN   TestObserveV3Answers/write
+=== RUN   TestObserveV3Answers/write/valid
+=== RUN   TestObserveV3Answers/write/missing
+    observe_v3_test.go:88: want unexplained provenance, got {Clause: Reason:}
+=== RUN   TestObserveV3Answers/write/zero
+    observe_v3_test.go:88: want unexplained provenance, got {Clause: Reason:}
+=== RUN   TestObserveV3Answers/write/absent
+    observe_v3_test.go:88: want unexplained provenance, got {Clause: Reason:}
+=== RUN   TestObserveV3Answers/write/wrong-kind
+    observe_v3_test.go:88: want unexplained provenance, got {Clause: Reason:}
+=== RUN   TestObserveV3Answers/write/wrong-operation
+    observe_v3_test.go:88: want unexplained provenance, got {Clause: Reason:}
+=== RUN   TestObserveV3Answers/read
+=== RUN   TestObserveV3Answers/read/valid
+=== RUN   TestObserveV3Answers/read/missing
+    observe_v3_test.go:88: want unexplained provenance, got {Clause: Reason:}
+=== RUN   TestObserveV3Answers/read/zero
+    observe_v3_test.go:88: want unexplained provenance, got {Clause: Reason:}
+=== RUN   TestObserveV3Answers/read/absent
+    observe_v3_test.go:88: want unexplained provenance, got {Clause: Reason:}
+=== RUN   TestObserveV3Answers/read/wrong-kind
+    observe_v3_test.go:88: want unexplained provenance, got {Clause: Reason:}
+=== RUN   TestObserveV3Answers/read/wrong-operation
+    observe_v3_test.go:88: want unexplained provenance, got {Clause: Reason:}
+--- FAIL: TestObserveV3Answers (0.02s)
+    --- FAIL: TestObserveV3Answers/write (0.01s)
+        --- PASS: TestObserveV3Answers/write/valid (0.00s)
+        --- FAIL: TestObserveV3Answers/write/missing (0.00s)
+        --- FAIL: TestObserveV3Answers/write/zero (0.00s)
+        --- FAIL: TestObserveV3Answers/write/absent (0.00s)
+        --- FAIL: TestObserveV3Answers/write/wrong-kind (0.00s)
+        --- FAIL: TestObserveV3Answers/write/wrong-operation (0.00s)
+    --- FAIL: TestObserveV3Answers/read (0.01s)
+        --- PASS: TestObserveV3Answers/read/valid (0.00s)
+        --- FAIL: TestObserveV3Answers/read/missing (0.00s)
+        --- FAIL: TestObserveV3Answers/read/zero (0.00s)
+        --- FAIL: TestObserveV3Answers/read/absent (0.00s)
+        --- FAIL: TestObserveV3Answers/read/wrong-kind (0.00s)
+        --- FAIL: TestObserveV3Answers/read/wrong-operation (0.00s)
+=== RUN   TestObserveV3SameTokenRetry
+    observe_v3_test.go:108: old same-token attempt should be unexplained: {Clause: Reason:}
+--- FAIL: TestObserveV3SameTokenRetry (0.00s)
+=== RUN   TestObserveV3LiveAcks
+    observe_v3_test.go:156: WriteAck missing answers
+    observe_v3_test.go:156: WriteAck missing answers
+    observe_v3_test.go:156: WriteAck missing answers
+    observe_v3_test.go:156: ReadAck missing answers
+    observe_v3_test.go:156: ReadAck missing answers
+--- FAIL: TestObserveV3LiveAcks (0.29s)
+FAIL
+FAIL	tupay/impl	0.313s
+FAIL

@@ -19,7 +19,7 @@ func readFixture() []Event {
 	return append(es,
 		Event{Proc: "c1", Seq: 4, Event: "ReadAttempt", Client: "c1", Key: "k", Token: 7, Term: 2, Causes: []Ref{{"n1", 1}}},
 		Event{Proc: "s", Seq: 2, Event: "ReadAccept", Key: "k", Token: 7, Term: 2, HighestBefore: &seven, Value: "v", Causes: []Ref{{"c1", 4}}},
-		Event{Proc: "c1", Seq: 5, Event: "ReadAck", Client: "c1", Key: "k", Token: 7, Outcome: "served", Value: "v", Causes: []Ref{{"s", 2}}})
+		Event{Proc: "c1", Seq: 5, Event: "ReadAck", Answers: &Ref{"c1", 4}, Client: "c1", Key: "k", Token: 7, Outcome: "served", Value: "v", Causes: []Ref{{"s", 2}}})
 }
 
 // TestX1ReadCheckers uses counterexamples independent of running storage state.

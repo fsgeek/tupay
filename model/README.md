@@ -90,6 +90,20 @@ C1_1, C1_2 and C1_3 still hold on every shared schedule, and the mutations still
 Written only from `contract/v1.md`, `failure-model/v1.md`, `tests/pairs-v1.md`,
 `testbed/schedule-format.md`, `observe/schema.md`, `AGENTS.md` and this directory.
 
+## Round v2.2 (schedule format v2.2, observe schema v3)
+derives: C1.3, C2.2, F1.1; format v2.2 A1; observe v3 addendum
+
+Additive. The predictions and their outcome are in `PREDICTIONS-v2.2.md`.
+
+- **`restart: non-grantor` (format v2.2 A1).** No behaviour change. `restart: non-grantor` already resolved to `ngDown`, the node the most recent `crash: non-grantor` crashed, whether or not it is a non-grantor at restart time. The compiler already rejected a restart with no earlier crash.
+  Tags updated in `Lease.tla` (`ngDown`, `NGChoices`) and in `compile.py` (`static_checks`).
+  My compiler is slightly stricter than the text: it also rejects a second `restart: non-grantor` with no crash in between. That restart would target a node that is already up, which A2 rejects anyway.
+- **`answers` (observe v3).** `export.py` adds `answers: {proc, seq}` to every `WriteAck` and `ReadAck`, naming the attempt the client is answering.
+  - Lookup: the attempt is found by the same key the storage decision uses, (client, token, value) for a write and (client, read id) for a read.
+  - Self-check: the exporter checks that the decision named in `causes` cites the same attempt. A mismatch, or an ack that answers no attempt, is a provenance problem, and a PASS run reports it as UNEXPLAINED. None occurred.
+- **Interpretation V22.1.** When an ack has no storage decision behind it, which only happens in mutation counterexamples (P7, P8, P16, P17), `answers` still names the attempt the client attributes the ack to, and `causes` is empty. I read `answers` as the client's view and `causes` as storage's. Their disagreement is exactly what those mutations break.
+- **Results.** All 19 schedules print `PASS`, and all 18 mutations print `FAIL` on the same clause as in X1. No verdict changed. The model is unchanged apart from comments, so the state counts are as in X1.
+
 ## X1 adapt arm (contract v2: fenced reads)
 derives: C2.1, C2.2, F1.1, F1.2, F1.3; format v3 (read); observe v2 addendum
 

@@ -17,7 +17,7 @@ func checkerFixture() []Event {
 		{Proc: "n1", Seq: 1, Event: "Grant", Client: "c1", Key: "k", Token: 7, Term: 2, Lifetime: 40, Causes: []Ref{{"c1", 1}}},
 		{Proc: "c1", Seq: 2, Event: "WriteAttempt", Client: "c1", Key: "k", Token: 7, Term: 2, Value: "v", Causes: []Ref{{"n1", 1}}},
 		{Proc: "s", Seq: 1, Event: "WriteAccept", Key: "k", Token: 7, Term: 2, HighestBefore: &zero, Causes: []Ref{{"c1", 2}}},
-		{Proc: "c1", Seq: 3, Event: "WriteAck", Client: "c1", Key: "k", Token: 7, Outcome: "accepted", Causes: []Ref{{"s", 1}}},
+		{Proc: "c1", Seq: 3, Event: "WriteAck", Answers: &Ref{"c1", 2}, Client: "c1", Key: "k", Token: 7, Outcome: "accepted", Causes: []Ref{{"s", 1}}},
 	}
 }
 
@@ -106,7 +106,7 @@ func TestC12_F12_EqualTokenAllowed(t *testing.T) {
 // derives: C1.3, F1.2
 func TestC13_F12_UnacceptedAttempt(t *testing.T) {
 	events := checkerFixture()
-	events = append(events, Event{Proc: "c1", Seq: 4, Event: "WriteAttempt", Client: "c1", Key: "k", Token: 7, Term: 2, Value: "different-attempt", Causes: []Ref{{"n1", 1}}}, Event{Proc: "c1", Seq: 5, Event: "WriteAck", Client: "c1", Key: "k", Token: 7, Outcome: "accepted", Causes: []Ref{{"c1", 4}}})
+	events = append(events, Event{Proc: "c1", Seq: 4, Event: "WriteAttempt", Client: "c1", Key: "k", Token: 7, Term: 2, Value: "different-attempt", Causes: []Ref{{"n1", 1}}}, Event{Proc: "c1", Seq: 5, Event: "WriteAck", Answers: &Ref{"c1", 4}, Client: "c1", Key: "k", Token: 7, Outcome: "accepted", Causes: []Ref{{"c1", 4}}})
 	v := checkTrace(writeFixture(t, events), fixtureSchedule(), RunEvidence{Completed: true})
 	if v.Clause != "C1.3" {
 		t.Fatalf("wanted C1.3, got %+v", v)

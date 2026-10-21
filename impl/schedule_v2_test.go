@@ -175,7 +175,7 @@ func TestV2T1T3_SynchronousEffects(t *testing.T) {
 // derives: C1.3, F1.2, E1, E2
 func TestV2E2_SafetyBeforeUnreachableEnd(t *testing.T) {
 	events := checkerFixture()
-	events = append(events, Event{Proc: "c1", Seq: 4, Event: "WriteAttempt", Client: "c1", Key: "k", Token: 7, Term: 2, Causes: []Ref{{"n1", 1}}}, Event{Proc: "c1", Seq: 5, Event: "WriteAck", Client: "c1", Key: "k", Token: 7, Outcome: "accepted", Causes: []Ref{{"c1", 4}}})
+	events = append(events, Event{Proc: "c1", Seq: 4, Event: "WriteAttempt", Client: "c1", Key: "k", Token: 7, Term: 2, Causes: []Ref{{"n1", 1}}}, Event{Proc: "c1", Seq: 5, Event: "WriteAck", Answers: &Ref{"c1", 4}, Client: "c1", Key: "k", Token: 7, Outcome: "accepted", Causes: []Ref{{"c1", 4}}})
 	evidence := RunEvidence{Reason: "end unreachable", Operational: "later resource problem"}
 	v := checkTrace(writeFixture(t, events), fixtureSchedule(), evidence)
 	if v.Clause != "C1.3" {

@@ -453,7 +453,7 @@ func (e *Engine) ghostAck(m WireMessage) {
 	}
 	// mutation: P8 manufacture success for an undelivered write across a partition.
 	if e.mutation == "P8" && e.partitionSeen {
-		e.out.emit(Event{Proc: m.client, Event: "WriteAck", Client: m.client, Key: "k", Token: m.grant.token, Outcome: "accepted"}, m.attempt)
+		e.out.emit(Event{Proc: m.client, Event: "WriteAck", Answers: &m.attempt, Client: m.client, Key: "k", Token: m.grant.token, Outcome: "accepted"}, m.attempt)
 	}
 }
 
@@ -536,7 +536,7 @@ func (e *Engine) deliver(now time.Time) {
 			if e.mutation == "P18" && e.resumeSeen && m.outcome == "served" {
 				m.value = e.storageValue
 			}
-			e.out.emit(Event{Proc: m.client, Event: "ReadAck", Client: m.client, Key: "k", Token: m.grant.token, Outcome: m.outcome, Value: m.value}, m.decision)
+			e.out.emit(Event{Proc: m.client, Event: "ReadAck", Answers: &m.attempt, Client: m.client, Key: "k", Token: m.grant.token, Outcome: m.outcome, Value: m.value}, m.decision)
 			continue
 		}
 		outcome := m.outcome
@@ -544,7 +544,7 @@ func (e *Engine) deliver(now time.Time) {
 		if e.mutation == "P9" && e.resumeSeen && outcome == "rejected" {
 			outcome = "accepted"
 		}
-		e.out.emit(Event{Proc: m.client, Event: "WriteAck", Client: m.client, Key: "k", Token: m.grant.token, Outcome: outcome}, m.decision)
+		e.out.emit(Event{Proc: m.client, Event: "WriteAck", Answers: &m.attempt, Client: m.client, Key: "k", Token: m.grant.token, Outcome: outcome}, m.decision)
 	}
 }
 
@@ -741,7 +741,7 @@ func (e *Engine) witnesses() []ProgressWitness {
 func (e *Engine) ghostReadAck(m WireMessage) {
 	c := e.clients[m.client]
 	if e.mutation == "P17" && e.partitionSeen && c.up && !c.paused && c.generation == m.generation {
-		e.out.emit(Event{Proc: m.client, Event: "ReadAck", Client: m.client, Key: "k", Token: m.grant.token, Outcome: "served", Value: "fabricated"}, m.attempt)
+		e.out.emit(Event{Proc: m.client, Event: "ReadAck", Answers: &m.attempt, Client: m.client, Key: "k", Token: m.grant.token, Outcome: "served", Value: "fabricated"}, m.attempt)
 	}
 }
 

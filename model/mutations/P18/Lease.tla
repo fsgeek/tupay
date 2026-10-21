@@ -56,7 +56,7 @@ VARIABLES
     fired,      \* derives: F1.1, F1.2, F1.3 -- trigger of step pc has held since step pc-1
     trigG,      \* derives: F1.2, F1.3 -- most recent grant at trigger time (resolves grantor/holder)
     trigNG,     \* derives: F1.1; format v2.1 A1 -- lease nodes other than grantor up at trigger time
-    ngDown,     \* derives: F1.1; format v2.1 A1 -- node crashed by the most recent `crash: non-grantor`
+    ngDown,     \* derives: F1.1; format v2.2 A1, v2.1 A1 -- node crashed by the most recent `crash: non-grantor`
     lastEv,     \* derives: C1.1, C1.2, C1.3, C2.1, C2.2 -- the event emitted by the last step (for the exporter)
     \* --- reads (contract v2; derives: C2.1, C2.2)
     readMsgs,   \* derives: C2.1, F1.2 -- reads in flight, client -> storage
@@ -579,7 +579,7 @@ DoStep(st, ng) ==
 \* synchronously, so a step may be triggered by its predecessor's own event.
 \* format v2.1 A1: `non-grantor` is explored over every candidate (the lease nodes other than
 \* grantor that were up when the trigger fired); `restart: non-grantor` names the node the most
-\* recent `crash: non-grantor` crashed.
+\* recent `crash: non-grantor` crashed, whether or not it is a non-grantor now (format v2.2 A1).
 NGChoices(st) ==
     IF "non-grantor" \notin ({st.p} \cup st.a \cup st.b) THEN {"none"}
     ELSE IF st.kind = "restart" THEN {ngDown}

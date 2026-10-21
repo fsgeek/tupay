@@ -83,3 +83,6 @@ Tony: M1 supports the thesis that disagreement and reconciliation between indepe
 
 ## 2026-10-21: model adapted to v2.1 (4.5 minutes)
 Branch `model-v2.1`, predictions `45fbc65`, adapted `d84ff22` (stamped `7f19949`), about 22k tokens. 13 of 13 PASS, 12 of 12 mutations FAIL, no re-placement, every prediction held. Author's check worth keeping: the rewritten P10, run against the model without the round-2 `Join` fix, still prints FAIL C1_4, so the observable restatement of the schedule still catches the original defect. `non-grantor` explored over every up non-grantor node; the compiler rejects it as a target of request, write, pause, resume. Two interpretations, R2.1-a and R2.1-b.
+
+## 2026-10-21: implementation adapted to v2.1 (9m26s), all signed
+Codex in its signed clone: predictions `dc93d1e`, adaptation `9ff6584`, adapted `6232baf` (stamped `658f1ce`), about 73k tokens; 39 of 39 PASS, 12 of 12 kills on every seed, no re-placement, every prediction matched, every commit signed. Merging both v2.1 branches into main in one commit; main has moved since they forked (X1 registration), which touches no file either branch touched.

@@ -86,3 +86,6 @@ Branch `model-v2.1`, predictions `45fbc65`, adapted `d84ff22` (stamped `7f19949`
 
 ## 2026-10-21: implementation adapted to v2.1 (9m26s), all signed
 Codex in its signed clone: predictions `dc93d1e`, adaptation `9ff6584`, adapted `6232baf` (stamped `658f1ce`), about 73k tokens; 39 of 39 PASS, 12 of 12 kills on every seed, no re-placement, every prediction matched, every commit signed. Merging both v2.1 branches into main in one commit; main has moved since they forked (X1 registration), which touches no file either branch touched.
+
+## 2026-10-21: round 2.1 verified; X1 arms start from merge `729e845`
+Steward's runs on the v2.1 merge: model 13 of 13 PASS, 12 of 12 mutations FAIL (2 min); implementation 39 of 39 PASS, 12 of 12 kills on every seed (1 min); provenance complete on both sides. Logs in `experiments/M1/round2.1/`. Adaptation cost this round: model 4.5 min and 22k tokens; implementation 9.5 min and 73k; steward about 15 min. X1 begins: four authors, two arms, from this state, under `experiments/X1-prereg.md` (commit 7556e40).

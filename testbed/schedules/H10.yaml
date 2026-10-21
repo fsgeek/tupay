@@ -1,0 +1,26 @@
+schedule: H10
+derives: [C1.4, C1.1, C1.2, F2.2]
+processes:
+  lease: [n1, n2, n3]
+  clients: [c1, c2]
+  storage: [s]
+steps:
+  # derives: H10 (C1.4, C1.1, C1.2, F2.2). The deaf follower.
+  # After c1's write is accepted, one follower stops hearing the grantor; it can
+  # still send to the grantor, and it is connected both ways to the other follower,
+  # storage and both clients. Nothing else is touched and nothing heals. After this
+  # single fault the grantor and the other follower are connected, so are the two
+  # followers, and both pairs are connected to storage and to c2: C1.4's premise
+  # holds under Rule L3 and c2 must eventually be granted. The deaf follower hears
+  # no leader, so an election-based grantor sees a node that keeps starting
+  # elections with a term the grantor can hear and cannot answer. The artifact must
+  # still converge on a node that c2 can reach and that node must grant; c2's write
+  # (which waits for the token, Rule T3) is the witness and must be accepted with
+  # highest_before = t1 under a token greater than t1.
+  - {at: start, do: {request: c1}}
+  - {at: {event: Grant, client: c1}, do: {write: c1, value: v1}}
+  - {at: {event: WriteAck, client: c1, outcome: accepted}, do: {cell: F2.2, drop: [[grantor, non-grantor]]}}
+  - {at: start, do: {request: c2}}
+  - {at: {event: Grant, client: c2}, do: {write: c2, value: v2}}
+end: quiescent
+bound: {events: 200}

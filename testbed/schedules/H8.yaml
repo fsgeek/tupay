@@ -1,0 +1,26 @@
+schedule: H8
+derives: [C1.1, C1.4, C1.2, C2.1, F1.1, F2.2]
+processes:
+  lease: [n1, n2, n3]
+  clients: [c1, c2]
+  storage: [s]
+steps:
+  # derives: H8 (C1.1, C1.4, C1.2, C2.1, F1.1, F2.2). A grant nobody received.
+  # c1 holds t1 and has written. The grantor's messages to c2 are dropped (c2 still
+  # reaches the grantor, and everyone else is untouched). c2 requests; the grantor
+  # records Grant(c2, t2) and the message is lost. On that Grant event the grantor
+  # crashes and never restarts. After this last fault the two remaining lease nodes,
+  # storage and c2 are connected to each other both ways, so C1.4's premise holds
+  # (Rule L3): c2 must eventually hold a grant, with no further `request` step, and
+  # its token must exceed t2, a token that left the grantor's log and reached no one.
+  # c2's write waits for that token (Rule T3) and must be accepted with
+  # highest_before = t1; c1's stale read is then rejected (C2.1).
+  - {at: start, do: {request: c1}}
+  - {at: {event: Grant, client: c1}, do: {write: c1, value: v1}}
+  - {at: {event: WriteAck, client: c1, outcome: accepted}, do: {cell: F2.2, drop: [[grantor, c2]]}}
+  - {at: start, do: {request: c2}}
+  - {at: {event: Grant, client: c2}, do: {cell: F1.1, crash: grantor}}
+  - {at: start, do: {write: c2, value: v2}}
+  - {at: {event: WriteAck, client: c2, outcome: accepted}, do: {read: c1, token: stale}}
+end: {event: ReadAck, client: c1}
+bound: {events: 200}

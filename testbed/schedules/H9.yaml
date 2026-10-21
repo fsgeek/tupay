@@ -1,0 +1,20 @@
+schedule: H9
+derives: [C1.4, F2.1]
+processes:
+  lease: [n1, n2, n3]
+  clients: [c1, c2]
+  storage: [s]
+steps:
+  # derives: H9 (C1.4, F2.1). Connected is direct, and the grantor need not be in it.
+  # After the first grant the direct link between the grantor and c2 is cut both
+  # ways and stays cut. Nothing else changes: the grantor still exchanges messages
+  # with both followers, so no election is provoked, and the two followers, storage
+  # and c2 are connected to each other both ways. Under Rule L3 that is exactly
+  # C1.4's premise (a majority of lease nodes, storage and the requester, connected
+  # to each other; the clause does not name the grantor), so c2 must eventually be
+  # granted even though it can never exchange a message with the current leader.
+  - {at: start, do: {request: c1}}
+  - {at: {event: Grant, client: c1}, do: {cell: F2.1, cut: [[grantor, c2]]}}
+  - {at: start, do: {request: c2}}
+end: quiescent
+bound: {events: 200}

@@ -1,0 +1,31 @@
+schedule: H7
+derives: [C2.1, C1.2, C2.2, C1.3, F1.3, F2.2]
+processes:
+  lease: [n1, n2, n3]
+  clients: [c1, c2]
+  storage: [s]
+steps:
+  # derives: H7 (C2.1, C1.2, C2.2, C1.3, F1.3, F2.2). A read is not a fence.
+  # c1 writes under t1 and is paused past its lifetime; c2 is granted t2 and READS
+  # (served, highest_before = t1) but does not write. c1 resumes and writes with its
+  # stale token while storage's replies to c1 are dropped (s->c1 down, c1->s up).
+  # Storage must decide that write against a ledger still at t1: highest_before = t1,
+  # so the write is accepted (C1.2's condition holds; C2.1 says serving a read does
+  # not move the ledger). c1 is never told. Then c2 writes (ledger -> t2), the link
+  # heals, c1's next stale write is rejected with highest_before = t2, and c2's final
+  # read is served with c2's own value (C2.2). The end is the explicit ReadAck
+  # because Rule E1's "quiescent" lists requests, writes and acks but not reads.
+  - {at: start, do: {request: c1}}
+  - {at: {event: Grant, client: c1}, do: {write: c1, value: v1}}
+  - {at: {event: WriteAck, client: c1, outcome: accepted}, do: {cell: F1.3, pause: c1}}
+  - {at: start, do: {request: c2}}
+  - {at: {event: Grant, client: c2}, do: {cell: F1.3, resume: c1}}
+  - {at: start, do: {read: c2}}
+  - {at: {event: ReadAck, client: c2, outcome: served}, do: {cell: F2.2, drop: [[s, c1]]}}
+  - {at: start, do: {write: c1, value: v2, token: stale}}
+  - {at: {event: WriteAccept}, do: {write: c2, value: v3}}
+  - {at: {event: WriteAck, client: c2, outcome: accepted}, do: {cell: F2.2, heal: true}}
+  - {at: start, do: {write: c1, value: v4, token: stale}}
+  - {at: {event: WriteAck, client: c1, outcome: rejected}, do: {read: c2}}
+end: {event: ReadAck, client: c2}
+bound: {events: 200}

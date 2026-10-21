@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/hashicorp/raft"
+	"math/rand"
 	"path/filepath"
 	"testing"
 	"time"
@@ -280,7 +281,7 @@ func TestX2RuntimeCliqueAndLostGrantStanding(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer out.close()
-	e := &Engine{schedule: fixtureSchedule(), storage: "s", storageUp: true, clients: map[string]*Client{"c2": {id: "c2", up: true, generation: 1}}, nodes: map[string]*LeaseNode{}, down: map[link]bool{}, out: out}
+	e := &Engine{rng: rand.New(rand.NewSource(1)), schedule: fixtureSchedule(), storage: "s", storageUp: true, clients: map[string]*Client{"c2": {id: "c2", up: true, generation: 1}}, nodes: map[string]*LeaseNode{}, down: map[link]bool{}, out: out}
 	for _, id := range e.schedule.Processes.Lease {
 		e.nodes[id] = &LeaseNode{peer: &raft.Raft{}, generation: 1}
 	}
@@ -298,12 +299,26 @@ func TestX2RuntimeCliqueAndLostGrantStanding(t *testing.T) {
 	}
 	e.down = map[link]bool{{"n1", "c2"}: true}
 	e.finishAllocation(completedAllocation{request: r, node: "n1", generation: 1, allocation: Allocation{7, 2}})
-	if r.done || len(e.clients["c2"].grants) > 0 || len(out.events) > 0 {
+	if r.done || len(e.clients["c2"].grants) > 0 || len(out.events) != 1 || out.events[0].Event != "Grant" {
+		t.Fatal("issuance/receipt were conflated")
+	}
+	// Break relaying just for the lost direct send; then restore the normal path.
+	// derives: C1.4, F2.2, R2
+	e.mutation = "R2"
+	e.deliverLease(time.Now().Add(time.Second))
+	if r.done {
 		t.Fatal("lost reply ended requester standing")
 	}
+	e.mutation = ""
 	e.down = nil
 	e.finishAllocation(completedAllocation{request: r, node: "n2", generation: 1, allocation: Allocation{8, 2}})
-	if !r.done || len(e.clients["c2"].grants) != 1 {
-		t.Fatal("later successful reply failed to answer standing request")
+	if r.done {
+		t.Fatal("new issuance completed before receipt")
 	}
+	e.deliverLease(time.Now().Add(2 * time.Second))
+	e.deliverLease(time.Now().Add(3 * time.Second))
+	if !r.done || len(e.clients["c2"].grants) != 1 || e.clients["c2"].grants[0].token != 8 {
+		t.Fatal("fresh reply did not answer standing request")
+	}
+
 }

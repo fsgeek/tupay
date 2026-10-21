@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-# derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3; format v2 E1, E2 (checking runs for P1-P12 and M1)
+# derives: C1.1, C1.2, C1.3, C1.4, C2.1, C2.2, F1.1, F1.2, F1.3, F2.1, F2.2; format v2 E1, E2, v4 E3 (checking runs for the 35 shared schedules P1-P30, false-suspicion-v1, H7-H10, and mutations P1-P30)
+# (routing round: the header said "P1-P12 and M1" and named neither C2.x nor F2.x; that stale tag is fixed here)
 """Driver behind model/run.sh.
 
   run.py <schedule-name>   check the model on one schedule; print PASS | FAIL <inv> | UNEXPLAINED <why>
@@ -24,7 +25,7 @@ import export as exporter  # noqa: E402
 import mutate  # noqa: E402
 
 # derives: C1.1-C1.4, C2.1, C2.2, F2.1, F2.2 -- every shared schedule (P13-P18 added for contract v2, P19-P30 for failure model v2)
-ORDER = [f"P{i}" for i in range(1, 31)] + ["false-suspicion-v1"]
+ORDER = [f"P{i}" for i in range(1, 31)] + ["false-suspicion-v1"] + [f"H{i}" for i in range(7, 11)]  # H7-H10 shared after X2
 
 
 def find_schedule(name):
@@ -114,7 +115,7 @@ def check(name, lease=None, run_id=None, quiet=False):
 
 
 def mutations():
-    # derives: P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12
+    # derives: P1-P30 (pairs v3)
     mutate.main()
     ok = True
     for pair, _, expected, desc, _ in mutate.MUTATIONS:

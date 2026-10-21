@@ -72,7 +72,7 @@ func parseOptions(args []string) (Options, error) {
 		return o, fmt.Errorf("use <schedule>, --all, or --mutations")
 	}
 	if o.mutation != "" && (o.schedule == "" || expectedClause(o.mutation) == "") {
-		return o, fmt.Errorf("--mutation requires one schedule and P1..P30")
+		return o, fmt.Errorf("--mutation requires one schedule and P1..P30 or R1/R2")
 	}
 	if o.check != "" && (o.schedule == "" || o.mutation != "") {
 		return o, fmt.Errorf("--check requires one schedule and no mutation")
@@ -93,7 +93,7 @@ func expectedClause(pair string) string {
 		return "C1.2"
 	case "P7", "P8", "P9", "P23", "P24":
 		return "C1.3"
-	case "P10", "P11", "P12", "P25", "P26":
+	case "P10", "P11", "P12", "P25", "P26", "R1", "R2":
 		return "C1.4"
 	case "P13", "P14", "P15", "P27", "P28":
 		return "C2.1"
@@ -114,7 +114,7 @@ func runOne(s Schedule, seed int64, mutation string) (Verdict, string) {
 	if mutation != "" {
 		mode = mutation
 	}
-	run := fmt.Sprintf("%s-x2-links-v4-%s-seed-%d-%s", s.Name, mode, seed, hex.EncodeToString(nonce[:]))
+	run := fmt.Sprintf("%s-fixr-routing-v1-%s-seed-%d-%s", s.Name, mode, seed, hex.EncodeToString(nonce[:]))
 	if err := os.MkdirAll("observe", 0755); err != nil {
 		return Verdict{Reason: err.Error()}, ""
 	}
@@ -222,15 +222,22 @@ func execute(args []string) int {
 			schedules = append(schedules, fmt.Sprintf("P%d", i))
 		}
 		if o.all {
-			schedules = append(schedules, "false-suspicion-v1")
+			schedules = append(schedules, "H7", "H8", "H9", "H10", "false-suspicion-v1")
 		}
 	} else {
 		schedules = []string{o.schedule}
 	}
+	if o.mutations {
+		schedules = append(schedules, "R1", "R2")
+	}
 	exit := 0
 	killed := 0
 	for _, name := range schedules {
-		s, err := loadSchedule(name)
+		scheduleName := name
+		if o.mutations && (name == "R1" || name == "R2") {
+			scheduleName = "H9"
+		}
+		s, err := loadSchedule(scheduleName)
 		if err != nil {
 			fmt.Printf("UNEXPLAINED %s schedule=%s\n", err, name)
 			exit = 1
@@ -243,7 +250,7 @@ func execute(args []string) int {
 		allKilled := true
 		for seed := 1; seed <= o.seeds; seed++ {
 			v, path := runOne(s, int64(seed), mutation)
-			printResult(v, name, seed, mutation, path)
+			printResult(v, s.Name, seed, mutation, path)
 			if mutation != "" {
 				if v.Clause != expectedClause(mutation) {
 					exit = 1
@@ -258,7 +265,7 @@ func execute(args []string) int {
 		}
 	}
 	if o.mutations {
-		fmt.Printf("Mutation kills: %d/30 across %d seed(s)\n", killed, o.seeds)
+		fmt.Printf("Mutation kills: %d/32 across %d seed(s)\n", killed, o.seeds)
 	}
 	return exit
 }

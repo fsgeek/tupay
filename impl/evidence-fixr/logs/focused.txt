@@ -1,0 +1,12 @@
+=== RUN   TestFixRIssuanceBeforeReceipt
+--- PASS: TestFixRIssuanceBeforeReceipt (0.14s)
+=== RUN   TestFixRC14IssuedNotDelivered
+--- PASS: TestFixRC14IssuedNotDelivered (0.00s)
+=== RUN   TestFixRRenamedRoutingShapes
+=== RUN   TestFixRRenamedRoutingShapes/H8
+=== RUN   TestFixRRenamedRoutingShapes/H9
+--- PASS: TestFixRRenamedRoutingShapes (0.53s)
+    --- PASS: TestFixRRenamedRoutingShapes/H8 (0.35s)
+    --- PASS: TestFixRRenamedRoutingShapes/H9 (0.18s)
+PASS
+ok  	tupay/impl	0.669s

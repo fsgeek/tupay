@@ -1,0 +1,14 @@
+# derives: C1.1, C1.2, C1.3, C1.4, C2.1, C2.2, F1.1, F1.2, F1.3, F2.1, F2.2
+mode	mutation	schedule	seed	c2_issued_grants	c2_delivered_grants	budget_ms
+mutations-initial	R1	H9	1	0	0	3000
+mutations-initial	R1	H9	2	0	0	3000
+mutations-initial	R1	H9	3	0	0	3000
+mutations-initial	R2	H9	1	71	0	3000
+mutations-initial	R2	H9	2	71	0	3000
+mutations-initial	R2	H9	3	71	0	3000
+mutations	R1	H9	1	0	0	3000
+mutations	R1	H9	2	0	0	3000
+mutations	R1	H9	3	0	0	3000
+mutations	R2	H9	1	71	0	3000
+mutations	R2	H9	2	71	0	3000
+mutations	R2	H9	3	71	0	3000

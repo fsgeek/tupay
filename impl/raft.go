@@ -1,4 +1,4 @@
-// derives: C1.1, C1.4, F1.1, F1.2
+// derives: C1.1, C1.4, F1.1, F1.2, F2.1, F2.2
 package main
 
 import (
@@ -12,7 +12,7 @@ import (
 )
 
 // Allocation uses the committed Raft entry's globally ordered index and term.
-// derives: C1.1, C1.4, F1.1, F1.2
+// derives: C1.1, C1.4, F1.1, F1.2, F2.1, F2.2
 type Allocation struct{ Token, Term uint64 }
 
 // TokenFSM is reconstructed from retained logs or a snapshot on restart.
@@ -23,7 +23,7 @@ type TokenFSM struct {
 }
 
 // Apply allocates only after Raft has committed this command.
-// derives: C1.1, C1.4, F1.1, F1.2
+// derives: C1.1, C1.4, F1.1, F1.2, F2.1, F2.2
 func (f *TokenFSM) Apply(l *raft.Log) interface{} {
 	f.mu.Lock()
 	defer f.mu.Unlock()
@@ -67,7 +67,7 @@ func (s tokenSnapshot) Persist(w raft.SnapshotSink) error {
 func (s tokenSnapshot) Release() {}
 
 // LeaseNode separates retained stores from the replaceable Raft process.
-// derives: C1.1, C1.4, F1.1, F1.2
+// derives: C1.1, C1.4, F1.1, F1.2, F2.1, F2.2
 type LeaseNode struct {
 	id         string
 	durable    *raft.InmemStore
@@ -85,7 +85,7 @@ func newLeaseNode(id string, network *RaftNetwork) *LeaseNode {
 }
 
 // start creates a fresh volatile FSM and transport, preserving only stores.
-// derives: C1.1, C1.4, F1.1, F1.2
+// derives: C1.1, C1.4, F1.1, F1.2, F2.1, F2.2
 func (n *LeaseNode) start(timeout time.Duration) error {
 	conf := raft.DefaultConfig()
 	conf.LocalID = raft.ServerID(n.id)

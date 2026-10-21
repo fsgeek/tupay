@@ -1,0 +1,177 @@
+{
+  "derives": [
+    "C1.1",
+    "C1.2",
+    "C1.3",
+    "C1.4",
+    "C2.1",
+    "C2.2",
+    "F1.1",
+    "F1.2",
+    "F1.3",
+    "F2.1",
+    "F2.2",
+    "L1",
+    "L2",
+    "L3",
+    "E3",
+    "T1",
+    "T2",
+    "T3",
+    "A1",
+    "A2",
+    "E1",
+    "E2"
+  ],
+  "progress_horizons": null,
+  "schedule_completed": true,
+  "grant_deliveries": [
+    {
+      "request": {
+        "proc": "c1",
+        "seq": 1
+      },
+      "grant": {
+        "proc": "n1",
+        "seq": 1
+      },
+      "client_generation": 1,
+      "request_hops": [
+        {
+          "from": "c1",
+          "to": "n1",
+          "from_generation": 1,
+          "to_generation": 1,
+          "fault": {
+            "proc": "",
+            "seq": 0
+          }
+        }
+      ],
+      "reply_hops": [
+        {
+          "from": "n1",
+          "to": "c1",
+          "from_generation": 1,
+          "to_generation": 1,
+          "fault": {
+            "proc": "env",
+            "seq": 1
+          }
+        }
+      ],
+      "received_after": {
+        "proc": "env",
+        "seq": 1
+      }
+    },
+    {
+      "request": {
+        "proc": "c2",
+        "seq": 1
+      },
+      "grant": {
+        "proc": "n3",
+        "seq": 1
+      },
+      "client_generation": 1,
+      "request_hops": [
+        {
+          "from": "c2",
+          "to": "n2",
+          "from_generation": 1,
+          "to_generation": 2,
+          "fault": {
+            "proc": "env",
+            "seq": 3
+          }
+        },
+        {
+          "from": "n2",
+          "to": "n3",
+          "from_generation": 2,
+          "to_generation": 1,
+          "fault": {
+            "proc": "env",
+            "seq": 3
+          }
+        }
+      ],
+      "reply_hops": [
+        {
+          "from": "n3",
+          "to": "n2",
+          "from_generation": 1,
+          "to_generation": 2,
+          "fault": {
+            "proc": "env",
+            "seq": 3
+          }
+        },
+        {
+          "from": "n2",
+          "to": "c2",
+          "from_generation": 2,
+          "to_generation": 1,
+          "fault": {
+            "proc": "env",
+            "seq": 3
+          }
+        }
+      ],
+      "received_after": {
+        "proc": "env",
+        "seq": 3
+      }
+    },
+    {
+      "request": {
+        "proc": "c1",
+        "seq": 2
+      },
+      "grant": {
+        "proc": "n3",
+        "seq": 2
+      },
+      "client_generation": 1,
+      "request_hops": [
+        {
+          "from": "c1",
+          "to": "n2",
+          "from_generation": 1,
+          "to_generation": 2,
+          "fault": {
+            "proc": "env",
+            "seq": 3
+          }
+        },
+        {
+          "from": "n2",
+          "to": "n3",
+          "from_generation": 2,
+          "to_generation": 1,
+          "fault": {
+            "proc": "env",
+            "seq": 3
+          }
+        }
+      ],
+      "reply_hops": [
+        {
+          "from": "n3",
+          "to": "c1",
+          "from_generation": 1,
+          "to_generation": 1,
+          "fault": {
+            "proc": "env",
+            "seq": 3
+          }
+        }
+      ],
+      "received_after": {
+        "proc": "env",
+        "seq": 3
+      }
+    }
+  ]
+}

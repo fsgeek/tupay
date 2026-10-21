@@ -528,3 +528,182 @@ are explicitly disclosed here. Retain the first matrix as initial evidence and
 repeat the required matrix after this production change. Additional focused
 source-review fixtures will verify runtime clique eligibility and that a failed
 grant reply send leaves a requester outstanding; both are expected to pass.
+
+## FixR routing repair — registered before adaptation or runs
+
+<!-- derives: C1.1, C1.2, C1.3, C1.4, C2.1, C2.2, F1.1, F1.2, F1.3, F2.1, F2.2, L1, L2, L3, T1, T3, E1, E2, E3 -->
+First recorded clock: 2026-10-21 14:59:31 UTC. Fresh signed fixr-adapt-impl clone.
+No FixR build, fixture, schedule or mutation has run. The supplied verdict already
+informs this repair: X2 failed C1.4 on H8/H9, judged to be missing request/reply
+routing. That is prior supplied evidence, not a new result from this round.
+No other-side artifact, experiments or steward documents are consulted. The
+absent seed documents are exempted by the inherited author brief. All task files
+remain under impl/ and permitted inputs remain read-only; commits use normal
+signing and the OTS hook; no push. Historical preregistrations remain untouched.
+
+Predictions for all thirty-five shared schedules and existing mutations:
+
+| Schedule | Seed 1 baseline / mutation | Seed 2 baseline / mutation | Seed 3 baseline / mutation |
+|---|---|---|---|
+| P1 | PASS / FAIL C1.1 | PASS / FAIL C1.1 | PASS / FAIL C1.1 |
+| P2 | PASS / FAIL C1.1 | PASS / FAIL C1.1 | PASS / FAIL C1.1 |
+| P3 | PASS / FAIL C1.1 | PASS / FAIL C1.1 | PASS / FAIL C1.1 |
+| P4 | PASS / FAIL C1.2 | PASS / FAIL C1.2 | PASS / FAIL C1.2 |
+| P5 | PASS / FAIL C1.2 | PASS / FAIL C1.2 | PASS / FAIL C1.2 |
+| P6 | PASS / FAIL C1.2 | PASS / FAIL C1.2 | PASS / FAIL C1.2 |
+| P7 | PASS / FAIL C1.3 | PASS / FAIL C1.3 | PASS / FAIL C1.3 |
+| P8 | PASS / FAIL C1.3 | PASS / FAIL C1.3 | PASS / FAIL C1.3 |
+| P9 | PASS / FAIL C1.3 | PASS / FAIL C1.3 | PASS / FAIL C1.3 |
+| P10 | PASS / FAIL C1.4 | PASS / FAIL C1.4 | PASS / FAIL C1.4 |
+| P11 | PASS / FAIL C1.4 | PASS / FAIL C1.4 | PASS / FAIL C1.4 |
+| P12 | PASS / FAIL C1.4 | PASS / FAIL C1.4 | PASS / FAIL C1.4 |
+| P13 | PASS / FAIL C2.1 | PASS / FAIL C2.1 | PASS / FAIL C2.1 |
+| P14 | PASS / FAIL C2.1 | PASS / FAIL C2.1 | PASS / FAIL C2.1 |
+| P15 | PASS / FAIL C2.1 | PASS / FAIL C2.1 | PASS / FAIL C2.1 |
+| P16 | PASS / FAIL C2.2 | PASS / FAIL C2.2 | PASS / FAIL C2.2 |
+| P17 | PASS / FAIL C2.2 | PASS / FAIL C2.2 | PASS / FAIL C2.2 |
+| P18 | PASS / FAIL C2.2 | PASS / FAIL C2.2 | PASS / FAIL C2.2 |
+| P19 | PASS / FAIL C1.1 | PASS / FAIL C1.1 | PASS / FAIL C1.1 |
+| P20 | PASS / FAIL C1.1 | PASS / FAIL C1.1 | PASS / FAIL C1.1 |
+| P21 | PASS / FAIL C1.2 | PASS / FAIL C1.2 | PASS / FAIL C1.2 |
+| P22 | PASS / FAIL C1.2 | PASS / FAIL C1.2 | PASS / FAIL C1.2 |
+| P23 | PASS / FAIL C1.3 | PASS / FAIL C1.3 | PASS / FAIL C1.3 |
+| P24 | PASS / FAIL C1.3 | PASS / FAIL C1.3 | PASS / FAIL C1.3 |
+| P25 | PASS / FAIL C1.4 | PASS / FAIL C1.4 | PASS / FAIL C1.4 |
+| P26 | PASS / FAIL C1.4 | PASS / FAIL C1.4 | PASS / FAIL C1.4 |
+| P27 | PASS / FAIL C2.1 | PASS / FAIL C2.1 | PASS / FAIL C2.1 |
+| P28 | PASS / FAIL C2.1 | PASS / FAIL C2.1 | PASS / FAIL C2.1 |
+| P29 | PASS / FAIL C2.2 | PASS / FAIL C2.2 | PASS / FAIL C2.2 |
+| P30 | PASS / FAIL C2.2 | PASS / FAIL C2.2 | PASS / FAIL C2.2 |
+| false-suspicion-v1 | PASS / — | PASS / — | PASS / — |
+| H7 | PASS / — | PASS / — | PASS / — |
+| H8 | PASS / — | PASS / — | PASS / — |
+| H9 | PASS / — | PASS / — | PASS / — |
+| H10 | PASS / — | PASS / — | PASS / — |
+
+The existing P1–P30 placements remain. Two additional enforcing-path mutations
+exercise the repair itself and run H9 with no schedule changes:
+
+| Mutation | Break | Seed 1 | Seed 2 | Seed 3 | derives |
+|---|---|---|---|---|---|
+| R1 | Followers do not forward received grant requests | FAIL C1.4 | FAIL C1.4 | FAIL C1.4 | C1.4, F2.1, F2.2, L3 |
+| R2 | Issued grant replies cannot be relayed through lease nodes | FAIL C1.4 | FAIL C1.4 | FAIL C1.4 | C1.4, F2.1, F2.2, L3 |
+
+Thus --all covers 35×3 runs, and --mutations covers 32×3 runs. A mutation kill
+requires its predeclared clause on every seed; a compiler error, timeout, bound,
+missing evidence or different clause is not a kill. E2 preserves an observed
+safety violation even if a later trigger is unreachable. Existing five-second
+operational waits, three-second qualified C1.4 horizons, seeds 1–3, T2 delay and
+network sampling remain unchanged. False suspicion remains an observed trace.
+
+Choice: clients periodically retry the same Request identity to all lease nodes;
+lease nodes forward along simple lease-node paths, checking each outgoing link
+at send time, without a global reachability/path oracle. Only an actual Raft
+leader that has received a request can apply an allocation. Committed allocation
+issues one observable Grant even if its reply will be lost; no receipt is implied.
+Replies have a local preparation stage, then send directly and through lease
+nodes with the original issuer/token/Grant reference. Network duplicates never
+create another Grant record. A lost reply leaves the Request outstanding and a
+retry can cause a fresh, higher-token allocation. Relays gain no grant authority.
+No protocol branch depends on a schedule name, and direct bidirectional L3
+connectivity remains the liveness premise even when routing is multihop.
+
+The Grant event and receipt must be split throughout the runner and checker.
+A small sidecar delivery certificate names the exact issued Grant, Request,
+client incarnation and hop route (with link-send/fault witnesses). It introduces
+no schema event. An eligible horizon with issued-but-undelivered Grants still
+fails C1.4. The checker may also infer possession from an actual client attempt
+causally using that Grant. Missing/malformed delivery evidence is not silently
+accepted. The certificate's actual receipt is trusted instrumentation, explicitly
+added to the existing finite-duration-certificate limitation. Local unsent lease
+reply work is volatile on issuer crash; sent packets can survive sender crash.
+Pause actions triggered by issuance wait for actual holder receipt. C1.1 orders
+issuance, not receipt; new allocations remain globally serialized by this runner.
+
+Expected interpretation changes: interpretation 2 and 71's delivered-only Grant
+are contradicted, replaced by distinct issuance and receipt; interpretation 70's
+literal clique is extended with a working route through followers, not replaced
+by transitive connectivity. Interpretation 74's short P25/P26 success does not
+support a general routing/liveness claim, as supplied H8/H9 evidence shows.
+Add routing, retry, authority-preservation, delivery-certificate and pause-readiness
+interpretations, all with C1.4/F2.x tags. Correct missing F2.x derivations in the
+implementation's Raft integration/runner wherever found; do not inspect the
+other author's runner to repair its tags.
+
+Focused predictions: old code fails renamed leader/client-cut shapes and fails
+to record undelivered Grant issuance; repaired code routes requests and replies
+through followers without bypassing any directed send cut; permanent down-link
+sends do not resurrect, pre-cut sent packets survive later cuts, cycles terminate,
+and crashed/restarted or paused clients do not incorrectly obtain a grant.
+An issued lost Grant remains in the trace, does not satisfy a pending C1.4 horizon,
+and H8's crash trigger fires; the surviving nodes issue a higher token for the
+same original Request. H7's read leaves the write fence unchanged; H10 makes
+progress with a deaf follower. R1 and R2 fail C1.4 even though R2 may issue Grants.
+No schedule-name special case is used; renamed in-memory fixtures exercise the
+same topology. No new hold-out schedule file is created or counted as shared.
+
+Declared expected limitations (before runs): this repairs client/leader routing,
+not Raft's consensus algorithm. A stable leader/quorum is still required for
+allocation; arbitrarily sustained election churn under admitted asymmetric or
+non-transitive faults, if it prevents commits beyond the finite three-second
+window, would still fail C1.4 when the literal clique premise holds. No observed
+new instance of that shape is claimed yet. Likewise operational schedules that
+exceed the event bound or require an unavailable trigger remain UNEXPLAINED,
+not fabricated PASS/kill. The relay uses only lease nodes (not storage or other
+clients); with three voters, a stable leader's bidirectional quorum plus the
+premise's requester/follower clique provides a lease-node relay route. There is
+no known additional stable-leader routing shape within that premise intentionally
+left unfixed. The work retains the pinned Raft protocol, logical process crashes,
+finite sampling and trusted duration/receipt instrumentation instead of claiming
+a proof for unbounded schedules or arbitrary operating-system delays.
+
+### FixR additive source-review amendment: renewal before holder pause
+
+<!-- derives: C1.1, C1.4, F1.3, F2.1, F2.2, T3 -->
+The first shared matrix passed 105/105; all 96 mutation runs failed their intended
+clauses. Those outcomes did not prompt this amendment. Source review found a
+new issuance/receipt interaction: when a client already has an expired old grant,
+a pause triggered by its freshly issued renewal sees a nonempty grant list and
+can reach the F1.3 action before the renewal arrives. The action then correctly
+rejects the expired holder instead of waiting for the actual new holder. This
+contradicts this round's registered pause-readiness interpretation. A repeated-
+request/renewal fixture is predicted to fail before the change and pass after
+readiness also requires the currently held grant to be unexpired. Existing F1.3
+action validation is retained. No shared schedule, prediction, mutation placement,
+scoring rule or horizon changes. Preserve the first matrices and repeat everything
+after this correction; all original per-seed predictions remain in force.
+
+### FixR outcome note: final baseline P18 seed 2
+
+<!-- derives: C2.2, C1.4, F1.3, F2.1, F2.2, T2, T3, E1 -->
+Outcome-informed. The final baseline matrix at e77dc22 returns 104 PASS and one
+UNEXPLAINED: P18 seed 2, workload unavailable under T3. Its trace contains the
+first issued/delivered grant, accepted write, served read and delivered read ack,
+but no pause Fault and no second Request. The only false readiness condition for
+that next pause is the held grant's expired issuance-relative 40 ms lifetime.
+There is no certified pending-request horizon and no witnessed safety violation.
+This is a prediction miss and retained final result, not a PASS or a C1.4 failure.
+The old and new pause guards both require an unexpired holder under F1.3.
+
+No behavior, lifetime origin/duration, schedule, scoring rule or prediction is
+changed in response. Final mutation execution proceeds once, as registered.
+The declared limitations now include P18-like schedules: multiple round trips
+between grant issuance and a pause trigger can consume the holder's finite
+window; a renewal not requested by the schedule is not fabricated. This is left
+as a bounded-sampling/injection limitation with its trace, rather than treating
+an expired client as F1.3's unexpired holder. The original PASS predictions and
+first 105-pass matrix remain intact. No additional baseline retry will replace
+or obscure this final matrix.
+
+### FixR final mutation outcome: P18 seed 2 is not a kill
+
+<!-- derives: C2.2, C1.4, F1.3, T3, E1 -->
+Outcome-informed. The single final --mutations run at e77dc22 has 95 expected
+clause failures and one UNEXPLAINED, P18 seed 2, workload unavailable under T3.
+Its pause never applies, so the P18 mutation is not reached and is not killed on
+that seed. The final overall kill count is 31/32 across all three seeds. All other
+mutations, including new R1/R2 on unchanged H9, fail the predeclared clause on
+every seed. R2 issues 71 c2 Grants on each final seed while delivering none and
+fails C1.4 with a qualified 3000 ms pending-request certificate. Original
+predictions remain unchanged and both P18 prediction misses are explicit. There
+is no rerun, re-placement, duration/lifetime change or scoring amendment.

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # derives: P1-P30 (mutation half of every pair; P13-P18 derive from C2.1/C2.2, contract v2; P19-P30 from F2.1/F2.2, failure model v2); round 2: P11 re-placed, P8 keeps Join
-"""Generate the twelve mutated models, model/mutations/<P>/Lease.tla.
+"""Generate the thirty mutated models (P1-P30), model/mutations/<P>/Lease.tla.
 
 Each mutation is a copy of model/Lease.tla with one deliberate break on the path
 that enforces the pair's clause. The break is named in the copy's header and next
@@ -28,7 +28,7 @@ Restart(p) ==
     /\ maxTok' = IF p \in Nodes THEN [maxTok EXCEPT ![p] = 0] ELSE maxTok \* mutation: P1
     /\ UNCHANGED <<paused, down, promised, leader, term, ltok, reqs, pending, tok,
                    myToks, awaiting, grantMsgs, writeMsgs, ackMsgs, dups, highest, stval,
-                   toAck, grants, decisions, told>>
+                   toAck, grants, rq, issued, decisions, told>>
     /\ lastEv' = [event |-> "Fault", cell |-> "F1.1", action |-> "restart", target |-> p]
 """)]),
     ("P2", "C1.1, F1.2", "C1_1",
@@ -54,7 +54,7 @@ Restart(p) ==
     /\ highest' = IF p = Store THEN 0 ELSE highest \* mutation: P4
     /\ UNCHANGED <<paused, down, promised, maxTok, leader, term, ltok, reqs, pending, tok,
                    myToks, awaiting, grantMsgs, writeMsgs, ackMsgs, dups, stval,
-                   toAck, grants, decisions, told>>
+                   toAck, grants, rq, issued, decisions, told>>
     /\ lastEv' = [event |-> "Fault", cell |-> "F1.1", action |-> "restart", target |-> p]
 """)]),
     ("P5", "C1.2, F1.2", "C1_2",
@@ -79,7 +79,7 @@ StorageDecide(m, dup) ==
        /\ toAck' = toAck \cup {[c |-> m.c, t |-> m.t, g |-> m.g, v |-> m.v, outcome |-> "accept"]}
        /\ UNCHANGED <<up, paused, down, promised, maxTok, leader, term, ltok, reqs,
                       pending, tok, myToks, awaiting, grantMsgs, writeMsgs, ackMsgs, dups,
-                      highest, stval, grants, decisions, told>>
+                      highest, stval, grants, rq, issued, decisions, told>>
        /\ Internal("EarlyAck", Store)
     \/ /\ up[Store]
        /\ UNCHANGED rvars  \* derives: C2.1, C2.2 -- reads untouched
@@ -94,7 +94,7 @@ StorageDecide(m, dup) ==
           /\ decisions' = Append(decisions, [token |-> m.t, hb |-> highest, outcome |-> out,
                                              client |-> m.c, value |-> m.v, term |-> m.g])
           /\ UNCHANGED <<up, paused, down, promised, maxTok, leader, term, ltok, reqs,
-                         pending, tok, myToks, awaiting, grantMsgs, ackMsgs, grants, told,
+                         pending, tok, myToks, awaiting, grantMsgs, ackMsgs, grants, rq, issued, told,
                          toAck>>
           /\ Emit([event |-> IF acc THEN "WriteAccept" ELSE "WriteReject", key |-> Key,
                    token |-> m.t, highest_before |-> highest, grantor_term |-> m.g,
@@ -115,7 +115,7 @@ PresumeAck(c) ==
         /\ told' = told \cup {[c |-> c, t |-> w.t, v |-> w.v]}
         /\ UNCHANGED <<up, paused, down, promised, maxTok, leader, term, ltok, reqs,
                        pending, tok, myToks, grantMsgs, writeMsgs, ackMsgs, dups, highest,
-                       stval, toAck, grants, decisions>>
+                       stval, toAck, grants, rq, issued, decisions>>
         /\ Emit([event |-> "WriteAck", client |-> c, key |-> Key, token |-> w.t,
                  outcome |-> "accepted", value |-> w.v, grantor_term |-> w.g])
 
@@ -147,7 +147,9 @@ Protocol ==
     ("P12", "C1.4, F1.3", "C1_4",
      "the grantor will not grant to another client until the previous holder releases (expiry ignored)",
      [("str", r"""    /\ c \in reqs
+    /\ ReqRoute(c, n)
 """, r"""    /\ c \in reqs
+    /\ ReqRoute(c, n)
     /\ ~\E d \in Clients : d # c /\ tok[d].t > 0 \* mutation: P12 waits for a release that never comes; expiry ignored
 """)]),
     # ---- X1 (contract v2): mutations for P13-P18, named in PREDICTIONS-x1.md before running
@@ -162,7 +164,7 @@ Restart(p) ==
     /\ highest' = IF p = Store THEN 0 ELSE highest \* mutation: P13
     /\ UNCHANGED <<paused, down, promised, maxTok, leader, term, ltok, reqs, pending, tok,
                    myToks, awaiting, grantMsgs, writeMsgs, ackMsgs, dups, stval,
-                   toAck, grants, decisions, told>>
+                   toAck, grants, rq, issued, decisions, told>>
     /\ lastEv' = [event |-> "Fault", cell |-> "F1.1", action |-> "restart", target |-> p]
 """)]),
     ("P14", "C2.1, F1.2", "C2_1",
@@ -188,7 +190,7 @@ EarlyReadAck(m) ==
     /\ UNCHANGED <<readMsgs, rAckMsgs, awaitingR, rdecisions, given>>
     /\ UNCHANGED <<up, paused, down, promised, maxTok, leader, term, ltok, reqs, pending,
                    tok, myToks, awaiting, grantMsgs, writeMsgs, ackMsgs, dups, highest, stval,
-                   toAck, grants, decisions, told>>
+                   toAck, grants, rq, issued, decisions, told>>
     /\ Internal("EarlyReadAck", Store)
 
 \* derives: C2.2, F1.1, F1.2, F2.1, F2.2 -- storage sends a queued read ack (lost if the link
@@ -213,7 +215,7 @@ PresumeRead(c) ==
         /\ UNCHANGED <<readMsgs, rToAck, rAckMsgs, rdecisions>>
         /\ UNCHANGED <<up, paused, down, promised, maxTok, leader, term, ltok, reqs, pending,
                        tok, myToks, awaiting, grantMsgs, writeMsgs, ackMsgs, dups, highest, stval,
-                       toAck, grants, decisions, told>>
+                       toAck, grants, rq, issued, decisions, told>>
         /\ Emit([event |-> "ReadAck", client |-> c, key |-> Key, token |-> w.t,
                  outcome |-> "served", value |-> x.v, grantor_term |-> w.g, rid |-> w.r])
 
@@ -273,7 +275,7 @@ PresumeAckCut(c) ==
         /\ told' = told \cup {[c |-> c, t |-> w.t, v |-> w.v]}
         /\ UNCHANGED <<up, paused, down, promised, maxTok, leader, term, ltok, reqs,
                        pending, tok, myToks, grantMsgs, writeMsgs, ackMsgs, dups, highest,
-                       stval, toAck, grants, decisions>>
+                       stval, toAck, grants, rq, issued, decisions>>
         /\ Emit([event |-> "WriteAck", client |-> c, key |-> Key, token |-> w.t,
                  outcome |-> "accepted", value |-> w.v, grantor_term |-> w.g])
 
@@ -296,7 +298,7 @@ PresumeAckSilent(c) ==
         /\ told' = told \cup {[c |-> c, t |-> w.t, v |-> w.v]}
         /\ UNCHANGED <<up, paused, down, promised, maxTok, leader, term, ltok, reqs,
                        pending, tok, myToks, grantMsgs, writeMsgs, ackMsgs, dups, highest,
-                       stval, toAck, grants, decisions>>
+                       stval, toAck, grants, rq, issued, decisions>>
         /\ Emit([event |-> "WriteAck", client |-> c, key |-> Key, token |-> w.t,
                  outcome |-> "accepted", value |-> w.v, grantor_term |-> w.g])
 
@@ -307,7 +309,9 @@ Protocol ==
     ("P25", "C1.4, F2.1", "C1_4",
      "the grantor will not grant while any lease node is unreachable (it waits for the whole configuration)",
      [("str", r"""    /\ c \in reqs
+    /\ ReqRoute(c, n)
 """, r"""    /\ c \in reqs
+    /\ ReqRoute(c, n)
     /\ \A q \in Nodes : Conn(n, q) \* mutation: P25 a majority is not enough while a follower is unreachable
 """)]),
     ("P26", "C1.4, F2.2", "C1_4",
@@ -345,7 +349,7 @@ PresumeReadCut(c) ==
         /\ UNCHANGED <<readMsgs, rToAck, rAckMsgs, rdecisions>>
         /\ UNCHANGED <<up, paused, down, promised, maxTok, leader, term, ltok, reqs, pending,
                        tok, myToks, awaiting, grantMsgs, writeMsgs, ackMsgs, dups, highest, stval,
-                       toAck, grants, decisions, told>>
+                       toAck, grants, rq, issued, decisions, told>>
         /\ Emit([event |-> "ReadAck", client |-> c, key |-> Key, token |-> w.t,
                  outcome |-> "served", value |-> cache, grantor_term |-> w.g, rid |-> w.r])
 
@@ -368,7 +372,7 @@ PresumeReadSilent(c) ==
         /\ UNCHANGED <<readMsgs, rToAck, rAckMsgs, rdecisions>>
         /\ UNCHANGED <<up, paused, down, promised, maxTok, leader, term, ltok, reqs, pending,
                        tok, myToks, awaiting, grantMsgs, writeMsgs, ackMsgs, dups, highest, stval,
-                       toAck, grants, decisions, told>>
+                       toAck, grants, rq, issued, decisions, told>>
         /\ Emit([event |-> "ReadAck", client |-> c, key |-> Key, token |-> w.t,
                  outcome |-> "served", value |-> x.v, grantor_term |-> w.g, rid |-> w.r])
 
@@ -382,7 +386,7 @@ EXPECTED = {p: inv for p, _, inv, _, _ in MUTATIONS}
 
 
 def replace_def(src, name, new):
-    # derives: P1, P4, P7, P8 -- replace the definition block of `name` (with its comments)
+    # derives: P1, P4, P7, P13 -- replace the definition block of `name` (with its comments)
     lines = src.split("\n")
     start = next(i for i, l in enumerate(lines) if re.match(rf"^{name}(\(| ==)", l))
     while start > 0 and lines[start - 1].startswith("\\*"):
@@ -394,7 +398,7 @@ def replace_def(src, name, new):
 
 
 def build(pair, derives, desc, edits, src):
-    # derives: P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12
+    # derives: P1-P30 (pairs v3; was tagged P1-P12 only, stale since X1, fixed in the routing round)
     for kind, a, b in edits:
         if kind == "def":
             src = replace_def(src, a, b)

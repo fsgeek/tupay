@@ -836,3 +836,174 @@ has been made. The access deviations, finite sampling, unseeded Raft randomness
 and trusted duration-certificate limitations remain explicitly recorded above.
 First clock: 2026-10-21 05:51:48 UTC; final response reports elapsed time through
 the adapted-version commit and OTS hook. Nothing is pushed; .venv is untouched.
+
+## FixR routing repair — design and interpretations
+
+<!-- derives: C1.1, C1.2, C1.3, C1.4, C2.1, C2.2, F1.1, F1.2, F1.3, F2.1, F2.2, L3, E1, E2, E3, T3 -->
+This new round follows the supplied third-family judgement: X2's H8/H9 C1.4
+failures were genuine missing-routing violations. That attribution is supplied
+by the brief; no model artifact or steward judgement document was consulted.
+The routing predictions were signed first as `063c9a0`, OTS stamp `64b8b02`.
+They cover all 35 shared schedules, all existing P1–P30 mutations, and R1/R2
+routing mutations. The first clock is 2026-10-21 14:59:31 UTC. No test ran before
+registration. No external skill file or previous clone was accessed this round;
+the absent steward seed files are exempt under the inherited author brief.
+Historical X2 results and interpretations remain above and are superseded only
+where named below. All shared inputs remain unchanged; nothing is pushed.
+
+75. **Contradicted:** interpretations 2 and 71 equate observable Grant with a
+    delivered reply. A committed successful allocation now records its Grant
+    before delivery, even when the reply is lost. The same Request remains
+    outstanding until actual receipt. A later fresh allocation records a new,
+    higher-token Grant; forwarding/duplicating an existing reply records none.
+    This corrects the C1.4/L3 reading named by the brief, and makes H8's issuer
+    crash trigger observable without pretending that its recipient held a token.
+    <!-- derives: C1.1, C1.4, F1.1, F2.1, F2.2, L3 -->
+76. **New:** clients retry their standing Request every 20 ms to all lease nodes.
+    Received requests forward along simple lease-node paths. Each outgoing hop
+    consults its directed link only at send; no global reachability oracle or
+    schedule-name branch selects a route. Only a Raft leader with an actually
+    received request can apply allocation. Replies preserve the original issuer,
+    token, term and Grant reference while forwarding through lease nodes. Local
+    lease reply preparation lasts 8 ms, is volatile on issuer crash, and precedes
+    network sends. Sent packets survive later cuts; endpoint incarnation checks
+    still prevent inheriting a crashed process's inbox.
+    <!-- derives: C1.1, C1.4, F1.1, F1.2, F2.1, F2.2, L3 -->
+77. **Extended:** interpretation 70's liveness premise remains a direct
+    bidirectional clique. Forwarding is a service mechanism, not a transitive
+    reinterpretation of connected. A stable leader's quorum intersects the
+    eligible follower majority and supplies a relay path. Round-robin allocation
+    between standing requests prevents an unreachable client monopolizing the
+    serialized allocator. A holder pause triggered by issuance waits until the
+    named client has actually received its grant.
+    <!-- derives: C1.4, F1.1, F1.3, F2.1, F2.2, L3, T3 -->
+78. **Extended observability limitation:** grant_deliveries in the existing
+    sidecar names each Request, the Grant actually received, client incarnation,
+    request/reply hop paths and receipt's latest Fault reference. JSONL schema is
+    unchanged. The offline checker independently validates identity, directed
+    send-link admission, hop continuity, endpoint generations and receipt state
+    from Fault records. Actual receipt, like the three-second duration horizon,
+    remains trusted instrumentation. An observed client attempt can also prove
+    possession. Issued-but-undelivered Grants cannot discharge a certified C1.4
+    horizon. This is stronger evidence, not a claim of independently provable
+    receipt from the clock-free shared schema alone.
+    <!-- derives: C1.1, C1.4, F1.1, F1.3, F2.1, F2.2, L3 -->
+79. **New anti-theater checks:** R1 disables follower request forwarding, and R2
+    disables lease-node reply forwarding. Both run unchanged shared H9 and are
+    predicted to fail C1.4. R2 can issue Grants while its client still obtains
+    none, exposing the issuance/receipt distinction to the independent checker.
+    P1–P30 retain their enforcing-path mutations. The Raft integration and
+    selector/runner tags now explicitly include F2.x where previously missing.
+    No retired clause or cell is used; no other-side tag was inspected or edited.
+    <!-- derives: C1.1, C1.4, F1.1, F2.1, F2.2, L3 -->
+
+### FixR fixture receipts before shared runs
+
+<!-- derives: C1.1, C1.4, F1.1, F2.1, F2.2, L3 -->
+The initial red run reproduced omitted undelivered issuance, the checker treating
+issuance as receipt, and C1.4 failure on renamed copies of H8/H9. After repair,
+these tests pass. Additional tests cover independently directed request/reply
+paths, invalid delivery-route certificates and fairness for two standing clients.
+The first full fixture run exposed two historical assumptions: X2's lost-grant
+fixture expected no issuance event and synchronous completion; P10 expected
+exactly three Grant records. Those assertions are replaced by distinct issuance
+and receipt checks and exactly three completed Request identities, allowing a
+fresh issuance after a lost reply. The original failing receipt is retained.
+The full suite now passes. No shared schedule or mutation has run at this
+checkpoint, and no prediction, scoring rule, duration or shared input was changed.
+
+### Declared FixR limitations (before shared results)
+
+<!-- derives: C1.1, C1.4, F1.1, F1.2, F1.3, F2.1, F2.2, L3, E1, E3 -->
+No additional stable-leader routing shape satisfying C1.4's three-voter premise
+is known to be intentionally left broken. The repair retains the existing pinned
+Raft algorithm. It does not prove that every asymmetric/non-transitive topology
+and every permitted message/election interleaving eventually stabilizes a leader.
+A schedule causing sustained election churn and no commits for the finite
+three-second qualified window can therefore still fail C1.4 despite a connected
+majority; this round adds no consensus-election repair or unbounded proof. No
+new concrete counterexample to that limitation is claimed before runs.
+
+Relays use lease nodes, not storage or other clients. A stable leader/quorum plus
+the premise's eligible majority gives a lease-node route in this fixed three-
+voter system; this is not a general arbitrary-membership routing proof. Logical
+process replacement, seeded bounded workload sampling, unseeded Raft timing,
+trusted duration/receipt certificates, five-second operational waits and event
+bounds remain. Unreachable-trigger or over-bound schedules without a witnessed
+clause violation remain UNEXPLAINED. These limits are retained to keep this fix
+within routing and the established independently checked Raft allocation path.
+
+### FixR source-review renewal correction
+
+<!-- derives: C1.1, C1.4, F1.3, F2.1, F2.2, T3 -->
+The first complete shared matrix at 786a384 passed all 105 runs; all 96 mutations
+failed their predicted clauses. Source review then found the expired-old-grant
+pause-readiness interaction. Additive registration `abd85e2` (stamp `4de31ef`)
+preceded a regression that failed with "pause requires an unexpired holder".
+Readiness now waits for an unexpired held grant, while the F1.3 action's validation
+remains unchanged. The renewal fixture and full suite pass. This corrects the
+new interpretation 77's receipt-before-pause behavior; it was not prompted by a
+shared schedule failure. Both first matrices, their traces and the passing first
+audit are retained; everything is rerun after this correction. No prediction,
+mutation placement, liveness horizon, scoring rule or shared schedule changed.
+
+### FixR declared observed limitation: P18's finite pause window
+
+<!-- derives: C2.2, C1.4, F1.3, F2.1, F2.2, T2, T3, E1 -->
+The final rerun at e77dc22 has one prediction miss: P18 seed 2 is UNEXPLAINED
+workload unavailable under T3. After the grant's relayed delivery, the write and
+read round trips consumed the issuance-relative 40 ms lifetime before the pause
+action. The trace has ReadAccept and ReadAck, no pause Fault, and no c2 Request.
+The pause-readiness guard waits for an unexpired held grant that this schedule
+never renews. No clause violation or eligible unanswered-request horizon was
+witnessed. This is retained as an incomplete run; it is not upgraded to PASS.
+No lifetime, pause validity rule, schedule, scoring or prediction is changed.
+
+This declares a concrete remaining shape: a pause scheduled after enough message
+round trips can miss the finite unexpired-holder window and yield UNEXPLAINED.
+The routing relay's extra hops can expose this window. The implementation keeps
+its existing lifetime origin/duration and F1.3 validity rule; the brief allows
+recording an adverse result, and the evidence does not justify weakening F1.3
+or claiming a read safety failure. The complete raw trace and sidecar are retained.
+The first all-PASS matrix and final prediction miss will both appear in results.
+
+## FixR final results and limitations
+
+<!-- derives: C1.1, C1.2, C1.3, C1.4, C2.1, C2.2, F1.1, F1.2, F1.3, F2.1, F2.2, L3, T3, E1, E2, E3 -->
+The routing repair is verified on H8 and H9 on all three seeds. H7 and H10 also
+pass all seeds. The final source checkpoint is e77dc22, stamped by 5b3a98f.
+[RESULTS-fixr.md](RESULTS-fixr.md) records every shared schedule and mutation by
+seed, all interpretations, declared limits, amendments and evidence links.
+
+Final --all exits 1: 104 PASS and one UNEXPLAINED (P18 seed 2). Final --mutations
+exits 1: 95 expected clause failures and one UNEXPLAINED (P18 seed 2); the latter
+is not a kill, giving 31/32 killed across all three seeds. Per seed, baseline
+passes are 35/35, 34/35, 35/35; expected mutation failures are 32/32, 31/32, 32/32.
+The pause-window result and its reason remain recorded above. All 48 top-level
+Go fixture tests and vet pass. The first matrices at 786a384 had 105 passes and
+96 expected failures; their evidence is retained without replacing final results.
+
+Both R1 and R2 fail C1.4 on every final seed. R2 issues 71 grants to c2 per seed
+but delivers none, demonstrating the checker's sensitivity to lost receipt even
+when issuance is observable. In final H8, c2's issued token 4 is lost, its issuer
+crashes, and the same Request receives token 6 from a surviving grantor. Final
+H9 uses three request hops and two reply hops for c2 while keeping the original
+leader. H7 preserves the old write fence across a higher-token read; H10 grants
+and accepts c2's higher-token write despite its deaf follower.
+
+The raw-record audit passes validation across 402 retained runs (804 hashed
+JSONL/sidecar files), checking 832 grant receipts, 965 ack references, all four
+newly shared schedule witnesses and 42 unchanged input hashes. It explicitly
+records two prediction misses; audit success does not turn them into PASS.
+Task files remain under impl/, no tmp/ or cache is committed, .venv is untouched,
+and nothing is pushed. No model artifact or external file was read this round.
+
+Declared limitations are part of this result: a P18-like post-grant workload can
+consume the finite unexpired-holder window before a pause, leaving an incomplete
+run and an unexercised mutation. Pinned Raft election behavior, bounded sampling,
+logical crashes and trusted duration/receipt certificates remain. A sustained
+no-commit election pattern could still exhaust C1.4's finite horizon; no such new
+counterexample was seen here and no further stable-leader routing shape is known
+to be intentionally unfixed. No lifetime, validity rule, input or score was tuned
+after the adverse result. Wall time begins 2026-10-21 14:59:31 UTC and is reported
+through the adapted commit and hook in the final answer.

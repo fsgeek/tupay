@@ -165,8 +165,12 @@ func TestV21P10A1_Lifecycle(t *testing.T) {
 			}
 		}
 	}
-	if faults != 3 || grants != 3 {
-		t.Fatalf("faults=%d grants=%d", faults, grants)
+	// An issued second grant may be lost when its issuer crashes; the same
+	// Request is then answered by a fresh higher-token grant. Receipt, not the
+	// number of issuance records, determines the three completed requests.
+	// derives: C1.1, C1.4, F1.1, F2.1, F2.2
+	if faults != 3 || grants < 3 || len(evidence.Deliveries) != 3 {
+		t.Fatalf("faults=%d grants=%d deliveries=%d", faults, grants, len(evidence.Deliveries))
 	}
 	if e.lastNonGrantor != crashed {
 		t.Fatalf("applied crash not remembered: %s != %s", e.lastNonGrantor, crashed)

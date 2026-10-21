@@ -55,6 +55,11 @@ VARIABLES
     toAck,      \* derives: C1.3, F1.1 -- volatile: decided writes whose ack is not yet sent
     \* --- history (ghost) variables used only by invariants and the exporter
     grants,     \* derives: C1.1 -- sequence of every grant issued
+    \* --- routing fix (derives: C1.1, C1.4, F2.1, F2.2; format v4 L3; observe v4 "Grants and retransmission")
+    rq,         \* derives: C1.4 -- rq[c]: number of requests c has made (identifies the current request)
+    issued,     \* derives: C1.1, C1.4, F2.2 -- grants each leader issued, [n, c, r, t, g]: leader n in
+                \* term g answered c's request r with token t. Volatile in a real node, but keyed by
+                \* term, and a node never leads the same term twice, so its loss on crash is not modelled
     decisions,  \* derives: C1.2, C1.3 -- sequence of every storage decision
     told,       \* derives: C1.3 -- set of writes clients were told succeeded
     \* --- schedule driver (derives: F1.1, F1.2, F1.3)
@@ -75,7 +80,7 @@ VARIABLES
 \* derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3 -- all state variables
 vars == <<up, paused, down, promised, maxTok, leader, term, ltok, reqs,
           pending, tok, myToks, awaiting, grantMsgs, writeMsgs, ackMsgs, dups,
-          highest, stval, toAck, grants, decisions, told, pc, fired, trigG, trigNG, ngDown, lastEv,
+          highest, stval, toAck, grants, rq, issued, decisions, told, pc, fired, trigG, trigNG, ngDown, lastEv,
           readMsgs, rToAck, rAckMsgs, awaitingR, rdecisions, given>>
 
 \* derives: C2.1, C2.2 -- the read variables, for UNCHANGED in actions that do not touch reads
@@ -162,6 +167,8 @@ Init ==
     /\ stval = "none"
     /\ toAck = {}
     /\ grants = <<>>
+    /\ rq = [c \in Clients |-> 0]   \* derives: C1.4
+    /\ issued = {}                \* derives: C1.1, C1.4, F2.2
     /\ decisions = <<>>
     /\ told = {}
     /\ pc = 1
@@ -212,7 +219,7 @@ Elect(n) ==
            /\ ltok' = [ltok EXCEPT ![n] = Max({maxTok[q] : q \in Q})]
     /\ UNCHANGED <<up, paused, down, maxTok, reqs, pending, tok, myToks, awaiting,
                    grantMsgs, writeMsgs, ackMsgs, dups, highest, stval, toAck,
-                   grants, decisions, told>>
+                   grants, rq, issued, decisions, told>>
     /\ Internal("Elect", n)
 
 \* derives: C1.1, C1.4, F1.2, F2.2 -- a leader that hears a node promised to a higher term steps
@@ -226,7 +233,7 @@ StepDown(n) ==
                       Max({promised[q] : q \in {x \in Nodes : up[x] /\ Link(x, n)}})]
     /\ UNCHANGED <<up, paused, down, maxTok, term, ltok, reqs, pending, tok, myToks,
                    awaiting, grantMsgs, writeMsgs, ackMsgs, dups, highest, stval,
-                   toAck, grants, decisions, told>>
+                   toAck, grants, rq, issued, decisions, told>>
     /\ Internal("StepDown", n)
 
 \* derives: C1.4, F1.1, F1.2, F2.2 -- the P10 fix (judge's verdict, locus: model).
@@ -247,7 +254,7 @@ Join(n, q) ==
     /\ leader' = [leader EXCEPT ![q] = FALSE]
     /\ UNCHANGED <<up, paused, down, maxTok, term, ltok, reqs, pending, tok, myToks,
                    awaiting, grantMsgs, writeMsgs, ackMsgs, dups, highest, stval,
-                   toAck, grants, decisions, told>>
+                   toAck, grants, rq, issued, decisions, told>>
     /\ Internal("Join", q)
 
 \* derives: C1.4, F2.2, F2.1, F1.2 -- the quorum check (new in X2). A leader that is not
@@ -262,32 +269,67 @@ CheckQuorum(n) ==
     /\ leader' = [leader EXCEPT ![n] = FALSE]
     /\ UNCHANGED <<up, paused, down, promised, maxTok, term, ltok, reqs, pending, tok, myToks,
                    awaiting, grantMsgs, writeMsgs, ackMsgs, dups, highest, stval,
-                   toAck, grants, decisions, told>>
+                   toAck, grants, rq, issued, decisions, told>>
     /\ Internal("CheckQuorum", n)
 
-\* derives: C1.1, C1.4, F1.1, F1.2, F2.1, F2.2
-\* The leader issues a grant to a requester it is connected to (the retried request
-\* arrives over c->n, the reply leaves over n->c), once a majority still promised to its
-\* term, and connected to it (a confirmation is a round trip), durably confirms the token.
+\* derives: C1.4, F2.1, F2.2; format v4 L3 -- routing fix: a client's (retried) request reaches
+\* lease node n directly, or relayed by one up lease node f (c->f and f->n up). Under L3 the
+\* requester need not reach the grantor; a grantor that keeps its place (CheckQuorum) is
+\* connected to a majority, which shares a member with the premise's majority, and that
+\* member is connected to both: one hop is enough.
+ReqRoute(c, n) == Link(c, n) \/ \E f \in Nodes : up[f] /\ Link(c, f) /\ Link(f, n)
+\* derives: C1.4, F2.1, F2.2; format v4 L3 -- a grant reply from n reaches c directly or through
+\* one up lease node; its fate is fixed when n sends it (the relay forwards at once)
+RepRoute(n, c) == Link(n, c) \/ \E f \in Nodes : up[f] /\ Link(n, f) /\ Link(f, c)
+
+\* derives: C1.1, C1.4, F1.1, F1.2, F2.1, F2.2; format v4 L3; observe v4 "Grants and retransmission"
+\* The leader issues a grant to a requester whose request reaches it (ReqRoute), once a
+\* majority still promised to its term, and connected to it (a confirmation is a round
+\* trip), durably confirms the token. The Grant is recorded whether or not the reply can
+\* be delivered (F2.2: a grantor may hear a requester it cannot answer, H8); the reply is in
+\* flight only if RepRoute holds when it is sent. A leader answers each request at most once
+\* per term; a lost reply is retransmitted by Resend (no new Grant record).
 Grant(n, c) ==
     /\ UNCHANGED rvars  \* derives: C2.1, C2.2 -- reads untouched
     /\ up[n] /\ leader[n]
     /\ c \in reqs
-    /\ Conn(n, c)
+    /\ ReqRoute(c, n)
     /\ ~\E m \in grantMsgs : m.c = c
+    /\ ~\E x \in issued : x.n = n /\ x.g = term[n] /\ x.c = c /\ x.r = rq[c]
     /\ \E Q \in SUBSET {q \in Nodes : up[q] /\ Conn(n, q) /\ promised[q] = term[n]} :
         /\ n \in Q
         /\ Majority(Q)
         /\ LET k == ltok[n] + 1 IN
            /\ maxTok' = [q \in Nodes |-> IF q \in Q THEN Max({maxTok[q], k}) ELSE maxTok[q]]
            /\ ltok' = [ltok EXCEPT ![n] = k]
-           /\ grantMsgs' = grantMsgs \cup {[n |-> n, c |-> c, t |-> k, g |-> term[n]]}
+           /\ grantMsgs' = IF RepRoute(n, c)
+                           THEN grantMsgs \cup {[n |-> n, c |-> c, t |-> k, g |-> term[n]]}
+                           ELSE grantMsgs
+           /\ issued' = issued \cup {[n |-> n, c |-> c, r |-> rq[c], t |-> k, g |-> term[n]]}
            /\ grants' = Append(grants, [token |-> k, term |-> term[n], node |-> n, client |-> c])
+           /\ UNCHANGED rq
            /\ UNCHANGED <<up, paused, down, promised, leader, term, reqs, pending, tok,
                           myToks, awaiting, writeMsgs, ackMsgs, dups, highest, stval,
                           toAck, decisions, told>>
            /\ Emit([event |-> "Grant", client |-> c, key |-> Key, token |-> k,
                     lifetime |-> Lifetime, grantor_term |-> term[n], node |-> n])
+
+\* derives: C1.4, F2.1, F2.2; observe v4 "Grants and retransmission" -- the leader retransmits
+\* the grant it already issued for c's current request, while the request still reaches it
+\* and a reply route exists. Not a new grant: no Grant record, same token.
+Resend(n, c) ==
+    /\ UNCHANGED rvars  \* derives: C2.1, C2.2 -- reads untouched
+    /\ up[n] /\ leader[n]
+    /\ c \in reqs
+    /\ ReqRoute(c, n) /\ RepRoute(n, c)
+    /\ ~\E m \in grantMsgs : m.c = c
+    /\ \E x \in issued :
+        /\ x.n = n /\ x.g = term[n] /\ x.c = c /\ x.r = rq[c]
+        /\ grantMsgs' = grantMsgs \cup {[n |-> n, c |-> c, t |-> x.t, g |-> x.g]}
+    /\ UNCHANGED <<up, paused, down, promised, maxTok, leader, term, ltok, reqs, pending, tok,
+                   myToks, awaiting, writeMsgs, ackMsgs, dups, highest, stval, toAck,
+                   grants, rq, issued, decisions, told>>
+    /\ Internal("Resend", n)
 
 \* derives: C1.4, F1.3 -- a (running, unpaused) client receives a grant reply
 RecvGrant(m) ==
@@ -302,7 +344,7 @@ RecvGrant(m) ==
             /\ reqs' = reqs \ {m.c}
        ELSE UNCHANGED <<tok, myToks, pending, reqs>>
     /\ UNCHANGED <<up, paused, down, promised, maxTok, leader, term, ltok, awaiting,
-                   writeMsgs, ackMsgs, dups, highest, stval, toAck, grants, decisions, told>>
+                   writeMsgs, ackMsgs, dups, highest, stval, toAck, grants, rq, issued, decisions, told>>
     /\ Internal("RecvGrant", m.c)
 
 \* ===========================================================================
@@ -330,7 +372,7 @@ StorageDecide(m, dup) ==
                                           client |-> m.c, value |-> m.v, term |-> m.g])
        /\ toAck' = toAck \cup {[c |-> m.c, t |-> m.t, g |-> m.g, v |-> m.v, outcome |-> out]}
        /\ UNCHANGED <<up, paused, down, promised, maxTok, leader, term, ltok, reqs,
-                      pending, tok, myToks, awaiting, grantMsgs, ackMsgs, grants, told>>
+                      pending, tok, myToks, awaiting, grantMsgs, ackMsgs, grants, rq, issued, told>>
        /\ Emit([event |-> IF acc THEN "WriteAccept" ELSE "WriteReject", key |-> Key,
                 token |-> m.t, highest_before |-> highest, grantor_term |-> m.g,
                 client |-> m.c, value |-> m.v])
@@ -345,7 +387,7 @@ SendAck(a) ==
     /\ ackMsgs' = IF Link(Store, a.c) /\ up[a.c] THEN ackMsgs \cup {a} ELSE ackMsgs
     /\ UNCHANGED <<up, paused, down, promised, maxTok, leader, term, ltok, reqs, pending,
                    tok, myToks, awaiting, grantMsgs, writeMsgs, dups, highest, stval,
-                   grants, decisions, told>>
+                   grants, rq, issued, decisions, told>>
     /\ Internal("SendAck", Store)
 
 \* derives: C1.3, F1.3 -- a client receives an ack for a write it is awaiting
@@ -362,13 +404,13 @@ RecvAck(a) ==
                        ELSE told
             /\ UNCHANGED <<up, paused, down, promised, maxTok, leader, term, ltok, reqs,
                            pending, tok, myToks, grantMsgs, writeMsgs, dups, highest,
-                           stval, toAck, grants, decisions>>
+                           stval, toAck, grants, rq, issued, decisions>>
             /\ Emit([event |-> "WriteAck", client |-> a.c, key |-> Key, token |-> a.t,
                      outcome |-> IF a.outcome = "accept" THEN "accepted" ELSE "rejected",
                      value |-> a.v, grantor_term |-> a.g])
        ELSE /\ UNCHANGED <<up, paused, down, promised, maxTok, leader, term, ltok, reqs,
                            pending, tok, myToks, awaiting, grantMsgs, writeMsgs, dups,
-                           highest, stval, toAck, grants, decisions, told>>
+                           highest, stval, toAck, grants, rq, issued, decisions, told>>
             /\ Internal("DropAck", a.c)
 
 \* ===========================================================================
@@ -394,9 +436,10 @@ DoRequest(c) ==
     /\ ~pending[c]
     /\ pending' = [pending EXCEPT ![c] = TRUE]
     /\ reqs' = reqs \cup {c}
+    /\ rq' = [rq EXCEPT ![c] = @ + 1]   \* derives: C1.4 -- a new request
     /\ UNCHANGED <<up, paused, down, promised, maxTok, leader, term, ltok, tok, myToks,
                    awaiting, grantMsgs, writeMsgs, ackMsgs, dups, highest, stval, toAck,
-                   grants, decisions, told>>
+                   grants, issued, decisions, told>>
     /\ lastEv' = [event |-> "Request", client |-> c, key |-> Key]
 
 \* derives: C1.2, C1.3, F1.3, F2.1, F2.2 -- workload: client writes with its current (or stale)
@@ -412,7 +455,7 @@ DoWrite(c, v, stale) ==
     /\ awaiting' = [awaiting EXCEPT ![c] = @ \cup {[t |-> k.t, g |-> k.g, v |-> v]}]
     /\ UNCHANGED <<up, paused, down, promised, maxTok, leader, term, ltok, reqs, pending,
                    tok, myToks, grantMsgs, ackMsgs, dups, highest, stval, toAck,
-                   grants, decisions, told>>
+                   grants, rq, issued, decisions, told>>
     /\ lastEv' = [event |-> "WriteAttempt", client |-> c, key |-> Key, token |-> k.t,
                   value |-> v, grantor_term |-> k.g]
 
@@ -433,7 +476,7 @@ StorageRead(m, dup) ==
        /\ UNCHANGED <<rAckMsgs, awaitingR, given>>
        /\ UNCHANGED <<up, paused, down, promised, maxTok, leader, term, ltok, reqs,
                       pending, tok, myToks, awaiting, grantMsgs, writeMsgs, ackMsgs,
-                      highest, stval, toAck, grants, decisions, told>>
+                      highest, stval, toAck, grants, rq, issued, decisions, told>>
        /\ readMsgs' = IF dup THEN readMsgs ELSE readMsgs \ {m}
        /\ dups' = IF dup THEN dups + 1 ELSE dups
        /\ rdecisions' = Append(rdecisions,
@@ -457,7 +500,7 @@ SendReadAck(a) ==
     /\ UNCHANGED <<readMsgs, awaitingR, rdecisions, given>>
     /\ UNCHANGED <<up, paused, down, promised, maxTok, leader, term, ltok, reqs, pending,
                    tok, myToks, awaiting, grantMsgs, writeMsgs, ackMsgs, dups, highest, stval,
-                   toAck, grants, decisions, told>>
+                   toAck, grants, rq, issued, decisions, told>>
     /\ Internal("SendReadAck", Store)
 
 \* derives: C2.2, F1.3 -- a client receives an ack for a read it is awaiting and is given
@@ -469,7 +512,7 @@ RecvReadAck(a) ==
     /\ UNCHANGED <<readMsgs, rToAck, rdecisions>>
     /\ UNCHANGED <<up, paused, down, promised, maxTok, leader, term, ltok, reqs, pending,
                    tok, myToks, awaiting, grantMsgs, writeMsgs, ackMsgs, dups, highest, stval,
-                   toAck, grants, decisions, told>>
+                   toAck, grants, rq, issued, decisions, told>>
     /\ LET w == [t |-> a.t, g |-> a.g, r |-> a.r] IN
        IF w \in awaitingR[a.c]
        THEN /\ awaitingR' = [awaitingR EXCEPT ![a.c] = @ \ {w}]
@@ -496,7 +539,7 @@ DoRead(c, stale) ==
     /\ UNCHANGED <<rToAck, rAckMsgs, rdecisions, given>>
     /\ UNCHANGED <<up, paused, down, promised, maxTok, leader, term, ltok, reqs, pending,
                    tok, myToks, awaiting, grantMsgs, writeMsgs, ackMsgs, dups, highest, stval,
-                   toAck, grants, decisions, told>>
+                   toAck, grants, rq, issued, decisions, told>>
     /\ lastEv' = [event |-> "ReadAttempt", client |-> c, key |-> Key, token |-> k.t,
                   grantor_term |-> k.g, rid |-> pc]
 
@@ -534,7 +577,7 @@ Crash(p) ==
             /\ readMsgs' = {}
             /\ rToAck' = {}
             /\ UNCHANGED <<rAckMsgs, awaitingR>>
-    /\ UNCHANGED <<down, promised, maxTok, dups, highest, stval, grants, decisions, told>>
+    /\ UNCHANGED <<down, promised, maxTok, dups, highest, stval, grants, rq, issued, decisions, told>>
     /\ UNCHANGED <<rdecisions, given>>
     /\ lastEv' = [event |-> "Fault", cell |-> "F1.1", action |-> "crash", target |-> p]
 
@@ -545,7 +588,7 @@ Restart(p) ==
     /\ up' = [up EXCEPT ![p] = TRUE]
     /\ UNCHANGED <<paused, down, promised, maxTok, leader, term, ltok, reqs, pending, tok,
                    myToks, awaiting, grantMsgs, writeMsgs, ackMsgs, dups, highest, stval,
-                   toAck, grants, decisions, told>>
+                   toAck, grants, rq, issued, decisions, told>>
     /\ lastEv' = [event |-> "Fault", cell |-> "F1.1", action |-> "restart", target |-> p]
 
 \* derives: F1.2, F2.1 -- complete bipartition: every link between the two sides goes down in
@@ -559,7 +602,7 @@ Partition(A) ==
     /\ down' = down \cup {x \in Procs \X Procs : (x[1] \in A) # (x[2] \in A)}
     /\ UNCHANGED <<up, paused, promised, maxTok, leader, term, ltok, reqs, pending, tok,
                    myToks, awaiting, grantMsgs, writeMsgs, ackMsgs, dups, highest, stval,
-                   toAck, grants, decisions, told>>
+                   toAck, grants, rq, issued, decisions, told>>
     /\ lastEv' = [event |-> "Fault", cell |-> "F1.2", action |-> "partition", sideA |-> A]
 
 \* derives: F2.1; format v4 cut, L1, L2 -- partial partition: each listed link goes down in both
@@ -569,7 +612,7 @@ Cut(L) ==
     /\ down' = down \cup BothWays(L)
     /\ UNCHANGED <<up, paused, promised, maxTok, leader, term, ltok, reqs, pending, tok,
                    myToks, awaiting, grantMsgs, writeMsgs, ackMsgs, dups, highest, stval,
-                   toAck, grants, decisions, told>>
+                   toAck, grants, rq, issued, decisions, told>>
     /\ lastEv' = [event |-> "Fault", cell |-> "F2.1", action |-> "cut", pairs |-> L, links |-> BothWays(L)]
 
 \* derives: F2.2; format v4 drop, L1, L2 -- simplex link failure: each listed link goes down in
@@ -579,7 +622,7 @@ Drop(L) ==
     /\ down' = down \cup L
     /\ UNCHANGED <<up, paused, promised, maxTok, leader, term, ltok, reqs, pending, tok,
                    myToks, awaiting, grantMsgs, writeMsgs, ackMsgs, dups, highest, stval,
-                   toAck, grants, decisions, told>>
+                   toAck, grants, rq, issued, decisions, told>>
     /\ lastEv' = [event |-> "Fault", cell |-> "F2.2", action |-> "drop", pairs |-> L, links |-> L]
 
 \* derives: F1.2, F2.1, F2.2; format v4 L2 -- a heal, whichever cell it names, restores every
@@ -589,7 +632,7 @@ Heal(cell) ==
     /\ down' = {}
     /\ UNCHANGED <<up, paused, promised, maxTok, leader, term, ltok, reqs, pending, tok,
                    myToks, awaiting, grantMsgs, writeMsgs, ackMsgs, dups, highest, stval,
-                   toAck, grants, decisions, told>>
+                   toAck, grants, rq, issued, decisions, told>>
     /\ lastEv' = [event |-> "Fault", cell |-> cell, action |-> "heal", target |-> "all"]
 
 \* derives: F1.3 -- holder pause: the client takes no steps; the rest of the world proceeds
@@ -599,7 +642,7 @@ Pause(c) ==
     /\ paused' = [paused EXCEPT ![c] = TRUE]
     /\ UNCHANGED <<up, down, promised, maxTok, leader, term, ltok, reqs, pending, tok,
                    myToks, awaiting, grantMsgs, writeMsgs, ackMsgs, dups, highest, stval,
-                   toAck, grants, decisions, told>>
+                   toAck, grants, rq, issued, decisions, told>>
     /\ lastEv' = [event |-> "Fault", cell |-> "F1.3", action |-> "pause", target |-> c]
 
 \* derives: F1.3 -- resume as if no time had passed (the client keeps its old token)
@@ -609,7 +652,7 @@ Resume(c) ==
     /\ paused' = [paused EXCEPT ![c] = FALSE]
     /\ UNCHANGED <<up, down, promised, maxTok, leader, term, ltok, reqs, pending, tok,
                    myToks, awaiting, grantMsgs, writeMsgs, ackMsgs, dups, highest, stval,
-                   toAck, grants, decisions, told>>
+                   toAck, grants, rq, issued, decisions, told>>
     /\ lastEv' = [event |-> "Fault", cell |-> "F1.3", action |-> "resume", target |-> c]
 
 \* derives: F1.2 -- the side of a partition step, after resolving grantor/holder/rest
@@ -680,6 +723,7 @@ Protocol ==
     \/ \E n \in Nodes : CheckQuorum(n)   \* derives: C1.4, F2.2
     \/ \E n, q \in Nodes : Join(n, q)
     \/ \E n \in Nodes, c \in Clients : Grant(n, c)
+    \/ \E n \in Nodes, c \in Clients : Resend(n, c)   \* derives: C1.4, F2.2
     \/ \E m \in grantMsgs : RecvGrant(m)
     \/ \E m \in writeMsgs, d \in BOOLEAN : StorageDecide(m, d)
     \/ \E a \in toAck : SendAck(a)
@@ -701,6 +745,7 @@ Fairness ==
     /\ \A n \in Nodes : WF_vars(CheckQuorum(n))  \* derives: C1.4, F2.2 (own timer only)
     /\ \A n, q \in Nodes : WF_vars(Join(n, q))  \* derives: C1.4, F1.1 (P10 fix)
     /\ \A n \in Nodes, c \in Clients : WF_vars(Grant(n, c))
+    /\ \A n \in Nodes, c \in Clients : WF_vars(Resend(n, c))  \* derives: C1.4, F2.2 (routing fix)
     /\ WF_vars(\E m \in grantMsgs : RecvGrant(m))
     /\ WF_vars(\E m \in writeMsgs : StorageDecide(m, FALSE))
     /\ WF_vars(\E a \in toAck : SendAck(a))

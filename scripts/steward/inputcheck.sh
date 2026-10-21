@@ -8,7 +8,7 @@ bad=0
 [ -f "$C/$BRIEF" ] || { echo "MISSING brief $BRIEF"; bad=1; }
 for f in $(grep -o '`[A-Za-z0-9/._-]*\.\(md\|yaml\)`' "$C/$BRIEF" | tr -d '`' | sort -u); do
   case "$f" in docs/seed*.md|*-regen/*|*/README.md|README.md) continue;; esac
-  [ -e "$C/$f" ] || [ -e "$C/testbed/$f" ] || { echo "brief names missing: $f"; bad=1; }; done
+  [ -e "$C/$f" ] || [ -e "$C/testbed/$f" ] || [ -e "$C/testbed/schedules/$f" ] || { echo "brief names missing: $f"; bad=1; }; done
 for f in "$@"; do [ -e "$C/$f" ] && { echo "FORBIDDEN present: $f"; bad=1; }; done
 for h in $(sha256sum "$C"/testbed/schedules/* | awk '{print $1}'); do
   for s in "${SUMS[@]}"; do grep -q "$h" "$s" && { echo "HOLD-OUT hash present: $h"; bad=1; }; done; done

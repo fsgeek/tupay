@@ -1,0 +1,16 @@
+schedule: P19
+derives: [C1.1, F2.1]
+processes:
+  lease: [n1, n2, n3]
+  clients: [c1, c2]
+  storage: [s]
+steps:
+  # derives: P19 (C1.1, F2.1). The grantor and one follower lose their direct link both ways; the middle node still reaches both; a second requester and then the first ask again; tokens still increase.
+  - {at: start, do: {request: c1}}
+  - {at: {event: Grant, client: c1}, do: {cell: F2.1, cut: [[grantor, non-grantor]]}}
+  - {at: start, do: {request: c2}}
+  - {at: {event: Grant, client: c2}, do: {request: c1}}
+  - {at: {event: Grant, client: c1}, do: {cell: F2.1, heal: true}}
+  - {at: start, do: {request: c2}}
+end: quiescent
+bound: {events: 200}

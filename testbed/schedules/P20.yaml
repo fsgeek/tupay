@@ -1,0 +1,16 @@
+schedule: P20
+derives: [C1.1, F2.2]
+processes:
+  lease: [n1, n2, n3]
+  clients: [c1, c2]
+  storage: [s]
+steps:
+  # derives: P20 (C1.1, F2.2). The grantor can send to the other lease nodes but not hear them; requests continue; after the heal, more requests; tokens still increase.
+  - {at: start, do: {request: c1}}
+  - {at: {event: Grant, client: c1}, do: {cell: F2.2, drop: [[n1, grantor], [n2, grantor], [n3, grantor]]}}
+  - {at: start, do: {request: c2}}
+  - {at: {event: Grant, client: c2}, do: {request: c1}}
+  - {at: {event: Grant, client: c1}, do: {cell: F2.2, heal: true}}
+  - {at: start, do: {request: c2}}
+end: quiescent
+bound: {events: 200}

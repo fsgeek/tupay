@@ -1,0 +1,17 @@
+schedule: P22
+derives: [C1.2, F2.2]
+processes:
+  lease: [n1, n2, n3]
+  clients: [c1, c2]
+  storage: [s]
+steps:
+  # derives: P22 (C1.2, F2.2). The old holder still sends to everyone but hears nothing from any lease node; c2 is granted and its write accepted; the old holder writes with the token it still holds and is rejected.
+  - {at: start, do: {request: c1}}
+  - {at: {event: Grant, client: c1}, do: {write: c1, value: v1}}
+  - {at: {event: WriteAck, client: c1}, do: {cell: F2.2, drop: [[n1, holder], [n2, holder], [n3, holder]]}}
+  - {at: start, do: {request: c2}}
+  - {at: {event: Grant, client: c2}, do: {write: c2, value: v2}}
+  - {at: {event: WriteAck, client: c2, outcome: accepted}, do: {write: c1, value: v3}}
+  - {at: {event: WriteAck, client: c1}, do: {cell: F2.2, heal: true}}
+end: quiescent
+bound: {events: 200}

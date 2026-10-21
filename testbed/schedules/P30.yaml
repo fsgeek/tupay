@@ -1,0 +1,17 @@
+schedule: P30
+derives: [C2.2, F2.2]
+processes:
+  lease: [n1, n2, n3]
+  clients: [c1, c2]
+  storage: [s]
+steps:
+  # derives: P30 (C2.2, F2.2). Storage hears the holder's read but cannot reply to it; the holder is not given a value; after the heal, a read is served and the value given matches storage.
+  - {at: start, do: {request: c1}}
+  - {at: {event: Grant, client: c1}, do: {write: c1, value: v1}}
+  - {at: {event: WriteAck, client: c1, outcome: accepted}, do: {cell: F2.2, drop: [[s, holder]]}}
+  - {at: start, do: {read: c1}}
+  - {at: {event: ReadAccept}, do: {request: c2}}
+  - {at: {event: Grant, client: c2}, do: {cell: F2.2, heal: true}}
+  - {at: start, do: {read: c2}}
+end: quiescent
+bound: {events: 200}

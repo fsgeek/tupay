@@ -1,0 +1,13 @@
+schedule: P26
+derives: [C1.4, F2.2]
+processes:
+  lease: [n1, n2, n3]
+  clients: [c1, c2]
+  storage: [s]
+steps:
+  # derives: P26 (C1.4, F2.2). After the first grant the grantor stops hearing the other lease nodes, while they still hear it, to the end. The two followers, storage and c2 stay connected (Rule L3), so c2 must eventually be granted. A grantor that cannot hear its quorum but keeps sending to it is the case this pair exists for.
+  - {at: start, do: {request: c1}}
+  - {at: {event: Grant, client: c1}, do: {cell: F2.2, drop: [[n1, grantor], [n2, grantor], [n3, grantor]]}}
+  - {at: start, do: {request: c2}}
+end: quiescent
+bound: {events: 200}

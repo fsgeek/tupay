@@ -5,11 +5,12 @@ processes:
   clients: [c1, c2]
   storage: [s]
 steps:
-  # derives: P10 (C1.4, F1.1). A non-leader crashes before the first grant (the M1 cross-run case); then the grantor crashes after a grant; a requester still eventually gets a grant each time.
-  - {at: start, do: {cell: F1.1, crash: n1}}
+  # derives: P10 (C1.4, F1.1). After the first grant a follower crashes (the M1 cross-run case, stated observably); a requester still gets a grant; the follower returns and the grantor crashes; a requester still gets a grant.
   - {at: start, do: {request: c1}}
-  - {at: {event: Grant, client: c1}, do: {cell: F1.1, restart: n1}}
-  - {at: start, do: {cell: F1.1, crash: grantor}}
+  - {at: {event: Grant, client: c1}, do: {cell: F1.1, crash: non-grantor}}
   - {at: start, do: {request: c2}}
+  - {at: {event: Grant, client: c2}, do: {cell: F1.1, restart: non-grantor}}
+  - {at: start, do: {cell: F1.1, crash: grantor}}
+  - {at: start, do: {request: c1}}
 end: quiescent
 bound: {events: 200}

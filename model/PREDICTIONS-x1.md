@@ -39,3 +39,13 @@ Additive. The earlier prediction files are not edited. Committed after reading t
 | P18 | storage fills a read ack's value when it sends the ack, not when it serves the read, so a late ack carries a newer value | FAIL C2_2 |
 
 **Expected gap.** No mutation breaks C2.1's second sentence, "serving a read does not change the highest accepted token". On these schedules, a read that raised the ledger could only raise it to the reader's own token, which is never above the ledger at that point. `C2_1` checks that sentence anyway.
+
+## Outcome (appended after `run.sh --all`; the predictions above are unedited)
+- **Schedules.** All 19 print `PASS`, as predicted. P1-P12 and false-suspicion-v1 have exactly their v2.1 state counts, so the read machinery is inert on them.
+- **Mutations.** All 18 print `FAIL` on the predicted clause. P1-P12 are as before. P13-P15 print `FAIL C2_1` and P16-P18 print `FAIL C2_2`.
+  The counterexamples show the intended breaks:
+  - P16: a served `ReadAck` with no storage decision behind it (an early ack, then storage crashed).
+  - P17: a served `ReadAck` presumed during the partition, with no decision behind it.
+  - P18: a late ack carrying v2 for a read served with v1.
+- **Runner defect, found during the run.** The first `--all` checked only the 13 v1 schedules, because `run.py`'s schedule list was not extended. I added P13-P18 to it and reran; the results above are from the rerun. The first run's results for the 13 schedules and 18 mutations were identical. This was an omission in the runner, not a change informed by an outcome.
+- **Misses.** None.

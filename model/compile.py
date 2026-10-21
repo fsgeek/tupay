@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# derives: F1.1, F1.2, F1.3; format v2.1 T1, A1; format v2 T2, T3, A2, E1, E2 (schedule compiler)
+# derives: F1.1, F1.2, F1.3, C2.1, C2.2; format v3 (read); v2.1 T1, A1; v2 T2, T3, A2, E1, E2 (schedule compiler)
 """Compile a fault schedule (testbed/schedule-format.md v2) into a TLC model.
 
 Usage: compile.py <schedule.yaml> <outdir> [--lease <Lease.tla>]
@@ -29,7 +29,9 @@ FAULTS = {
     "F1.3": {"pause", "resume"},
 }
 # derives: C1.1, C1.2, C1.3 -- observable events of contract/v1.md, plus `start`
-EVENTS = {"start", "Request", "Grant", "WriteAttempt", "WriteAccept", "WriteReject", "WriteAck"}
+EVENTS = {"start", "Request", "Grant", "WriteAttempt", "WriteAccept", "WriteReject", "WriteAck",
+          # derives: C2.1, C2.2; format v3 -- contract v2's read events
+          "ReadAttempt", "ReadAccept", "ReadReject", "ReadAck"}
 # derives: C1.1, C1.2, C1.3 -- fields each event carries (filters must name one of these)
 EVENT_FIELDS = {
     "Request": {"client", "key"},
@@ -38,7 +40,14 @@ EVENT_FIELDS = {
     "WriteAccept": {"key", "token", "highest_before", "grantor_term"},
     "WriteReject": {"key", "token", "highest_before", "grantor_term"},
     "WriteAck": {"client", "key", "token", "outcome"},
+    # derives: C2.1, C2.2; format v3
+    "ReadAttempt": {"client", "key", "token", "grantor_term"},
+    "ReadAccept": {"key", "token", "highest_before", "grantor_term", "value"},
+    "ReadReject": {"key", "token", "highest_before", "grantor_term"},
+    "ReadAck": {"client", "key", "token", "outcome", "value"},
 }
+# derives: C1.3, C2.2; format v3 -- outcome values per ack event
+OUTCOMES = {"WriteAck": ("accepted", "rejected"), "ReadAck": ("served", "rejected")}
 ALIASES = {"grantor", "holder", "rest", "non-grantor"}   # non-grantor: format v2.1 A1
 
 
@@ -80,8 +89,8 @@ def trigger(t, procs):
             raise ScheduleError(f"event {ev} has no field {k!r}")
         if k == "client" and v not in procs["clients"]:
             raise ScheduleError(f"unknown client {v!r}")
-        if k == "outcome" and v not in ("accepted", "rejected"):
-            raise ScheduleError(f"outcome must be accepted|rejected, got {v!r}")
+        if k == "outcome" and v not in OUTCOMES[ev]:
+            raise ScheduleError(f"{ev} outcome must be one of {OUTCOMES[ev]}, got {v!r}")
         out[k] = v
     return out
 
@@ -139,12 +148,21 @@ def action(d, procs):
                 if not (ALIASES & (sides[0] | sides[1])) and named != allp:
                     raise ScheduleError("partition without `rest` must name every process")
             return {"kind": "partition", "a": sides[0], "b": sides[1]}
-    if set(d) - {"request", "write", "value", "token"}:
+    if set(d) - {"request", "write", "read", "value", "token"}:
         raise ScheduleError(f"action not in schedule format v1: {d!r}")
     if "request" in d:
         if set(d) != {"request"}:
             raise ScheduleError(f"bad request {d!r}")
         return {"kind": "request", "p": proc_name(d["request"], procs, clients, ("holder",))}
+    if "read" in d:
+        # derives: C2.1, C2.2; format v3 -- read with the current or a stale token
+        if set(d) - {"read", "token"}:
+            raise ScheduleError(f"bad read {d!r}")
+        tokspec = d.get("token")
+        if tokspec not in (None, "stale"):
+            raise ScheduleError(f"read token must be omitted or `stale`, got {tokspec!r}")
+        return {"kind": "read", "p": proc_name(d["read"], procs, clients, ("holder",)),
+                "stale": tokspec == "stale"}
     if "write" in d:
         if "value" not in d:
             raise ScheduleError("write needs a value")
@@ -283,8 +301,8 @@ def compile_schedule(path, outdir, lease):
         "SPECIFICATION Spec\n"
     )
     (outdir / "MC.cfg").write_text(
-        "\\* derives: C1.1, C1.2, C1.3, C1.4\n" + consts +
-        "INVARIANT TypeOK C1_1 C1_2 C1_3 TermHeadroom\nPROPERTY C1_4\n")
+        "\\* derives: C1.1, C1.2, C1.3, C1.4, C2.1, C2.2\n" + consts +
+        "INVARIANT TypeOK C1_1 C1_2 C1_3 C2_1 C2_2 TermHeadroom\nPROPERTY C1_4\n")
     (outdir / "Witness.cfg").write_text(
         "\\* derives: F1.1, F1.2, F1.3\n" + consts + "INVARIANT NotEnded\n")
     (outdir / "Done.cfg").write_text(

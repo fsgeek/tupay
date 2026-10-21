@@ -4,7 +4,8 @@ A living note, updated at every boundary, so that a crash of this steward's cont
 
 ## State at last update (2026-10-21 17:16Z)
 - Accepted. Nothing in flight. `tmp/replay/K1.yaml` present, hash matches `a44ab378…ce24`.
-- Next, in order: read `replay/` in full; decide spec F (Grok restates, or Grok reviews) and log it; decide the seed-dependence question (parallel revert vs repair) and log it; then the replay registration.
+- `replay/` read; decisions logged (entry "the third steward reads `replay/`"): cut "any mechanism not described above" from D and F; F gets steward-side source tags audited blind by Grok; scenario defects S4/S5/S8 to fix.
+- Next, in order: write `experiments/replay/fidelity/F-sources.md`; Grok audit; the cuts and scenario fixes; decide seed-dependence (parallel revert vs repair); then the replay registration.
 - Open questions to Tony: none.
 
 ## Standing practice for this tenure

@@ -1,4 +1,4 @@
-// derives: C1.1, C1.4, F1.1, F1.2
+// derives: C1.1, C1.4, F1.1, F1.2, F2.1, F2.2
 package main
 
 import (
@@ -8,7 +8,7 @@ import (
 )
 
 // TestF12_SendAcrossCutLostAfterHeal checks the injector, not the token allocator.
-// derives: F1.2, C1.1, C1.4
+// derives: F1.2, F2.1, F2.2, C1.1, C1.4
 func TestF12_SendAcrossCutLostAfterHeal(t *testing.T) {
 	n := newRaftNetwork()
 	n.register("n1")
@@ -23,9 +23,9 @@ func TestF12_SendAcrossCutLostAfterHeal(t *testing.T) {
 	}
 }
 
-// TestF12_ReplyCannotSurviveCutHeal checks a response already in flight at a cut.
-// derives: F1.2, C1.1, C1.4
-func TestF12_ReplyCannotSurviveCutHeal(t *testing.T) {
+// TestF12_ReplyAfterCutHeal checks a reply sent after connectivity is restored.
+// derives: F1.2, F2.1, F2.2, C1.1, C1.4
+func TestF12_ReplyAfterCutHeal(t *testing.T) {
 	n := newRaftNetwork()
 	n.register("n1")
 	n.register("n2")
@@ -35,13 +35,13 @@ func TestF12_ReplyCannotSurviveCutHeal(t *testing.T) {
 	}
 	n.partition(map[string]int{"n1": 0, "n2": 1})
 	n.partition(nil)
-	if err := n.response(ticket); err == nil {
-		t.Fatal("pre-cut response survived cut and heal")
+	if err := n.response(ticket); err != nil {
+		t.Fatal("cut history incorrectly discarded a post-heal reply")
 	}
 }
 
 // TestF12_ConnectedSideRetainsReplies rules out dropping unrelated majority traffic.
-// derives: F1.2, C1.4
+// derives: F1.2, F2.1, F2.2, C1.4
 func TestF12_ConnectedSideRetainsReplies(t *testing.T) {
 	n := newRaftNetwork()
 	n.register("n1")

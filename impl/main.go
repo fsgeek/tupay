@@ -1,4 +1,4 @@
-// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, C2.1, C2.2
+// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F2.1, F2.2, F1.3, C2.1, C2.2
 package main
 
 import (
@@ -13,7 +13,7 @@ import (
 )
 
 // Options deliberately permits flags before or after the schedule basename.
-// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, C2.1, C2.2
+// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F2.1, F2.2, F1.3, C2.1, C2.2
 type Options struct {
 	schedule, mutation, check, evidence string
 	all, mutations                      bool
@@ -21,7 +21,7 @@ type Options struct {
 }
 
 // parseOptions rejects contradictory modes rather than silently ignoring them.
-// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, C2.1, C2.2
+// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F2.1, F2.2, F1.3, C2.1, C2.2
 func parseOptions(args []string) (Options, error) {
 	o := Options{seeds: 3}
 	for i := 0; i < len(args); i++ {
@@ -72,7 +72,7 @@ func parseOptions(args []string) (Options, error) {
 		return o, fmt.Errorf("use <schedule>, --all, or --mutations")
 	}
 	if o.mutation != "" && (o.schedule == "" || expectedClause(o.mutation) == "") {
-		return o, fmt.Errorf("--mutation requires one schedule and P1..P18")
+		return o, fmt.Errorf("--mutation requires one schedule and P1..P30")
 	}
 	if o.check != "" && (o.schedule == "" || o.mutation != "") {
 		return o, fmt.Errorf("--check requires one schedule and no mutation")
@@ -84,27 +84,27 @@ func parseOptions(args []string) (Options, error) {
 }
 
 // expectedClause implements the precommitted mutation scoring table.
-// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, C2.1, C2.2
+// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F2.1, F2.2, F1.3, C2.1, C2.2
 func expectedClause(pair string) string {
 	switch pair {
-	case "P1", "P2", "P3":
+	case "P1", "P2", "P3", "P19", "P20":
 		return "C1.1"
-	case "P4", "P5", "P6":
+	case "P4", "P5", "P6", "P21", "P22":
 		return "C1.2"
-	case "P7", "P8", "P9":
+	case "P7", "P8", "P9", "P23", "P24":
 		return "C1.3"
-	case "P10", "P11", "P12":
+	case "P10", "P11", "P12", "P25", "P26":
 		return "C1.4"
-	case "P13", "P14", "P15":
+	case "P13", "P14", "P15", "P27", "P28":
 		return "C2.1"
-	case "P16", "P17", "P18":
+	case "P16", "P17", "P18", "P29", "P30":
 		return "C2.2"
 	}
 	return ""
 }
 
 // runOne writes a fresh trace and scores only its decoded observable evidence.
-// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, T1, T2, T3, A1, A2, E1, E2, C2.1, C2.2
+// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F2.1, F2.2, F1.3, T1, T2, T3, A1, A2, E1, E2, C2.1, C2.2
 func runOne(s Schedule, seed int64, mutation string) (Verdict, string) {
 	var nonce [8]byte
 	if _, err := rand.Read(nonce[:]); err != nil {
@@ -114,7 +114,7 @@ func runOne(s Schedule, seed int64, mutation string) (Verdict, string) {
 	if mutation != "" {
 		mode = mutation
 	}
-	run := fmt.Sprintf("%s-v22-observe-v3-%s-seed-%d-%s", s.Name, mode, seed, hex.EncodeToString(nonce[:]))
+	run := fmt.Sprintf("%s-x2-links-v4-%s-seed-%d-%s", s.Name, mode, seed, hex.EncodeToString(nonce[:]))
 	if err := os.MkdirAll("observe", 0755); err != nil {
 		return Verdict{Reason: err.Error()}, ""
 	}
@@ -144,7 +144,7 @@ func runOne(s Schedule, seed int64, mutation string) (Verdict, string) {
 }
 
 // printResult always begins with the shared result vocabulary.
-// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, C2.1, C2.2
+// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F2.1, F2.2, F1.3, C2.1, C2.2
 func printResult(v Verdict, schedule string, seed int, mutation, path string) {
 	status := "PASS"
 	if v.Clause != "" {
@@ -169,7 +169,7 @@ func printResult(v Verdict, schedule string, seed int, mutation, path string) {
 }
 
 // execute runs every requested seed, even if an earlier seed fails.
-// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, C2.1, C2.2
+// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F2.1, F2.2, F1.3, C2.1, C2.2
 func execute(args []string) int {
 	o, err := parseOptions(args)
 	if err != nil {
@@ -218,7 +218,7 @@ func execute(args []string) int {
 	}
 	var schedules []string
 	if o.all || o.mutations {
-		for i := 1; i <= 18; i++ {
+		for i := 1; i <= 30; i++ {
 			schedules = append(schedules, fmt.Sprintf("P%d", i))
 		}
 		if o.all {
@@ -258,17 +258,17 @@ func execute(args []string) int {
 		}
 	}
 	if o.mutations {
-		fmt.Printf("Mutation kills: %d/18 across %d seed(s)\n", killed, o.seeds)
+		fmt.Printf("Mutation kills: %d/30 across %d seed(s)\n", killed, o.seeds)
 	}
 	return exit
 }
 
 // main returns a nonzero status for any unexpected or unexplained result.
-// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, C2.1, C2.2
+// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F2.1, F2.2, F1.3, C2.1, C2.2
 func main() { os.Exit(execute(os.Args[1:])) }
 
 // ownEvidencePath confines offline reads, including symlinks, to this artifact.
-// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, C2.1, C2.2
+// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F2.1, F2.2, F1.3, C2.1, C2.2
 func ownEvidencePath(path string) error {
 	root, err := filepath.Abs(".")
 	if err != nil {

@@ -104,6 +104,162 @@ Additive. The predictions and their outcome are in `PREDICTIONS-v2.2.md`.
 - **Interpretation V22.1.** When an ack has no storage decision behind it, which only happens in mutation counterexamples (P7, P8, P16, P17), `answers` still names the attempt the client attributes the ack to, and `causes` is empty. I read `answers` as the client's view and `causes` as storage's. Their disagreement is exactly what those mutations break.
 - **Results.** All 19 schedules print `PASS`, and all 18 mutations print `FAIL` on the same clause as in X1. No verdict changed. The model is unchanged apart from comments, so the state counts are as in X1.
 
+## X2 adapt arm (failure model v2: partial and simplex partitions)
+derives: C1.1, C1.2, C1.3, C1.4, C2.1, C2.2, F1.1, F1.2, F1.3, F2.1, F2.2; format v4 (cut, drop, L1, L2, L3, E1, E3, T3); observe v4 addendum; pairs v3
+
+Additive. Nothing that derives from a v1 cell or clause is retired. The predictions and their outcome are in `PREDICTIONS-x2.md`. Where a section below says a previous interpretation is contradicted, the earlier text is left as it was, and this section says what replaces it.
+
+### What changed in `Lease.tla`
+- **Connectivity is a set of directed links.**
+  - `sideA` could express only a bipartition, so it is replaced by `down`, the set of pairs `<<p, q>>` whose link p→q is down. `down` derives from F1.2, F2.1 and F2.2.
+  - `Link(p, q)` means p→q is up.
+  - `Conn(p, q)` keeps its name but now means "connected" as `failure-model/v2.md` defines it: both directions of the direct link are up. It is not transitive.
+  - F1.2 `partition` adds every crossing pair in both directions, which is F2.1's special case. `Cut` (F2.1) adds each listed pair in both directions. `Drop` (F2.2) adds each listed pair in the listed direction only.
+  - `Heal(cell)` empties `down`, whichever cell it names (L2). Link failures accumulate until a heal.
+  - This change is required by the meaning of F2.x.
+- **A message's fate is fixed when it is sent.**
+  - Each send checks the one directed link it uses, at the moment it is sent: client→storage for a write or read, storage→client for an ack.
+  - `Partition` no longer removes messages already in flight.
+  - Required by failure model v2, "Links".
+- **The grantor, link by link.** Every change here is required by the meaning of F2.x.
+  - `HearsLeader(x)`: some up leader m with `term[m] >= promised[x]` has m→x up.
+  - `Elect(n)` needs `~HearsLeader(n)`. Its quorum must be connected to n, since a vote is a round trip.
+  - **Voter stickiness (new).** Every voter must itself satisfy `~HearsLeader`. Tag: C1.4, F2.1.
+  - `StepDown(n)` needs to hear q (q→n). `Join(n, q)` needs only n→q.
+  - **`CheckQuorum(n)` (new).** A leader that is not connected to a majority of up lease nodes, itself included, stops leading. Tags: C1.4, F2.2, F2.1, F1.2.
+  - `Grant(n, c)` still needs `Conn(n, c)` and a confirming majority that is connected to n. Both now mean "connected" in the v2 sense.
+- **`Good(c)`, the premise of C1.4 (L3).**
+  - Storage and c are up, c is not paused, and c and storage are connected.
+  - Some majority Q of up lease nodes is pairwise connected, connected to storage, and connected to c.
+  - Q need not contain the grantor. Under v1 bipartitions this is the old `Good(c)`.
+- **TypeOK.** `down \subseteq Procs \X Procs`.
+
+### Compiler, exporter, runner (mechanical propagation of format v4 and observe v4)
+- **Compiler.**
+  - It accepts `{cell: F2.1, cut: [...]}`, `{cell: F2.2, drop: [...]}`, and `heal: true` under F1.2, F2.1 and F2.2.
+  - Each link entry must be a pair. `grantor`, `holder` and `non-grantor` are accepted in a link, and `rest` is rejected (L1). An alias in a link is subject to A1's "no alias before any request" check.
+  - `MaxTerm` counts `cut` and `drop` steps as fault steps.
+- **Model-side resolution.** `StepLinks` resolves the selectors at trigger time (A1) and removes self-pairs (L1). `NGChoices` also looks inside links.
+- **Exporter.**
+  - A `cut` or `drop` Fault record carries the resolved listed pairs (`cut: [[n1, n3]]`) and `links`: the directed links taken down. A cut of `[a, b]` is recorded as `[a, b]` and `[b, a]`.
+  - Every heal record carries `heal: true` and `links: []`.
+  - A partition record is unchanged: it lists its sides, and it carries no `links`, which the v4 addendum asks only of `cut` and `drop`.
+- **Runner.** `run.py` runs P1-P30 and false-suspicion-v1.
+
+### Fairness (X2): every condition, and what justifies it
+The brief's rule: weak fairness only on an action whose enablement depends on the acting process's own state and on messages over links that are up, and never on an action that requires having heard from a peer over a down link. Each condition below is checked against that rule.
+
+| Condition | Enabled when | Justification |
+|---|---|---|
+| `WF(Elect(n))` | n hears no leader (its own election timer runs out); a majority is connected to n both ways and none of them hears a leader | Votes travel over up links in both directions. "Hears no leader" is the absence of messages, i.e. a timer in each voter's own state. Clauses: C1.4; cells F1.1, F1.2, F2.1, F2.2. |
+| `WF(StepDown(n))` | a node with a higher promise is heard over q→n | A message over an up link. C1.4, C1.1. |
+| `WF(CheckQuorum(n))` **(new)** | leader n is not connected to a majority | n's own timer: it has not heard from a majority. It does not require hearing anything. C1.4, F2.2. |
+| `WF(Join(n, q))` | leader n, link n→q up, q lagging | n's message over an up link. C1.4 (P10 fix). |
+| `WF(Grant(n, c))` | leader n; c's (retried) request arrives over c→n; reply over n→c; a majority connected to n confirms | Every message is over an up link. C1.4. |
+| `WF(RecvGrant)`, `WF(RecvAck)`, `WF(RecvReadAck)` | a message is in flight to a running, unpaused receiver | The message was sent while its link was up, and failure model v2 says it is then delivered, even if the link has gone down since. |
+| `WF(StorageDecide(_, FALSE))`, `WF(StorageRead(_, FALSE))` | a write or read is in flight to running storage | As above. |
+| `WF(SendAck)`, `WF(SendReadAck)` | storage has a queued ack | Storage's own state. The send succeeds only if storage→client is up; if it is down the ack is lost, and fairness does not make it arrive. |
+| `WF(ScheduleStep)` | the step's trigger has held | The environment does what the schedule says, as before. |
+
+No liveness result rests on any other fairness. P25 and P26 pass because of `WF(CheckQuorum)` (P26) and voter stickiness, which is a protocol rule, not a fairness assumption (P25). Each depends only on these conditions.
+
+### Interpretations (X2)
+**New**
+- **X2.1, the grantor's failure detector is directional.** A node hears a leader iff the leader→node link is up; "hears no leader" stands for an election timer. A vote and a grant confirmation are round trips, so both need connection. A step-down needs only to hear the higher promise; `Join` needs only to be heard.
+- **X2.2, voter stickiness.** A node votes only if it hears no current leader itself.
+  - This is my reading of how an artifact keeps C1.4 under F2.1. Without it, the follower cut off from the grantor in P19 and P25 is elected through the middle node. The old grantor then hears the higher promise through that node and steps down, and the cycle repeats. In the finite model, that would end at the term bound (UNEXPLAINED), not with a grant.
+  - Consequence: on P19 the cut-off follower never becomes grantor. The pair says it "may", so the model takes the "may not" branch on every path, and every token in P19 comes from one leader.
+- **X2.3, CheckQuorum.** Under F2.2 the followers can hear a grantor that cannot hear them (P20, P26). Their failure detector never fires, so the grantor must give up on its own. A leader not connected to a majority stops leading.
+- **X2.4, grants go only to a connected requester.** `Grant(n, c)` needs `Conn(n, c)`.
+  - A real grantor that hears a request over c→n while n→c is down would send its grant into the void. The model omits that behaviour (an under-approximation), because modelling it needs grant retransmission (observe v4) to stay finite.
+  - No shared schedule has a requester that the grantor hears but cannot answer: P22 and P28 cut the lease nodes from a holder that is not requesting.
+- **X2.5, no forwarding.** A request reaches a grantor only directly, and a grant comes back only directly.
+  - L3 says a requester connected to a majority that excludes the grantor must still be granted "by whatever route the artifact provides". This model's route is that the grantor steps down (CheckQuorum) and the majority elects a node the requester is connected to.
+  - The model would print `FAIL C1_4` on a schedule in which the requester is cut only from a grantor that keeps a majority, because nothing makes that grantor step down. No shared schedule is like that, so this is a limit of the model, not an observed result.
+- **X2.6, `non-grantor` in a link.** All occurrences of `non-grantor` within one step resolve to the same node. Every candidate is explored, as in v2.1 A1.
+- **X2.7, the cut's pairs in the Fault record.** The record carries both `cut`/`drop` (the listed pairs, resolved) and `links` (directed). The schema requires `links`; the step's action as fields follows the older schema text.
+
+**Extended**
+- **5 (grantor abstraction).** "Cannot reach a leader" becomes "does not hear a leader", by X2.1. Voters apply the same check (X2.2), and CheckQuorum is added (X2.3).
+- **7 (grant retries).** As before, a lost grant reply leaves the request pending, and the next grant has a fresh token. In addition, a grant is issued only to a connected requester (X2.4).
+- **12 (compiler rejections).** F2.1 and F2.2 are accepted. `rest` in a link is rejected, and so is a link entry that is not a pair.
+- **17 (C1.4's condition).** "Connected" means direct and bidirectional, and the majority must be pairwise connected and connected to storage and to the requester (L3). Under v1 bipartitions this changes nothing.
+- **20 (Fault records).** Extended with `links` and the heal record.
+- **R2.2 (E1 "in flight").** A message sent while its link was up stays in flight after the link goes down, and is delivered. A message sent on a down link was never in flight.
+- **R2.5 (Join).** It needs only the leader→node link.
+- **TLC bounds.** `MaxTerm = 2 + 2 × (crash, restart, partition, heal, cut and drop steps)`. `TermHeadroom` held in all 31 runs.
+
+**Contradicted**
+- **13 (messages), "At the moment of a partition, messages whose endpoints end up on different sides are dropped."**
+  - This no longer holds. Failure model v2: "a message sent while p→q is up is delivered (it may arrive late, reordered, after p→q has gone down)", and F1.2 is a special case of link failure.
+  - Replaced by: each send checks its link when it is sent, and a later partition, cut or drop does not touch messages already in flight.
+  - Effect on shared schedules: in P8, P17, P23 and P29, an ack or read ack that storage sent before the cut may still arrive. That only ever reports a decision storage really made. All four still PASS.
+- **Model summary, "Environment", and README "Interpretations" 13, where they speak of "sides".** Read "sides" as the links an F1.2 partition takes down.
+
+### Mutations P19-P30 (named in `PREDICTIONS-x2.md` before running)
+| Pair | Break | Result |
+|---|---|---|
+| P19 | a voter that still hears the leader votes without promising the new term | FAIL C1_1 |
+| P20 | a new leader starts from its own `maxTok`, not its quorum's (not specific to F2.2, like P3) | FAIL C1_1 |
+| P21 | storage accepts a stale token whose grantor is still connected to it and believes it leads | FAIL C1_2 |
+| P22 | the fence is per writer, not per key (not specific to F2.2) | FAIL C1_2 |
+| P23 | a client cut from storage alone, still connected to a lease node, presumes its writes landed | FAIL C1_3 |
+| P24 | a client that can send to storage but hears nothing back presumes its writes landed | FAIL C1_3 |
+| P25 | the grantor will not grant while any lease node is unreachable | FAIL C1_4 |
+| P26 | CheckQuorum counts outgoing links only | FAIL C1_4 |
+| P27 | the read counterpart of P21 | FAIL C2_1 |
+| P28 | the read counterpart of P22 | FAIL C2_1 |
+| P29 | a client cut from storage alone answers its read from its cache (`"none"`) | FAIL C2_2 |
+| P30 | a client that hears nothing back from storage presumes its read was served, with its last acknowledged write's value | FAIL C2_2 |
+
+- **P1-P18** are re-applied mechanically: the `Restart` and `StorageDecide` replacements name `down`, and the anchors for P10, P16 and P18 follow the new text. Every one still fails on its clause. None needed re-placing: P8, P11 and P17 use `Conn`, which on their bipartition schedules means the same as before.
+- **What the counterexamples show:**
+  - P19: n3, cut from n1, is elected in term 2 through n2. n2 keeps confirming n1's grant of token 2 (term 1), and then n3 grants token 2 again.
+  - P21: storage accepts token 1 with `highest_before: 2`. The accepted write is the bounded duplicate redelivery of c1's v1, not v3; the deference is the break either way.
+  - P25 and P26: lassos that stutter with c2 still waiting. In P26 the grantor never steps down, and the followers keep hearing it.
+- **Liveness pairs.** For P25 and P26 the unmutated model passes, so each has a working half to mutate.
+
+### Results (X2, `run.sh --all`)
+| Run | Verdict | Distinct states | Depth | MaxTerm |
+|---|---|---|---|---|
+| P1 | PASS | 21,020 | 24 | 18 |
+| P2 | PASS | 1,223 | 15 | 6 |
+| P3 | PASS | 728 | 14 | 2 |
+| P4 | PASS | 4,232 | 26 | 6 |
+| P5 | PASS | 5,561 | 27 | 6 |
+| P6 | PASS | 5,375 | 26 | 2 |
+| P7 | PASS | 31,646 | 28 | 10 |
+| P8 | PASS | 4,856 | 19 | 6 |
+| P9 | PASS | 17,123 | 26 | 2 |
+| P10 | PASS | 1,145 | 16 | 8 |
+| P11 | PASS | 1,091 | 15 | 6 |
+| P12 | PASS | 467 | 11 | 2 |
+| P13 | PASS | 6,581 | 30 | 6 |
+| P14 | PASS | 10,583 | 31 | 6 |
+| P15 | PASS | 5,459 | 26 | 2 |
+| P16 | PASS | 40,439 | 32 | 10 |
+| P17 | PASS | 15,050 | 24 | 6 |
+| P18 | PASS | 35,240 | 30 | 2 |
+| P19 | PASS | 977 | 17 | 6 |
+| P20 | PASS | 863 | 19 | 6 |
+| P21 | PASS | 5,561 | 28 | 6 |
+| P22 | PASS | 6,092 | 26 | 6 |
+| P23 | PASS | 4,856 | 19 | 6 |
+| P24 | PASS | 19,373 | 21 | 6 |
+| P25 | PASS | 395 | 10 | 4 |
+| P26 | PASS | 497 | 11 | 4 |
+| P27 | PASS | 5,621 | 27 | 6 |
+| P28 | PASS | 6,197 | 26 | 6 |
+| P29 | PASS | 25,862 | 26 | 6 |
+| P30 | PASS | 19,541 | 26 | 6 |
+| false-suspicion-v1 | PASS | 13,109 | 31 | 6 |
+
+The table is from the per-schedule runs. A later `run.sh --all` (about 7 minutes) gave the same 31 PASS, the same 30 FAIL verdicts and identical distinct-state counts. It reported a depth one different for P1 (23), P24 (22), P25 (9) and P26 (12); with 4 TLC workers the reported depth is not stable.
+
+All 30 mutations print `FAIL` on their pair's clause. The state counts that changed for P1-P18 and false-suspicion-v1 (P1, P2, P5, P8, P11, P14, P17, false-suspicion-v1) changed because in-flight messages survive partitions and because of CheckQuorum.
+
+Written only from `contract/v2.md`, `failure-model/v2.md`, `tests/pairs-v3.md`, `testbed/schedule-format.md`, `observe/schema.md`, `testbed/schedules/`, `AGENTS.md`, the X2 brief and this directory.
+
 ## X1 adapt arm (contract v2: fenced reads)
 derives: C2.1, C2.2, F1.1, F1.2, F1.3; format v3 (read); observe v2 addendum
 
@@ -215,7 +371,7 @@ Pipeline for one run:
 | File | What | derives |
 |---|---|---|
 | `Lease.tla` | state machine, environment actions, invariants, liveness | all clauses and cells, per definition |
-| `compile.py` | schedule compiler (YAML -> TLC model) | F1.1, F1.2, F1.3 |
+| `compile.py` | schedule compiler (YAML -> TLC model) | F1.1, F1.2, F1.3, F2.1, F2.2 (X2) |
 | `export.py` | TLC trace -> `observe/schema.md` records | C1.1-C1.3, F1.1-F1.3 |
 | `mutate.py` | generates `mutations/<P>/Lease.tla` | P1-P12 |
 | `run.py`, `run.sh` | runner | all |
@@ -223,6 +379,7 @@ Pipeline for one run:
 | `mutations/<P>/Lease.tla` | the 12 mutated models (regenerated by `--mutations`) | per file header |
 | `observe/*.jsonl` | observe files from the last `--all` | per run |
 | `PREDICTIONS.md` | pre-registered verdicts, committed before any TLC run | |
+| `PREDICTIONS-x2.md` | X2 predictions and outcome | F2.1, F2.2 |
 
 ## Model summary
 - **Processes.** Three lease nodes, two clients and one storage process, with names taken from the schedule. The key is `"k"`.

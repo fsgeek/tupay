@@ -400,3 +400,131 @@ or delayed acks. Existing C1.3/C2.2 mutations retain their declared failures.
 Existing remembered-restart behavior and rejection without a prior selector crash
 remain passing. Test-first red runs should expose missing answers support before
 adaptation, followed by green regressions. No outcome informed these predictions.
+
+## X2 failure-model v2 — registered before adaptation or runs
+
+<!-- derives: C1.1, C1.2, C1.3, C1.4, C2.1, C2.2, F1.1, F1.2, F1.3, F2.1, F2.2, L1, L2, L3, E1, E2, E3, T3 -->
+Round start: 2026-10-21 05:51:48 UTC (first recorded clock, before input/source
+review). No X2 build, fixture, schedule or mutation has run. This registration
+is additive; earlier predictions and outcomes remain historical. No formal model
+is consulted. Only the brief's shared schedules count. Existing untracked .venv
+is left untouched. Commits use the configured signing and OTS hook; no push.
+
+Exact predictions for the adapted implementation, before any adaptation:
+
+| Schedule | Seed 1 baseline / mutation | Seed 2 baseline / mutation | Seed 3 baseline / mutation |
+|---|---|---|---|
+| P1 | PASS / FAIL C1.1 | PASS / FAIL C1.1 | PASS / FAIL C1.1 |
+| P2 | PASS / FAIL C1.1 | PASS / FAIL C1.1 | PASS / FAIL C1.1 |
+| P3 | PASS / FAIL C1.1 | PASS / FAIL C1.1 | PASS / FAIL C1.1 |
+| P4 | PASS / FAIL C1.2 | PASS / FAIL C1.2 | PASS / FAIL C1.2 |
+| P5 | PASS / FAIL C1.2 | PASS / FAIL C1.2 | PASS / FAIL C1.2 |
+| P6 | PASS / FAIL C1.2 | PASS / FAIL C1.2 | PASS / FAIL C1.2 |
+| P7 | PASS / FAIL C1.3 | PASS / FAIL C1.3 | PASS / FAIL C1.3 |
+| P8 | PASS / FAIL C1.3 | PASS / FAIL C1.3 | PASS / FAIL C1.3 |
+| P9 | PASS / FAIL C1.3 | PASS / FAIL C1.3 | PASS / FAIL C1.3 |
+| P10 | PASS / FAIL C1.4 | PASS / FAIL C1.4 | PASS / FAIL C1.4 |
+| P11 | PASS / FAIL C1.4 | PASS / FAIL C1.4 | PASS / FAIL C1.4 |
+| P12 | PASS / FAIL C1.4 | PASS / FAIL C1.4 | PASS / FAIL C1.4 |
+| P13 | PASS / FAIL C2.1 | PASS / FAIL C2.1 | PASS / FAIL C2.1 |
+| P14 | PASS / FAIL C2.1 | PASS / FAIL C2.1 | PASS / FAIL C2.1 |
+| P15 | PASS / FAIL C2.1 | PASS / FAIL C2.1 | PASS / FAIL C2.1 |
+| P16 | PASS / FAIL C2.2 | PASS / FAIL C2.2 | PASS / FAIL C2.2 |
+| P17 | PASS / FAIL C2.2 | PASS / FAIL C2.2 | PASS / FAIL C2.2 |
+| P18 | PASS / FAIL C2.2 | PASS / FAIL C2.2 | PASS / FAIL C2.2 |
+| P19 | PASS / FAIL C1.1 | PASS / FAIL C1.1 | PASS / FAIL C1.1 |
+| P20 | PASS / FAIL C1.1 | PASS / FAIL C1.1 | PASS / FAIL C1.1 |
+| P21 | PASS / FAIL C1.2 | PASS / FAIL C1.2 | PASS / FAIL C1.2 |
+| P22 | PASS / FAIL C1.2 | PASS / FAIL C1.2 | PASS / FAIL C1.2 |
+| P23 | PASS / FAIL C1.3 | PASS / FAIL C1.3 | PASS / FAIL C1.3 |
+| P24 | PASS / FAIL C1.3 | PASS / FAIL C1.3 | PASS / FAIL C1.3 |
+| P25 | PASS / FAIL C1.4 | PASS / FAIL C1.4 | PASS / FAIL C1.4 |
+| P26 | PASS / FAIL C1.4 | PASS / FAIL C1.4 | PASS / FAIL C1.4 |
+| P27 | PASS / FAIL C2.1 | PASS / FAIL C2.1 | PASS / FAIL C2.1 |
+| P28 | PASS / FAIL C2.1 | PASS / FAIL C2.1 | PASS / FAIL C2.1 |
+| P29 | PASS / FAIL C2.2 | PASS / FAIL C2.2 | PASS / FAIL C2.2 |
+| P30 | PASS / FAIL C2.2 | PASS / FAIL C2.2 | PASS / FAIL C2.2 |
+| false-suspicion-v1 | PASS (observed) / — | PASS (observed) / — | PASS (observed) / — |
+
+P1–P18 retain their enforcing-path placements. New mutations, each on its own
+shared schedule, are:
+
+| Pair | Enforcing-path break | derives |
+|---|---|---|
+| P19 | Reuse token after partial cut | C1.1, F2.1 |
+| P20 | Reuse token after simplex drop | C1.1, F2.2 |
+| P21 | Bypass write fence after partial cut | C1.2, F2.1 |
+| P22 | Bypass write fence after simplex drop | C1.2, F2.2 |
+| P23 | Fabricate success for the second write sent on the down forward link | C1.3, F2.1 |
+| P24 | After one accepted write, skip storage acceptance and fabricate success for the next write despite the down reply link | C1.3, F2.2 |
+| P25 | Suppress grant service after the partial cut | C1.4, F2.1 |
+| P26 | Suppress grant service after the simplex drop | C1.4, F2.2 |
+| P27 | Bypass read fence after partial cut | C2.1, F2.1 |
+| P28 | Bypass read fence after simplex drop | C2.1, F2.2 |
+| P29 | On the lost read-reply path bypass loss and give a value different from the served snapshot | C2.2, F2.1 |
+| P30 | On the lost read-reply path bypass loss and give a value different from the served snapshot | C2.2, F2.2 |
+
+Scoring: each baseline passes only if completed without a witnessed clause
+violation or missing evidence. Expected-clause-only mutation kills; timeouts,
+bounds, compiler/operational failures and absent triggers are not kills. E2
+preserves witnessed safety failures. E3 bound alone is UNEXPLAINED. C1.4 uses the
+existing qualified three-second horizon and final environment reconstructed from
+Fault records, now requiring a direct bidirectional clique of two lease nodes,
+storage and the pending requester. The grantor need not be in that clique. Lost
+requests/grants do not complete a requester. If P25/P26 unmutated fails, retain
+that finding and report no working half; do not count its mutation as independent
+evidence of sensitivity. No expectation licenses changing failed behavior.
+
+Retain seeds 1–3, T2 0–2 ms, delivery jitter 1–5 ms, reordering/duplicates and
+unseeded Raft election timing. Five-second operational waits and finite three-
+second progress certificates remain limitations. No exhaustive correctness claim.
+
+Expected interpretation changes (no outcomes informed these): 11, 21, 25 and 53's
+delivery/cut-history gating is contradicted by v2 send-time fate. Replace it with
+independent directed send admission for requests, replies and Raft RPCs; a sent
+message may arrive after a cut. The decision-to-reply interval is local pending
+work, so a cut before the reply's actual send can still lose that reply. Complete
+bipartitions become accumulated directed failures (extends 19, 37, 38, 53).
+Connectivity is direct and bidirectional, not a side-equivalence relation or a
+count of nodes merely reachable from the client/storage (extends 16, 38).
+Interpretation 52's E1 includes reads explicitly and T3 never serializes reads or
+writes behind lost replies. Keep all v1 derivations and durable authority choices.
+
+Plan: (1) commit this prediction/scoring table; (2) implement directed fault
+language, frozen L1 selectors, accumulated links/heal and schema-v4 links;
+(3) adapt Raft send/reply admission and application send-time fate, literal clique
+liveness and its independent reconstruction, preserving standing requests;
+(4) extend the CLI to thirty pairs and add the twelve mutations; (5) fixtures,
+required 31×3 baseline and 30×3 mutation runs, vet; (6) retain every trace/sidecar,
+input hashes, per-seed results and additive interpretations, then adapted commit.
+Commits distinguish mechanical propagation from changes required by F2.x meaning.
+
+Focused fixture predictions after adaptation: directional send failures leave
+reverse paths intact; cut is symmetric, accumulation includes partition, all-cell
+heal restores every link; duplicate/self-pairs are harmless; rest/unknown/wrong-
+cell/malformed/early aliases reject; selectors freeze at firing; links serialize
+as resolved directed pairs and heal as []; pre-cut sent requests/replies survive
+cut/heal, while sends on down links never resurrect; unavailable incarnations
+still lose messages under F1.1; two reachable but mutually disconnected nodes are
+not a majority clique; a clique excluding the grantor does qualify; independent
+C1.4 reconstruction agrees with these premises; reads are included in quiescence,
+and lost replies do not block later workload; E3 cannot PASS an exceeded bound.
+No outcome has informed these predictions or this plan.
+
+### X2 additive source-review amendment: local reply work and crash
+
+<!-- derives: C1.3, C2.2, F1.1, F2.1, F2.2 -->
+The first complete matrix at checkpoint 94549e3 passed 93/93. No failing schedule
+prompted this amendment. Source review of the new pendingSend stage found that
+storage crash currently leaves unsent local reply work in the harness queue.
+F1.1 requires losing volatile process state. Fix by discarding pendingSend items
+when storage crashes, retaining messages already sent into the external network.
+Expected regression: before the fix an unsent reply survives storage restart;
+after the fix it is absent while an already-sent reply remains deliverable.
+This adds coverage for the preregistered incarnation/availability expectation;
+all original verdicts, mutation placements, durations and scoring are unchanged.
+The already-observed passes informed neither this rule nor its correction, but
+are explicitly disclosed here. Retain the first matrix as initial evidence and
+repeat the required matrix after this production change. Additional focused
+source-review fixtures will verify runtime clique eligibility and that a failed
+grant reply send leaves a requester outstanding; both are expected to pass.

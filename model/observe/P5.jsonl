@@ -12,4 +12,4 @@
 {"proc": "c1", "seq": 4, "event": "WriteAttempt", "client": "c1", "key": "k", "token": 1, "value": "v3", "grantor_term": 1, "causes": [{"proc": "n1", "seq": 1}], "run": "P5", "side": "model"}
 {"proc": "s", "seq": 3, "event": "WriteReject", "key": "k", "token": 1, "highest_before": 2, "grantor_term": 1, "causes": [{"proc": "c1", "seq": 4}], "run": "P5", "side": "model"}
 {"proc": "c1", "seq": 5, "event": "WriteAck", "client": "c1", "key": "k", "token": 1, "outcome": "rejected", "answers": {"proc": "c1", "seq": 4}, "causes": [{"proc": "s", "seq": 3}], "run": "P5", "side": "model"}
-{"proc": "env", "seq": 2, "event": "Fault", "cell": "F1.2", "heal": true, "causes": [], "run": "P5", "side": "model"}
+{"proc": "env", "seq": 2, "event": "Fault", "cell": "F1.2", "heal": true, "links": [], "causes": [], "run": "P5", "side": "model"}

@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/home/tony/projects/tupay-x2-adapt-impl/impl/evidence-x2/audit.py", line 139, in <module>
+    len(evidence['progress_horizons'])))
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'NoneType' has no len()

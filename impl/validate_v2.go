@@ -1,4 +1,4 @@
-// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, A1, A2, T3, C2.1, C2.2
+// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F2.1, F2.2, F1.3, A1, A2, T3, C2.1, C2.2
 package main
 
 import "fmt"
@@ -84,6 +84,11 @@ func validateSequence(s Schedule, ids map[string]string) error {
 			targets = nil
 			for _, side := range step.Do.Partition {
 				targets = append(targets, side...)
+			}
+		}
+		for _, pairs := range [][][]string{step.Do.Cut, step.Do.Drop} {
+			for _, pair := range pairs {
+				targets = append(targets, pair...)
 			}
 		}
 		for _, id := range targets {

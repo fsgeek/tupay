@@ -87,7 +87,7 @@ func TestX1SharedReadCompiler(t *testing.T) {
 }
 
 // TestX1ReadStoragePath catches reads changing the write ledger or fabricating values.
-// derives: C2.1, C2.2, F1.1, F1.2, F1.3, T3
+// derives: C2.1, C2.2, F1.1, F1.2, F1.3, F2.1, F2.2, T3
 func TestX1ReadStoragePath(t *testing.T) {
 	for _, token := range []uint64{6, 7, 9} {
 		t.Run(fmt.Sprint(token), func(t *testing.T) {
@@ -113,6 +113,7 @@ func TestX1ReadStoragePath(t *testing.T) {
 			}
 			e.deliver(time.Now().Add(time.Second))
 			e.deliver(time.Now().Add(2 * time.Second))
+			e.deliver(time.Now().Add(3 * time.Second))
 			if e.ledger != 7 {
 				t.Fatalf("read advanced ledger to %d", e.ledger)
 			}

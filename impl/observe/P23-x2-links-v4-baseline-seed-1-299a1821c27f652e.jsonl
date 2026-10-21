@@ -1,0 +1,9 @@
+{"proc":"c1","seq":1,"event":"Request","client":"c1","key":"k","causes":[],"run":"P23-x2-links-v4-baseline-seed-1-299a1821c27f652e","side":"impl"}
+{"proc":"n1","seq":1,"event":"Grant","client":"c1","key":"k","token":3,"lifetime":40,"grantor_term":2,"causes":[{"proc":"c1","seq":1}],"run":"P23-x2-links-v4-baseline-seed-1-299a1821c27f652e","side":"impl"}
+{"proc":"c1","seq":2,"event":"WriteAttempt","client":"c1","key":"k","token":3,"grantor_term":2,"causes":[{"proc":"c1","seq":1},{"proc":"n1","seq":1}],"run":"P23-x2-links-v4-baseline-seed-1-299a1821c27f652e","side":"impl","value":"v1"}
+{"proc":"s","seq":1,"event":"WriteAccept","key":"k","token":3,"grantor_term":2,"highest_before":0,"causes":[{"proc":"c1","seq":2}],"run":"P23-x2-links-v4-baseline-seed-1-299a1821c27f652e","side":"impl"}
+{"proc":"env","seq":1,"event":"Fault","causes":[{"proc":"s","seq":1}],"run":"P23-x2-links-v4-baseline-seed-1-299a1821c27f652e","side":"impl","cell":"F2.1","links":[["c1","s"],["s","c1"]]}
+{"proc":"c1","seq":3,"event":"WriteAttempt","client":"c1","key":"k","token":3,"grantor_term":2,"causes":[{"proc":"c1","seq":2},{"proc":"env","seq":1},{"proc":"n1","seq":1}],"run":"P23-x2-links-v4-baseline-seed-1-299a1821c27f652e","side":"impl","value":"v2"}
+{"proc":"c2","seq":1,"event":"Request","client":"c2","key":"k","causes":[{"proc":"env","seq":1}],"run":"P23-x2-links-v4-baseline-seed-1-299a1821c27f652e","side":"impl"}
+{"proc":"n1","seq":2,"event":"Grant","client":"c2","key":"k","token":4,"lifetime":40,"grantor_term":2,"causes":[{"proc":"n1","seq":1},{"proc":"env","seq":1},{"proc":"c2","seq":1}],"run":"P23-x2-links-v4-baseline-seed-1-299a1821c27f652e","side":"impl"}
+{"proc":"env","seq":2,"event":"Fault","causes":[{"proc":"env","seq":1},{"proc":"n1","seq":2}],"run":"P23-x2-links-v4-baseline-seed-1-299a1821c27f652e","side":"impl","cell":"F2.1","heal":true,"links":[]}

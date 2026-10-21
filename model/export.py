@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# derives: C1.1, C1.2, C1.3, C2.1, C2.2, F1.1, F1.2, F1.3 (trace exporter: TLC trace -> observe/schema.md records, incl. v2 and v3 addenda)
+# derives: C1.1, C1.2, C1.3, C2.1, C2.2, F1.1, F1.2, F1.3, F2.1, F2.2 (trace exporter: TLC trace -> observe/schema.md records, incl. v2, v3 and v4 addenda)
 """Turn a TLC trace (witness or counterexample) into observe/schema.md records.
 
 Usage: export.py <tlc-output.txt> <schedule.json> <out.jsonl> <run-id>
@@ -222,7 +222,14 @@ def export(tlc_text, sched, run):
                 a = sorted(ev["sideA"][1])
                 f["partition"] = [a, sorted(allp - set(a))]
             elif act == "heal":
+                # derives: F1.2, F2.1, F2.2; observe v4 addendum -- a heal carries links: [] and heal: true
                 f["heal"] = True
+                f["links"] = []
+            elif act in ("cut", "drop"):
+                # derives: F2.1, F2.2; observe v4 addendum -- the directed links the step took down,
+                # selectors resolved and self-pairs removed (a cut of [a, b] is [a, b] and [b, a])
+                f[act] = sorted([list(x) for x in ev["pairs"][1]])
+                f["links"] = sorted([list(x) for x in ev["links"][1]])
             else:
                 f[act] = ev["target"]
             emit("env", "Fault", f, [])

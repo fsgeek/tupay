@@ -23,8 +23,8 @@ import compile as compiler  # noqa: E402
 import export as exporter  # noqa: E402
 import mutate  # noqa: E402
 
-# derives: C1.1-C1.4, C2.1, C2.2 -- every shared schedule (P13-P18 added for contract v2)
-ORDER = [f"P{i}" for i in range(1, 19)] + ["false-suspicion-v1"]
+# derives: C1.1-C1.4, C2.1, C2.2, F2.1, F2.2 -- every shared schedule (P13-P18 added for contract v2, P19-P30 for failure model v2)
+ORDER = [f"P{i}" for i in range(1, 31)] + ["false-suspicion-v1"]
 
 
 def find_schedule(name):

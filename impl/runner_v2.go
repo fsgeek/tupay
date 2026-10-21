@@ -1,4 +1,4 @@
-// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, T1, T2, T3, A1, A2, E1, E2, C2.1, C2.2
+// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F2.1, F2.2, F1.3, T1, T2, T3, A1, A2, E1, E2, C2.1, C2.2
 package main
 
 import (
@@ -7,7 +7,7 @@ import (
 )
 
 // FrozenAction captures selectors when a trigger fires, before delay or waiting.
-// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, T2, T3, A1, A2, C2.1, C2.2
+// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F2.1, F2.2, F1.3, T2, T3, A1, A2, C2.1, C2.2
 type FrozenAction struct {
 	Actions         []Action
 	Rest            []string
@@ -16,9 +16,30 @@ type FrozenAction struct {
 }
 
 // freezeAction resolves aliases everywhere and checks concrete operation roles.
-// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, A1, A2, T2, T3, C2.1, C2.2
+// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F2.1, F2.2, F1.3, A1, A2, T2, T3, C2.1, C2.2
 func (e *Engine) freezeAction(a Action) (FrozenAction, error) {
 	frozen := FrozenAction{}
+	// derives: F2.1, F2.2, L1, A1, T2
+	if a.Cut != nil || a.Drop != nil {
+		pairs := a.Cut
+		if a.Drop != nil {
+			pairs = a.Drop
+		}
+		resolved, err := e.expandLinks(pairs)
+		if err != nil {
+			return frozen, err
+		}
+		if a.Cut != nil {
+			a.Cut = resolved
+		} else {
+			a.Drop = resolved
+		}
+		if err = validateAction(a, processRoles(e.schedule)); err != nil {
+			return frozen, err
+		}
+		frozen.Actions = []Action{a}
+		return frozen, nil
+	}
 	if a.Partition != nil {
 		sides, err := e.expandPartition(a.Partition)
 		if err != nil {
@@ -187,18 +208,18 @@ func (e *Engine) validateTransition(a Action) error {
 }
 
 // drive applies fresh arming, frozen selectors, sampled delay and bounded quiescence.
-// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, T1, T2, T3, A1, A2, E1, E2, C2.1, C2.2
+// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F2.1, F2.2, F1.3, T1, T2, T3, A1, A2, E1, E2, C2.1, C2.2
 func (e *Engine) drive() RunEvidence {
-	result := RunEvidence{Derives: []string{"C1.1", "C1.2", "C1.3", "C1.4", "C2.1", "C2.2", "F1.1", "F1.2", "F1.3", "T1", "T2", "T3", "A1", "A2", "E1", "E2"}}
+	result := RunEvidence{Derives: []string{"C1.1", "C1.2", "C1.3", "C1.4", "C2.1", "C2.2", "F1.1", "F1.2", "F1.3", "F2.1", "F2.2", "L1", "L2", "L3", "E3", "T1", "T2", "T3", "A1", "A2", "E1", "E2"}}
 	wait := func(ready func() bool, reason string) bool {
 		deadline := time.Now().Add(progressHorizon + 2*time.Second)
 		for {
-			if ready() {
-				return true
-			}
 			if len(e.out.events) >= e.schedule.Bound.Events {
 				result.Reason = "event bound reached"
 				return false
+			}
+			if ready() {
+				return true
 			}
 			e.pump()
 			if err := e.network.issue(); err != nil {

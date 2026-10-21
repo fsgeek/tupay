@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# derives: F1.1, F1.2, F1.3, C2.1, C2.2; format v3 (read); v2.1 T1, A1; v2 T2, T3, A2, E1, E2 (schedule compiler)
+# derives: F1.1, F1.2, F1.3, F2.1, F2.2, C2.1, C2.2; format v4 (cut, drop, L1, L2); v3 (read); v2.1 T1, A1; v2 T2, T3, A2, E1, E2 (schedule compiler)
 """Compile a fault schedule (testbed/schedule-format.md v2) into a TLC model.
 
 Usage: compile.py <schedule.yaml> <outdir> [--lease <Lease.tla>]
@@ -22,11 +22,13 @@ from pathlib import Path
 
 import yaml
 
-# derives: F1.1, F1.2, F1.3 -- the only fault actions the failure model contains, by cell
+# derives: F1.1, F1.2, F1.3, F2.1, F2.2 -- the only fault actions the failure model contains, by cell
 FAULTS = {
     "F1.1": {"crash", "restart"},
     "F1.2": {"partition", "heal"},
     "F1.3": {"pause", "resume"},
+    "F2.1": {"cut", "heal"},     # derives: F2.1; format v4 cut, L2 (a heal under any cell restores every link)
+    "F2.2": {"drop", "heal"},    # derives: F2.2; format v4 drop, L2
 }
 # derives: C1.1, C1.2, C1.3 -- observable events of contract/v1.md, plus `start`
 EVENTS = {"start", "Request", "Grant", "WriteAttempt", "WriteAccept", "WriteReject", "WriteAck",
@@ -111,7 +113,7 @@ def action(d, procs):
     if "cell" in d:
         cell = d["cell"]
         if cell not in FAULTS:
-            raise ScheduleError(f"cell {cell!r} is not in failure-model/v1.md")
+            raise ScheduleError(f"cell {cell!r} is not in failure-model/v2.md")
         keys = set(d) - {"cell"}
         if len(keys) != 1:
             raise ScheduleError(f"fault step must name exactly one action: {d!r}")
@@ -129,7 +131,24 @@ def action(d, procs):
         if verb == "heal":
             if arg is not True:
                 raise ScheduleError("heal must be `heal: true`")
-            return {"kind": "heal"}
+            # derives: F1.2, F2.1, F2.2; format v4 L2 -- every heal restores every link; the cell
+            # it names is kept only for the Fault record
+            return {"kind": "heal", "cell": cell}
+        if verb in ("cut", "drop"):
+            # derives: F2.1 (cut), F2.2 (drop); format v4 L1 -- a list of pairs of process names or
+            # the selectors grantor, holder, non-grantor; `rest` is not allowed in a link
+            if not (isinstance(arg, list) and arg):
+                raise ScheduleError(f"{verb} needs a non-empty list of pairs")
+            pairs = []
+            for e in arg:
+                if not (isinstance(e, list) and len(e) == 2):
+                    raise ScheduleError(f"L1: each {verb} entry is a pair, got {e!r}")
+                for x in e:
+                    if x == "rest":
+                        raise ScheduleError("L1: `rest` is not allowed in a link")
+                    proc_name(x, procs, allp, ("grantor", "holder", "non-grantor"))
+                pairs.append((e[0], e[1]))
+            return {"kind": verb, "l": pairs, "cell": cell}
         if verb == "partition":
             if not (isinstance(arg, list) and len(arg) == 2):
                 raise ScheduleError("partition needs exactly two sides (complete bipartition)")
@@ -187,7 +206,8 @@ def static_checks(steps, procs):
     requested = False
     ng_down = False
     for i, (a, _) in enumerate(steps, 1):
-        names = {a.get("p")} | set(a.get("a", ())) | set(a.get("b", ()))
+        names = {a.get("p")} | set(a.get("a", ())) | set(a.get("b", ())) \
+            | {x for e in a.get("l", ()) for x in e}   # derives: F2.1, F2.2; format v4 L1 (A1 applies)
         if names & {"grantor", "holder", "non-grantor"} and not requested:
             raise ScheduleError(f"A1: step {i} uses grantor/holder/non-grantor before any Grant can have occurred")
         k, p = a["kind"], a.get("p")
@@ -242,15 +262,17 @@ def static_checks(steps, procs):
 
 
 def tla_step(st, trig):
-    # derives: F1.1, F1.2, F1.3 -- every step record gets the same fields (TLC compares them)
+    # derives: F1.1, F1.2, F1.3, F2.1, F2.2 -- every step record gets the same fields (TLC compares
+    # them); `l` is the link list of a cut/drop (a set of <<x, y>> pairs), `cell` names the heal's cell
     rec = {"kind": st["kind"], "p": st.get("p", "none"), "v": st.get("v", "none"),
            "stale": st.get("stale", False), "a": set(st.get("a", set())),
-           "b": set(st.get("b", set())), "trig": trig}
-    return tla(rec)
+           "b": set(st.get("b", set())), "trig": trig, "cell": st.get("cell", "none")}
+    links = "{" + ", ".join(sorted(f"<<{tla(x)}, {tla(y)}>>" for x, y in st.get("l", ()))) + "}"
+    return tla(rec)[:-1] + f", l |-> {links}]"
 
 
 def compile_schedule(path, outdir, lease):
-    # derives: F1.1, F1.2, F1.3
+    # derives: F1.1, F1.2, F1.3, F2.1, F2.2
     doc = yaml.safe_load(Path(path).read_text())
     for k in ("schedule", "processes", "steps", "end"):
         if k not in doc:
@@ -268,7 +290,9 @@ def compile_schedule(path, outdir, lease):
     end = {"event": "quiescent"} if doc["end"] == "quiescent" else trigger(doc["end"], procs)
     static_checks(steps, procs)
     bound = int((doc.get("bound") or {}).get("events", 200))
-    nfault = sum(1 for a, _ in steps if a["kind"] in ("crash", "partition", "restart", "heal"))
+    # derives: C1.1, C1.4, F2.1, F2.2 -- cut and drop count as fault steps for the term bound
+    nfault = sum(1 for a, _ in steps
+                 if a["kind"] in ("crash", "partition", "restart", "heal", "cut", "drop"))
     max_term = 2 + 2 * nfault          # elections happen only when no reachable leader exists
     max_dups = 1
 
@@ -285,7 +309,7 @@ def compile_schedule(path, outdir, lease):
         f"MCClients == {tla(set(procs['clients']))}",
         "\\* derives: C1.2, C1.3",
         f"MCStore == {tla(procs['storage'][0])}",
-        "\\* derives: F1.1, F1.2, F1.3",
+        "\\* derives: F1.1, F1.2, F1.3, F2.1, F2.2",
         "MCSteps == <<",
         ",\n".join("    " + tla_step(a, t) for a, t in steps),
         ">>",

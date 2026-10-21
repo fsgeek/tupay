@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# derives: P1-P18 (mutation half of every pair; P13-P18 derive from C2.1/C2.2, contract v2); round 2: P11 re-placed, P8 keeps Join
+# derives: P1-P30 (mutation half of every pair; P13-P18 derive from C2.1/C2.2, contract v2; P19-P30 from F2.1/F2.2, failure model v2); round 2: P11 re-placed, P8 keeps Join
 """Generate the twelve mutated models, model/mutations/<P>/Lease.tla.
 
 Each mutation is a copy of model/Lease.tla with one deliberate break on the path
@@ -26,7 +26,7 @@ Restart(p) ==
     /\ ~up[p]
     /\ up' = [up EXCEPT ![p] = TRUE]
     /\ maxTok' = IF p \in Nodes THEN [maxTok EXCEPT ![p] = 0] ELSE maxTok \* mutation: P1
-    /\ UNCHANGED <<paused, sideA, promised, leader, term, ltok, reqs, pending, tok,
+    /\ UNCHANGED <<paused, down, promised, leader, term, ltok, reqs, pending, tok,
                    myToks, awaiting, grantMsgs, writeMsgs, ackMsgs, dups, highest, stval,
                    toAck, grants, decisions, told>>
     /\ lastEv' = [event |-> "Fault", cell |-> "F1.1", action |-> "restart", target |-> p]
@@ -52,7 +52,7 @@ Restart(p) ==
     /\ ~up[p]
     /\ up' = [up EXCEPT ![p] = TRUE]
     /\ highest' = IF p = Store THEN 0 ELSE highest \* mutation: P4
-    /\ UNCHANGED <<paused, sideA, promised, maxTok, leader, term, ltok, reqs, pending, tok,
+    /\ UNCHANGED <<paused, down, promised, maxTok, leader, term, ltok, reqs, pending, tok,
                    myToks, awaiting, grantMsgs, writeMsgs, ackMsgs, dups, stval,
                    toAck, grants, decisions, told>>
     /\ lastEv' = [event |-> "Fault", cell |-> "F1.1", action |-> "restart", target |-> p]
@@ -77,7 +77,7 @@ StorageDecide(m, dup) ==
        /\ ~\E a \in toAck \cup ackMsgs : a.c = m.c /\ a.t = m.t /\ a.v = m.v
        /\ [t |-> m.t, g |-> m.g, v |-> m.v] \in awaiting[m.c]
        /\ toAck' = toAck \cup {[c |-> m.c, t |-> m.t, g |-> m.g, v |-> m.v, outcome |-> "accept"]}
-       /\ UNCHANGED <<up, paused, sideA, promised, maxTok, leader, term, ltok, reqs,
+       /\ UNCHANGED <<up, paused, down, promised, maxTok, leader, term, ltok, reqs,
                       pending, tok, myToks, awaiting, grantMsgs, writeMsgs, ackMsgs, dups,
                       highest, stval, grants, decisions, told>>
        /\ Internal("EarlyAck", Store)
@@ -93,7 +93,7 @@ StorageDecide(m, dup) ==
           /\ dups' = IF dup THEN dups + 1 ELSE dups
           /\ decisions' = Append(decisions, [token |-> m.t, hb |-> highest, outcome |-> out,
                                              client |-> m.c, value |-> m.v, term |-> m.g])
-          /\ UNCHANGED <<up, paused, sideA, promised, maxTok, leader, term, ltok, reqs,
+          /\ UNCHANGED <<up, paused, down, promised, maxTok, leader, term, ltok, reqs,
                          pending, tok, myToks, awaiting, grantMsgs, ackMsgs, grants, told,
                          toAck>>
           /\ Emit([event |-> IF acc THEN "WriteAccept" ELSE "WriteReject", key |-> Key,
@@ -102,7 +102,7 @@ StorageDecide(m, dup) ==
 """)]),
     ("P8", "C1.3, F1.2", "C1_3",
      "a client cut off from storage presumes its outstanding write succeeded",
-     [("str", r"""\* derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3
+     [("str", r"""\* derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, F2.1, F2.2
 Protocol ==
 """, r"""\* derives: C1.3, F1.2
 \* mutation: P8 a client that cannot reach storage treats its outstanding write as acked
@@ -113,13 +113,13 @@ PresumeAck(c) ==
     /\ \E w \in awaiting[c] :
         /\ awaiting' = [awaiting EXCEPT ![c] = @ \ {w}]
         /\ told' = told \cup {[c |-> c, t |-> w.t, v |-> w.v]}
-        /\ UNCHANGED <<up, paused, sideA, promised, maxTok, leader, term, ltok, reqs,
+        /\ UNCHANGED <<up, paused, down, promised, maxTok, leader, term, ltok, reqs,
                        pending, tok, myToks, grantMsgs, writeMsgs, ackMsgs, dups, highest,
                        stval, toAck, grants, decisions>>
         /\ Emit([event |-> "WriteAck", client |-> c, key |-> Key, token |-> w.t,
                  outcome |-> "accepted", value |-> w.v, grantor_term |-> w.g])
 
-\* derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3
+\* derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, F2.1, F2.2
 Protocol ==
     \/ \E c \in Clients : PresumeAck(c) \* mutation: P8
 """),
@@ -134,9 +134,9 @@ Protocol ==
     ("P10", "C1.4, F1.1", "C1_4",
      "election requires every lease node rather than a majority",
      [("str", r"""        /\ Majority(Q)
-        /\ LET t == 1 + Max""",
+        /\ \A q \in Q : ~HearsLeader(q)""",
        r"""        /\ Q = Nodes \* mutation: P10 unanimity instead of a majority
-        /\ LET t == 1 + Max""")]),
+        /\ \A q \in Q : ~HearsLeader(q)""")]),
     ("P11", "C1.4, F1.2", "C1_4",
      "(round 2, re-placed) a request made while the requester cannot reach a majority of lease nodes is lost and never retried",
      [("str", r"""    /\ reqs' = reqs \cup {c}
@@ -160,7 +160,7 @@ Restart(p) ==
     /\ ~up[p]
     /\ up' = [up EXCEPT ![p] = TRUE]
     /\ highest' = IF p = Store THEN 0 ELSE highest \* mutation: P13
-    /\ UNCHANGED <<paused, sideA, promised, maxTok, leader, term, ltok, reqs, pending, tok,
+    /\ UNCHANGED <<paused, down, promised, maxTok, leader, term, ltok, reqs, pending, tok,
                    myToks, awaiting, grantMsgs, writeMsgs, ackMsgs, dups, stval,
                    toAck, grants, decisions, told>>
     /\ lastEv' = [event |-> "Fault", cell |-> "F1.1", action |-> "restart", target |-> p]
@@ -175,7 +175,8 @@ Restart(p) ==
        r"""    /\ LET srv == m.t >= highest - 1 \* mutation: P15 expiry grace: the previous token may still read""")]),
     ("P16", "C2.2, F1.1", "C2_2",
      "storage acks a read as served, with the value it holds, on receipt, before its volatile decision",
-     [("str", r"""\* derives: C2.2, F1.1, F1.2 -- storage sends a queued read ack (lost if the client is cut off or down)
+     [("str", r"""\* derives: C2.2, F1.1, F1.2, F2.1, F2.2 -- storage sends a queued read ack (lost if the link
+\* storage->client is down or the client is down, at the moment it is sent)
 SendReadAck(a) ==""", r"""\* derives: C2.2, F1.1
 \* mutation: P16 storage acks "served" with its current value on receipt of a read, before deciding
 EarlyReadAck(m) ==
@@ -185,12 +186,13 @@ EarlyReadAck(m) ==
     /\ [t |-> m.t, g |-> m.g, r |-> m.r] \in awaitingR[m.c]
     /\ rToAck' = rToAck \cup {[c |-> m.c, t |-> m.t, g |-> m.g, r |-> m.r, outcome |-> "served", v |-> stval]}
     /\ UNCHANGED <<readMsgs, rAckMsgs, awaitingR, rdecisions, given>>
-    /\ UNCHANGED <<up, paused, sideA, promised, maxTok, leader, term, ltok, reqs, pending,
+    /\ UNCHANGED <<up, paused, down, promised, maxTok, leader, term, ltok, reqs, pending,
                    tok, myToks, awaiting, grantMsgs, writeMsgs, ackMsgs, dups, highest, stval,
                    toAck, grants, decisions, told>>
     /\ Internal("EarlyReadAck", Store)
 
-\* derives: C2.2, F1.1, F1.2 -- storage sends a queued read ack (lost if the client is cut off or down)
+\* derives: C2.2, F1.1, F1.2, F2.1, F2.2 -- storage sends a queued read ack (lost if the link
+\* storage->client is down or the client is down, at the moment it is sent)
 SendReadAck(a) =="""),
       ("str", r"""    \/ \E m \in readMsgs, d \in BOOLEAN : StorageRead(m, d)   \* derives: C2.1, C2.2
 """, r"""    \/ \E m \in readMsgs, d \in BOOLEAN : StorageRead(m, d)   \* derives: C2.1, C2.2
@@ -198,7 +200,7 @@ SendReadAck(a) =="""),
 """)]),
     ("P17", "C2.2, F1.2", "C2_2",
      "a client cut off from storage presumes its outstanding read was served with the value of a write it was told succeeded",
-     [("str", r"""\* derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3
+     [("str", r"""\* derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, F2.1, F2.2
 Protocol ==
 """, r"""\* derives: C2.2, F1.2
 \* mutation: P17 a client that cannot reach storage answers its outstanding read from what it last wrote
@@ -209,23 +211,171 @@ PresumeRead(c) ==
         /\ awaitingR' = [awaitingR EXCEPT ![c] = @ \ {w}]
         /\ given' = given \cup {[c |-> c, t |-> w.t, r |-> w.r, v |-> x.v]}
         /\ UNCHANGED <<readMsgs, rToAck, rAckMsgs, rdecisions>>
-        /\ UNCHANGED <<up, paused, sideA, promised, maxTok, leader, term, ltok, reqs, pending,
+        /\ UNCHANGED <<up, paused, down, promised, maxTok, leader, term, ltok, reqs, pending,
                        tok, myToks, awaiting, grantMsgs, writeMsgs, ackMsgs, dups, highest, stval,
                        toAck, grants, decisions, told>>
         /\ Emit([event |-> "ReadAck", client |-> c, key |-> Key, token |-> w.t,
                  outcome |-> "served", value |-> x.v, grantor_term |-> w.g, rid |-> w.r])
 
-\* derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3
+\* derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, F2.1, F2.2
 Protocol ==
     \/ \E c \in Clients : PresumeRead(c) \* mutation: P17
 """)]),
     ("P18", "C2.2, F1.3", "C2_2",
      "storage fills a read ack's value when it sends the ack, not when it serves, so a late ack carries a newer value",
-     [("str", r"""    /\ rAckMsgs' = IF Conn(Store, a.c) /\ up[a.c] THEN rAckMsgs \cup {a} ELSE rAckMsgs""",
+     [("str", r"""    /\ rAckMsgs' = IF Link(Store, a.c) /\ up[a.c] THEN rAckMsgs \cup {a} ELSE rAckMsgs""",
        r"""    \* mutation: P18 the served value is looked up at ack time, not at serve time
-    /\ rAckMsgs' = IF Conn(Store, a.c) /\ up[a.c]
+    /\ rAckMsgs' = IF Link(Store, a.c) /\ up[a.c]
                    THEN rAckMsgs \cup {[a EXCEPT !.v = IF a.outcome = "served" THEN stval ELSE a.v]}
                    ELSE rAckMsgs""")]),
+    # ---- X2 (failure model v2): mutations for P19-P30, named in PREDICTIONS-x2.md before running
+    ("P19", "C1.1, F2.1", "C1_1",
+     "a voter that still hears the leader lends its vote without promising the new term (a pre-vote counted as a vote)",
+     [("str", r"""        /\ \A q \in Q : ~HearsLeader(q)   \* derives: C1.4, F2.1 -- voter stickiness
+        /\ LET t == 1 + Max({promised[q] : q \in Q}) IN
+           /\ t <= MaxTerm
+           /\ promised' = [q \in Nodes |-> IF q \in Q THEN t ELSE promised[q]]""",
+       r"""        \* mutation: P19 a voter that still hears the leader votes anyway but does not promise the new term
+        /\ LET t == 1 + Max({promised[q] : q \in Q}) IN
+           /\ t <= MaxTerm
+           /\ promised' = [q \in Nodes |-> IF q \in Q /\ ~HearsLeader(q) THEN t ELSE promised[q]]""")]),
+    ("P20", "C1.1, F2.2", "C1_1",
+     "a newly elected leader starts from its own durable maxTok, not the highest over its quorum",
+     [("str", r"""           /\ ltok' = [ltok EXCEPT ![n] = Max({maxTok[q] : q \in Q})]""",
+       r"""           /\ ltok' = [ltok EXCEPT ![n] = maxTok[n]] \* mutation: P20 the quorum's records are not consulted""")]),
+    ("P21", "C1.2, F2.1", "C1_2",
+     "storage defers to a grantor it can still reach: a token below the ledger is accepted if its grantor is connected to storage and still believes it leads",
+     [("str", r"""    /\ LET acc == m.t >= highest""",
+       r"""    \* mutation: P21 storage defers to a grantor it can still reach
+    /\ LET acc == \/ m.t >= highest
+                  \/ \E i \in 1..Len(grants) : /\ grants[i].token = m.t /\ grants[i].term = m.g
+                                               /\ up[grants[i].node] /\ leader[grants[i].node]
+                                               /\ Conn(Store, grants[i].node)""")]),
+    ("P22", "C1.2, F2.2", "C1_2",
+     "storage keeps the fence per writer (the highest token it accepted from that client), not per key",
+     [("str", r"""    /\ LET acc == m.t >= highest""",
+       r"""    \* mutation: P22 the fence is per writer, not per key
+    /\ LET acc == m.t >= Max({decisions[i].token : i \in {j \in 1..Len(decisions) :
+                                decisions[j].outcome = "accept" /\ decisions[j].client = m.c}})""")]),
+    ("P23", "C1.3, F2.1", "C1_3",
+     "a client that has lost only its storage link, and still reaches a lease node, presumes its outstanding writes succeeded (v1's transitive reasoning)",
+     [("str", r"""\* derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, F2.1, F2.2
+Protocol ==
+""", r"""\* derives: C1.3, F2.1
+\* mutation: P23 a client cut off from storage alone, still connected to a lease node, presumes its writes landed
+PresumeAckCut(c) ==
+    /\ UNCHANGED rvars  \* derives: C2.1, C2.2 -- reads untouched
+    /\ up[c] /\ ~paused[c]
+    /\ ~Link(c, Store) /\ ~Link(Store, c)
+    /\ \E n \in Nodes : up[n] /\ Conn(c, n)
+    /\ \E w \in awaiting[c] :
+        /\ awaiting' = [awaiting EXCEPT ![c] = @ \ {w}]
+        /\ told' = told \cup {[c |-> c, t |-> w.t, v |-> w.v]}
+        /\ UNCHANGED <<up, paused, down, promised, maxTok, leader, term, ltok, reqs,
+                       pending, tok, myToks, grantMsgs, writeMsgs, ackMsgs, dups, highest,
+                       stval, toAck, grants, decisions>>
+        /\ Emit([event |-> "WriteAck", client |-> c, key |-> Key, token |-> w.t,
+                 outcome |-> "accepted", value |-> w.v, grantor_term |-> w.g])
+
+\* derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, F2.1, F2.2
+Protocol ==
+    \/ \E c \in Clients : PresumeAckCut(c) \* mutation: P23
+""")]),
+    ("P24", "C1.3, F2.2", "C1_3",
+     "a client that can send to storage but hears nothing back presumes its outstanding writes succeeded",
+     [("str", r"""\* derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, F2.1, F2.2
+Protocol ==
+""", r"""\* derives: C1.3, F2.2
+\* mutation: P24 a client whose acks never come back presumes its writes landed
+PresumeAckSilent(c) ==
+    /\ UNCHANGED rvars  \* derives: C2.1, C2.2 -- reads untouched
+    /\ up[c] /\ ~paused[c]
+    /\ Link(c, Store) /\ ~Link(Store, c)
+    /\ \E w \in awaiting[c] :
+        /\ awaiting' = [awaiting EXCEPT ![c] = @ \ {w}]
+        /\ told' = told \cup {[c |-> c, t |-> w.t, v |-> w.v]}
+        /\ UNCHANGED <<up, paused, down, promised, maxTok, leader, term, ltok, reqs,
+                       pending, tok, myToks, grantMsgs, writeMsgs, ackMsgs, dups, highest,
+                       stval, toAck, grants, decisions>>
+        /\ Emit([event |-> "WriteAck", client |-> c, key |-> Key, token |-> w.t,
+                 outcome |-> "accepted", value |-> w.v, grantor_term |-> w.g])
+
+\* derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, F2.1, F2.2
+Protocol ==
+    \/ \E c \in Clients : PresumeAckSilent(c) \* mutation: P24
+""")]),
+    ("P25", "C1.4, F2.1", "C1_4",
+     "the grantor will not grant while any lease node is unreachable (it waits for the whole configuration)",
+     [("str", r"""    /\ c \in reqs
+""", r"""    /\ c \in reqs
+    /\ \A q \in Nodes : Conn(n, q) \* mutation: P25 a majority is not enough while a follower is unreachable
+""")]),
+    ("P26", "C1.4, F2.2", "C1_4",
+     "the quorum check counts followers the grantor can send to, not ones it is connected to",
+     [("str", r"""    /\ ~Majority({q \in Nodes : up[q] /\ Conn(n, q)})""",
+       r"""    /\ ~Majority({q \in Nodes : up[q] /\ Link(n, q)}) \* mutation: P26 outgoing links only""")]),
+    ("P27", "C2.1, F2.1", "C2_1",
+     "storage serves a read below the ledger if its token's grantor is connected to storage and still believes it leads",
+     [("str", r"""    /\ LET srv == m.t >= highest""",
+       r"""    \* mutation: P27 storage defers to a grantor it can still reach, on the read path
+    /\ LET srv == \/ m.t >= highest
+                  \/ \E i \in 1..Len(grants) : /\ grants[i].token = m.t /\ grants[i].term = m.g
+                                               /\ up[grants[i].node] /\ leader[grants[i].node]
+                                               /\ Conn(Store, grants[i].node)""")]),
+    ("P28", "C2.1, F2.2", "C2_1",
+     "storage fences reads per reader (the highest token it accepted a write from that client with), not per key",
+     [("str", r"""    /\ LET srv == m.t >= highest""",
+       r"""    \* mutation: P28 the read fence is per client, not per key
+    /\ LET srv == m.t >= Max({decisions[i].token : i \in {j \in 1..Len(decisions) :
+                                decisions[j].outcome = "accept" /\ decisions[j].client = m.c}})""")]),
+    ("P29", "C2.2, F2.1", "C2_2",
+     "a client that has lost only its storage link, still reaching a lease node, answers its outstanding read from its cache (last value read, or none)",
+     [("str", r"""\* derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, F2.1, F2.2
+Protocol ==
+""", r"""\* derives: C2.2, F2.1
+\* mutation: P29 a client cut off from storage alone answers its read from its cache
+PresumeReadCut(c) ==
+    /\ up[c] /\ ~paused[c]
+    /\ ~Link(c, Store) /\ ~Link(Store, c)
+    /\ \E n \in Nodes : up[n] /\ Conn(c, n)
+    /\ \E w \in awaitingR[c] :
+        LET cache == IF \E y \in given : y.c = c THEN (CHOOSE y \in given : y.c = c).v ELSE "none" IN
+        /\ awaitingR' = [awaitingR EXCEPT ![c] = @ \ {w}]
+        /\ given' = given \cup {[c |-> c, t |-> w.t, r |-> w.r, v |-> cache]}
+        /\ UNCHANGED <<readMsgs, rToAck, rAckMsgs, rdecisions>>
+        /\ UNCHANGED <<up, paused, down, promised, maxTok, leader, term, ltok, reqs, pending,
+                       tok, myToks, awaiting, grantMsgs, writeMsgs, ackMsgs, dups, highest, stval,
+                       toAck, grants, decisions, told>>
+        /\ Emit([event |-> "ReadAck", client |-> c, key |-> Key, token |-> w.t,
+                 outcome |-> "served", value |-> cache, grantor_term |-> w.g, rid |-> w.r])
+
+\* derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, F2.1, F2.2
+Protocol ==
+    \/ \E c \in Clients : PresumeReadCut(c) \* mutation: P29
+""")]),
+    ("P30", "C2.2, F2.2", "C2_2",
+     "a client that can send to storage but hears nothing back presumes its read was served with the value of its last acknowledged write",
+     [("str", r"""\* derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, F2.1, F2.2
+Protocol ==
+""", r"""\* derives: C2.2, F2.2
+\* mutation: P30 a client whose read acks never come back presumes its read was served
+PresumeReadSilent(c) ==
+    /\ up[c] /\ ~paused[c]
+    /\ Link(c, Store) /\ ~Link(Store, c)
+    /\ \E w \in awaitingR[c], x \in {y \in told : y.c = c} :
+        /\ awaitingR' = [awaitingR EXCEPT ![c] = @ \ {w}]
+        /\ given' = given \cup {[c |-> c, t |-> w.t, r |-> w.r, v |-> x.v]}
+        /\ UNCHANGED <<readMsgs, rToAck, rAckMsgs, rdecisions>>
+        /\ UNCHANGED <<up, paused, down, promised, maxTok, leader, term, ltok, reqs, pending,
+                       tok, myToks, awaiting, grantMsgs, writeMsgs, ackMsgs, dups, highest, stval,
+                       toAck, grants, decisions, told>>
+        /\ Emit([event |-> "ReadAck", client |-> c, key |-> Key, token |-> w.t,
+                 outcome |-> "served", value |-> x.v, grantor_term |-> w.g, rid |-> w.r])
+
+\* derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, F2.1, F2.2
+Protocol ==
+    \/ \E c \in Clients : PresumeReadSilent(c) \* mutation: P30
+""")]),
 ]
 
 EXPECTED = {p: inv for p, _, inv, _, _ in MUTATIONS}

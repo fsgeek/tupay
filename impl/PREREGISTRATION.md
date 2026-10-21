@@ -336,3 +336,67 @@ wrong attempt/key/token/client/value fails C2.2 when evidence discriminates;
 missing provenance alone is UNEXPLAINED. Reversed log serialization is accepted;
 E2 preserves a witnessed C2 failure despite an unreachable terminal trigger.
 These are all expected to pass after adaptation. No outcomes informed predictions.
+
+## Schedule-format v2.2 and observe-schema v3 — registered before adaptation or runs
+
+<!-- derives: C1.1, C1.2, C1.3, C1.4, C2.1, C2.2, F1.1, F1.2, F1.3, A1, A2, E1, E2 -->
+Round start: 2026-10-21 03:57:24 UTC, fresh signed clone on v22-impl. No build,
+fixture or schedule execution for this round precedes this registration. Prior
+predictions remain unchanged. The allowed brief, shared interface changes and
+own implementation are the only inputs. Pre-existing untracked .venv is left
+untouched. No model, experiments, other docs or git log is read.
+
+Prediction: no schedule or mutation verdict changes. Exact per-seed predictions:
+
+| Schedule | Seed 1 baseline / mutation | Seed 2 baseline / mutation | Seed 3 baseline / mutation |
+|---|---|---|---|
+| P1 | PASS / FAIL C1.1 | PASS / FAIL C1.1 | PASS / FAIL C1.1 |
+| P2 | PASS / FAIL C1.1 | PASS / FAIL C1.1 | PASS / FAIL C1.1 |
+| P3 | PASS / FAIL C1.1 | PASS / FAIL C1.1 | PASS / FAIL C1.1 |
+| P4 | PASS / FAIL C1.2 | PASS / FAIL C1.2 | PASS / FAIL C1.2 |
+| P5 | PASS / FAIL C1.2 | PASS / FAIL C1.2 | PASS / FAIL C1.2 |
+| P6 | PASS / FAIL C1.2 | PASS / FAIL C1.2 | PASS / FAIL C1.2 |
+| P7 | PASS / FAIL C1.3 | PASS / FAIL C1.3 | PASS / FAIL C1.3 |
+| P8 | PASS / FAIL C1.3 | PASS / FAIL C1.3 | PASS / FAIL C1.3 |
+| P9 | PASS / FAIL C1.3 | PASS / FAIL C1.3 | PASS / FAIL C1.3 |
+| P10 | PASS / FAIL C1.4 | PASS / FAIL C1.4 | PASS / FAIL C1.4 |
+| P11 | PASS / FAIL C1.4 | PASS / FAIL C1.4 | PASS / FAIL C1.4 |
+| P12 | PASS / FAIL C1.4 | PASS / FAIL C1.4 | PASS / FAIL C1.4 |
+| P13 | PASS / FAIL C2.1 | PASS / FAIL C2.1 | PASS / FAIL C2.1 |
+| P14 | PASS / FAIL C2.1 | PASS / FAIL C2.1 | PASS / FAIL C2.1 |
+| P15 | PASS / FAIL C2.1 | PASS / FAIL C2.1 | PASS / FAIL C2.1 |
+| P16 | PASS / FAIL C2.2 | PASS / FAIL C2.2 | PASS / FAIL C2.2 |
+| P17 | PASS / FAIL C2.2 | PASS / FAIL C2.2 | PASS / FAIL C2.2 |
+| P18 | PASS / FAIL C2.2 | PASS / FAIL C2.2 | PASS / FAIL C2.2 |
+| false-suspicion-v1 | PASS / — | PASS / — | PASS / — |
+
+False suspicion remains observed. Mutation placements and expected-clause-only
+scoring remain unchanged; unknown/timeout/build failure is not a kill. E2 keeps
+witnessed contract failure ahead of operational/observability incompleteness.
+Sampling stays seeds 1–3, T2 delay 0–2 ms, message jitter 1–5 ms, sampled ordering
+and one-third duplicate sends, with existing unseeded Raft elections. Existing
+five-second operational bounds and qualified three-second C1.4 horizon remain.
+There is no new contract, failure cell, schedule or liveness promise.
+
+Plan: tag the already-implemented A1 remembered restart as normative v2.2 at
+runtime selection, successful crash recording, static rejection and regression
+fixtures. Add optional pointer field answers to the shared Event structure, set
+it explicitly from the retained wire attempt on every WriteAck/ReadAck emission,
+including rejected, late, duplicate and deliberately fabricated mutation acks.
+Keep storage-decision causes. Extend independent provenance validation to require
+an existing matching attempt, causal reachability, and agreement with the direct
+storage decision's attempt where present. Missing/mismatched observability is
+UNEXPLAINED unless an independent contract violation is already witnessed.
+Update fixtures with explicit answers, leaving historical raw traces unchanged.
+Update runner gate/IDs for this round, then run full fixtures, both required
+matrices, vet, preserve receipts/hashes, append README and commit normally signed.
+
+Focused predictions after adaptation: ack JSON contains the exact original
+attempt reference; non-ack events omit it; empty served values still serialize;
+missing/zero/unknown/wrong-kind/wrong-client/wrong-token/noncausal answers and a
+same-token retry reference disagreeing with the actual decision are rejected as
+UNEXPLAINED by provenance checking. Valid reversed traces pass, including duplicate
+or delayed acks. Existing C1.3/C2.2 mutations retain their declared failures.
+Existing remembered-restart behavior and rejection without a prior selector crash
+remain passing. Test-first red runs should expose missing answers support before
+adaptation, followed by green regressions. No outcome informed these predictions.

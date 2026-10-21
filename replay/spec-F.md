@@ -55,4 +55,4 @@ Configurations are entries in the journal and are replicated like any other entr
 A coordinator does not begin a new change while the previous configuration entry in its journal is uncommitted.
 
 ## What the design does not include
-Client requests other than commands and configuration changes; reads; snapshots or journal compaction; non-voting members; any mechanism not described above. A command is an opaque payload appended by the coordinator on request.
+Client requests other than commands and configuration changes; reads; snapshots or journal compaction; non-voting members. A command is an opaque payload appended by the coordinator on request.

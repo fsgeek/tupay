@@ -238,3 +238,72 @@ func TestX2E3BoundCannotPass(t *testing.T) {
 		t.Fatalf("bound completion: %+v", ev)
 	}
 }
+
+// Local reply work is volatile, unlike messages already sent into the network.
+// derives: C1.3, C2.2, F1.1, F2.1, F2.2
+func TestX2StorageCrashLosesOnlyUnsentReplies(t *testing.T) {
+	out, err := newEmitter(filepath.Join(t.TempDir(), "crash-replies.jsonl"), "crash-replies")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer out.close()
+	e, err := newEngine(fixtureSchedule(), out, 1, "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer e.close()
+	e.wire = []WireMessage{
+		{kind: "ack", client: "c1", generation: 1, pendingSend: true},
+		{kind: "read-ack", client: "c1", generation: 1, pendingSend: true},
+		{kind: "ack", client: "c1", generation: 1, decision: Ref{"s", 1}},
+	}
+	if err = e.act(Action{Cell: "F1.1", Crash: "s"}, Ref{}); err != nil {
+		t.Fatal(err)
+	}
+	if err = e.act(Action{Cell: "F1.1", Restart: "s"}, Ref{}); err != nil {
+		t.Fatal(err)
+	}
+	if len(e.wire) != 1 || e.wire[0].pendingSend {
+		t.Fatalf("unsent reply survived crash: %+v", e.wire)
+	}
+	e.deliver(time.Now().Add(time.Second))
+	if out.events[len(out.events)-1].Event != "WriteAck" {
+		t.Fatal("already-sent reply discarded by sender restart")
+	}
+}
+
+// These checks exercise live eligibility separately from the offline trace checker.
+// derives: C1.4, F2.1, F2.2, L3
+func TestX2RuntimeCliqueAndLostGrantStanding(t *testing.T) {
+	out, err := newEmitter(filepath.Join(t.TempDir(), "request.jsonl"), "request")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer out.close()
+	e := &Engine{schedule: fixtureSchedule(), storage: "s", storageUp: true, clients: map[string]*Client{"c2": {id: "c2", up: true, generation: 1}}, nodes: map[string]*LeaseNode{}, down: map[link]bool{}, out: out}
+	for _, id := range e.schedule.Processes.Lease {
+		e.nodes[id] = &LeaseNode{peer: &raft.Raft{}, generation: 1}
+	}
+	r := &RequestState{client: "c2", generation: 1, ref: Ref{"c2", 1}}
+	if !e.eligible(r) {
+		t.Fatal("full clique not eligible")
+	}
+	e.down = map[link]bool{{"n1", "n2"}: true, {"n1", "n3"}: true, {"n2", "n3"}: true}
+	if e.eligible(r) {
+		t.Fatal("runtime counted a mutually disconnected majority")
+	}
+	e.down = map[link]bool{{"n1", "n2"}: true, {"n1", "n3"}: true}
+	if !e.eligible(r) {
+		t.Fatal("runtime ignored followers' clique")
+	}
+	e.down = map[link]bool{{"n1", "c2"}: true}
+	e.finishAllocation(completedAllocation{request: r, node: "n1", generation: 1, allocation: Allocation{7, 2}})
+	if r.done || len(e.clients["c2"].grants) > 0 || len(out.events) > 0 {
+		t.Fatal("lost reply ended requester standing")
+	}
+	e.down = nil
+	e.finishAllocation(completedAllocation{request: r, node: "n2", generation: 1, allocation: Allocation{8, 2}})
+	if !r.done || len(e.clients["c2"].grants) != 1 {
+		t.Fatal("later successful reply failed to answer standing request")
+	}
+}

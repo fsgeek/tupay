@@ -703,6 +703,15 @@ func (e *Engine) act(a Action, trigger Ref) error {
 			c.generation++
 		} else {
 			e.storageUp = false
+			// The F2.x send stage is local volatile work, not an external packet.
+			// derives: C1.3, C2.2, F1.1, F2.1, F2.2
+			sent := e.wire[:0]
+			for _, m := range e.wire {
+				if !m.pendingSend {
+					sent = append(sent, m)
+				}
+			}
+			e.wire = sent
 		}
 		e.connect()
 	}

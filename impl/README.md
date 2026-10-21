@@ -779,3 +779,18 @@ These are access-list deviations, recorded explicitly rather than asserting
 perfect scope compliance. No formal-model artifact or other author's code was
 read. After the brief, source/input reads and all task outputs stay in its listed
 paths (plus git commit/status metadata). The untracked .venv is untouched.
+
+### X2 source-review correction before final matrices
+
+<!-- derives: C1.3, C1.4, C2.2, F1.1, F2.1, F2.2, L3 -->
+The initial 31×3 baseline matrix at 94549e3 passed all 93 runs; its receipt and
+traces are retained. Additive registration `3b73f2c` (stamp `2e62373`) records a
+source-review issue in the new local-send stage: storage restart retained local
+unsent reply work. The preregistered regression failed as expected, then passed
+after crash discards only pendingSend entries. External packets already sent
+remain eligible for delivery after the sender restarts. This correction enforces
+F1.1's volatile-state rule, and was not prompted by a failed shared schedule.
+The full fixture suite passes again. Additional fixtures independently exercise
+runtime clique eligibility and verify that a failed reverse grant send leaves
+the requester outstanding until a later allocation's reply succeeds. No baseline
+or mutation prediction, placement, horizon, schedule or scoring rule changed.

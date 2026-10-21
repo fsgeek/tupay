@@ -13,3 +13,10 @@ Additive. The earlier prediction files are not edited. Committed after reading t
 - **Mutations.** All 18 mutations: FAIL on the same clause as in X1, unchanged.
 - **Witnesses.** In every PASS witness, each `WriteAck` and `ReadAck` carries `answers`, and the attempt it names is the one its `causes` chain reaches.
 - **Mutation counterexamples.** Where an ack has no storage decision behind it (P8, P16, P17), `answers` still names the attempt the client believes it answers. In those records `causes` is empty, which is exactly what the mutations break.
+
+## Outcome (appended after `run.sh --all`; the predictions above are unedited)
+- **Schedules.** All 19 print `PASS`, unchanged, as predicted.
+- **Mutations.** All 18 print `FAIL` on the same clause as in X1, as predicted.
+- **`answers` consistency.** I checked all 56 `WriteAck`/`ReadAck` records across the 37 observe files with a one-off script. Every one carries `answers` naming a `WriteAttempt` or `ReadAttempt` in the same file. Wherever `causes` is non-empty, the decision it names cites the same attempt: 0 inconsistent.
+- **Miss (descriptive, not a verdict).** I listed P8, P16 and P17 as the mutation counterexamples with an ack that has no storage decision behind it. P7 has one too: its early ack, sent before the decision. So the list was incomplete. In all four, `answers` names the attempt, as predicted.
+- **Not done.** I did not run the steward's `observe/provenance_check.py`, because it is not in my access list.

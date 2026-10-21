@@ -2,9 +2,9 @@
 {"proc": "n1", "seq": 1, "event": "Grant", "client": "c1", "key": "k", "token": 1, "lifetime": 1, "grantor_term": 1, "causes": [{"proc": "c1", "seq": 1}], "run": "P17-mutation", "side": "model"}
 {"proc": "c1", "seq": 2, "event": "WriteAttempt", "client": "c1", "key": "k", "token": 1, "value": "v1", "grantor_term": 1, "causes": [{"proc": "n1", "seq": 1}], "run": "P17-mutation", "side": "model"}
 {"proc": "s", "seq": 1, "event": "WriteAccept", "key": "k", "token": 1, "highest_before": 0, "grantor_term": 1, "causes": [{"proc": "c1", "seq": 2}], "run": "P17-mutation", "side": "model"}
-{"proc": "c1", "seq": 3, "event": "WriteAck", "client": "c1", "key": "k", "token": 1, "outcome": "accepted", "causes": [{"proc": "s", "seq": 1}], "run": "P17-mutation", "side": "model"}
+{"proc": "c1", "seq": 3, "event": "WriteAck", "client": "c1", "key": "k", "token": 1, "outcome": "accepted", "answers": {"proc": "c1", "seq": 2}, "causes": [{"proc": "s", "seq": 1}], "run": "P17-mutation", "side": "model"}
 {"proc": "c1", "seq": 4, "event": "ReadAttempt", "client": "c1", "key": "k", "token": 1, "grantor_term": 1, "causes": [{"proc": "n1", "seq": 1}], "run": "P17-mutation", "side": "model"}
 {"proc": "s", "seq": 2, "event": "ReadAccept", "key": "k", "token": 1, "highest_before": 1, "value": "v1", "grantor_term": 1, "causes": [{"proc": "c1", "seq": 4}], "run": "P17-mutation", "side": "model"}
 {"proc": "env", "seq": 1, "event": "Fault", "cell": "F1.2", "partition": [["c1"], ["c2", "n1", "n2", "n3", "s"]], "causes": [], "run": "P17-mutation", "side": "model"}
 {"proc": "c1", "seq": 5, "event": "ReadAttempt", "client": "c1", "key": "k", "token": 1, "grantor_term": 1, "causes": [{"proc": "n1", "seq": 1}], "run": "P17-mutation", "side": "model"}
-{"proc": "c1", "seq": 6, "event": "ReadAck", "client": "c1", "key": "k", "token": 1, "outcome": "served", "value": "v1", "causes": [], "run": "P17-mutation", "side": "model"}
+{"proc": "c1", "seq": 6, "event": "ReadAck", "client": "c1", "key": "k", "token": 1, "outcome": "served", "value": "v1", "answers": {"proc": "c1", "seq": 5}, "causes": [], "run": "P17-mutation", "side": "model"}

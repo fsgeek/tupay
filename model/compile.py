@@ -191,7 +191,8 @@ def static_checks(steps, procs):
         if names & {"grantor", "holder", "non-grantor"} and not requested:
             raise ScheduleError(f"A1: step {i} uses grantor/holder/non-grantor before any Grant can have occurred")
         k, p = a["kind"], a.get("p")
-        # derives: F1.1; format v2.1 A1, A2 -- restart: non-grantor needs an earlier,
+        # derives: F1.1; format v2.2 A1 (restart: non-grantor is the node the most recent
+        # crash: non-grantor crashed; rejected without an earlier one), v2.1 A1, v2 A2 -- restart: non-grantor needs an earlier,
         # not yet restarted, crash: non-grantor; crash: non-grantor is always of an up node
         if p == "non-grantor":
             if k == "crash":

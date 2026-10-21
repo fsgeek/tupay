@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# derives: C1.1, C1.2, C1.3, C2.1, C2.2, F1.1, F1.2, F1.3 (trace exporter: TLC trace -> observe/schema.md records, incl. v2 addendum)
+# derives: C1.1, C1.2, C1.3, C2.1, C2.2, F1.1, F1.2, F1.3 (trace exporter: TLC trace -> observe/schema.md records, incl. v2 and v3 addenda)
 """Turn a TLC trace (witness or counterexample) into observe/schema.md records.
 
 Usage: export.py <tlc-output.txt> <schedule.json> <out.jsonl> <run-id>
@@ -195,6 +195,19 @@ def export(tlc_text, sched, run):
         out.append(rec)
         return {"proc": proc, "seq": seqs[proc]}
 
+    dec_att = {}  # storage decision (proc, seq) -> the attempt it names
+
+    def answers(e, fields, att, d):
+        # derives: C1.3, C2.2; observe v3 addendum -- an ack names the attempt it answers,
+        # found by the same key as the decision's cause: (client, token, value) for a write,
+        # (client, read id) for a read. Self-check: the causes chain must reach the same attempt.
+        if att is None:
+            problems.append(f"{e} for {fields.get('client')} token {fields.get('token')} answers no attempt in the trace")
+            return
+        fields["answers"] = att[0]
+        if d is not None and dec_att.get((d["proc"], d["seq"])) != att[0]:
+            problems.append(f"{e} answers {att[0]} but its causes chain reaches {dec_att.get((d['proc'], d['seq']))}")
+
     for st in states:
         if "lastEv" not in st:
             continue
@@ -232,6 +245,7 @@ def export(tlc_text, sched, run):
             a = last.get(("att", ev["client"], ev["token"], ev["value"]))
             ref = emit(storage, e, fields, [a[0]] if a else [])
             last[("dec", ev["client"], ev["token"], ev["value"])] = ref
+            dec_att[(ref["proc"], ref["seq"])] = a[0] if a else None
             if not a or not a[1]:
                 problems.append(f"{e} seq {ref['seq']} (token {ev['token']}) has no traceable Grant")
         elif e == "ReadAttempt":
@@ -244,16 +258,21 @@ def export(tlc_text, sched, run):
             a = last.get(("ratt", ev["client"], ev["rid"]))
             ref = emit(storage, e, fields, [a[0]] if a else [])
             last[("rdec", ev["client"], ev["rid"])] = ref
+            dec_att[(ref["proc"], ref["seq"])] = a[0] if a else None
             if not a or not a[1]:
                 problems.append(f"{e} seq {ref['seq']} (token {ev['token']}) has no traceable Grant")
         elif e == "ReadAck":
             # derives: C2.2; observe v2 -- a ReadAck names the storage decision
             d = last.get(("rdec", ev["client"], ev["rid"]))
+            att = last.get(("ratt", ev["client"], ev["rid"]))
+            answers(e, fields, att, d)
             ref = emit(ev["client"], e, fields, [d] if d else [])
             if not d and ev["outcome"] == "served":
                 problems.append(f"ReadAck served at {ref} has no storage decision")
         elif e == "WriteAck":
             d = last.get(("dec", ev["client"], ev["token"], ev["value"]))
+            att = last.get(("att", ev["client"], ev["token"], ev["value"]))
+            answers(e, fields, att, d)
             ref = emit(ev["client"], e, fields, [d] if d else [])
             if not d and ev["outcome"] == "accepted":
                 problems.append(f"WriteAck accepted at {ref} has no storage decision")

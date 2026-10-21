@@ -251,3 +251,88 @@ restart uses the remembered crashed node despite later grantor/candidate changes
 non-grantor works in partitions and rejects client-only operations; P10 emits a
 matching follower crash/restart and then the literal resolved grantor crash;
 T1's existing synchronous-effect and fresh-trigger fixtures still pass unchanged.
+
+## X1 contract-v2 adaptation — registered before adaptation or runs
+
+<!-- derives: C1.1, C1.2, C1.3, C1.4, C2.1, C2.2, F1.1, F1.2, F1.3, T1, T2, T3, A1, A2, E1, E2 -->
+Round start: 2026-10-21 01:06:33 UTC, branch x1-adapt-impl. No X1 build,
+fixture, schedule or mutation execution has occurred. All prior registrations
+remain unchanged. Only allowed contract/failure-model/shared interface inputs
+and own impl artifacts inform this adaptation. Normal signed commits and OTS hooks.
+
+Predictions for all nineteen shared schedules, by seed:
+
+| Schedule | Seed 1 | Seed 2 | Seed 3 |
+|---|---|---|---|
+| P1 | PASS | PASS | PASS |
+| P2 | PASS | PASS | PASS |
+| P3 | PASS | PASS | PASS |
+| P4 | PASS | PASS | PASS |
+| P5 | PASS | PASS | PASS |
+| P6 | PASS | PASS | PASS |
+| P7 | PASS | PASS | PASS |
+| P8 | PASS | PASS | PASS |
+| P9 | PASS | PASS | PASS |
+| P10 | PASS | PASS | PASS |
+| P11 | PASS | PASS | PASS |
+| P12 | PASS | PASS | PASS |
+| P13 | PASS | PASS | PASS |
+| P14 | PASS | PASS | PASS |
+| P15 | PASS | PASS | PASS |
+| P16 | PASS | PASS | PASS |
+| P17 | PASS | PASS | PASS |
+| P18 | PASS | PASS | PASS |
+| false-suspicion-v1 | PASS (observed) | PASS (observed) | PASS (observed) |
+
+Each mutation below runs its matching shared schedule. A kill requires FAIL
+of exactly the declared clause on every seed. UNEXPLAINED, timeout, compile error,
+or another clause is not a kill. E2 witnessed safety failures precede incomplete
+end scoring. Existing P1–P12 placements remain unchanged.
+
+| Mutation | Enforcing-path break | Seed 1 | Seed 2 | Seed 3 |
+|---|---|---|---|---|
+| P1 | Reuse token after crash | FAIL C1.1 | FAIL C1.1 | FAIL C1.1 |
+| P2 | Reuse token after partition | FAIL C1.1 | FAIL C1.1 | FAIL C1.1 |
+| P3 | Reuse token after pause | FAIL C1.1 | FAIL C1.1 | FAIL C1.1 |
+| P4 | Forget durable write fence on restart | FAIL C1.2 | FAIL C1.2 | FAIL C1.2 |
+| P5 | Bypass write fence after partition | FAIL C1.2 | FAIL C1.2 | FAIL C1.2 |
+| P6 | Bypass write fence after resume | FAIL C1.2 | FAIL C1.2 | FAIL C1.2 |
+| P7 | Skip write acceptance and fabricate success after crash | FAIL C1.3 | FAIL C1.3 | FAIL C1.3 |
+| P8 | Fabricate success for partition-lost write | FAIL C1.3 | FAIL C1.3 | FAIL C1.3 |
+| P9 | Convert write rejection to success after resume | FAIL C1.3 | FAIL C1.3 | FAIL C1.3 |
+| P10 | Suppress grants after minority crash | FAIL C1.4 | FAIL C1.4 | FAIL C1.4 |
+| P11 | Suppress grants after partition | FAIL C1.4 | FAIL C1.4 | FAIL C1.4 |
+| P12 | Suppress grants after pause | FAIL C1.4 | FAIL C1.4 | FAIL C1.4 |
+| P13 | Bypass read fence after storage restart | FAIL C2.1 | FAIL C2.1 | FAIL C2.1 |
+| P14 | Bypass read fence after partition | FAIL C2.1 | FAIL C2.1 | FAIL C2.1 |
+| P15 | Bypass read fence after resume | FAIL C2.1 | FAIL C2.1 | FAIL C2.1 |
+| P16 | After crash skip serving read and fabricate served ack | FAIL C2.2 | FAIL C2.2 | FAIL C2.2 |
+| P17 | Fabricate served ack for partition-lost read | FAIL C2.2 | FAIL C2.2 | FAIL C2.2 |
+| P18 | At delivery after resume replace served snapshot with current storage value | FAIL C2.2 | FAIL C2.2 | FAIL C2.2 |
+
+Sampling retained: seeds 1–3 determine 0–2 ms T2 delay, 1–5 ms message delay,
+within-side ordering and one-third duplicate sends; Raft also has its existing
+unseeded election timing. Three seeds are finite samples, not exhaustive proof.
+Existing five-second operational waits and three-second qualified C1.4 horizon
+remain; no read liveness claim is added. Only root shared schedules run.
+
+Plan: extend the closed workload/trigger language with read and C2 derivations;
+use current/stale grants and the existing gated wire; read decisions compare
+against but never update the durable write ledger; retain the current storage
+value durably and snapshot it into served replies. Emit read attempt/decision/ack
+causes and preserve empty-string values explicitly on served events. Extend log
+provenance and add independent C2.1/C2.2 checks from storage local sequence,
+accepted writes' attempt values, and exact read attempt/decision references.
+Integrate eighteen-pair CLI scoring and six isolated read mutations. Preserve old
+clauses and mutation placements, run focused fixtures and both required matrices,
+then append interpretations/results/receipts to README and commit adaptation.
+
+Focused-test predictions: read selectors obey A1/T3; new synchronous ReadAttempt
+can trigger the next step under T1; empty initial value is explicit; reads leave
+the ledger unchanged; stale served reads fail C2.1; token >= ledger is allowed;
+served value must match the latest preceding accepted write (including across
+restart); late replies retain their original served value; wrong/missing serve,
+wrong attempt/key/token/client/value fails C2.2 when evidence discriminates;
+missing provenance alone is UNEXPLAINED. Reversed log serialization is accepted;
+E2 preserves a witnessed C2 failure despite an unreachable terminal trigger.
+These are all expected to pass after adaptation. No outcomes informed predictions.

@@ -1,0 +1,180 @@
+P1 seed=1 PASS trace=observe/P1-seed1-attempt4.jsonl
+P1 seed=1 mutation=P1 FAIL C1.1 (duplicate grant token) trace=observe/P1-seed1-mutation-P1-attempt2.jsonl
+P1 seed=2 PASS trace=observe/P1-seed2-attempt3.jsonl
+P1 seed=2 mutation=P1 FAIL C1.1 (duplicate grant token) trace=observe/P1-seed2-mutation-P1-attempt2.jsonl
+P1 seed=3 PASS trace=observe/P1-seed3-attempt3.jsonl
+P1 seed=3 mutation=P1 FAIL C1.1 (duplicate grant token) trace=observe/P1-seed3-mutation-P1-attempt2.jsonl
+P2 seed=1 PASS trace=observe/P2-seed1-attempt3.jsonl
+P2 seed=1 mutation=P2 FAIL C1.1 (duplicate grant token) trace=observe/P2-seed1-mutation-P2-attempt2.jsonl
+P2 seed=2 PASS trace=observe/P2-seed2-attempt3.jsonl
+P2 seed=2 mutation=P2 FAIL C1.1 (duplicate grant token) trace=observe/P2-seed2-mutation-P2-attempt2.jsonl
+P2 seed=3 PASS trace=observe/P2-seed3-attempt3.jsonl
+P2 seed=3 mutation=P2 FAIL C1.1 (duplicate grant token) trace=observe/P2-seed3-mutation-P2-attempt2.jsonl
+P3 seed=1 PASS trace=observe/P3-seed1-attempt3.jsonl
+P3 seed=1 mutation=P3 FAIL C1.1 (duplicate grant token) trace=observe/P3-seed1-mutation-P3-attempt2.jsonl
+P3 seed=2 PASS trace=observe/P3-seed2-attempt3.jsonl
+P3 seed=2 mutation=P3 FAIL C1.1 (duplicate grant token) trace=observe/P3-seed2-mutation-P3-attempt2.jsonl
+P3 seed=3 PASS trace=observe/P3-seed3-attempt3.jsonl
+P3 seed=3 mutation=P3 FAIL C1.1 (duplicate grant token) trace=observe/P3-seed3-mutation-P3-attempt2.jsonl
+P4 seed=1 PASS trace=observe/P4-seed1-attempt3.jsonl
+P4 seed=1 mutation=P4 FAIL C1.2 (accepted stale write) trace=observe/P4-seed1-mutation-P4-attempt2.jsonl
+P4 seed=2 PASS trace=observe/P4-seed2-attempt3.jsonl
+P4 seed=2 mutation=P4 FAIL C1.2 (accepted stale write) trace=observe/P4-seed2-mutation-P4-attempt2.jsonl
+P4 seed=3 PASS trace=observe/P4-seed3-attempt3.jsonl
+P4 seed=3 mutation=P4 FAIL C1.2 (accepted stale write) trace=observe/P4-seed3-mutation-P4-attempt2.jsonl
+P5 seed=1 PASS trace=observe/P5-seed1-attempt3.jsonl
+P5 seed=1 mutation=P5 FAIL C1.2 (accepted stale write) trace=observe/P5-seed1-mutation-P5-attempt2.jsonl
+P5 seed=2 PASS trace=observe/P5-seed2-attempt3.jsonl
+P5 seed=2 mutation=P5 FAIL C1.2 (accepted stale write) trace=observe/P5-seed2-mutation-P5-attempt2.jsonl
+P5 seed=3 PASS trace=observe/P5-seed3-attempt3.jsonl
+P5 seed=3 mutation=P5 FAIL C1.2 (accepted stale write) trace=observe/P5-seed3-mutation-P5-attempt2.jsonl
+P6 seed=1 PASS trace=observe/P6-seed1-attempt3.jsonl
+P6 seed=1 mutation=P6 FAIL C1.2 (accepted stale write) trace=observe/P6-seed1-mutation-P6-attempt2.jsonl
+P6 seed=2 PASS trace=observe/P6-seed2-attempt3.jsonl
+P6 seed=2 mutation=P6 FAIL C1.2 (accepted stale write) trace=observe/P6-seed2-mutation-P6-attempt2.jsonl
+P6 seed=3 PASS trace=observe/P6-seed3-attempt3.jsonl
+P6 seed=3 mutation=P6 FAIL C1.2 (accepted stale write) trace=observe/P6-seed3-mutation-P6-attempt2.jsonl
+P7 seed=1 PASS trace=observe/P7-seed1-attempt3.jsonl
+P7 seed=1 mutation=P7 FAIL C1.3 (success lacks causally prior matching storage acceptance) trace=observe/P7-seed1-mutation-P7-attempt2.jsonl
+P7 seed=2 PASS trace=observe/P7-seed2-attempt3.jsonl
+P7 seed=2 mutation=P7 FAIL C1.3 (success lacks causally prior matching storage acceptance) trace=observe/P7-seed2-mutation-P7-attempt2.jsonl
+P7 seed=3 PASS trace=observe/P7-seed3-attempt3.jsonl
+P7 seed=3 mutation=P7 FAIL C1.3 (success lacks causally prior matching storage acceptance) trace=observe/P7-seed3-mutation-P7-attempt2.jsonl
+P8 seed=1 PASS trace=observe/P8-seed1-attempt3.jsonl
+P8 seed=1 mutation=P8 FAIL C1.3 (success lacks causally prior matching storage acceptance) trace=observe/P8-seed1-mutation-P8-attempt2.jsonl
+P8 seed=2 PASS trace=observe/P8-seed2-attempt3.jsonl
+P8 seed=2 mutation=P8 FAIL C1.3 (success lacks causally prior matching storage acceptance) trace=observe/P8-seed2-mutation-P8-attempt2.jsonl
+P8 seed=3 PASS trace=observe/P8-seed3-attempt3.jsonl
+P8 seed=3 mutation=P8 FAIL C1.3 (success lacks causally prior matching storage acceptance) trace=observe/P8-seed3-mutation-P8-attempt2.jsonl
+P9 seed=1 PASS trace=observe/P9-seed1-attempt3.jsonl
+P9 seed=1 mutation=P9 FAIL C1.3 (success lacks causally prior matching storage acceptance) trace=observe/P9-seed1-mutation-P9-attempt2.jsonl
+P9 seed=2 PASS trace=observe/P9-seed2-attempt3.jsonl
+P9 seed=2 mutation=P9 FAIL C1.3 (success lacks causally prior matching storage acceptance) trace=observe/P9-seed2-mutation-P9-attempt2.jsonl
+P9 seed=3 PASS trace=observe/P9-seed3-attempt3.jsonl
+P9 seed=3 mutation=P9 FAIL C1.3 (success lacks causally prior matching storage acceptance) trace=observe/P9-seed3-mutation-P9-attempt2.jsonl
+P10 seed=1 PASS trace=observe/P10-seed1-attempt3.jsonl
+P10 seed=1 mutation=P10 FAIL C1.4 (request {Proc:c2 Seq:1} unanswered through 600 ticks of direct majority connectivity) trace=observe/P10-seed1-mutation-P10-attempt2.jsonl
+P10 seed=2 PASS trace=observe/P10-seed2-attempt3.jsonl
+P10 seed=2 mutation=P10 FAIL C1.4 (request {Proc:c2 Seq:1} unanswered through 600 ticks of direct majority connectivity) trace=observe/P10-seed2-mutation-P10-attempt2.jsonl
+P10 seed=3 PASS trace=observe/P10-seed3-attempt3.jsonl
+P10 seed=3 mutation=P10 FAIL C1.4 (request {Proc:c2 Seq:1} unanswered through 600 ticks of direct majority connectivity) trace=observe/P10-seed3-mutation-P10-attempt2.jsonl
+P11 seed=1 PASS trace=observe/P11-seed1-attempt3.jsonl
+P11 seed=1 mutation=P11 FAIL C1.4 (request {Proc:c2 Seq:1} unanswered through 600 ticks of direct majority connectivity) trace=observe/P11-seed1-mutation-P11-attempt2.jsonl
+P11 seed=2 PASS trace=observe/P11-seed2-attempt3.jsonl
+P11 seed=2 mutation=P11 FAIL C1.4 (request {Proc:c2 Seq:1} unanswered through 600 ticks of direct majority connectivity) trace=observe/P11-seed2-mutation-P11-attempt2.jsonl
+P11 seed=3 PASS trace=observe/P11-seed3-attempt3.jsonl
+P11 seed=3 mutation=P11 FAIL C1.4 (request {Proc:c2 Seq:1} unanswered through 600 ticks of direct majority connectivity) trace=observe/P11-seed3-mutation-P11-attempt2.jsonl
+P12 seed=1 PASS trace=observe/P12-seed1-attempt3.jsonl
+P12 seed=1 mutation=P12 FAIL C1.4 (request {Proc:c2 Seq:1} unanswered through 600 ticks of direct majority connectivity) trace=observe/P12-seed1-mutation-P12-attempt2.jsonl
+P12 seed=2 PASS trace=observe/P12-seed2-attempt3.jsonl
+P12 seed=2 mutation=P12 FAIL C1.4 (request {Proc:c2 Seq:1} unanswered through 600 ticks of direct majority connectivity) trace=observe/P12-seed2-mutation-P12-attempt2.jsonl
+P12 seed=3 PASS trace=observe/P12-seed3-attempt3.jsonl
+P12 seed=3 mutation=P12 FAIL C1.4 (request {Proc:c2 Seq:1} unanswered through 600 ticks of direct majority connectivity) trace=observe/P12-seed3-mutation-P12-attempt2.jsonl
+P13 seed=1 PASS trace=observe/P13-seed1-attempt3.jsonl
+P13 seed=1 mutation=P13 FAIL C2.1 (served stale read) trace=observe/P13-seed1-mutation-P13-attempt2.jsonl
+P13 seed=2 PASS trace=observe/P13-seed2-attempt3.jsonl
+P13 seed=2 mutation=P13 FAIL C2.1 (served stale read) trace=observe/P13-seed2-mutation-P13-attempt2.jsonl
+P13 seed=3 PASS trace=observe/P13-seed3-attempt3.jsonl
+P13 seed=3 mutation=P13 FAIL C2.1 (served stale read) trace=observe/P13-seed3-mutation-P13-attempt2.jsonl
+P14 seed=1 PASS trace=observe/P14-seed1-attempt3.jsonl
+P14 seed=1 mutation=P14 FAIL C2.1 (served stale read) trace=observe/P14-seed1-mutation-P14-attempt2.jsonl
+P14 seed=2 PASS trace=observe/P14-seed2-attempt3.jsonl
+P14 seed=2 mutation=P14 FAIL C2.1 (served stale read) trace=observe/P14-seed2-mutation-P14-attempt2.jsonl
+P14 seed=3 PASS trace=observe/P14-seed3-attempt3.jsonl
+P14 seed=3 mutation=P14 FAIL C2.1 (served stale read) trace=observe/P14-seed3-mutation-P14-attempt2.jsonl
+P15 seed=1 PASS trace=observe/P15-seed1-attempt3.jsonl
+P15 seed=1 mutation=P15 FAIL C2.1 (served stale read) trace=observe/P15-seed1-mutation-P15-attempt2.jsonl
+P15 seed=2 PASS trace=observe/P15-seed2-attempt3.jsonl
+P15 seed=2 mutation=P15 FAIL C2.1 (served stale read) trace=observe/P15-seed2-mutation-P15-attempt2.jsonl
+P15 seed=3 PASS trace=observe/P15-seed3-attempt3.jsonl
+P15 seed=3 mutation=P15 FAIL C2.1 (served stale read) trace=observe/P15-seed3-mutation-P15-attempt2.jsonl
+P16 seed=1 PASS trace=observe/P16-seed1-attempt3.jsonl
+P16 seed=1 mutation=P16 FAIL C2.2 (read value lacks matching prior serve and value) trace=observe/P16-seed1-mutation-P16-attempt2.jsonl
+P16 seed=2 PASS trace=observe/P16-seed2-attempt3.jsonl
+P16 seed=2 mutation=P16 FAIL C2.2 (read value lacks matching prior serve and value) trace=observe/P16-seed2-mutation-P16-attempt2.jsonl
+P16 seed=3 PASS trace=observe/P16-seed3-attempt3.jsonl
+P16 seed=3 mutation=P16 FAIL C2.2 (read value lacks matching prior serve and value) trace=observe/P16-seed3-mutation-P16-attempt2.jsonl
+P17 seed=1 PASS trace=observe/P17-seed1-attempt3.jsonl
+P17 seed=1 mutation=P17 FAIL C2.2 (read value lacks matching prior serve and value) trace=observe/P17-seed1-mutation-P17-attempt2.jsonl
+P17 seed=2 PASS trace=observe/P17-seed2-attempt3.jsonl
+P17 seed=2 mutation=P17 FAIL C2.2 (read value lacks matching prior serve and value) trace=observe/P17-seed2-mutation-P17-attempt2.jsonl
+P17 seed=3 PASS trace=observe/P17-seed3-attempt3.jsonl
+P17 seed=3 mutation=P17 FAIL C2.2 (read value lacks matching prior serve and value) trace=observe/P17-seed3-mutation-P17-attempt2.jsonl
+P18 seed=1 PASS trace=observe/P18-seed1-attempt3.jsonl
+P18 seed=1 mutation=P18 FAIL C2.2 (read value lacks matching prior serve and value) trace=observe/P18-seed1-mutation-P18-attempt2.jsonl
+P18 seed=2 PASS trace=observe/P18-seed2-attempt3.jsonl
+P18 seed=2 mutation=P18 FAIL C2.2 (read value lacks matching prior serve and value) trace=observe/P18-seed2-mutation-P18-attempt2.jsonl
+P18 seed=3 PASS trace=observe/P18-seed3-attempt3.jsonl
+P18 seed=3 mutation=P18 FAIL C2.2 (read value lacks matching prior serve and value) trace=observe/P18-seed3-mutation-P18-attempt2.jsonl
+P19 seed=1 PASS trace=observe/P19-seed1-attempt3.jsonl
+P19 seed=1 mutation=P19 FAIL C1.1 (duplicate grant token) trace=observe/P19-seed1-mutation-P19-attempt2.jsonl
+P19 seed=2 PASS trace=observe/P19-seed2-attempt3.jsonl
+P19 seed=2 mutation=P19 FAIL C1.1 (duplicate grant token) trace=observe/P19-seed2-mutation-P19-attempt2.jsonl
+P19 seed=3 PASS trace=observe/P19-seed3-attempt3.jsonl
+P19 seed=3 mutation=P19 FAIL C1.1 (duplicate grant token) trace=observe/P19-seed3-mutation-P19-attempt2.jsonl
+P20 seed=1 PASS trace=observe/P20-seed1-attempt3.jsonl
+P20 seed=1 mutation=P20 FAIL C1.1 (duplicate grant token) trace=observe/P20-seed1-mutation-P20-attempt2.jsonl
+P20 seed=2 PASS trace=observe/P20-seed2-attempt3.jsonl
+P20 seed=2 mutation=P20 FAIL C1.1 (duplicate grant token) trace=observe/P20-seed2-mutation-P20-attempt2.jsonl
+P20 seed=3 PASS trace=observe/P20-seed3-attempt3.jsonl
+P20 seed=3 mutation=P20 FAIL C1.1 (duplicate grant token) trace=observe/P20-seed3-mutation-P20-attempt2.jsonl
+P21 seed=1 PASS trace=observe/P21-seed1-attempt3.jsonl
+P21 seed=1 mutation=P21 FAIL C1.2 (accepted stale write) trace=observe/P21-seed1-mutation-P21-attempt2.jsonl
+P21 seed=2 PASS trace=observe/P21-seed2-attempt3.jsonl
+P21 seed=2 mutation=P21 FAIL C1.2 (accepted stale write) trace=observe/P21-seed2-mutation-P21-attempt2.jsonl
+P21 seed=3 PASS trace=observe/P21-seed3-attempt3.jsonl
+P21 seed=3 mutation=P21 FAIL C1.2 (accepted stale write) trace=observe/P21-seed3-mutation-P21-attempt2.jsonl
+P22 seed=1 PASS trace=observe/P22-seed1-attempt3.jsonl
+P22 seed=1 mutation=P22 FAIL C1.2 (accepted stale write) trace=observe/P22-seed1-mutation-P22-attempt2.jsonl
+P22 seed=2 PASS trace=observe/P22-seed2-attempt3.jsonl
+P22 seed=2 mutation=P22 FAIL C1.2 (accepted stale write) trace=observe/P22-seed2-mutation-P22-attempt2.jsonl
+P22 seed=3 PASS trace=observe/P22-seed3-attempt3.jsonl
+P22 seed=3 mutation=P22 FAIL C1.2 (accepted stale write) trace=observe/P22-seed3-mutation-P22-attempt2.jsonl
+P23 seed=1 PASS trace=observe/P23-seed1-attempt3.jsonl
+P23 seed=1 mutation=P23 FAIL C1.3 (success lacks causally prior matching storage acceptance) trace=observe/P23-seed1-mutation-P23-attempt2.jsonl
+P23 seed=2 PASS trace=observe/P23-seed2-attempt3.jsonl
+P23 seed=2 mutation=P23 FAIL C1.3 (success lacks causally prior matching storage acceptance) trace=observe/P23-seed2-mutation-P23-attempt2.jsonl
+P23 seed=3 PASS trace=observe/P23-seed3-attempt3.jsonl
+P23 seed=3 mutation=P23 FAIL C1.3 (success lacks causally prior matching storage acceptance) trace=observe/P23-seed3-mutation-P23-attempt2.jsonl
+P24 seed=1 PASS trace=observe/P24-seed1-attempt3.jsonl
+P24 seed=1 mutation=P24 FAIL C1.3 (success lacks causally prior matching storage acceptance) trace=observe/P24-seed1-mutation-P24-attempt2.jsonl
+P24 seed=2 PASS trace=observe/P24-seed2-attempt3.jsonl
+P24 seed=2 mutation=P24 FAIL C1.3 (success lacks causally prior matching storage acceptance) trace=observe/P24-seed2-mutation-P24-attempt2.jsonl
+P24 seed=3 PASS trace=observe/P24-seed3-attempt3.jsonl
+P24 seed=3 mutation=P24 FAIL C1.3 (success lacks causally prior matching storage acceptance) trace=observe/P24-seed3-mutation-P24-attempt2.jsonl
+P25 seed=1 PASS trace=observe/P25-seed1-attempt3.jsonl
+P25 seed=1 mutation=P25 FAIL C1.4 (request {Proc:c2 Seq:1} unanswered through 600 ticks of direct majority connectivity) trace=observe/P25-seed1-mutation-P25-attempt2.jsonl
+P25 seed=2 PASS trace=observe/P25-seed2-attempt3.jsonl
+P25 seed=2 mutation=P25 FAIL C1.4 (request {Proc:c2 Seq:1} unanswered through 600 ticks of direct majority connectivity) trace=observe/P25-seed2-mutation-P25-attempt2.jsonl
+P25 seed=3 PASS trace=observe/P25-seed3-attempt3.jsonl
+P25 seed=3 mutation=P25 FAIL C1.4 (request {Proc:c2 Seq:1} unanswered through 600 ticks of direct majority connectivity) trace=observe/P25-seed3-mutation-P25-attempt2.jsonl
+P26 seed=1 PASS trace=observe/P26-seed1-attempt3.jsonl
+P26 seed=1 mutation=P26 FAIL C1.4 (request {Proc:c2 Seq:1} unanswered through 600 ticks of direct majority connectivity) trace=observe/P26-seed1-mutation-P26-attempt2.jsonl
+P26 seed=2 PASS trace=observe/P26-seed2-attempt3.jsonl
+P26 seed=2 mutation=P26 FAIL C1.4 (request {Proc:c2 Seq:1} unanswered through 600 ticks of direct majority connectivity) trace=observe/P26-seed2-mutation-P26-attempt2.jsonl
+P26 seed=3 PASS trace=observe/P26-seed3-attempt3.jsonl
+P26 seed=3 mutation=P26 FAIL C1.4 (request {Proc:c2 Seq:1} unanswered through 600 ticks of direct majority connectivity) trace=observe/P26-seed3-mutation-P26-attempt2.jsonl
+P27 seed=1 PASS trace=observe/P27-seed1-attempt3.jsonl
+P27 seed=1 mutation=P27 FAIL C2.1 (served stale read) trace=observe/P27-seed1-mutation-P27-attempt2.jsonl
+P27 seed=2 PASS trace=observe/P27-seed2-attempt3.jsonl
+P27 seed=2 mutation=P27 FAIL C2.1 (served stale read) trace=observe/P27-seed2-mutation-P27-attempt2.jsonl
+P27 seed=3 PASS trace=observe/P27-seed3-attempt3.jsonl
+P27 seed=3 mutation=P27 FAIL C2.1 (served stale read) trace=observe/P27-seed3-mutation-P27-attempt2.jsonl
+P28 seed=1 PASS trace=observe/P28-seed1-attempt3.jsonl
+P28 seed=1 mutation=P28 FAIL C2.1 (served stale read) trace=observe/P28-seed1-mutation-P28-attempt2.jsonl
+P28 seed=2 PASS trace=observe/P28-seed2-attempt3.jsonl
+P28 seed=2 mutation=P28 FAIL C2.1 (served stale read) trace=observe/P28-seed2-mutation-P28-attempt2.jsonl
+P28 seed=3 PASS trace=observe/P28-seed3-attempt3.jsonl
+P28 seed=3 mutation=P28 FAIL C2.1 (served stale read) trace=observe/P28-seed3-mutation-P28-attempt2.jsonl
+P29 seed=1 PASS trace=observe/P29-seed1-attempt3.jsonl
+P29 seed=1 mutation=P29 FAIL C2.2 (read value lacks matching prior serve and value) trace=observe/P29-seed1-mutation-P29-attempt2.jsonl
+P29 seed=2 PASS trace=observe/P29-seed2-attempt3.jsonl
+P29 seed=2 mutation=P29 FAIL C2.2 (read value lacks matching prior serve and value) trace=observe/P29-seed2-mutation-P29-attempt2.jsonl
+P29 seed=3 PASS trace=observe/P29-seed3-attempt3.jsonl
+P29 seed=3 mutation=P29 FAIL C2.2 (read value lacks matching prior serve and value) trace=observe/P29-seed3-mutation-P29-attempt2.jsonl
+P30 seed=1 PASS trace=observe/P30-seed1-attempt3.jsonl
+P30 seed=1 mutation=P30 FAIL C2.2 (read value lacks matching prior serve and value) trace=observe/P30-seed1-mutation-P30-attempt2.jsonl
+P30 seed=2 PASS trace=observe/P30-seed2-attempt3.jsonl
+P30 seed=2 mutation=P30 FAIL C2.2 (read value lacks matching prior serve and value) trace=observe/P30-seed2-mutation-P30-attempt2.jsonl
+P30 seed=3 PASS trace=observe/P30-seed3-attempt3.jsonl
+P30 seed=3 mutation=P30 FAIL C2.2 (read value lacks matching prior serve and value) trace=observe/P30-seed3-mutation-P30-attempt2.jsonl

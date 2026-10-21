@@ -1,0 +1,1867 @@
+# Judge task: tupay X2, adapt arm (A), hold-out H8
+
+You are the judge. You belong to a model family that wrote neither side. Work only from the text below; do not read files or run commands, and do not look for anything else.
+
+Background: a TLA+ model (`model/`) and a Go implementation (`impl/`), written independently by different model families from the same inputs, were each adapted by a new author to failure model v2 (partial and simplex link failures). Both pass all thirty-one shared schedules and kill all thirty mutations. The steward then ran both on hold-out schedules neither author had seen.
+
+**A-H8.** Schedule `inputs/schedule-H8.yaml`. The model FAIL C1_4 (a liveness lasso ending in stuttering); the implementation reports FAIL C1.4 on all three seeds ("eligible request {c2 1} unfulfilled through finite horizon"). Both sides agree. The question is whether the failure is a genuine violation of C1.4 under the inputs, by what mechanism, and where the locus is.
+
+Excerpts, by a fixed rule stated here: `model/README.md` is given as its X2 section and its "Model summary" section only; `impl/README.md` as its X2 sections only (from "X2 adaptation checkpoint" to the end). Everything else is whole.
+
+Prior stall mechanisms in this project, for comparison only: D1 (M1, P10): a leader elected by a non-maximal quorum could not bring a lagging follower into its term, so after a quorum member crashed it could neither grant nor be replaced. D4 (X1, H3): a deposed lower-term leader that never steps down blocked a higher-term follower from being elected.
+
+Answer in the JSON schema given, one object. `verdict` is "explained" or "unexplained". `genuine_violation` is "yes" if the run as traced violates C1.4 under the inputs as written (in particular, whether C1.4's premise holds after the schedule's last fault, read with failure model v2's definition of "connected" and format Rule L3), "no" if the reported failure is not a violation (premise does not hold, or the checker misjudged), or "undetermined". `locus` is "model", "implementation", "inputs" (the contract or failure model underdetermine the behaviour), "interface" (the schedule format or schema underdetermines it), "both", or "none". `stall_mechanism` names the mechanism by which the requester is never granted, in one or two sentences, or "none". `same_class_as_prior` says whether the mechanism is D1, D4, a different stale-leadership mechanism, or something else. `evidence` cites specific records, states, lines or README entries. `reasoning` gives the mechanism. `what_would_settle_it` says what would overturn an explained verdict or settle an unexplained one. Be concrete and brief. Do not propose fixes. Do not assume either side is at fault; agreement between the two sides is not evidence of correctness.
+
+Every file follows, inline.
+
+===== FILE: inputs/contract-v2.md =====
+# Service contract v2: reads are fenced too
+
+Version 2, fixed 2026-10-21. v1 (`contract/v1.md`) is unchanged and its clause ids C1.1 to C1.4 keep their meaning. v2 is **additive**: it adds terms, two clauses and four observable events. No v1 clause is retired. This is change experiment X1's input.
+
+## Terms (in addition to v1's)
+- **Read.** A client's request to storage to return the key's current value, carrying a token. Storage either **serves** it, returning the value it currently holds, or **rejects** it.
+- **Given a value.** A client "is given a value" when it receives an ack of a served read carrying that value.
+
+## Clauses (C1.1 to C1.4 as in v1, plus)
+- **C2.1** Storage serves a read only if its token is at least the highest token storage has accepted for the key. Serving a read does not change the highest accepted token.
+- **C2.2** A client is given a value only after storage served the read that returned it, and the value given is the value storage held when it served the read.
+
+C2.1 and C2.2 are safety clauses. C1.4 (liveness) is unchanged and says nothing about reads.
+
+## Observable events (in addition to v1's)
+- `ReadAttempt(client, key, token)`
+- `ReadAccept(key, token, highest_before, value)` and `ReadReject(key, token, highest_before)` recorded by storage; `highest_before` is the fence ledger at the decision, as for writes
+- `ReadAck(client, key, token, outcome, value)` recorded by the client on receipt; `value` is present only when `outcome` is `served`
+
+## Out of scope in v2
+As in v1: one key; no delegated tokens; no ledger rollback. A read served under a token that is later superseded is not a violation; the fence decides at the moment of the read, as it does for writes.
+
+## Amendment 2026-10-21: v1 restated for readers who have no v1 (additive; no clause changes)
+This section was added after the X1 regenerate arm started, when its implementation author reported that the C1 clauses were "missing" from its inputs (its interpretation 1): v2 referred to v1 by id without restating it, and the regenerate arm is deliberately not given v1. Nothing above changes; the ids and wording below are v1's, verbatim.
+
+**Terms (v1).** Key: one protected key. Lease nodes: three processes that together act as the grantor. Storage: the service holding the key's value and the fence ledger (the highest token it has accepted for the key). Client: a process that requests a grant and, while it believes it holds one, writes to storage. Grant: the grantor's reply to a request, a token (an integer) and a lifetime; a client holding an unexpired grant is a holder. Write: a client's request to storage carrying a value and a token; storage accepts or rejects it. Ack: the reply that reaches the client; "told a write succeeded" means the client received an ack of acceptance.
+
+**Clauses (v1).**
+- **C1.1** Each grant carries a token strictly greater than every token previously granted for the key.
+- **C1.2** Storage accepts a write only if its token is at least the highest token storage has accepted for the key, and on acceptance records that token as the new highest.
+- **C1.3** A client is told a write succeeded only after storage accepted it.
+- **C1.4** (liveness) If a majority of lease nodes and storage stay up and connected to each other and to some requester for long enough, that requester eventually obtains a grant.
+
+**Observable events (v1).** `Request(client, key)`; `Grant(client, key, token, lifetime, grantor_term)`; `WriteAttempt(client, key, token, value)`; `WriteAccept(key, token, highest_before)` and `WriteReject(key, token, highest_before)` recorded by storage; `WriteAck(client, key, token, outcome)` recorded by the client. Each is recorded by the process that produces it, with that process's own sequence number; there is no cross-process clock.
+
+===== FILE: inputs/failure-model-v2.md =====
+# Failure model v2
+
+Version 2, fixed 2026-10-21 for change experiment X2. v1 (`failure-model/v1.md`) is unchanged and its cell ids F1.1 to F1.3 keep their meaning. v2 is **additive**: it adds a vocabulary of links, two cells and a definition of "connected". No v1 cell is retired. This file is self-contained: everything a reader needs from v1 is restated below, verbatim where marked.
+
+A failure model is an **environment** (what the world can do) applied to **authority loci** (where a grant, a token, or a decision lives). A test cell is one environmental fault applied during one transition. The loci are named so that later changes are visibly additions.
+
+## Authority loci (unchanged from v1)
+- **Holder:** the client that believes it has an unexpired grant.
+- **Grantor:** the lease leader of the moment, identified by `grantor_term`.
+- **Fence ledger:** storage's highest accepted token for the key.
+
+v2 adds no locus. X2 is registered as a **parameter change**: the environment can do more, and nothing new holds authority.
+
+## Links (new in v2)
+Between every ordered pair of distinct processes (p, q) there is a **link p→q**, which is either up or down. A message p sends to q is delivered (possibly reordered or duplicated, never corrupted) only if p→q is up when it is sent; a message sent while p→q is down is lost, not delayed. A link's state changes only by a fault step and by a heal. A message's fate is fixed when it is sent: a message sent while p→q is up is delivered (it may arrive late, reordered, after p→q has gone down); a message sent while p→q is down is never delivered, even if the link comes back up.
+
+**Connected.** Two processes p and q are *connected* while both p→q and q→p are up. A set of processes is *connected to each other* while every two of its members are connected. Connection is direct: p and q are not connected because both are connected to some r. This is the meaning of "connected" in C1.4 (`contract/v2.md`) under failure model v2. Under v1 every fault left connectivity transitive, so v1 never had to say it.
+
+## Cells
+v1's cells, restated verbatim:
+- **F1.1 Crash-stop.** Any lease node, client, or storage replica stops without warning. It may later restart with whatever it had durably recorded and nothing else. A restarted client has no grant.
+- **F1.2 Complete partition.** The processes are split into two sides. No message crosses between sides until the partition heals. Any bipartition is allowed, including one that isolates the current grantor from the other lease nodes while leaving it connected to a holder, or that isolates a holder from the grantor while leaving it connected to storage. Partitions heal; messages sent across the cut during the partition are lost, not delayed.
+- **F1.3 Holder pause.** A client holding a grant is paused for longer than the grant's lifetime, then resumes and continues as if no time had passed. This is the case fencing tokens exist for.
+
+New in v2:
+- **F2.1 Partial partition.** Any set of links goes down in both directions, whether or not the result is a bipartition. Connectivity may become non-transitive: p and q connected, q and r connected, p and r not. In the vocabulary of links, F1.2 is the special case in which the down links are exactly those between two sides.
+- **F2.2 Simplex link failure.** Any set of links goes down in one direction only: p→q down while q→p stays up. A process may then hear from a peer it cannot answer, or be heard by a peer it cannot hear.
+- **Heal.** A heal restores every link, whichever cells took them down.
+
+Faults compose: a schedule may apply several cells in one run, and link failures accumulate until a heal. Messages on an up link may be reordered and duplicated but not corrupted.
+
+## Not in v2
+Delegated tokens (X3). Byzantine behaviour. Ledger rollback or storage restored from backup. Clock skew beyond what F1.3 produces. Links that delay rather than lose. Link failures that change while a message is in flight (a message's fate is fixed when it is sent).
+
+## What counts as an unknown category
+A violation of C1.1, C1.2, C1.3, C2.1 or C2.2, or of C1.4 in a run whose fault schedule satisfies C1.4's premise, observed in a run whose schedule contains only F1.1 to F1.3, F2.1 and F2.2, and which no cell explains, is an unknown category. It is reported as **unexplained** until a judge discriminates. It is not assumed to be the implementation's fault.
+
+## Changelog
+- v2 (2026-10-21): links; "connected" defined; F2.1, F2.2; heal restores every link. Reason: the parameter change held out in v1's "Not in v1".
+
+===== FILE: inputs/schedule-format.md =====
+# Fault schedule format v2.2 (shared interface)
+
+v2.2 fixed 2026-10-21 after X1 (one clarification, listed in the changelog). v2.1 fixed 2026-10-21 (two clarifications). v2 fixed 2026-10-20 by the steward, after M1's cross-run. v1 is kept as `schedule-format-v1.md`; nothing in it is removed. v2 adds the rules that v1 left open and that the judge named (M1 result, D2 and D3). Every schedule compiler derives from this file; a compiler that implements v1 is stale under v2.
+
+## Shape (unchanged from v1)
+```yaml
+schedule: <name>                 # unique; used as the run id
+derives: [F1.2, C1.2]            # cells and clauses this schedule exercises
+processes:
+  lease: [n1, n2, n3]
+  clients: [c1, c2]
+  storage: [s]
+steps:                           # applied in order; each waits for its trigger
+  - at: <trigger>
+    do: <action>
+end: <trigger>                   # see "End of a run"
+bound: {events: 200}             # safety bound for both sides
+```
+
+## Triggers
+A trigger is `start` or an observable event from `contract/v1.md` with optional field filters:
+```yaml
+at: start
+at: {event: Grant, client: c1}
+at: {event: WriteAck, client: c2, outcome: accepted}
+at: {event: WriteReject}
+```
+
+**Rule T1, arming (new in v2; settles D2).** Step 1's trigger is armed at the start of the run. Step *i*'s trigger (*i* > 1) is armed at the moment step *i*−1's action is taken. A trigger matches only events emitted **after** it was armed. An event emitted before the trigger was armed never satisfies it, however well it matches. `start` fires the moment it is armed. **(v2.1)** The events that step *i*−1's own action emits synchronously (its `Request`, `WriteAttempt` or `Fault`) count as emitted after step *i*'s trigger was armed, so a step may be triggered by the event its predecessor produced. Both authors read v2 this way; v2.1 says it.
+
+**Rule T2, taking the action.** Once a step's trigger has fired, the action is taken at some later point. The model side explores every such point; the impl side samples one. The next step's trigger is not armed until the action is taken, so no two steps are ever pending at once.
+
+**Rule T3, waiting workload.** A workload action (`request`, `write`) whose client is crashed or paused waits until the client is running. A `request` by a client that already has a request outstanding waits until that request is answered. A `write` by a client that holds no token waits until it holds one, except `token: stale`, which waits until the client has a superseded token.
+
+## Actions (unchanged from v1 except as marked)
+Workload:
+```yaml
+do: {request: c1}
+do: {write: c1, value: v1}                # with the client's current token
+do: {write: c1, value: v2, token: stale}  # with the client's most recent token that is lower than the highest token granted so far
+```
+Faults, one per cell:
+```yaml
+do: {cell: F1.1, crash: n2}
+do: {cell: F1.1, restart: n2}
+do: {cell: F1.2, partition: [[grantor, c1, s], [rest]]}
+do: {cell: F1.2, heal: true}
+do: {cell: F1.3, pause: c1}
+do: {cell: F1.3, resume: c1}
+```
+A `pause` must outlast the grant's lifetime: the matching `resume` must be triggered by an event that can only happen after expiry (a later `Grant` to another client, or an ack of a write made under a later grant).
+
+**Rule A1, aliases (new in v2; settles D3).** `grantor`, `holder` and `rest` are process selectors and may appear **wherever a process name may appear**: as the target of `crash`, `restart`, `pause`, `resume`, `request` and `write`, and as members of a partition side. `grantor` is the node that issued the most recent `Grant` event; `holder` is the client that received it; `rest` is every process not named on the other side of the same partition. Aliases are resolved at the moment the step's trigger fires. A schedule that uses `grantor` or `holder` before any `Grant` can have occurred is rejected by the compiler. **(v2.1)** A fourth selector, `non-grantor`, means a lease node other than `grantor` that is up at the moment the trigger fires. The model side explores every such node; the impl side picks the lowest-numbered one. It exists because leadership before the first `Grant` is not observable, so "crash a follower" can only be said after a grant. **(v2.2)** `restart: non-grantor` names the node that the most recent `crash: non-grantor` crashed, whether or not it is a non-grantor at the moment of the restart; a schedule with `restart: non-grantor` and no earlier `crash: non-grantor` is rejected. All four fresh-arm authors in X1 read v2.1 this way and flagged that the text did not say it.
+
+**Rule A2, crash and restart.** `restart` of a process that is not crashed, `crash` of a process already crashed, `pause` of a paused client, `resume` of a running client, and `pause` of a lease node or storage are all rejected by the compiler.
+
+## End of a run
+**Rule E1 (new in v2).** `end:` is either an event trigger, armed when the last step's action is taken and matched by Rule T1, or the word `quiescent`. `quiescent` means: every step has been applied and no request, write or ack is in flight and no client is waiting for a grant, with crashed and paused processes not counted. On the model side `quiescent` is a state predicate; on the impl side it is a bounded wait for in-flight work, after which an unanswered request is reported through the liveness checker, not as `end` unreachable. The shared schedules use `quiescent` unless the end must be a specific event.
+
+**Rule E2.** A clause violation witnessed before the end is a `FAIL` whether or not the end is reached. `UNEXPLAINED end unreachable` is reported only when no violation was witnessed.
+
+## Rules carried from v1
+- A schedule may not name an action the failure model does not contain; the compiler rejects it.
+- Nondeterminism the schedule leaves open (message order within a side, delay between trigger and action) is explored by TLC and sampled by the impl. A pass on one side and a failure on the other is a divergence, not a bug on either side.
+- **Schedules live in `testbed/schedules/<name>.yaml` and nowhere else.** Both runners resolve a name there. The authors' private schedule sets from M1 are kept under their own directories as history and are no longer run.
+
+## Changelog
+- v2.2 (2026-10-21): `restart: non-grantor` defined. Reason: X1 result, residues.
+- v2.1 (2026-10-21): T1 clarified for a predecessor's own events; `non-grantor` selector. Reasons: M1 result, round 2 residues. Shared P10 rewritten to use it.
+- v2 (2026-10-20): T1 arming, T2, T3, A1 aliases, A2, E1 `quiescent`, E2; schedules shared. Reasons: M1 result D2 and D3.
+
+## v3 addendum (2026-10-21, for contract v2; additive)
+One workload action is added. Everything else in v2.1 is unchanged.
+```yaml
+do: {read: c1}                 # c1 reads the key with its current token
+do: {read: c1, token: stale}   # with its most recent token lower than the highest granted so far
+```
+Rule T3 applies to `read` as it does to `write`. Triggers may name the new events `ReadAttempt`, `ReadAccept`, `ReadReject` and `ReadAck` (with `outcome: served` or `rejected`). Changelog: v3 (2026-10-21): `read` action and the four read events. Reason: X1, contract v2.
+
+## v4 addendum (2026-10-21, for failure model v2; additive)
+Two fault actions are added, one per new cell. Everything above is unchanged; a compiler that implements v3 and not v4 is stale only for schedules that name F2.1 or F2.2.
+```yaml
+do: {cell: F2.1, cut: [[n1, n3], [grantor, c2]]}    # each listed link goes down in both directions
+do: {cell: F2.2, drop: [[n2, grantor], [n3, grantor]]}  # messages from the first to the second are lost; the reverse direction is untouched
+do: {cell: F2.1, heal: true}                          # restores every link (also {cell: F2.2, heal: true} and {cell: F1.2, heal: true})
+```
+**Rule L1, links.** Each entry of `cut` or `drop` is a pair of process names or selectors. `grantor`, `holder` and `non-grantor` are allowed and are resolved as Rule A1 says, at the moment the step's trigger fires; `rest` is not allowed in a link, since it is defined only against a partition side. A pair whose two ends resolve to the same process is ignored, so `[n1, grantor]` is safe whichever node is the grantor. Taking down a link that is already down is allowed and changes nothing. A selector names one process per pair; to reach both followers write the pairs out (`[[grantor, n1], [grantor, n2], [grantor, n3]]` reaches exactly the two that are not the grantor).
+
+**Rule L2, accumulation.** Link failures from `cut`, `drop` and F1.2 `partition` accumulate. A `heal`, whatever cell it names, restores every link. There is no partial heal.
+
+**Rule L3, the premise of C1.4.** Whether a run's schedule satisfies C1.4's premise is read with "connected" as `failure-model/v2.md` defines it: both directions of the direct link up. A schedule whose comment claims a requester "should eventually get a grant" must leave a majority of lease nodes, storage and that requester connected to each other for the rest of the run after its last fault. The premise is read **literally**: it names no grantor, so the majority need not include the grantor of the moment, and the requester need not be connected to it. If the premise holds, the requester must eventually obtain a grant by whatever route the artifact provides; how a request reaches a node that can grant, and how the grant comes back, is the artifact's business. **A requester** is a client that has taken a `request` step and has not yet received a grant in answer to it; a request or a grant lost on a down link does not end the client's standing as a requester.
+
+**Rule E1, extended to reads.** In `quiescent`, "no request, write or ack is in flight" includes reads and read acks. The v3 addendum should have said so and did not.
+
+**Rule E3, the bound.** A run that reaches `bound` before its end is reported `UNEXPLAINED bound`, never `PASS`. It is `FAIL C1.4` only if the side's liveness check witnesses the violation (on the model side a counterexample to the liveness property; on the impl side the liveness checker's report under Rule E1).
+
+**Rule T3, unchanged and restated.** A `write` or `read` does not wait for an earlier unanswered `write` or `read` by the same client; only `request` waits for its own answer. A client that serialises its operations must not wait for ever on a reply that was lost.
+
+Triggers may name `Fault` records for the new actions as for the old. Changelog: v4 (2026-10-21): `cut`, `drop`, L1 to L3, E1 extended to reads, E3, T3 restated. Reason: X2, failure model v2; the E1 gap, the readings in L3, E3 and T3 came from review of the inputs before any author started.
+
+===== FILE: inputs/schedule-H8.yaml =====
+schedule: H8
+derives: [C1.1, C1.4, C1.2, C2.1, F1.1, F2.2]
+processes:
+  lease: [n1, n2, n3]
+  clients: [c1, c2]
+  storage: [s]
+steps:
+  # derives: H8 (C1.1, C1.4, C1.2, C2.1, F1.1, F2.2). A grant nobody received.
+  # c1 holds t1 and has written. The grantor's messages to c2 are dropped (c2 still
+  # reaches the grantor, and everyone else is untouched). c2 requests; the grantor
+  # records Grant(c2, t2) and the message is lost. On that Grant event the grantor
+  # crashes and never restarts. After this last fault the two remaining lease nodes,
+  # storage and c2 are connected to each other both ways, so C1.4's premise holds
+  # (Rule L3): c2 must eventually hold a grant, with no further `request` step, and
+  # its token must exceed t2, a token that left the grantor's log and reached no one.
+  # c2's write waits for that token (Rule T3) and must be accepted with
+  # highest_before = t1; c1's stale read is then rejected (C2.1).
+  - {at: start, do: {request: c1}}
+  - {at: {event: Grant, client: c1}, do: {write: c1, value: v1}}
+  - {at: {event: WriteAck, client: c1, outcome: accepted}, do: {cell: F2.2, drop: [[grantor, c2]]}}
+  - {at: start, do: {request: c2}}
+  - {at: {event: Grant, client: c2}, do: {cell: F1.1, crash: grantor}}
+  - {at: start, do: {write: c2, value: v2}}
+  - {at: {event: WriteAck, client: c2, outcome: accepted}, do: {read: c1, token: stale}}
+end: {event: ReadAck, client: c1}
+bound: {events: 200}
+
+===== FILE: model/README.md (excerpt) =====
+## X2 adapt arm (failure model v2: partial and simplex partitions)
+derives: C1.1, C1.2, C1.3, C1.4, C2.1, C2.2, F1.1, F1.2, F1.3, F2.1, F2.2; format v4 (cut, drop, L1, L2, L3, E1, E3, T3); observe v4 addendum; pairs v3
+
+Additive. Nothing that derives from a v1 cell or clause is retired. The predictions and their outcome are in `PREDICTIONS-x2.md`. Where a section below says a previous interpretation is contradicted, the earlier text is left as it was, and this section says what replaces it.
+
+### What changed in `Lease.tla`
+- **Connectivity is a set of directed links.**
+  - `sideA` could express only a bipartition, so it is replaced by `down`, the set of pairs `<<p, q>>` whose link p→q is down. `down` derives from F1.2, F2.1 and F2.2.
+  - `Link(p, q)` means p→q is up.
+  - `Conn(p, q)` keeps its name but now means "connected" as `failure-model/v2.md` defines it: both directions of the direct link are up. It is not transitive.
+  - F1.2 `partition` adds every crossing pair in both directions, which is F2.1's special case. `Cut` (F2.1) adds each listed pair in both directions. `Drop` (F2.2) adds each listed pair in the listed direction only.
+  - `Heal(cell)` empties `down`, whichever cell it names (L2). Link failures accumulate until a heal.
+  - This change is required by the meaning of F2.x.
+- **A message's fate is fixed when it is sent.**
+  - Each send checks the one directed link it uses, at the moment it is sent: client→storage for a write or read, storage→client for an ack.
+  - `Partition` no longer removes messages already in flight.
+  - Required by failure model v2, "Links".
+- **The grantor, link by link.** Every change here is required by the meaning of F2.x.
+  - `HearsLeader(x)`: some up leader m with `term[m] >= promised[x]` has m→x up.
+  - `Elect(n)` needs `~HearsLeader(n)`. Its quorum must be connected to n, since a vote is a round trip.
+  - **Voter stickiness (new).** Every voter must itself satisfy `~HearsLeader`. Tag: C1.4, F2.1.
+  - `StepDown(n)` needs to hear q (q→n). `Join(n, q)` needs only n→q.
+  - **`CheckQuorum(n)` (new).** A leader that is not connected to a majority of up lease nodes, itself included, stops leading. Tags: C1.4, F2.2, F2.1, F1.2.
+  - `Grant(n, c)` still needs `Conn(n, c)` and a confirming majority that is connected to n. Both now mean "connected" in the v2 sense.
+- **`Good(c)`, the premise of C1.4 (L3).**
+  - Storage and c are up, c is not paused, and c and storage are connected.
+  - Some majority Q of up lease nodes is pairwise connected, connected to storage, and connected to c.
+  - Q need not contain the grantor. Under v1 bipartitions this is the old `Good(c)`.
+- **TypeOK.** `down \subseteq Procs \X Procs`.
+
+### Compiler, exporter, runner (mechanical propagation of format v4 and observe v4)
+- **Compiler.**
+  - It accepts `{cell: F2.1, cut: [...]}`, `{cell: F2.2, drop: [...]}`, and `heal: true` under F1.2, F2.1 and F2.2.
+  - Each link entry must be a pair. `grantor`, `holder` and `non-grantor` are accepted in a link, and `rest` is rejected (L1). An alias in a link is subject to A1's "no alias before any request" check.
+  - `MaxTerm` counts `cut` and `drop` steps as fault steps.
+- **Model-side resolution.** `StepLinks` resolves the selectors at trigger time (A1) and removes self-pairs (L1). `NGChoices` also looks inside links.
+- **Exporter.**
+  - A `cut` or `drop` Fault record carries the resolved listed pairs (`cut: [[n1, n3]]`) and `links`: the directed links taken down. A cut of `[a, b]` is recorded as `[a, b]` and `[b, a]`.
+  - Every heal record carries `heal: true` and `links: []`.
+  - A partition record is unchanged: it lists its sides, and it carries no `links`, which the v4 addendum asks only of `cut` and `drop`.
+- **Runner.** `run.py` runs P1-P30 and false-suspicion-v1.
+
+### Fairness (X2): every condition, and what justifies it
+The brief's rule: weak fairness only on an action whose enablement depends on the acting process's own state and on messages over links that are up, and never on an action that requires having heard from a peer over a down link. Each condition below is checked against that rule.
+
+| Condition | Enabled when | Justification |
+|---|---|---|
+| `WF(Elect(n))` | n hears no leader (its own election timer runs out); a majority is connected to n both ways and none of them hears a leader | Votes travel over up links in both directions. "Hears no leader" is the absence of messages, i.e. a timer in each voter's own state. Clauses: C1.4; cells F1.1, F1.2, F2.1, F2.2. |
+| `WF(StepDown(n))` | a node with a higher promise is heard over q→n | A message over an up link. C1.4, C1.1. |
+| `WF(CheckQuorum(n))` **(new)** | leader n is not connected to a majority | n's own timer: it has not heard from a majority. It does not require hearing anything. C1.4, F2.2. |
+| `WF(Join(n, q))` | leader n, link n→q up, q lagging | n's message over an up link. C1.4 (P10 fix). |
+| `WF(Grant(n, c))` | leader n; c's (retried) request arrives over c→n; reply over n→c; a majority connected to n confirms | Every message is over an up link. C1.4. |
+| `WF(RecvGrant)`, `WF(RecvAck)`, `WF(RecvReadAck)` | a message is in flight to a running, unpaused receiver | The message was sent while its link was up, and failure model v2 says it is then delivered, even if the link has gone down since. |
+| `WF(StorageDecide(_, FALSE))`, `WF(StorageRead(_, FALSE))` | a write or read is in flight to running storage | As above. |
+| `WF(SendAck)`, `WF(SendReadAck)` | storage has a queued ack | Storage's own state. The send succeeds only if storage→client is up; if it is down the ack is lost, and fairness does not make it arrive. |
+| `WF(ScheduleStep)` | the step's trigger has held | The environment does what the schedule says, as before. |
+
+No liveness result rests on any other fairness. P25 and P26 pass because of `WF(CheckQuorum)` (P26) and voter stickiness, which is a protocol rule, not a fairness assumption (P25). Each depends only on these conditions.
+
+### Interpretations (X2)
+**New**
+- **X2.1, the grantor's failure detector is directional.** A node hears a leader iff the leader→node link is up; "hears no leader" stands for an election timer. A vote and a grant confirmation are round trips, so both need connection. A step-down needs only to hear the higher promise; `Join` needs only to be heard.
+- **X2.2, voter stickiness.** A node votes only if it hears no current leader itself.
+  - This is my reading of how an artifact keeps C1.4 under F2.1. Without it, the follower cut off from the grantor in P19 and P25 is elected through the middle node. The old grantor then hears the higher promise through that node and steps down, and the cycle repeats. In the finite model, that would end at the term bound (UNEXPLAINED), not with a grant.
+  - Consequence: on P19 the cut-off follower never becomes grantor. The pair says it "may", so the model takes the "may not" branch on every path, and every token in P19 comes from one leader.
+- **X2.3, CheckQuorum.** Under F2.2 the followers can hear a grantor that cannot hear them (P20, P26). Their failure detector never fires, so the grantor must give up on its own. A leader not connected to a majority stops leading.
+- **X2.4, grants go only to a connected requester.** `Grant(n, c)` needs `Conn(n, c)`.
+  - A real grantor that hears a request over c→n while n→c is down would send its grant into the void. The model omits that behaviour (an under-approximation), because modelling it needs grant retransmission (observe v4) to stay finite.
+  - No shared schedule has a requester that the grantor hears but cannot answer: P22 and P28 cut the lease nodes from a holder that is not requesting.
+- **X2.5, no forwarding.** A request reaches a grantor only directly, and a grant comes back only directly.
+  - L3 says a requester connected to a majority that excludes the grantor must still be granted "by whatever route the artifact provides". This model's route is that the grantor steps down (CheckQuorum) and the majority elects a node the requester is connected to.
+  - The model would print `FAIL C1_4` on a schedule in which the requester is cut only from a grantor that keeps a majority, because nothing makes that grantor step down. No shared schedule is like that, so this is a limit of the model, not an observed result.
+- **X2.6, `non-grantor` in a link.** All occurrences of `non-grantor` within one step resolve to the same node. Every candidate is explored, as in v2.1 A1.
+- **X2.7, the cut's pairs in the Fault record.** The record carries both `cut`/`drop` (the listed pairs, resolved) and `links` (directed). The schema requires `links`; the step's action as fields follows the older schema text.
+
+**Extended**
+- **5 (grantor abstraction).** "Cannot reach a leader" becomes "does not hear a leader", by X2.1. Voters apply the same check (X2.2), and CheckQuorum is added (X2.3).
+- **7 (grant retries).** As before, a lost grant reply leaves the request pending, and the next grant has a fresh token. In addition, a grant is issued only to a connected requester (X2.4).
+- **12 (compiler rejections).** F2.1 and F2.2 are accepted. `rest` in a link is rejected, and so is a link entry that is not a pair.
+- **17 (C1.4's condition).** "Connected" means direct and bidirectional, and the majority must be pairwise connected and connected to storage and to the requester (L3). Under v1 bipartitions this changes nothing.
+- **20 (Fault records).** Extended with `links` and the heal record.
+- **R2.2 (E1 "in flight").** A message sent while its link was up stays in flight after the link goes down, and is delivered. A message sent on a down link was never in flight.
+- **R2.5 (Join).** It needs only the leader→node link.
+- **TLC bounds.** `MaxTerm = 2 + 2 × (crash, restart, partition, heal, cut and drop steps)`. `TermHeadroom` held in all 31 runs.
+
+**Contradicted**
+- **13 (messages), "At the moment of a partition, messages whose endpoints end up on different sides are dropped."**
+  - This no longer holds. Failure model v2: "a message sent while p→q is up is delivered (it may arrive late, reordered, after p→q has gone down)", and F1.2 is a special case of link failure.
+  - Replaced by: each send checks its link when it is sent, and a later partition, cut or drop does not touch messages already in flight.
+  - Effect on shared schedules: in P8, P17, P23 and P29, an ack or read ack that storage sent before the cut may still arrive. That only ever reports a decision storage really made. All four still PASS.
+- **Model summary, "Environment", and README "Interpretations" 13, where they speak of "sides".** Read "sides" as the links an F1.2 partition takes down.
+
+### Mutations P19-P30 (named in `PREDICTIONS-x2.md` before running)
+| Pair | Break | Result |
+|---|---|---|
+| P19 | a voter that still hears the leader votes without promising the new term | FAIL C1_1 |
+| P20 | a new leader starts from its own `maxTok`, not its quorum's (not specific to F2.2, like P3) | FAIL C1_1 |
+| P21 | storage accepts a stale token whose grantor is still connected to it and believes it leads | FAIL C1_2 |
+| P22 | the fence is per writer, not per key (not specific to F2.2) | FAIL C1_2 |
+| P23 | a client cut from storage alone, still connected to a lease node, presumes its writes landed | FAIL C1_3 |
+| P24 | a client that can send to storage but hears nothing back presumes its writes landed | FAIL C1_3 |
+| P25 | the grantor will not grant while any lease node is unreachable | FAIL C1_4 |
+| P26 | CheckQuorum counts outgoing links only | FAIL C1_4 |
+| P27 | the read counterpart of P21 | FAIL C2_1 |
+| P28 | the read counterpart of P22 | FAIL C2_1 |
+| P29 | a client cut from storage alone answers its read from its cache (`"none"`) | FAIL C2_2 |
+| P30 | a client that hears nothing back from storage presumes its read was served, with its last acknowledged write's value | FAIL C2_2 |
+
+- **P1-P18** are re-applied mechanically: the `Restart` and `StorageDecide` replacements name `down`, and the anchors for P10, P16 and P18 follow the new text. Every one still fails on its clause. None needed re-placing: P8, P11 and P17 use `Conn`, which on their bipartition schedules means the same as before.
+- **What the counterexamples show:**
+  - P19: n3, cut from n1, is elected in term 2 through n2. n2 keeps confirming n1's grant of token 2 (term 1), and then n3 grants token 2 again.
+  - P21: storage accepts token 1 with `highest_before: 2`. The accepted write is the bounded duplicate redelivery of c1's v1, not v3; the deference is the break either way.
+  - P25 and P26: lassos that stutter with c2 still waiting. In P26 the grantor never steps down, and the followers keep hearing it.
+- **Liveness pairs.** For P25 and P26 the unmutated model passes, so each has a working half to mutate.
+
+### Results (X2, `run.sh --all`)
+| Run | Verdict | Distinct states | Depth | MaxTerm |
+|---|---|---|---|---|
+| P1 | PASS | 21,020 | 24 | 18 |
+| P2 | PASS | 1,223 | 15 | 6 |
+| P3 | PASS | 728 | 14 | 2 |
+| P4 | PASS | 4,232 | 26 | 6 |
+| P5 | PASS | 5,561 | 27 | 6 |
+| P6 | PASS | 5,375 | 26 | 2 |
+| P7 | PASS | 31,646 | 28 | 10 |
+| P8 | PASS | 4,856 | 19 | 6 |
+| P9 | PASS | 17,123 | 26 | 2 |
+| P10 | PASS | 1,145 | 16 | 8 |
+| P11 | PASS | 1,091 | 15 | 6 |
+| P12 | PASS | 467 | 11 | 2 |
+| P13 | PASS | 6,581 | 30 | 6 |
+| P14 | PASS | 10,583 | 31 | 6 |
+| P15 | PASS | 5,459 | 26 | 2 |
+| P16 | PASS | 40,439 | 32 | 10 |
+| P17 | PASS | 15,050 | 24 | 6 |
+| P18 | PASS | 35,240 | 30 | 2 |
+| P19 | PASS | 977 | 17 | 6 |
+| P20 | PASS | 863 | 19 | 6 |
+| P21 | PASS | 5,561 | 28 | 6 |
+| P22 | PASS | 6,092 | 26 | 6 |
+| P23 | PASS | 4,856 | 19 | 6 |
+| P24 | PASS | 19,373 | 21 | 6 |
+| P25 | PASS | 395 | 10 | 4 |
+| P26 | PASS | 497 | 11 | 4 |
+| P27 | PASS | 5,621 | 27 | 6 |
+| P28 | PASS | 6,197 | 26 | 6 |
+| P29 | PASS | 25,862 | 26 | 6 |
+| P30 | PASS | 19,541 | 26 | 6 |
+| false-suspicion-v1 | PASS | 13,109 | 31 | 6 |
+
+The table is from the per-schedule runs. A later `run.sh --all` (about 7 minutes) gave the same 31 PASS, the same 30 FAIL verdicts and identical distinct-state counts. It reported a depth one different for P1 (23), P24 (22), P25 (9) and P26 (12); with 4 TLC workers the reported depth is not stable.
+
+All 30 mutations print `FAIL` on their pair's clause. The state counts that changed for P1-P18 and false-suspicion-v1 (P1, P2, P5, P8, P11, P14, P17, false-suspicion-v1) changed because in-flight messages survive partitions and because of CheckQuorum.
+
+Written only from `contract/v2.md`, `failure-model/v2.md`, `tests/pairs-v3.md`, `testbed/schedule-format.md`, `observe/schema.md`, `testbed/schedules/`, `AGENTS.md`, the X2 brief and this directory.
+
+
+## Model summary
+- **Processes.** Three lease nodes, two clients and one storage process, with names taken from the schedule. The key is `"k"`.
+- **Grantor.** Abstract: a leader per term.
+  - Election: a node that cannot reach a leader whose term is at least its own promise may run an election.
+    Any majority `Q` of up, reachable nodes promises the term `1 + max(promised over Q)`.
+    The new leader starts from `max(maxTok over Q)`.
+  - Grant: the leader issues token `ltok + 1` only when a majority that is still promised to its term confirms it.
+    Each member of that majority durably records the token in `maxTok`.
+  - Durable state: `promised` and `maxTok`. Volatile state: `leader`, `term` and `ltok`.
+  - A leader that can reach a node promised to a higher term steps down.
+  - **[v2]** A leader brings any reachable node whose promise is lower than its term into that term (`Join`).
+- **Storage.** It accepts a write iff `token >= highest`, and on acceptance sets `highest := token`.
+  The ledger and the value are durable.
+  The ack is queued in volatile `toAck` and sent by a separate step, so a crash between accept and ack is possible.
+- **Environment.** The actions are `Crash`, `Restart` (F1.1), `Partition`, `Heal` (F1.2) and `Pause`, `Resume` (F1.3).
+  Each is tagged and reachable only through a schedule step.
+- **Invariants.** They are stated over history variables (`grants`, `decisions`, `told`), not over the state they protect, so a component that forgets is caught:
+  - `C1_1`: tokens strictly increase along the grant sequence.
+  - `C1_2`: every accepted token is `>=` every previously accepted token.
+  - `C1_3`: every write a client was told succeeded has an earlier accept decision for the same client, token and value.
+- **Liveness.** `C1_4 == \A c : <>[]Good(c) => [](pending[c] => <>~pending[c])`, under weak fairness of every protocol action and of schedule steps.
+
+===== FILE: model/Lease.tla =====
+-------------------------------- MODULE Lease --------------------------------
+\* derives: C1.1, C1.2, C1.3, C1.4, C2.1, C2.2, F1.1, F1.2, F1.3, F2.1, F2.2
+\* (contract v2 / X1: reads are fenced; read elements are tagged C2.x)
+\* (failure model v2 / X2: connectivity is a set of directed links; elements that represent
+\*  connectivity are tagged F2.1, F2.2 as well as the v1 cell they still derive from)
+\* Lease service with fencing tokens: 3 lease nodes (the grantor), 2 clients,
+\* one storage service, one key. The grantor is abstract: a leader per term,
+\* elected by a majority; a grant is issued only with a majority's confirmation.
+\* The environment (F1.1-F1.3, F2.1, F2.2) and the workload are driven by a compiled
+\* schedule: Steps is a sequence of step records, applied in order.
+EXTENDS Integers, Sequences, FiniteSets, TLC
+
+CONSTANTS
+    Nodes,      \* derives: C1.1, C1.4 -- the three lease nodes
+    Clients,    \* derives: C1.2, C1.3, C1.4 -- the two clients
+    Store,      \* derives: C1.2, C1.3 -- the storage service (one process)
+    Key,        \* derives: C1.1, C1.2 -- the single protected key
+    Lifetime,   \* derives: C1.1, F1.3 -- abstract grant lifetime, reported on Grant only
+    Steps,      \* derives: F1.1, F1.2, F1.3 -- compiled schedule steps
+    EndTrig,    \* derives: F1.1, F1.2, F1.3 -- compiled end trigger
+    MaxTerm,    \* derives: C1.1, C1.4 -- bound on grantor terms (state-space bound)
+    MaxDups     \* derives: C1.2, C1.3 -- bound on duplicated write deliveries
+
+VARIABLES
+    \* --- environment state (derives: F1.1, F1.2, F1.3, F2.1, F2.2)
+    up,         \* derives: F1.1 -- up[p]: process p is running
+    paused,     \* derives: F1.3 -- paused[c]: client c is paused
+    down,       \* derives: F1.2, F2.1, F2.2 (failure model v2 "Links") -- the directed links that are
+                \* down: <<p, q>> \in down means p->q is down. Empty when healed. Replaces v1's
+                \* sideA, which could only express a bipartition (README, X2).
+    \* --- grantor (derives: C1.1, C1.4)
+    promised,   \* derives: C1.1, F1.1 -- durable: highest term node n has voted for
+    maxTok,     \* derives: C1.1, F1.1 -- durable: highest token node n has confirmed
+    leader,     \* derives: C1.1, C1.4 -- volatile: n believes it is the grantor
+    term,       \* derives: C1.1 -- volatile: the term n leads (meaningful when leader[n])
+    ltok,       \* derives: C1.1 -- volatile: leader's last issued token
+    reqs,       \* derives: C1.4 -- grantor-visible outstanding requests
+    \* --- clients (derives: C1.2, C1.3, C1.4, F1.3)
+    pending,    \* derives: C1.4 -- pending[c]: c is waiting for (and retrying) a grant
+    tok,        \* derives: C1.2, F1.3 -- c's current token [t, g] (g = grantor_term), volatile
+    myToks,     \* derives: C1.2, F1.3 -- every token c has received since its last start
+    awaiting,   \* derives: C1.3 -- writes c has sent and not yet had acked
+    \* --- network (derives: F1.2, F2.1, F2.2; reorder by set semantics, duplication bounded by MaxDups;
+    \*     a message is put in flight only if its link is up when it is sent, and once in flight it is
+    \*     delivered whatever happens to the link later: failure model v2, "fate fixed when sent")
+    grantMsgs,  \* derives: C1.1, F1.2 -- grant replies in flight, node -> client
+    writeMsgs,  \* derives: C1.2, F1.2 -- writes in flight, client -> storage
+    ackMsgs,    \* derives: C1.3, F1.2 -- acks in flight, storage -> client
+    dups,       \* derives: C1.2, C1.3 -- duplicated deliveries used so far
+    \* --- storage (derives: C1.2, C1.3)
+    highest,    \* derives: C1.2, F1.1 -- durable fence ledger
+    stval,      \* derives: C1.2 -- durable key value
+    toAck,      \* derives: C1.3, F1.1 -- volatile: decided writes whose ack is not yet sent
+    \* --- history (ghost) variables used only by invariants and the exporter
+    grants,     \* derives: C1.1 -- sequence of every grant issued
+    decisions,  \* derives: C1.2, C1.3 -- sequence of every storage decision
+    told,       \* derives: C1.3 -- set of writes clients were told succeeded
+    \* --- schedule driver (derives: F1.1, F1.2, F1.3)
+    pc,         \* derives: F1.1, F1.2, F1.3 -- index of the next schedule step
+    fired,      \* derives: F1.1, F1.2, F1.3 -- trigger of step pc has held since step pc-1
+    trigG,      \* derives: F1.2, F1.3 -- most recent grant at trigger time (resolves grantor/holder)
+    trigNG,     \* derives: F1.1; format v2.1 A1 -- lease nodes other than grantor up at trigger time
+    ngDown,     \* derives: F1.1; format v2.2 A1, v2.1 A1 -- node crashed by the most recent `crash: non-grantor`
+    lastEv,     \* derives: C1.1, C1.2, C1.3, C2.1, C2.2 -- the event emitted by the last step (for the exporter)
+    \* --- reads (contract v2; derives: C2.1, C2.2)
+    readMsgs,   \* derives: C2.1, F1.2 -- reads in flight, client -> storage
+    rToAck,     \* derives: C2.2, F1.1 -- volatile: decided reads whose ack is not yet sent
+    rAckMsgs,   \* derives: C2.2, F1.2 -- read acks in flight, storage -> client
+    awaitingR,  \* derives: C2.2 -- reads c has sent and not yet had acked
+    rdecisions, \* derives: C2.1, C2.2 -- history: every storage read decision
+    given       \* derives: C2.2 -- history: every value a client was given
+
+\* derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3 -- all state variables
+vars == <<up, paused, down, promised, maxTok, leader, term, ltok, reqs,
+          pending, tok, myToks, awaiting, grantMsgs, writeMsgs, ackMsgs, dups,
+          highest, stval, toAck, grants, decisions, told, pc, fired, trigG, trigNG, ngDown, lastEv,
+          readMsgs, rToAck, rAckMsgs, awaitingR, rdecisions, given>>
+
+\* derives: C2.1, C2.2 -- the read variables, for UNCHANGED in actions that do not touch reads
+rvars == <<readMsgs, rToAck, rAckMsgs, awaitingR, rdecisions, given>>
+
+\* derives: F1.1, F1.2 -- every process
+Procs == Nodes \cup Clients \cup {Store}
+
+\* derives: C1.2, F1.3 -- "no token"
+NoTok == [t |-> 0, g |-> 0]
+
+\* derives: C1.1, C1.2
+Max(S) == IF S = {} THEN 0 ELSE CHOOSE x \in S : \A y \in S : y <= x
+
+\* derives: F1.2, F2.1, F2.2 (failure model v2 "Links") -- the link p->q is up. Self-pairs are
+\* never down (format v4 L1), so Link(p, p) always holds.
+Link(p, q) == <<p, q>> \notin down
+
+\* derives: F1.2, F2.1, F2.2 (failure model v2 "Connected") -- p and q are connected: both
+\* directions of the direct link are up. Not transitive. (Under v1 this was "same side".)
+Conn(p, q) == Link(p, q) /\ Link(q, p)
+
+\* derives: F2.1; format v4 cut -- each listed link in both directions
+BothWays(L) == L \cup {<<x[2], x[1]>> : x \in L}
+
+\* derives: C1.1, C1.4 -- majority of lease nodes
+Majority(Q) == 2 * Cardinality(Q) > Cardinality(Nodes)
+
+\* derives: C1.1, F1.2, F1.3 -- most recent Grant ("grantor" = its node, "holder" = its client)
+LastGrant == IF grants = <<>> THEN [node |-> "none", client |-> "none"]
+             ELSE [node |-> grants[Len(grants)].node, client |-> grants[Len(grants)].client]
+
+\* derives: C1.1 -- highest token ever granted
+MaxGranted == Max({grants[i].token : i \in 1..Len(grants)})
+
+\* ---------------------------------------------------------------------------
+\* Schedule triggers
+\* derives: F1.1, F1.2, F1.3
+Trig(i) == IF i <= Len(Steps) THEN Steps[i].trig ELSE EndTrig
+\* derives: F1.1, F1.2, F1.3
+IsStart(T) == T.event = "start"
+\* derives: F1.1, F1.2, F1.3; format v2.1 T1 -- an event matches a trigger: same event and every
+\* filter field equal. Only events emitted while the trigger is armed are ever offered to it
+\* (Emit and ScheduleStep), which is T1's "matches only events emitted after it was armed".
+\* `quiescent` (E1) is a state predicate, never matched by an event.
+Matches(T, e) == /\ T.event \notin {"start", "quiescent"}
+                 /\ e.event = T.event
+                 /\ \A f \in (DOMAIN T) \ {"event"} : f \in DOMAIN e /\ e[f] = T[f]
+
+\* derives: C1.1, C1.2, C1.3, F1.1, F1.2, F1.3
+\* Protocol step emitting event e: record it, and advance the current trigger.
+\* Must be the last conjunct of an action (uses grants').
+Emit(e) == /\ lastEv' = e
+           /\ fired' = (fired \/ Matches(Trig(pc), e))
+           /\ trigG' = IF ~fired /\ Matches(Trig(pc), e) THEN LastGrant' ELSE trigG
+           /\ trigNG' = IF ~fired /\ Matches(Trig(pc), e)
+                        THEN {n \in Nodes : up'[n]} \ {LastGrant'.node} ELSE trigNG
+           /\ UNCHANGED <<pc, ngDown>>
+
+\* derives: C1.1, C1.4 -- internal (non-observable) protocol step
+Internal(what, p) == Emit([event |-> "Internal", what |-> what, proc |-> p])
+
+\* ---------------------------------------------------------------------------
+\* derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3
+Init ==
+    /\ up = [p \in Procs |-> TRUE]
+    /\ paused = [c \in Clients |-> FALSE]
+    /\ down = {}           \* derives: F1.2, F2.1, F2.2 -- every link up
+    /\ promised = [n \in Nodes |-> 0]
+    /\ maxTok = [n \in Nodes |-> 0]
+    /\ leader = [n \in Nodes |-> FALSE]
+    /\ term = [n \in Nodes |-> 0]
+    /\ ltok = [n \in Nodes |-> 0]
+    /\ reqs = {}
+    /\ pending = [c \in Clients |-> FALSE]
+    /\ tok = [c \in Clients |-> NoTok]
+    /\ myToks = [c \in Clients |-> {}]
+    /\ awaiting = [c \in Clients |-> {}]
+    /\ grantMsgs = {}
+    /\ writeMsgs = {}
+    /\ ackMsgs = {}
+    /\ dups = 0
+    /\ highest = 0
+    /\ stval = "none"
+    /\ toAck = {}
+    /\ grants = <<>>
+    /\ decisions = <<>>
+    /\ told = {}
+    /\ pc = 1
+    /\ fired = IsStart(Trig(1))
+    /\ trigG = [node |-> "none", client |-> "none"]
+    /\ trigNG = Nodes
+    /\ ngDown = "none"
+    /\ readMsgs = {}       \* derives: C2.1
+    /\ rToAck = {}         \* derives: C2.2
+    /\ rAckMsgs = {}       \* derives: C2.2
+    /\ awaitingR = [c \in Clients |-> {}]   \* derives: C2.2
+    /\ rdecisions = <<>>   \* derives: C2.1, C2.2
+    /\ given = {}          \* derives: C2.2
+    /\ lastEv = [event |-> "Init"]
+
+\* ===========================================================================
+\* Grantor (abstract): leader per term, majority election, majority-confirmed grants
+\* ===========================================================================
+
+\* derives: C1.1, C1.4, F1.2, F2.1, F2.2 -- node x hears a current leader: an up leader m
+\* whose term is at least x's promise, over the link m->x (hearing is directional: F2.2).
+\* A leader hears itself.
+HearsLeader(x) == \E m \in Nodes : up[m] /\ Link(m, x) /\ leader[m] /\ term[m] >= promised[x]
+
+\* derives: C1.1, C1.4, F1.1, F1.2, F2.1, F2.2
+\* A node that hears no leader of a term at least its own promise starts an election;
+\* a majority Q (up, connected to n both ways: a vote is a round trip) promises a fresh
+\* term; the new leader learns the highest token any member of Q confirmed.
+\* X2: each voter must itself hear no current leader (voter stickiness, a pre-vote check).
+\* derives: C1.4, F2.1 -- under F2.1 a follower cut off from a grantor that still has a
+\* majority can reach a node that still hears it; the voter refuses, so the cut-off
+\* follower cannot disrupt the grantor (P19, P25). Under v1 bipartitions every node a
+\* candidate could reach was on its side and heard no leader either.
+Elect(n) ==
+    /\ UNCHANGED rvars  \* derives: C2.1, C2.2 -- reads untouched
+    /\ up[n] /\ ~leader[n]
+    /\ ~HearsLeader(n)
+    /\ \E Q \in SUBSET {q \in Nodes : up[q] /\ Conn(n, q)} :
+        /\ n \in Q
+        /\ Majority(Q)
+        /\ \A q \in Q : ~HearsLeader(q)   \* derives: C1.4, F2.1 -- voter stickiness
+        /\ LET t == 1 + Max({promised[q] : q \in Q}) IN
+           /\ t <= MaxTerm
+           /\ promised' = [q \in Nodes |-> IF q \in Q THEN t ELSE promised[q]]
+           /\ leader' = [q \in Nodes |-> IF q = n THEN TRUE
+                                         ELSE IF q \in Q THEN FALSE ELSE leader[q]]
+           /\ term' = [term EXCEPT ![n] = t]
+           /\ ltok' = [ltok EXCEPT ![n] = Max({maxTok[q] : q \in Q})]
+    /\ UNCHANGED <<up, paused, down, maxTok, reqs, pending, tok, myToks, awaiting,
+                   grantMsgs, writeMsgs, ackMsgs, dups, highest, stval, toAck,
+                   grants, decisions, told>>
+    /\ Internal("Elect", n)
+
+\* derives: C1.1, C1.4, F1.2, F2.2 -- a leader that hears a node promised to a higher term steps
+\* down (it needs only q->n: the higher promise reaches it in q's message)
+StepDown(n) ==
+    /\ UNCHANGED rvars  \* derives: C2.1, C2.2 -- reads untouched
+    /\ up[n] /\ leader[n]
+    /\ \E q \in Nodes : up[q] /\ Link(q, n) /\ promised[q] > term[n]
+    /\ leader' = [leader EXCEPT ![n] = FALSE]
+    /\ promised' = [promised EXCEPT ![n] =
+                      Max({promised[q] : q \in {x \in Nodes : up[x] /\ Link(x, n)}})]
+    /\ UNCHANGED <<up, paused, down, maxTok, term, ltok, reqs, pending, tok, myToks,
+                   awaiting, grantMsgs, writeMsgs, ackMsgs, dups, highest, stval,
+                   toAck, grants, decisions, told>>
+    /\ Internal("StepDown", n)
+
+\* derives: C1.4, F1.1, F1.2, F2.2 -- the P10 fix (judge's verdict, locus: model).
+\* X2: it needs only the link n->q (the leader's message reaches q).
+\* A leader brings a reachable, up, lagging node into its term: the node raises its
+\* promise to the leader's term (and, if it was a stale leader, stops leading).
+\* Without this, a leader elected by a non-maximal majority whose other member then
+\* crashes can never assemble a grant majority, while no election or step-down is
+\* enabled either: C1.4 fails with a majority, storage and the requester all up and
+\* connected. Raising a promise is always safe here: promises only grow, and a grant
+\* still needs a majority promised to exactly the leader's term.
+Join(n, q) ==
+    /\ UNCHANGED rvars  \* derives: C2.1, C2.2 -- reads untouched
+    /\ up[n] /\ leader[n] /\ up[q] /\ q # n
+    /\ Link(n, q)
+    /\ promised[q] < term[n]
+    /\ promised' = [promised EXCEPT ![q] = term[n]]
+    /\ leader' = [leader EXCEPT ![q] = FALSE]
+    /\ UNCHANGED <<up, paused, down, maxTok, term, ltok, reqs, pending, tok, myToks,
+                   awaiting, grantMsgs, writeMsgs, ackMsgs, dups, highest, stval,
+                   toAck, grants, decisions, told>>
+    /\ Internal("Join", q)
+
+\* derives: C1.4, F2.2, F2.1, F1.2 -- the quorum check (new in X2). A leader that is not
+\* connected (both ways) to a majority of up lease nodes, itself included, stops leading.
+\* Under F2.2 the followers may still hear a grantor that cannot hear them; their
+\* failure detector then never fires and, without this, nobody would ever elect (P26).
+\* Under v1 it only lets a grantor isolated in a minority stop sooner.
+CheckQuorum(n) ==
+    /\ UNCHANGED rvars  \* derives: C2.1, C2.2 -- reads untouched
+    /\ up[n] /\ leader[n]
+    /\ ~Majority({q \in Nodes : up[q] /\ Conn(n, q)})
+    /\ leader' = [leader EXCEPT ![n] = FALSE]
+    /\ UNCHANGED <<up, paused, down, promised, maxTok, term, ltok, reqs, pending, tok, myToks,
+                   awaiting, grantMsgs, writeMsgs, ackMsgs, dups, highest, stval,
+                   toAck, grants, decisions, told>>
+    /\ Internal("CheckQuorum", n)
+
+\* derives: C1.1, C1.4, F1.1, F1.2, F2.1, F2.2
+\* The leader issues a grant to a requester it is connected to (the retried request
+\* arrives over c->n, the reply leaves over n->c), once a majority still promised to its
+\* term, and connected to it (a confirmation is a round trip), durably confirms the token.
+Grant(n, c) ==
+    /\ UNCHANGED rvars  \* derives: C2.1, C2.2 -- reads untouched
+    /\ up[n] /\ leader[n]
+    /\ c \in reqs
+    /\ Conn(n, c)
+    /\ ~\E m \in grantMsgs : m.c = c
+    /\ \E Q \in SUBSET {q \in Nodes : up[q] /\ Conn(n, q) /\ promised[q] = term[n]} :
+        /\ n \in Q
+        /\ Majority(Q)
+        /\ LET k == ltok[n] + 1 IN
+           /\ maxTok' = [q \in Nodes |-> IF q \in Q THEN Max({maxTok[q], k}) ELSE maxTok[q]]
+           /\ ltok' = [ltok EXCEPT ![n] = k]
+           /\ grantMsgs' = grantMsgs \cup {[n |-> n, c |-> c, t |-> k, g |-> term[n]]}
+           /\ grants' = Append(grants, [token |-> k, term |-> term[n], node |-> n, client |-> c])
+           /\ UNCHANGED <<up, paused, down, promised, leader, term, reqs, pending, tok,
+                          myToks, awaiting, writeMsgs, ackMsgs, dups, highest, stval,
+                          toAck, decisions, told>>
+           /\ Emit([event |-> "Grant", client |-> c, key |-> Key, token |-> k,
+                    lifetime |-> Lifetime, grantor_term |-> term[n], node |-> n])
+
+\* derives: C1.4, F1.3 -- a (running, unpaused) client receives a grant reply
+RecvGrant(m) ==
+    /\ UNCHANGED rvars  \* derives: C2.1, C2.2 -- reads untouched
+    /\ m \in grantMsgs
+    /\ up[m.c] /\ ~paused[m.c]
+    /\ grantMsgs' = grantMsgs \ {m}
+    /\ IF pending[m.c]
+       THEN /\ tok' = [tok EXCEPT ![m.c] = [t |-> m.t, g |-> m.g]]
+            /\ myToks' = [myToks EXCEPT ![m.c] = @ \cup {[t |-> m.t, g |-> m.g]}]
+            /\ pending' = [pending EXCEPT ![m.c] = FALSE]
+            /\ reqs' = reqs \ {m.c}
+       ELSE UNCHANGED <<tok, myToks, pending, reqs>>
+    /\ UNCHANGED <<up, paused, down, promised, maxTok, leader, term, ltok, awaiting,
+                   writeMsgs, ackMsgs, dups, highest, stval, toAck, grants, decisions, told>>
+    /\ Internal("RecvGrant", m.c)
+
+\* ===========================================================================
+\* Storage
+\* ===========================================================================
+
+\* derives: C1.2, C1.3, F1.1
+\* Storage decides a write: accept iff token >= ledger; on accept the token becomes
+\* the ledger. The ack is queued (volatile) and sent by SendAck. dup = TRUE models a
+\* duplicated delivery (the message stays in flight), bounded by MaxDups.
+StorageDecide(m, dup) ==
+    /\ UNCHANGED rvars  \* derives: C2.1, C2.2 -- reads untouched
+    /\ up[Store]
+    /\ m \in writeMsgs
+    /\ dup => dups < MaxDups
+    /\ LET acc == m.t >= highest
+           out == IF acc THEN "accept" ELSE "reject" IN
+       /\ highest' = IF acc THEN m.t ELSE highest
+       /\ stval' = IF acc THEN m.v ELSE stval
+       /\ writeMsgs' = IF dup THEN writeMsgs ELSE writeMsgs \ {m}
+       /\ dups' = IF dup THEN dups + 1 ELSE dups
+       /\ decisions' = Append(decisions, [token |-> m.t, hb |-> highest, outcome |-> out,
+                                          client |-> m.c, value |-> m.v, term |-> m.g])
+       /\ toAck' = toAck \cup {[c |-> m.c, t |-> m.t, g |-> m.g, v |-> m.v, outcome |-> out]}
+       /\ UNCHANGED <<up, paused, down, promised, maxTok, leader, term, ltok, reqs,
+                      pending, tok, myToks, awaiting, grantMsgs, ackMsgs, grants, told>>
+       /\ Emit([event |-> IF acc THEN "WriteAccept" ELSE "WriteReject", key |-> Key,
+                token |-> m.t, highest_before |-> highest, grantor_term |-> m.g,
+                client |-> m.c, value |-> m.v])
+
+\* derives: C1.3, F1.1, F1.2, F2.1, F2.2 -- storage sends a queued ack (lost if the link
+\* storage->client is down or the client is down, at the moment it is sent)
+SendAck(a) ==
+    /\ UNCHANGED rvars  \* derives: C2.1, C2.2 -- reads untouched
+    /\ up[Store]
+    /\ a \in toAck
+    /\ toAck' = toAck \ {a}
+    /\ ackMsgs' = IF Link(Store, a.c) /\ up[a.c] THEN ackMsgs \cup {a} ELSE ackMsgs
+    /\ UNCHANGED <<up, paused, down, promised, maxTok, leader, term, ltok, reqs, pending,
+                   tok, myToks, awaiting, grantMsgs, writeMsgs, dups, highest, stval,
+                   grants, decisions, told>>
+    /\ Internal("SendAck", Store)
+
+\* derives: C1.3, F1.3 -- a client receives an ack for a write it is awaiting
+\* and is told the write's outcome exactly as the ack states it.
+RecvAck(a) ==
+    /\ UNCHANGED rvars  \* derives: C2.1, C2.2 -- reads untouched
+    /\ a \in ackMsgs
+    /\ up[a.c] /\ ~paused[a.c]
+    /\ ackMsgs' = ackMsgs \ {a}
+    /\ LET w == [t |-> a.t, g |-> a.g, v |-> a.v] IN
+       IF w \in awaiting[a.c]
+       THEN /\ awaiting' = [awaiting EXCEPT ![a.c] = @ \ {w}]
+            /\ told' = IF a.outcome = "accept" THEN told \cup {[c |-> a.c, t |-> a.t, v |-> a.v]}
+                       ELSE told
+            /\ UNCHANGED <<up, paused, down, promised, maxTok, leader, term, ltok, reqs,
+                           pending, tok, myToks, grantMsgs, writeMsgs, dups, highest,
+                           stval, toAck, grants, decisions>>
+            /\ Emit([event |-> "WriteAck", client |-> a.c, key |-> Key, token |-> a.t,
+                     outcome |-> IF a.outcome = "accept" THEN "accepted" ELSE "rejected",
+                     value |-> a.v, grantor_term |-> a.g])
+       ELSE /\ UNCHANGED <<up, paused, down, promised, maxTok, leader, term, ltok, reqs,
+                           pending, tok, myToks, awaiting, grantMsgs, writeMsgs, dups,
+                           highest, stval, toAck, grants, decisions, told>>
+            /\ Internal("DropAck", a.c)
+
+\* ===========================================================================
+\* Schedule steps: workload (derives from the contract) and faults (one per cell)
+\* ===========================================================================
+
+\* derives: F1.1, F1.2, F1.3; format v2.1 A1 -- resolve "grantor"/"holder"/"non-grantor" at trigger time
+\* format v2.1 A1: `non-grantor` resolves to ng, one of the candidates chosen by ScheduleStep
+Resolve(x, ng) == IF x = "grantor" THEN trigG.node
+                  ELSE IF x = "holder" THEN trigG.client
+                  ELSE IF x = "non-grantor" THEN ng ELSE x
+
+\* derives: C1.2, F1.3 -- the client's most recent superseded token (lower than the highest granted)
+StaleTok(c) ==
+    LET S == {x \in myToks[c] : x.t < MaxGranted} IN
+    IF S = {} THEN NoTok ELSE CHOOSE x \in S : \A y \in S : y.t <= x.t
+
+\* derives: C1.4 -- workload: client requests a grant (a client already waiting for
+\* a grant does not issue a second request; the step waits until it is not waiting)
+DoRequest(c) ==
+    /\ UNCHANGED rvars  \* derives: C2.1, C2.2 -- reads untouched
+    /\ up[c] /\ ~paused[c]
+    /\ ~pending[c]
+    /\ pending' = [pending EXCEPT ![c] = TRUE]
+    /\ reqs' = reqs \cup {c}
+    /\ UNCHANGED <<up, paused, down, promised, maxTok, leader, term, ltok, tok, myToks,
+                   awaiting, grantMsgs, writeMsgs, ackMsgs, dups, highest, stval, toAck,
+                   grants, decisions, told>>
+    /\ lastEv' = [event |-> "Request", client |-> c, key |-> Key]
+
+\* derives: C1.2, C1.3, F1.3, F2.1, F2.2 -- workload: client writes with its current (or stale)
+\* token; the write is lost if client->storage is down when it is sent
+DoWrite(c, v, stale) ==
+    LET k == IF stale THEN StaleTok(c) ELSE tok[c] IN
+    /\ UNCHANGED rvars  \* derives: C2.1, C2.2 -- reads untouched
+    /\ up[c] /\ ~paused[c]
+    /\ k.t > 0
+    /\ writeMsgs' = IF Link(c, Store) /\ up[Store]
+                    THEN writeMsgs \cup {[c |-> c, t |-> k.t, g |-> k.g, v |-> v]}
+                    ELSE writeMsgs
+    /\ awaiting' = [awaiting EXCEPT ![c] = @ \cup {[t |-> k.t, g |-> k.g, v |-> v]}]
+    /\ UNCHANGED <<up, paused, down, promised, maxTok, leader, term, ltok, reqs, pending,
+                   tok, myToks, grantMsgs, ackMsgs, dups, highest, stval, toAck,
+                   grants, decisions, told>>
+    /\ lastEv' = [event |-> "WriteAttempt", client |-> c, key |-> Key, token |-> k.t,
+                  value |-> v, grantor_term |-> k.g]
+
+\* ===========================================================================
+\* Reads (contract v2, X1)
+\* ===========================================================================
+
+\* derives: C2.1, C2.2, F1.1 -- storage decides a read: serve iff token >= ledger, returning
+\* the value it holds; the ledger is not changed. The ack is queued (volatile).
+\* dup = TRUE models a duplicated delivery (bounded by MaxDups, shared with writes).
+StorageRead(m, dup) ==
+    /\ up[Store]
+    /\ m \in readMsgs
+    /\ dup => dups < MaxDups
+    /\ LET srv == m.t >= highest
+           out == IF srv THEN "served" ELSE "rejected"
+           val == IF srv THEN stval ELSE "none" IN
+       /\ UNCHANGED <<rAckMsgs, awaitingR, given>>
+       /\ UNCHANGED <<up, paused, down, promised, maxTok, leader, term, ltok, reqs,
+                      pending, tok, myToks, awaiting, grantMsgs, writeMsgs, ackMsgs,
+                      highest, stval, toAck, grants, decisions, told>>
+       /\ readMsgs' = IF dup THEN readMsgs ELSE readMsgs \ {m}
+       /\ dups' = IF dup THEN dups + 1 ELSE dups
+       /\ rdecisions' = Append(rdecisions,
+                [token |-> m.t, hb |-> highest, ha |-> highest', outcome |-> out, client |-> m.c,
+                 rid |-> m.r, value |-> val, held |-> stval, nwrites |-> Len(decisions)])
+       /\ rToAck' = rToAck \cup {[c |-> m.c, t |-> m.t, g |-> m.g, r |-> m.r,
+                                  outcome |-> out, v |-> val]}
+       /\ Emit(IF srv
+                THEN [event |-> "ReadAccept", key |-> Key, token |-> m.t, highest_before |-> highest,
+                      value |-> val, grantor_term |-> m.g, client |-> m.c, rid |-> m.r]
+                ELSE [event |-> "ReadReject", key |-> Key, token |-> m.t, highest_before |-> highest,
+                      grantor_term |-> m.g, client |-> m.c, rid |-> m.r])
+
+\* derives: C2.2, F1.1, F1.2, F2.1, F2.2 -- storage sends a queued read ack (lost if the link
+\* storage->client is down or the client is down, at the moment it is sent)
+SendReadAck(a) ==
+    /\ up[Store]
+    /\ a \in rToAck
+    /\ rToAck' = rToAck \ {a}
+    /\ rAckMsgs' = IF Link(Store, a.c) /\ up[a.c] THEN rAckMsgs \cup {a} ELSE rAckMsgs
+    /\ UNCHANGED <<readMsgs, awaitingR, rdecisions, given>>
+    /\ UNCHANGED <<up, paused, down, promised, maxTok, leader, term, ltok, reqs, pending,
+                   tok, myToks, awaiting, grantMsgs, writeMsgs, ackMsgs, dups, highest, stval,
+                   toAck, grants, decisions, told>>
+    /\ Internal("SendReadAck", Store)
+
+\* derives: C2.2, F1.3 -- a client receives an ack for a read it is awaiting and is given
+\* exactly the value the ack carries (only when the ack says served)
+RecvReadAck(a) ==
+    /\ a \in rAckMsgs
+    /\ up[a.c] /\ ~paused[a.c]
+    /\ rAckMsgs' = rAckMsgs \ {a}
+    /\ UNCHANGED <<readMsgs, rToAck, rdecisions>>
+    /\ UNCHANGED <<up, paused, down, promised, maxTok, leader, term, ltok, reqs, pending,
+                   tok, myToks, awaiting, grantMsgs, writeMsgs, ackMsgs, dups, highest, stval,
+                   toAck, grants, decisions, told>>
+    /\ LET w == [t |-> a.t, g |-> a.g, r |-> a.r] IN
+       IF w \in awaitingR[a.c]
+       THEN /\ awaitingR' = [awaitingR EXCEPT ![a.c] = @ \ {w}]
+            /\ given' = IF a.outcome = "served"
+                        THEN given \cup {[c |-> a.c, t |-> a.t, r |-> a.r, v |-> a.v]} ELSE given
+            /\ Emit(IF a.outcome = "served"
+                     THEN [event |-> "ReadAck", client |-> a.c, key |-> Key, token |-> a.t,
+                           outcome |-> "served", value |-> a.v, grantor_term |-> a.g, rid |-> a.r]
+                     ELSE [event |-> "ReadAck", client |-> a.c, key |-> Key, token |-> a.t,
+                           outcome |-> "rejected", grantor_term |-> a.g, rid |-> a.r])
+       ELSE /\ UNCHANGED <<awaitingR, given>>
+            /\ Internal("DropReadAck", a.c)
+
+\* derives: C2.1, C2.2, F1.3, F2.1, F2.2; format v3 (read), v2 T3 -- workload: client reads with its current
+\* (or stale) token; waits as for a write. The read id is the schedule step index.
+DoRead(c, stale) ==
+    LET k == IF stale THEN StaleTok(c) ELSE tok[c] IN
+    /\ up[c] /\ ~paused[c]
+    /\ k.t > 0
+    /\ readMsgs' = IF Link(c, Store) /\ up[Store]
+                   THEN readMsgs \cup {[c |-> c, t |-> k.t, g |-> k.g, r |-> pc]}
+                   ELSE readMsgs
+    /\ awaitingR' = [awaitingR EXCEPT ![c] = @ \cup {[t |-> k.t, g |-> k.g, r |-> pc]}]
+    /\ UNCHANGED <<rToAck, rAckMsgs, rdecisions, given>>
+    /\ UNCHANGED <<up, paused, down, promised, maxTok, leader, term, ltok, reqs, pending,
+                   tok, myToks, awaiting, grantMsgs, writeMsgs, ackMsgs, dups, highest, stval,
+                   toAck, grants, decisions, told>>
+    /\ lastEv' = [event |-> "ReadAttempt", client |-> c, key |-> Key, token |-> k.t,
+                  grantor_term |-> k.g, rid |-> pc]
+
+\* derives: F1.1 -- crash-stop: volatile state lost, durable state kept, messages to p lost
+Crash(p) ==
+    /\ up[p]
+    /\ up' = [up EXCEPT ![p] = FALSE]
+    /\ IF p \in Nodes
+       THEN /\ leader' = [leader EXCEPT ![p] = FALSE]
+            /\ term' = [term EXCEPT ![p] = 0]
+            /\ ltok' = [ltok EXCEPT ![p] = 0]
+            /\ UNCHANGED <<paused, reqs, pending, tok, myToks, awaiting, grantMsgs,
+                           writeMsgs, ackMsgs, toAck>>
+            /\ UNCHANGED <<readMsgs, rToAck, rAckMsgs, awaitingR>>
+       ELSE IF p \in Clients
+       THEN /\ paused' = [paused EXCEPT ![p] = FALSE]
+            /\ reqs' = reqs \ {p}
+            /\ pending' = [pending EXCEPT ![p] = FALSE]
+            /\ tok' = [tok EXCEPT ![p] = NoTok]
+            /\ myToks' = [myToks EXCEPT ![p] = {}]
+            /\ awaiting' = [awaiting EXCEPT ![p] = {}]
+            /\ grantMsgs' = {m \in grantMsgs : m.c # p}
+            /\ ackMsgs' = {a \in ackMsgs : a.c # p}
+            /\ UNCHANGED <<leader, term, ltok, writeMsgs, toAck>>
+            \* derives: C2.2, F1.1 -- a crashed client loses its read acks and awaited reads
+            /\ rAckMsgs' = {a \in rAckMsgs : a.c # p}
+            /\ awaitingR' = [awaitingR EXCEPT ![p] = {}]
+            /\ UNCHANGED <<readMsgs, rToAck>>
+       ELSE \* storage
+            /\ writeMsgs' = {}
+            /\ toAck' = {}
+            /\ UNCHANGED <<leader, term, ltok, paused, reqs, pending, tok, myToks,
+                           awaiting, grantMsgs, ackMsgs>>
+            \* derives: C2.1, C2.2, F1.1 -- storage loses in-flight reads and unsent read acks
+            /\ readMsgs' = {}
+            /\ rToAck' = {}
+            /\ UNCHANGED <<rAckMsgs, awaitingR>>
+    /\ UNCHANGED <<down, promised, maxTok, dups, highest, stval, grants, decisions, told>>
+    /\ UNCHANGED <<rdecisions, given>>
+    /\ lastEv' = [event |-> "Fault", cell |-> "F1.1", action |-> "crash", target |-> p]
+
+\* derives: F1.1 -- restart with durable state only (a restarted client has no grant)
+Restart(p) ==
+    /\ UNCHANGED rvars  \* derives: C2.1, C2.2 -- reads untouched
+    /\ ~up[p]
+    /\ up' = [up EXCEPT ![p] = TRUE]
+    /\ UNCHANGED <<paused, down, promised, maxTok, leader, term, ltok, reqs, pending, tok,
+                   myToks, awaiting, grantMsgs, writeMsgs, ackMsgs, dups, highest, stval,
+                   toAck, grants, decisions, told>>
+    /\ lastEv' = [event |-> "Fault", cell |-> "F1.1", action |-> "restart", target |-> p]
+
+\* derives: F1.2, F2.1 -- complete bipartition: every link between the two sides goes down in
+\* both directions (F2.1: "F1.2 is the special case in which the down links are exactly
+\* those between two sides"). Link failures accumulate (format v4 L2).
+\* X2: messages already in flight are not dropped (failure model v2: a message's fate is
+\* fixed when it is sent). This replaces v1 interpretation 13 (README, X2).
+Partition(A) ==
+    /\ UNCHANGED rvars  \* derives: C2.1, C2.2 -- reads untouched (in-flight reads keep their fate)
+    /\ A # {} /\ A # Procs
+    /\ down' = down \cup {x \in Procs \X Procs : (x[1] \in A) # (x[2] \in A)}
+    /\ UNCHANGED <<up, paused, promised, maxTok, leader, term, ltok, reqs, pending, tok,
+                   myToks, awaiting, grantMsgs, writeMsgs, ackMsgs, dups, highest, stval,
+                   toAck, grants, decisions, told>>
+    /\ lastEv' = [event |-> "Fault", cell |-> "F1.2", action |-> "partition", sideA |-> A]
+
+\* derives: F2.1; format v4 cut, L1, L2 -- partial partition: each listed link goes down in both
+\* directions (L is the listed pairs, already resolved, self-pairs removed)
+Cut(L) ==
+    /\ UNCHANGED rvars  \* derives: C2.1, C2.2 -- reads untouched
+    /\ down' = down \cup BothWays(L)
+    /\ UNCHANGED <<up, paused, promised, maxTok, leader, term, ltok, reqs, pending, tok,
+                   myToks, awaiting, grantMsgs, writeMsgs, ackMsgs, dups, highest, stval,
+                   toAck, grants, decisions, told>>
+    /\ lastEv' = [event |-> "Fault", cell |-> "F2.1", action |-> "cut", pairs |-> L, links |-> BothWays(L)]
+
+\* derives: F2.2; format v4 drop, L1, L2 -- simplex link failure: each listed link goes down in
+\* the listed direction only (L is already resolved, self-pairs removed)
+Drop(L) ==
+    /\ UNCHANGED rvars  \* derives: C2.1, C2.2 -- reads untouched
+    /\ down' = down \cup L
+    /\ UNCHANGED <<up, paused, promised, maxTok, leader, term, ltok, reqs, pending, tok,
+                   myToks, awaiting, grantMsgs, writeMsgs, ackMsgs, dups, highest, stval,
+                   toAck, grants, decisions, told>>
+    /\ lastEv' = [event |-> "Fault", cell |-> "F2.2", action |-> "drop", pairs |-> L, links |-> L]
+
+\* derives: F1.2, F2.1, F2.2; format v4 L2 -- a heal, whichever cell it names, restores every
+\* link; lost messages stay lost
+Heal(cell) ==
+    /\ UNCHANGED rvars  \* derives: C2.1, C2.2 -- reads untouched
+    /\ down' = {}
+    /\ UNCHANGED <<up, paused, promised, maxTok, leader, term, ltok, reqs, pending, tok,
+                   myToks, awaiting, grantMsgs, writeMsgs, ackMsgs, dups, highest, stval,
+                   toAck, grants, decisions, told>>
+    /\ lastEv' = [event |-> "Fault", cell |-> cell, action |-> "heal", target |-> "all"]
+
+\* derives: F1.3 -- holder pause: the client takes no steps; the rest of the world proceeds
+Pause(c) ==
+    /\ UNCHANGED rvars  \* derives: C2.1, C2.2 -- reads untouched
+    /\ up[c] /\ ~paused[c]
+    /\ paused' = [paused EXCEPT ![c] = TRUE]
+    /\ UNCHANGED <<up, down, promised, maxTok, leader, term, ltok, reqs, pending, tok,
+                   myToks, awaiting, grantMsgs, writeMsgs, ackMsgs, dups, highest, stval,
+                   toAck, grants, decisions, told>>
+    /\ lastEv' = [event |-> "Fault", cell |-> "F1.3", action |-> "pause", target |-> c]
+
+\* derives: F1.3 -- resume as if no time had passed (the client keeps its old token)
+Resume(c) ==
+    /\ UNCHANGED rvars  \* derives: C2.1, C2.2 -- reads untouched
+    /\ paused[c]
+    /\ paused' = [paused EXCEPT ![c] = FALSE]
+    /\ UNCHANGED <<up, down, promised, maxTok, leader, term, ltok, reqs, pending, tok,
+                   myToks, awaiting, grantMsgs, writeMsgs, ackMsgs, dups, highest, stval,
+                   toAck, grants, decisions, told>>
+    /\ lastEv' = [event |-> "Fault", cell |-> "F1.3", action |-> "resume", target |-> c]
+
+\* derives: F1.2 -- the side of a partition step, after resolving grantor/holder/rest
+SideOf(st, ng) ==
+    LET a == {Resolve(x, ng) : x \in st.a \ {"rest"}}
+        b == {Resolve(x, ng) : x \in st.b \ {"rest"}} IN
+    IF "rest" \in st.a THEN Procs \ b ELSE a
+
+\* derives: F2.1, F2.2; format v4 L1 -- the names in a step's link list (both ends of every pair)
+LinkNames(st) == {e[1] : e \in st.l} \cup {e[2] : e \in st.l}
+
+\* derives: F2.1, F2.2; format v4 L1 -- the directed links a `cut`/`drop` step names, selectors
+\* resolved, self-pairs removed (a pair whose ends resolve to one process is ignored)
+StepLinks(st, ng) == {<<Resolve(e[1], ng), Resolve(e[2], ng)>> : e \in st.l}
+                     \ {<<p, p>> : p \in Procs}
+
+\* derives: F1.1, F1.2, F1.3, F2.1, F2.2; format v2 A1, v4 L1 -- every alias in the step resolved
+\* to a process (an alias that names no Grant yet leaves the step waiting; the compiler
+\* rejects the statically detectable cases)
+Resolved(st, ng) == /\ st.p = "none" \/ Resolve(st.p, ng) \in Procs
+                    /\ \A x \in (st.a \cup st.b) \ {"rest"} : Resolve(x, ng) \in Procs
+                    /\ \A x \in LinkNames(st) : Resolve(x, ng) \in Procs
+
+\* derives: C1.2, C1.4, F1.1, F1.2, F1.3, F2.1, F2.2; format v2 A1, T3, v4 cut, drop -- the effect of one schedule step
+\* (each workload action's own guard makes it wait as T3 requires)
+DoStep(st, ng) ==
+    /\ Resolved(st, ng)
+    /\ CASE st.kind = "request"   -> DoRequest(Resolve(st.p, ng))
+      [] st.kind = "write"     -> DoWrite(Resolve(st.p, ng), st.v, st.stale)
+      [] st.kind = "read"      -> DoRead(Resolve(st.p, ng), st.stale)   \* derives: C2.1, C2.2
+      [] st.kind = "crash"     -> Crash(Resolve(st.p, ng))
+      [] st.kind = "restart"   -> Restart(Resolve(st.p, ng))
+      [] st.kind = "partition" -> Partition(SideOf(st, ng))
+      [] st.kind = "heal"      -> Heal(st.cell)                          \* derives: F1.2, F2.1, F2.2
+      [] st.kind = "cut"       -> Cut(StepLinks(st, ng))                \* derives: F2.1
+      [] st.kind = "drop"      -> Drop(StepLinks(st, ng))               \* derives: F2.2
+      [] st.kind = "pause"     -> Pause(Resolve(st.p, ng))
+      [] st.kind = "resume"    -> Resume(Resolve(st.p, ng))
+
+\* derives: F1.1; format v2.1 A1 -- candidate resolutions of `non-grantor` for step st
+\* format v2.1 T1: the next trigger is offered lastEv', the event this step's own action emitted
+\* synchronously, so a step may be triggered by its predecessor's own event.
+\* format v2.1 A1: `non-grantor` is explored over every candidate (the lease nodes other than
+\* grantor that were up when the trigger fired); `restart: non-grantor` names the node the most
+\* recent `crash: non-grantor` crashed, whether or not it is a non-grantor now (format v2.2 A1).
+\* derives: F2.1, F2.2; format v4 L1 -- `non-grantor` may also stand in a link
+NGChoices(st) ==
+    IF "non-grantor" \notin ({st.p} \cup st.a \cup st.b \cup LinkNames(st)) THEN {"none"}
+    ELSE IF st.kind = "restart" THEN {ngDown}
+    ELSE trigNG
+
+\* derives: F1.1, F1.2, F1.3; format v2.1 T1, A1 -- apply step pc once its trigger has held; arm the next trigger
+ScheduleStep ==
+    /\ pc <= Len(Steps)
+    /\ fired
+    /\ \E ng \in NGChoices(Steps[pc]) :
+        /\ DoStep(Steps[pc], ng)
+        /\ ngDown' = IF Steps[pc].kind = "crash" /\ Steps[pc].p = "non-grantor" THEN ng ELSE ngDown
+    /\ pc' = pc + 1
+    /\ fired' = (IsStart(Trig(pc + 1)) \/ Matches(Trig(pc + 1), lastEv'))
+    /\ trigG' = IF fired' THEN LastGrant ELSE trigG
+    /\ trigNG' = IF fired' THEN {n \in Nodes : up'[n]} \ {LastGrant.node} ELSE trigNG
+
+\* ===========================================================================
+\* derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, F2.1, F2.2
+Protocol ==
+    \/ \E n \in Nodes : Elect(n) \/ StepDown(n)
+    \/ \E n \in Nodes : CheckQuorum(n)   \* derives: C1.4, F2.2
+    \/ \E n, q \in Nodes : Join(n, q)
+    \/ \E n \in Nodes, c \in Clients : Grant(n, c)
+    \/ \E m \in grantMsgs : RecvGrant(m)
+    \/ \E m \in writeMsgs, d \in BOOLEAN : StorageDecide(m, d)
+    \/ \E a \in toAck : SendAck(a)
+    \/ \E a \in ackMsgs : RecvAck(a)
+    \/ \E m \in readMsgs, d \in BOOLEAN : StorageRead(m, d)   \* derives: C2.1, C2.2
+    \/ \E a \in rToAck : SendReadAck(a)                       \* derives: C2.2
+    \/ \E a \in rAckMsgs : RecvReadAck(a)                     \* derives: C2.2
+
+\* derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3
+Next == Protocol \/ ScheduleStep
+
+\* derives: C1.4 -- weak fairness on every protocol action and on the schedule
+\* (the environment does eventually perform each scheduled step whose trigger held).
+\* X2: every condition is named, with its justification, in README "Fairness (X2)". Each
+\* protocol action's enablement depends only on the acting process's own state and on
+\* messages over links that are up; none requires hearing a peer over a down link.
+Fairness ==
+    /\ \A n \in Nodes : WF_vars(Elect(n)) /\ WF_vars(StepDown(n))
+    /\ \A n \in Nodes : WF_vars(CheckQuorum(n))  \* derives: C1.4, F2.2 (own timer only)
+    /\ \A n, q \in Nodes : WF_vars(Join(n, q))  \* derives: C1.4, F1.1 (P10 fix)
+    /\ \A n \in Nodes, c \in Clients : WF_vars(Grant(n, c))
+    /\ WF_vars(\E m \in grantMsgs : RecvGrant(m))
+    /\ WF_vars(\E m \in writeMsgs : StorageDecide(m, FALSE))
+    /\ WF_vars(\E a \in toAck : SendAck(a))
+    /\ WF_vars(\E a \in ackMsgs : RecvAck(a))
+    /\ WF_vars(\E m \in readMsgs : StorageRead(m, FALSE))   \* derives: C2.1, C2.2
+    /\ WF_vars(\E a \in rToAck : SendReadAck(a))            \* derives: C2.2
+    /\ WF_vars(\E a \in rAckMsgs : RecvReadAck(a))          \* derives: C2.2
+    /\ WF_vars(ScheduleStep)
+
+\* derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3
+Spec == Init /\ [][Next]_vars /\ Fairness
+
+\* ===========================================================================
+\* Properties
+\* ===========================================================================
+
+\* derives: C1.1, C1.2, C1.3 -- shape of the state (catches modelling errors, not a clause)
+TypeOK ==
+    /\ up \in [Procs -> BOOLEAN]
+    /\ paused \in [Clients -> BOOLEAN]
+    /\ down \subseteq (Procs \X Procs)   \* derives: F2.1, F2.2
+    /\ highest \in Nat
+    /\ pc \in 1..(Len(Steps) + 1)
+
+\* derives: C1.1 -- each grant's token is strictly greater than every earlier grant's
+C1_1 == \A i, j \in 1..Len(grants) : i < j => grants[i].token < grants[j].token
+
+\* derives: C1.2 -- storage accepts only tokens >= every token it accepted before
+\* (stated over the decision history, not over storage's own ledger variable, so a
+\* ledger that forgets is caught; the ledger update is implied by this)
+C1_2 == \A i \in 1..Len(decisions) :
+          decisions[i].outcome = "accept" =>
+            \A j \in 1..(i - 1) : decisions[j].outcome = "accept" =>
+                                    decisions[j].token <= decisions[i].token
+
+\* derives: C1.3 -- every write a client was told succeeded was accepted by storage
+C1_3 == \A x \in told : \E i \in 1..Len(decisions) :
+          /\ decisions[i].outcome = "accept"
+          /\ decisions[i].client = x.c
+          /\ decisions[i].token = x.t
+          /\ decisions[i].value = x.v
+
+\* derives: C2.1 -- every served read's token is >= every token a write was accepted with
+\* before it (over history, not over storage's ledger), and a read decision leaves the
+\* ledger unchanged
+C2_1 == \A i \in 1..Len(rdecisions) :
+          /\ rdecisions[i].outcome = "served" =>
+               \A j \in 1..rdecisions[i].nwrites :
+                  decisions[j].outcome = "accept" => decisions[j].token <= rdecisions[i].token
+          /\ rdecisions[i].ha = rdecisions[i].hb
+
+\* derives: C2.2 -- every value a client was given was returned by an earlier serve of that
+\* very read (client, token, read id), and equals what storage held when it served
+C2_2 == \A x \in given : \E i \in 1..Len(rdecisions) :
+          /\ rdecisions[i].outcome = "served"
+          /\ rdecisions[i].client = x.c
+          /\ rdecisions[i].token = x.t
+          /\ rdecisions[i].rid = x.r
+          /\ rdecisions[i].value = x.v
+          /\ rdecisions[i].held = x.v
+
+\* derives: C1.4, F2.1, F2.2; format v4 L3 -- C1.4's premise, read literally with "connected" as
+\* failure model v2 defines it (direct, both directions): a majority Q of lease nodes and
+\* storage are up and connected to each other, and connected to client c, which is up and
+\* not paused. Q need not contain the grantor. Under v1 bipartitions this is the old Good(c).
+Good(c) == /\ up[Store] /\ up[c] /\ ~paused[c]
+           /\ Conn(c, Store)
+           /\ \E Q \in SUBSET Nodes :
+                /\ Majority(Q)
+                /\ \A q \in Q : up[q] /\ Conn(q, Store) /\ Conn(q, c)
+                /\ \A q, r \in Q : Conn(q, r)
+
+\* derives: C1.4 -- if the good condition eventually holds forever, every pending
+\* requester eventually stops waiting (obtains a grant)
+C1_4 == \A c \in Clients : (<>[]Good(c)) => [](pending[c] => <>(~pending[c]))
+
+\* derives: C1.1, C1.4 -- bound check: no election ever reaches the last allowed term,
+\* so MaxTerm never constrains a behaviour (run.sh reports a violation as UNEXPLAINED)
+TermHeadroom == \A n \in Nodes : promised[n] < MaxTerm
+
+\* derives: F1.1, F1.2, F1.3 -- witness target: the run ended and the system is quiescent
+\* derives: F1.1, F1.2, F1.3; format v2 E1 -- quiescent: no request, write or ack in flight
+\* and no client waiting for a grant, with crashed and paused processes not counted
+\* (a message counts as in flight when its receiver is running)
+Active(c) == up[c] /\ ~paused[c]
+\* derives: F1.1, F1.2, F1.3; format v2 E1
+Quiescent == /\ \A m \in grantMsgs : ~Active(m.c)
+             /\ writeMsgs = {} \/ ~up[Store]
+             /\ \A a \in ackMsgs : ~Active(a.c)
+             /\ \A a \in toAck : ~up[Store] \/ ~Active(a.c)
+             /\ \A c \in Clients : Active(c) => ~pending[c]
+             /\ readMsgs = {} \/ ~up[Store]                      \* derives: C2.1; format v2 E1
+             /\ \A a \in rAckMsgs : ~Active(a.c)                  \* derives: C2.2; format v2 E1
+             /\ \A a \in rToAck : ~up[Store] \/ ~Active(a.c)      \* derives: C2.2; format v2 E1
+\* derives: F1.1, F1.2, F1.3; format v2 E1 -- the run has reached its end: every step applied,
+\* and either the end trigger fired (armed when the last step was taken) or, for
+\* `end: quiescent`, the state is quiescent
+Done == /\ pc = Len(Steps) + 1
+        /\ IF EndTrig.event = "quiescent" THEN Quiescent ELSE fired
+\* derives: F1.1, F1.2, F1.3 -- violated by any trace that reaches the end of the schedule
+NotEnded == ~(Done /\ Quiescent)
+\* derives: F1.1, F1.2, F1.3 -- weaker witness: the schedule's end trigger fired
+NotDone == ~Done
+=============================================================================
+
+===== FILE: traces/model-H8-tlc-output.txt =====
+TLC2 Version 2.19 of 08 August 2024 (rev: 5a47802)
+Running breadth-first search Model-Checking with fp 115 and seed 7801496716664210744 with 4 workers on 128 cores with 27305MB heap and 64MB offheap memory [pid: 5100] (Linux 6.18.54.1-microsoft-standard-WSL2 amd64, Ubuntu 11.0.32.1 x86_64, MSBDiskFPSet, DiskStateQueue).
+Parsing file /home/tony/projects/tupay-x2-runA/model/.work/H8/MC.tla
+Parsing file /home/tony/projects/tupay-x2-runA/model/.work/H8/Lease.tla
+Parsing file /home/tony/projects/tupay-x2-runA/model/.work/jtmp/Integers.tla
+Parsing file /home/tony/projects/tupay-x2-runA/model/.work/jtmp/Sequences.tla
+Parsing file /home/tony/projects/tupay-x2-runA/model/.work/jtmp/FiniteSets.tla
+Parsing file /home/tony/projects/tupay-x2-runA/model/.work/jtmp/TLC.tla
+Parsing file /home/tony/projects/tupay-x2-runA/model/.work/jtmp/Naturals.tla
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module Lease
+Semantic processing of module MC
+Starting... (2026-10-20 23:28:56)
+Implied-temporal checking--satisfiability problem has 2 branches.
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-10-20 23:28:57.
+Progress(14) at 2026-10-20 23:28:58: 1,142 states generated, 686 distinct states found, 0 states left on queue.
+Checking 2 branches of temporal properties for the complete state space with 1372 total distinct states at (2026-10-20 23:28:58)
+Error: Temporal properties were violated.
+
+Error: The following behavior constitutes a counter-example:
+
+State 1: <Initial predicate>
+/\ leader = [n1 |-> FALSE, n2 |-> FALSE, n3 |-> FALSE]
+/\ toAck = {}
+/\ paused = [c1 |-> FALSE, c2 |-> FALSE]
+/\ reqs = {}
+/\ grantMsgs = {}
+/\ promised = [n1 |-> 0, n2 |-> 0, n3 |-> 0]
+/\ awaitingR = [c1 |-> {}, c2 |-> {}]
+/\ dups = 0
+/\ rdecisions = <<>>
+/\ grants = <<>>
+/\ maxTok = [n1 |-> 0, n2 |-> 0, n3 |-> 0]
+/\ myToks = [c1 |-> {}, c2 |-> {}]
+/\ rAckMsgs = {}
+/\ pc = 1
+/\ tok = [c1 |-> [t |-> 0, g |-> 0], c2 |-> [t |-> 0, g |-> 0]]
+/\ ackMsgs = {}
+/\ told = {}
+/\ ngDown = "none"
+/\ writeMsgs = {}
+/\ trigNG = {"n1", "n2", "n3"}
+/\ pending = [c1 |-> FALSE, c2 |-> FALSE]
+/\ fired = TRUE
+/\ stval = "none"
+/\ lastEv = [event |-> "Init"]
+/\ awaiting = [c1 |-> {}, c2 |-> {}]
+/\ decisions = <<>>
+/\ rToAck = {}
+/\ readMsgs = {}
+/\ down = {}
+/\ up = [s |-> TRUE, n1 |-> TRUE, n2 |-> TRUE, n3 |-> TRUE, c1 |-> TRUE, c2 |-> TRUE]
+/\ term = [n1 |-> 0, n2 |-> 0, n3 |-> 0]
+/\ given = {}
+/\ highest = 0
+/\ ltok = [n1 |-> 0, n2 |-> 0, n3 |-> 0]
+/\ trigG = [client |-> "none", node |-> "none"]
+
+State 2: <Elect line 197, col 5 to line 214, col 27 of module Lease>
+/\ leader = [n1 |-> FALSE, n2 |-> TRUE, n3 |-> FALSE]
+/\ toAck = {}
+/\ paused = [c1 |-> FALSE, c2 |-> FALSE]
+/\ reqs = {}
+/\ grantMsgs = {}
+/\ promised = [n1 |-> 1, n2 |-> 1, n3 |-> 1]
+/\ awaitingR = [c1 |-> {}, c2 |-> {}]
+/\ dups = 0
+/\ rdecisions = <<>>
+/\ grants = <<>>
+/\ maxTok = [n1 |-> 0, n2 |-> 0, n3 |-> 0]
+/\ myToks = [c1 |-> {}, c2 |-> {}]
+/\ rAckMsgs = {}
+/\ pc = 1
+/\ tok = [c1 |-> [t |-> 0, g |-> 0], c2 |-> [t |-> 0, g |-> 0]]
+/\ ackMsgs = {}
+/\ told = {}
+/\ ngDown = "none"
+/\ writeMsgs = {}
+/\ trigNG = {"n1", "n2", "n3"}
+/\ pending = [c1 |-> FALSE, c2 |-> FALSE]
+/\ fired = TRUE
+/\ stval = "none"
+/\ lastEv = [event |-> "Internal", what |-> "Elect", proc |-> "n2"]
+/\ awaiting = [c1 |-> {}, c2 |-> {}]
+/\ decisions = <<>>
+/\ rToAck = {}
+/\ readMsgs = {}
+/\ down = {}
+/\ up = [s |-> TRUE, n1 |-> TRUE, n2 |-> TRUE, n3 |-> TRUE, c1 |-> TRUE, c2 |-> TRUE]
+/\ term = [n1 |-> 0, n2 |-> 1, n3 |-> 0]
+/\ given = {}
+/\ highest = 0
+/\ ltok = [n1 |-> 0, n2 |-> 0, n3 |-> 0]
+/\ trigG = [client |-> "none", node |-> "none"]
+
+State 3: <ScheduleStep line 662, col 5 to line 670, col 85 of module Lease>
+/\ leader = [n1 |-> FALSE, n2 |-> TRUE, n3 |-> FALSE]
+/\ toAck = {}
+/\ paused = [c1 |-> FALSE, c2 |-> FALSE]
+/\ reqs = {"c1"}
+/\ grantMsgs = {}
+/\ promised = [n1 |-> 1, n2 |-> 1, n3 |-> 1]
+/\ awaitingR = [c1 |-> {}, c2 |-> {}]
+/\ dups = 0
+/\ rdecisions = <<>>
+/\ grants = <<>>
+/\ maxTok = [n1 |-> 0, n2 |-> 0, n3 |-> 0]
+/\ myToks = [c1 |-> {}, c2 |-> {}]
+/\ rAckMsgs = {}
+/\ pc = 2
+/\ tok = [c1 |-> [t |-> 0, g |-> 0], c2 |-> [t |-> 0, g |-> 0]]
+/\ ackMsgs = {}
+/\ told = {}
+/\ ngDown = "none"
+/\ writeMsgs = {}
+/\ trigNG = {"n1", "n2", "n3"}
+/\ pending = [c1 |-> TRUE, c2 |-> FALSE]
+/\ fired = FALSE
+/\ stval = "none"
+/\ lastEv = [event |-> "Request", client |-> "c1", key |-> "k"]
+/\ awaiting = [c1 |-> {}, c2 |-> {}]
+/\ decisions = <<>>
+/\ rToAck = {}
+/\ readMsgs = {}
+/\ down = {}
+/\ up = [s |-> TRUE, n1 |-> TRUE, n2 |-> TRUE, n3 |-> TRUE, c1 |-> TRUE, c2 |-> TRUE]
+/\ term = [n1 |-> 0, n2 |-> 1, n3 |-> 0]
+/\ given = {}
+/\ highest = 0
+/\ ltok = [n1 |-> 0, n2 |-> 0, n3 |-> 0]
+/\ trigG = [client |-> "none", node |-> "none"]
+
+State 4: <Grant line 271, col 5 to line 288, col 81 of module Lease>
+/\ leader = [n1 |-> FALSE, n2 |-> TRUE, n3 |-> FALSE]
+/\ toAck = {}
+/\ paused = [c1 |-> FALSE, c2 |-> FALSE]
+/\ reqs = {"c1"}
+/\ grantMsgs = {[t |-> 1, g |-> 1, n |-> "n2", c |-> "c1"]}
+/\ promised = [n1 |-> 1, n2 |-> 1, n3 |-> 1]
+/\ awaitingR = [c1 |-> {}, c2 |-> {}]
+/\ dups = 0
+/\ rdecisions = <<>>
+/\ grants = <<[client |-> "c1", term |-> 1, node |-> "n2", token |-> 1]>>
+/\ maxTok = [n1 |-> 1, n2 |-> 1, n3 |-> 1]
+/\ myToks = [c1 |-> {}, c2 |-> {}]
+/\ rAckMsgs = {}
+/\ pc = 2
+/\ tok = [c1 |-> [t |-> 0, g |-> 0], c2 |-> [t |-> 0, g |-> 0]]
+/\ ackMsgs = {}
+/\ told = {}
+/\ ngDown = "none"
+/\ writeMsgs = {}
+/\ trigNG = {"n1", "n3"}
+/\ pending = [c1 |-> TRUE, c2 |-> FALSE]
+/\ fired = TRUE
+/\ stval = "none"
+/\ lastEv = [event |-> "Grant", client |-> "c1", node |-> "n2", token |-> 1, key |-> "k", lifetime |-> 1, grantor_term |-> 1]
+/\ awaiting = [c1 |-> {}, c2 |-> {}]
+/\ decisions = <<>>
+/\ rToAck = {}
+/\ readMsgs = {}
+/\ down = {}
+/\ up = [s |-> TRUE, n1 |-> TRUE, n2 |-> TRUE, n3 |-> TRUE, c1 |-> TRUE, c2 |-> TRUE]
+/\ term = [n1 |-> 0, n2 |-> 1, n3 |-> 0]
+/\ given = {}
+/\ highest = 0
+/\ ltok = [n1 |-> 0, n2 |-> 1, n3 |-> 0]
+/\ trigG = [client |-> "c1", node |-> "n2"]
+
+State 5: <Protocol line 679, col 8 to line 679, col 40 of module Lease>
+/\ leader = [n1 |-> FALSE, n2 |-> TRUE, n3 |-> FALSE]
+/\ toAck = {}
+/\ paused = [c1 |-> FALSE, c2 |-> FALSE]
+/\ reqs = {}
+/\ grantMsgs = {}
+/\ promised = [n1 |-> 1, n2 |-> 1, n3 |-> 1]
+/\ awaitingR = [c1 |-> {}, c2 |-> {}]
+/\ dups = 0
+/\ rdecisions = <<>>
+/\ grants = <<[client |-> "c1", term |-> 1, node |-> "n2", token |-> 1]>>
+/\ maxTok = [n1 |-> 1, n2 |-> 1, n3 |-> 1]
+/\ myToks = [c1 |-> {[t |-> 1, g |-> 1]}, c2 |-> {}]
+/\ rAckMsgs = {}
+/\ pc = 2
+/\ tok = [c1 |-> [t |-> 1, g |-> 1], c2 |-> [t |-> 0, g |-> 0]]
+/\ ackMsgs = {}
+/\ told = {}
+/\ ngDown = "none"
+/\ writeMsgs = {}
+/\ trigNG = {"n1", "n3"}
+/\ pending = [c1 |-> FALSE, c2 |-> FALSE]
+/\ fired = TRUE
+/\ stval = "none"
+/\ lastEv = [event |-> "Internal", what |-> "RecvGrant", proc |-> "c1"]
+/\ awaiting = [c1 |-> {}, c2 |-> {}]
+/\ decisions = <<>>
+/\ rToAck = {}
+/\ readMsgs = {}
+/\ down = {}
+/\ up = [s |-> TRUE, n1 |-> TRUE, n2 |-> TRUE, n3 |-> TRUE, c1 |-> TRUE, c2 |-> TRUE]
+/\ term = [n1 |-> 0, n2 |-> 1, n3 |-> 0]
+/\ given = {}
+/\ highest = 0
+/\ ltok = [n1 |-> 0, n2 |-> 1, n3 |-> 0]
+/\ trigG = [client |-> "c1", node |-> "n2"]
+
+State 6: <ScheduleStep line 662, col 5 to line 670, col 85 of module Lease>
+/\ leader = [n1 |-> FALSE, n2 |-> TRUE, n3 |-> FALSE]
+/\ toAck = {}
+/\ paused = [c1 |-> FALSE, c2 |-> FALSE]
+/\ reqs = {}
+/\ grantMsgs = {}
+/\ promised = [n1 |-> 1, n2 |-> 1, n3 |-> 1]
+/\ awaitingR = [c1 |-> {}, c2 |-> {}]
+/\ dups = 0
+/\ rdecisions = <<>>
+/\ grants = <<[client |-> "c1", term |-> 1, node |-> "n2", token |-> 1]>>
+/\ maxTok = [n1 |-> 1, n2 |-> 1, n3 |-> 1]
+/\ myToks = [c1 |-> {[t |-> 1, g |-> 1]}, c2 |-> {}]
+/\ rAckMsgs = {}
+/\ pc = 3
+/\ tok = [c1 |-> [t |-> 1, g |-> 1], c2 |-> [t |-> 0, g |-> 0]]
+/\ ackMsgs = {}
+/\ told = {}
+/\ ngDown = "none"
+/\ writeMsgs = {[v |-> "v1", t |-> 1, g |-> 1, c |-> "c1"]}
+/\ trigNG = {"n1", "n3"}
+/\ pending = [c1 |-> FALSE, c2 |-> FALSE]
+/\ fired = FALSE
+/\ stval = "none"
+/\ lastEv = [event |-> "WriteAttempt", client |-> "c1", token |-> 1, key |-> "k", grantor_term |-> 1, value |-> "v1"]
+/\ awaiting = [c1 |-> {[v |-> "v1", t |-> 1, g |-> 1]}, c2 |-> {}]
+/\ decisions = <<>>
+/\ rToAck = {}
+/\ readMsgs = {}
+/\ down = {}
+/\ up = [s |-> TRUE, n1 |-> TRUE, n2 |-> TRUE, n3 |-> TRUE, c1 |-> TRUE, c2 |-> TRUE]
+/\ term = [n1 |-> 0, n2 |-> 1, n3 |-> 0]
+/\ given = {}
+/\ highest = 0
+/\ ltok = [n1 |-> 0, n2 |-> 1, n3 |-> 0]
+/\ trigG = [client |-> "c1", node |-> "n2"]
+
+State 7: <Protocol line 680, col 8 to line 680, col 62 of module Lease>
+/\ leader = [n1 |-> FALSE, n2 |-> TRUE, n3 |-> FALSE]
+/\ toAck = {[v |-> "v1", outcome |-> "accept", t |-> 1, g |-> 1, c |-> "c1"]}
+/\ paused = [c1 |-> FALSE, c2 |-> FALSE]
+/\ reqs = {}
+/\ grantMsgs = {}
+/\ promised = [n1 |-> 1, n2 |-> 1, n3 |-> 1]
+/\ awaitingR = [c1 |-> {}, c2 |-> {}]
+/\ dups = 0
+/\ rdecisions = <<>>
+/\ grants = <<[client |-> "c1", term |-> 1, node |-> "n2", token |-> 1]>>
+/\ maxTok = [n1 |-> 1, n2 |-> 1, n3 |-> 1]
+/\ myToks = [c1 |-> {[t |-> 1, g |-> 1]}, c2 |-> {}]
+/\ rAckMsgs = {}
+/\ pc = 3
+/\ tok = [c1 |-> [t |-> 1, g |-> 1], c2 |-> [t |-> 0, g |-> 0]]
+/\ ackMsgs = {}
+/\ told = {}
+/\ ngDown = "none"
+/\ writeMsgs = {}
+/\ trigNG = {"n1", "n3"}
+/\ pending = [c1 |-> FALSE, c2 |-> FALSE]
+/\ fired = FALSE
+/\ stval = "v1"
+/\ lastEv = [event |-> "WriteAccept", client |-> "c1", token |-> 1, key |-> "k", grantor_term |-> 1, value |-> "v1", highest_before |-> 0]
+/\ awaiting = [c1 |-> {[v |-> "v1", t |-> 1, g |-> 1]}, c2 |-> {}]
+/\ decisions = << [ client |-> "c1",
+     outcome |-> "accept",
+     term |-> 1,
+     token |-> 1,
+     hb |-> 0,
+     value |-> "v1" ] >>
+/\ rToAck = {}
+/\ readMsgs = {}
+/\ down = {}
+/\ up = [s |-> TRUE, n1 |-> TRUE, n2 |-> TRUE, n3 |-> TRUE, c1 |-> TRUE, c2 |-> TRUE]
+/\ term = [n1 |-> 0, n2 |-> 1, n3 |-> 0]
+/\ given = {}
+/\ highest = 1
+/\ ltok = [n1 |-> 0, n2 |-> 1, n3 |-> 0]
+/\ trigG = [client |-> "c1", node |-> "n2"]
+
+State 8: <Protocol line 681, col 8 to line 681, col 34 of module Lease>
+/\ leader = [n1 |-> FALSE, n2 |-> TRUE, n3 |-> FALSE]
+/\ toAck = {}
+/\ paused = [c1 |-> FALSE, c2 |-> FALSE]
+/\ reqs = {}
+/\ grantMsgs = {}
+/\ promised = [n1 |-> 1, n2 |-> 1, n3 |-> 1]
+/\ awaitingR = [c1 |-> {}, c2 |-> {}]
+/\ dups = 0
+/\ rdecisions = <<>>
+/\ grants = <<[client |-> "c1", term |-> 1, node |-> "n2", token |-> 1]>>
+/\ maxTok = [n1 |-> 1, n2 |-> 1, n3 |-> 1]
+/\ myToks = [c1 |-> {[t |-> 1, g |-> 1]}, c2 |-> {}]
+/\ rAckMsgs = {}
+/\ pc = 3
+/\ tok = [c1 |-> [t |-> 1, g |-> 1], c2 |-> [t |-> 0, g |-> 0]]
+/\ ackMsgs = {[v |-> "v1", outcome |-> "accept", t |-> 1, g |-> 1, c |-> "c1"]}
+/\ told = {}
+/\ ngDown = "none"
+/\ writeMsgs = {}
+/\ trigNG = {"n1", "n3"}
+/\ pending = [c1 |-> FALSE, c2 |-> FALSE]
+/\ fired = FALSE
+/\ stval = "v1"
+/\ lastEv = [event |-> "Internal", what |-> "SendAck", proc |-> "s"]
+/\ awaiting = [c1 |-> {[v |-> "v1", t |-> 1, g |-> 1]}, c2 |-> {}]
+/\ decisions = << [ client |-> "c1",
+     outcome |-> "accept",
+     term |-> 1,
+     token |-> 1,
+     hb |-> 0,
+     value |-> "v1" ] >>
+/\ rToAck = {}
+/\ readMsgs = {}
+/\ down = {}
+/\ up = [s |-> TRUE, n1 |-> TRUE, n2 |-> TRUE, n3 |-> TRUE, c1 |-> TRUE, c2 |-> TRUE]
+/\ term = [n1 |-> 0, n2 |-> 1, n3 |-> 0]
+/\ given = {}
+/\ highest = 1
+/\ ltok = [n1 |-> 0, n2 |-> 1, n3 |-> 0]
+/\ trigG = [client |-> "c1", node |-> "n2"]
+
+State 9: <Protocol line 682, col 8 to line 682, col 36 of module Lease>
+/\ leader = [n1 |-> FALSE, n2 |-> TRUE, n3 |-> FALSE]
+/\ toAck = {}
+/\ paused = [c1 |-> FALSE, c2 |-> FALSE]
+/\ reqs = {}
+/\ grantMsgs = {}
+/\ promised = [n1 |-> 1, n2 |-> 1, n3 |-> 1]
+/\ awaitingR = [c1 |-> {}, c2 |-> {}]
+/\ dups = 0
+/\ rdecisions = <<>>
+/\ grants = <<[client |-> "c1", term |-> 1, node |-> "n2", token |-> 1]>>
+/\ maxTok = [n1 |-> 1, n2 |-> 1, n3 |-> 1]
+/\ myToks = [c1 |-> {[t |-> 1, g |-> 1]}, c2 |-> {}]
+/\ rAckMsgs = {}
+/\ pc = 3
+/\ tok = [c1 |-> [t |-> 1, g |-> 1], c2 |-> [t |-> 0, g |-> 0]]
+/\ ackMsgs = {}
+/\ told = {[v |-> "v1", t |-> 1, c |-> "c1"]}
+/\ ngDown = "none"
+/\ writeMsgs = {}
+/\ trigNG = {"n1", "n3"}
+/\ pending = [c1 |-> FALSE, c2 |-> FALSE]
+/\ fired = TRUE
+/\ stval = "v1"
+/\ lastEv = [event |-> "WriteAck", client |-> "c1", outcome |-> "accepted", token |-> 1, key |-> "k", grantor_term |-> 1, value |-> "v1"]
+/\ awaiting = [c1 |-> {}, c2 |-> {}]
+/\ decisions = << [ client |-> "c1",
+     outcome |-> "accept",
+     term |-> 1,
+     token |-> 1,
+     hb |-> 0,
+     value |-> "v1" ] >>
+/\ rToAck = {}
+/\ readMsgs = {}
+/\ down = {}
+/\ up = [s |-> TRUE, n1 |-> TRUE, n2 |-> TRUE, n3 |-> TRUE, c1 |-> TRUE, c2 |-> TRUE]
+/\ term = [n1 |-> 0, n2 |-> 1, n3 |-> 0]
+/\ given = {}
+/\ highest = 1
+/\ ltok = [n1 |-> 0, n2 |-> 1, n3 |-> 0]
+/\ trigG = [client |-> "c1", node |-> "n2"]
+
+State 10: <ScheduleStep line 662, col 5 to line 670, col 85 of module Lease>
+/\ leader = [n1 |-> FALSE, n2 |-> TRUE, n3 |-> FALSE]
+/\ toAck = {}
+/\ paused = [c1 |-> FALSE, c2 |-> FALSE]
+/\ reqs = {}
+/\ grantMsgs = {}
+/\ promised = [n1 |-> 1, n2 |-> 1, n3 |-> 1]
+/\ awaitingR = [c1 |-> {}, c2 |-> {}]
+/\ dups = 0
+/\ rdecisions = <<>>
+/\ grants = <<[client |-> "c1", term |-> 1, node |-> "n2", token |-> 1]>>
+/\ maxTok = [n1 |-> 1, n2 |-> 1, n3 |-> 1]
+/\ myToks = [c1 |-> {[t |-> 1, g |-> 1]}, c2 |-> {}]
+/\ rAckMsgs = {}
+/\ pc = 4
+/\ tok = [c1 |-> [t |-> 1, g |-> 1], c2 |-> [t |-> 0, g |-> 0]]
+/\ ackMsgs = {}
+/\ told = {[v |-> "v1", t |-> 1, c |-> "c1"]}
+/\ ngDown = "none"
+/\ writeMsgs = {}
+/\ trigNG = {"n1", "n3"}
+/\ pending = [c1 |-> FALSE, c2 |-> FALSE]
+/\ fired = TRUE
+/\ stval = "v1"
+/\ lastEv = [ event |-> "Fault",
+  cell |-> "F2.2",
+  action |-> "drop",
+  pairs |-> {<<"n2", "c2">>},
+  links |-> {<<"n2", "c2">>} ]
+/\ awaiting = [c1 |-> {}, c2 |-> {}]
+/\ decisions = << [ client |-> "c1",
+     outcome |-> "accept",
+     term |-> 1,
+     token |-> 1,
+     hb |-> 0,
+     value |-> "v1" ] >>
+/\ rToAck = {}
+/\ readMsgs = {}
+/\ down = {<<"n2", "c2">>}
+/\ up = [s |-> TRUE, n1 |-> TRUE, n2 |-> TRUE, n3 |-> TRUE, c1 |-> TRUE, c2 |-> TRUE]
+/\ term = [n1 |-> 0, n2 |-> 1, n3 |-> 0]
+/\ given = {}
+/\ highest = 1
+/\ ltok = [n1 |-> 0, n2 |-> 1, n3 |-> 0]
+/\ trigG = [client |-> "c1", node |-> "n2"]
+
+State 11: <ScheduleStep line 662, col 5 to line 670, col 85 of module Lease>
+/\ leader = [n1 |-> FALSE, n2 |-> TRUE, n3 |-> FALSE]
+/\ toAck = {}
+/\ paused = [c1 |-> FALSE, c2 |-> FALSE]
+/\ reqs = {"c2"}
+/\ grantMsgs = {}
+/\ promised = [n1 |-> 1, n2 |-> 1, n3 |-> 1]
+/\ awaitingR = [c1 |-> {}, c2 |-> {}]
+/\ dups = 0
+/\ rdecisions = <<>>
+/\ grants = <<[client |-> "c1", term |-> 1, node |-> "n2", token |-> 1]>>
+/\ maxTok = [n1 |-> 1, n2 |-> 1, n3 |-> 1]
+/\ myToks = [c1 |-> {[t |-> 1, g |-> 1]}, c2 |-> {}]
+/\ rAckMsgs = {}
+/\ pc = 5
+/\ tok = [c1 |-> [t |-> 1, g |-> 1], c2 |-> [t |-> 0, g |-> 0]]
+/\ ackMsgs = {}
+/\ told = {[v |-> "v1", t |-> 1, c |-> "c1"]}
+/\ ngDown = "none"
+/\ writeMsgs = {}
+/\ trigNG = {"n1", "n3"}
+/\ pending = [c1 |-> FALSE, c2 |-> TRUE]
+/\ fired = FALSE
+/\ stval = "v1"
+/\ lastEv = [event |-> "Request", client |-> "c2", key |-> "k"]
+/\ awaiting = [c1 |-> {}, c2 |-> {}]
+/\ decisions = << [ client |-> "c1",
+     outcome |-> "accept",
+     term |-> 1,
+     token |-> 1,
+     hb |-> 0,
+     value |-> "v1" ] >>
+/\ rToAck = {}
+/\ readMsgs = {}
+/\ down = {<<"n2", "c2">>}
+/\ up = [s |-> TRUE, n1 |-> TRUE, n2 |-> TRUE, n3 |-> TRUE, c1 |-> TRUE, c2 |-> TRUE]
+/\ term = [n1 |-> 0, n2 |-> 1, n3 |-> 0]
+/\ given = {}
+/\ highest = 1
+/\ ltok = [n1 |-> 0, n2 |-> 1, n3 |-> 0]
+/\ trigG = [client |-> "c1", node |-> "n2"]
+
+State 12: Stuttering
+Finished checking temporal properties in 00s at 2026-10-20 23:28:58
+1142 states generated, 686 distinct states found, 0 states left on queue.
+Finished in 02s at (2026-10-20 23:28:58)
+
+===== FILE: traces/model-H8-counterexample.jsonl =====
+{"proc": "c1", "seq": 1, "event": "Request", "client": "c1", "key": "k", "causes": [], "run": "H8", "side": "model"}
+{"proc": "n2", "seq": 1, "event": "Grant", "client": "c1", "key": "k", "token": 1, "lifetime": 1, "grantor_term": 1, "causes": [{"proc": "c1", "seq": 1}], "run": "H8", "side": "model"}
+{"proc": "c1", "seq": 2, "event": "WriteAttempt", "client": "c1", "key": "k", "token": 1, "value": "v1", "grantor_term": 1, "causes": [{"proc": "n2", "seq": 1}], "run": "H8", "side": "model"}
+{"proc": "s", "seq": 1, "event": "WriteAccept", "key": "k", "token": 1, "highest_before": 0, "grantor_term": 1, "causes": [{"proc": "c1", "seq": 2}], "run": "H8", "side": "model"}
+{"proc": "c1", "seq": 3, "event": "WriteAck", "client": "c1", "key": "k", "token": 1, "outcome": "accepted", "answers": {"proc": "c1", "seq": 2}, "causes": [{"proc": "s", "seq": 1}], "run": "H8", "side": "model"}
+{"proc": "env", "seq": 1, "event": "Fault", "cell": "F2.2", "drop": [["n2", "c2"]], "links": [["n2", "c2"]], "causes": [], "run": "H8", "side": "model"}
+{"proc": "c2", "seq": 1, "event": "Request", "client": "c2", "key": "k", "causes": [], "run": "H8", "side": "model"}
+
+===== FILE: impl/README.md (excerpt) =====
+## X2 adaptation checkpoint (before shared schedule execution)
+
+<!-- derives: C1.1, C1.2, C1.3, C1.4, C2.1, C2.2, F1.1, F1.2, F1.3, F2.1, F2.2, L1, L2, L3, E1, E2, E3, T3 -->
+Predictions and scoring for all 31 shared schedules and 30 mutations were signed
+and committed as `6c58815`, OTS stamp `e39c88c`, before adaptation or tests.
+The initial red fixture receipt records absent link-language/API support. The
+six focused X2 tests and full Go fixture suite pass at this checkpoint; no shared
+schedule or mutation has yet run. The existing transport fixture expecting a
+cut/heal history to invalidate a later reply send was replaced to assert v2's
+opposite rule. The read storage fixture now pumps the distinct send and delivery
+stages. These are semantic fixture adaptations, not changes to predictions.
+
+### Interpretations established from the inputs
+
+67. **Contradicted:** interpretations 11, 21, 25 and 53 discard queued messages
+    on a new cut or recheck connectivity at delivery. Failure-model v2 fixes link
+    fate at send. Requests admitted before a cut can reach storage afterwards;
+    sent replies survive later cuts. Messages sent on down links are permanently
+    lost. F1.1 process availability and client incarnation still govern receipt.
+    The prior text and receipts above are retained as history.
+    <!-- derives: C1.3, C2.2, F1.1, F1.2, F2.1, F2.2 -->
+68. **New:** storage prepares each reply locally for 8 ms before its actual send;
+    send then samples 1–5 ms network delivery. This makes the decision-to-send
+    interval explicit. A decision-triggered fault can precede send, explaining
+    the lost-ack schedules without retroactively losing an already sent packet.
+    Raft's reply relay independently admits the reverse direction at its send,
+    with no cut-history or receive-time link recheck. Raft retains its existing
+    protocol and process-incarnation checks.
+    <!-- derives: C1.1, C1.3, C1.4, C2.2, F1.1, F2.1, F2.2 -->
+69. **Extended:** interpretations 19 and 53's partition environment is an
+    accumulated directed matrix. F1.2 adds all cross-side links to the same
+    matrix; F2.1 adds both directions per pair; F2.2 adds just the named direction.
+    Every heal clears the whole matrix. L1 selectors freeze when the trigger
+    fires, self-pairs are removed and duplicates are harmless. Fault links record
+    resolved directed pairs, including already-down links named by that action;
+    a heal explicitly serializes links: []. The old cell IDs remain live.
+    <!-- derives: F1.2, F2.1, F2.2, L1, L2, A1, T2 -->
+70. **Extended:** interpretations 16 and 38 require literal direct connectivity:
+    requester, storage and some two up lease nodes form a bidirectional clique.
+    Counting two lease nodes reachable from the requester/storage is insufficient
+    unless those lease nodes also connect to each other. The observable grantor
+    need not belong to that clique. The engine and offline checker reconstruct
+    this premise independently. The trusted three-second duration certificate
+    remains a limitation; bounded samples do not prove eventuality.
+    <!-- derives: C1.4, F1.1, F2.1, F2.2, L3 -->
+71. **Extended:** interpretation 52 includes read requests and replies in
+    quiescence. T3 allows another read/write despite a lost previous reply; only
+    a prior request waits for its answer. Link-lost grant completions leave the
+    existing RequestState outstanding: a failed send emits no delivered Grant,
+    and the next attempt uses a fresh committed allocation. Allocation gaps are
+    allowed; no duplicate Grant record is used for retransmission. A reached
+    event bound has priority over readiness and cannot silently become PASS.
+    <!-- derives: C1.1, C1.4, C2.2, F2.1, F2.2, T3, E1, E3 -->
+72. **New:** P19–P30 have the preregistered enforcing-path mutations. P24 skips
+    a later write's acceptance (leaving the first WriteAccept trigger intact)
+    and invents success despite the down reverse link. P29/P30 bypass reply loss
+    with a value different from the actual served snapshot, exposing C2.2's value
+    condition. P25/P26 suppress the same grant-service mechanism used normally;
+    a baseline failure means there is no working half to mutate and will be
+    reported as such. No formal model or model mutation has been read or authored.
+    <!-- derives: C1.1, C1.2, C1.3, C1.4, C2.1, C2.2, F2.1, F2.2, E2 -->
+
+### Access and timing record
+
+<!-- derives: C1.1, C1.4, F2.1, F2.2 -->
+The first recorded clock is 2026-10-21 05:51:48 UTC; final wall time will be
+reported through the adapted commit and hook. Before reading the complete brief,
+the agent attempted the absent steward seed files, read an external generic
+using-superpowers workflow SKILL.md, and later displayed six git-log titles.
+These are access-list deviations, recorded explicitly rather than asserting
+perfect scope compliance. No formal-model artifact or other author's code was
+read. After the brief, source/input reads and all task outputs stay in its listed
+paths (plus git commit/status metadata). The untracked .venv is untouched.
+
+### X2 source-review correction before final matrices
+
+<!-- derives: C1.3, C1.4, C2.2, F1.1, F2.1, F2.2, L3 -->
+The initial 31×3 baseline matrix at 94549e3 passed all 93 runs; its receipt and
+traces are retained. Additive registration `3b73f2c` (stamp `2e62373`) records a
+source-review issue in the new local-send stage: storage restart retained local
+unsent reply work. The preregistered regression failed as expected, then passed
+after crash discards only pendingSend entries. External packets already sent
+remain eligible for delivery after the sender restarts. This correction enforces
+F1.1's volatile-state rule, and was not prompted by a failed shared schedule.
+The full fixture suite passes again. Additional fixtures independently exercise
+runtime clique eligibility and verify that a failed reverse grant send leaves
+the requester outstanding until a later allocation's reply succeeds. No baseline
+or mutation prediction, placement, horizon, schedule or scoring rule changed.
+
+## X2 adapted version — final recorded results
+
+<!-- derives: C1.1, C1.2, C1.3, C1.4, C2.1, C2.2, F1.1, F1.2, F1.3, F2.1, F2.2, L1, L2, L3, E1, E2, E3, T3 -->
+This section supersedes earlier current-round headlines additively. The final
+implementation checkpoint is `8321ab5` (OTS stamp `acae806`). Both required
+commands exit 0: all 31 shared schedules PASS seeds 1, 2 and 3 (93/93); all 30
+mutations FAIL their predeclared clause on each seed (90/90, 30/30 kills across
+three seeds). All 42 top-level Go fixture tests and vet pass. No shared baseline
+failed, no verdict prediction missed, and no mutation was re-placed. The initial
+93-pass matrix, preregistered source-review correction, all raw traces/sidecars,
+per-seed verdicts and interpretations are in [RESULTS-x2.md](RESULTS-x2.md).
+
+The independent raw-record audit validates 646 ack references, 108 F2.x fault
+records and 38 unchanged input hashes across 276 retained runs (552 evidence
+files). An initial audit null-list handling error was corrected; its receipt is
+retained and no outcome or score changed. P23/P24 have no old-holder write acks;
+P29/P30 have no old-holder read values and do have correct post-heal c2 values.
+P25 and P26 both have working halves to mutate, and both mutations fail C1.4.
+
+73. **New, outcome-informed timing limitation:** P17's first served read reply
+    is received after healing on all three final seeds. The short cut ends before
+    the reply's send; the second read sent on the down link is lost. This is
+    consistent with v2 send-time fate and C2.2. The schedule's comment about its
+    first ack being lost is not forced by its actions. Its mutation still fails
+    C2.2 through the distinct unserved second attempt. No schedule, timing,
+    prediction or scorer was changed to conceal this coverage limitation.
+    <!-- derives: C2.2, F1.2, F2.1, F2.2, L2, T2, T3 -->
+74. **New, bounded observation:** P25 retains n1, term 2, granting token 4 to c2
+    after c1's token 3, on every final seed. P26 transfers from n1, term 2, token 3
+    to n3, term 3, token 6, while the one-way drop remains. These short traces
+    witness progress under the new cells; they do not establish resilience to
+    every long-running election pattern. Mutation suppression independently
+    demonstrates sensitivity of the finite C1.4 checker, not unbounded liveness.
+    <!-- derives: C1.1, C1.4, F2.1, F2.2, L3 -->
+
+<!-- derives: C1.4, C1.3, C2.2, F2.1, F2.2 -->
+Current X2 blockers: none. No formal-model comparison or divergence attribution
+has been made. The access deviations, finite sampling, unseeded Raft randomness
+and trusted duration-certificate limitations remain explicitly recorded above.
+First clock: 2026-10-21 05:51:48 UTC; final response reports elapsed time through
+the adapted-version commit and OTS hook. Nothing is pushed; .venv is untouched.
+===== FILE: traces/impl-H8-seed1.jsonl =====
+{"proc":"c1","seq":1,"event":"Request","client":"c1","key":"k","causes":[],"run":"H8-x2-links-v4-baseline-seed-1-d28c03e93dec253d","side":"impl"}
+{"proc":"n1","seq":1,"event":"Grant","client":"c1","key":"k","token":3,"lifetime":40,"grantor_term":2,"causes":[{"proc":"c1","seq":1}],"run":"H8-x2-links-v4-baseline-seed-1-d28c03e93dec253d","side":"impl"}
+{"proc":"c1","seq":2,"event":"WriteAttempt","client":"c1","key":"k","token":3,"grantor_term":2,"causes":[{"proc":"c1","seq":1},{"proc":"n1","seq":1}],"run":"H8-x2-links-v4-baseline-seed-1-d28c03e93dec253d","side":"impl","value":"v1"}
+{"proc":"s","seq":1,"event":"WriteAccept","key":"k","token":3,"grantor_term":2,"highest_before":0,"causes":[{"proc":"c1","seq":2}],"run":"H8-x2-links-v4-baseline-seed-1-d28c03e93dec253d","side":"impl"}
+{"proc":"c1","seq":3,"event":"WriteAck","client":"c1","key":"k","token":3,"outcome":"accepted","causes":[{"proc":"c1","seq":2},{"proc":"s","seq":1}],"run":"H8-x2-links-v4-baseline-seed-1-d28c03e93dec253d","side":"impl","answers":{"proc":"c1","seq":2}}
+{"proc":"env","seq":1,"event":"Fault","causes":[{"proc":"c1","seq":3}],"run":"H8-x2-links-v4-baseline-seed-1-d28c03e93dec253d","side":"impl","cell":"F2.2","links":[["n1","c2"]]}
+{"proc":"c2","seq":1,"event":"Request","client":"c2","key":"k","causes":[{"proc":"env","seq":1}],"run":"H8-x2-links-v4-baseline-seed-1-d28c03e93dec253d","side":"impl"}
+
+===== FILE: traces/impl-H8-seed1.meta.json =====
+{
+  "derives": [
+    "C1.1",
+    "C1.2",
+    "C1.3",
+    "C1.4",
+    "C2.1",
+    "C2.2",
+    "F1.1",
+    "F1.2",
+    "F1.3",
+    "F2.1",
+    "F2.2",
+    "L1",
+    "L2",
+    "L3",
+    "E3",
+    "T1",
+    "T2",
+    "T3",
+    "A1",
+    "A2",
+    "E1",
+    "E2"
+  ],
+  "progress_horizons": [
+    {
+      "request": {
+        "proc": "c2",
+        "seq": 1
+      },
+      "stable_fault": {
+        "proc": "env",
+        "seq": 1
+      },
+      "budget_ms": 3000
+    }
+  ],
+  "schedule_completed": false,
+  "reason": "progress horizon exhausted"
+}
+

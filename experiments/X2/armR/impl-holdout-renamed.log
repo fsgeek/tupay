@@ -1,0 +1,21 @@
+== H7 (as P1; only the name line differs)
+go: downloading go.etcd.io/etcd/raft/v3 v3.5.15
+go: downloading gopkg.in/yaml.v3 v3.0.1
+go: downloading github.com/golang/protobuf v1.5.4
+go: downloading github.com/gogo/protobuf v1.3.2
+go: downloading google.golang.org/protobuf v1.33.0
+P1 seed=1 PASS trace=observe/P1-seed1-attempt3.jsonl
+P1 seed=2 PASS trace=observe/P1-seed2-attempt2.jsonl
+P1 seed=3 PASS trace=observe/P1-seed3-attempt2.jsonl
+== H8 (as P1; only the name line differs)
+P1 seed=1 PASS trace=observe/P1-seed1-attempt4.jsonl
+P1 seed=2 PASS trace=observe/P1-seed2-attempt3.jsonl
+P1 seed=3 PASS trace=observe/P1-seed3-attempt3.jsonl
+== H9 (as P1; only the name line differs)
+P1 seed=1 FAIL C1.4 (request {Proc:c2 Seq:1} unanswered through 600 ticks of direct majority connectivity) trace=observe/P1-seed1-attempt5.jsonl
+P1 seed=2 FAIL C1.4 (request {Proc:c2 Seq:1} unanswered through 600 ticks of direct majority connectivity) trace=observe/P1-seed2-attempt4.jsonl
+P1 seed=3 FAIL C1.4 (request {Proc:c2 Seq:1} unanswered through 600 ticks of direct majority connectivity) trace=observe/P1-seed3-attempt4.jsonl
+== H10 (as P1; only the name line differs)
+P1 seed=1 PASS trace=observe/P1-seed1-attempt6.jsonl
+P1 seed=2 PASS trace=observe/P1-seed2-attempt5.jsonl
+P1 seed=3 PASS trace=observe/P1-seed3-attempt5.jsonl

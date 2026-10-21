@@ -1,0 +1,12 @@
+== H7
+# H7: 123,836 distinct states, depth 40, max_term 6, observe -> model/observe/H7.jsonl
+PASS
+== H8
+# H8: 686 distinct states, depth ?, max_term 6, observe -> model/observe/H8.jsonl, liveness lasso (stutter)
+FAIL C1_4
+== H9
+# H9: 197 distinct states, depth ?, max_term 4, observe -> model/observe/H9.jsonl, liveness lasso (stutter)
+FAIL C1_4
+== H10
+# H10: 2,168 distinct states, depth 20, max_term 4, observe -> model/observe/H10.jsonl
+PASS

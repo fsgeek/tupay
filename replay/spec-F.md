@@ -41,7 +41,7 @@ Configurations are entries in the journal and are replicated like any other entr
 
 ### Adding a member (handled by the member that receives the request)
 1. If not the coordinator, reply "not coordinator".
-2. Catch the new member up for a fixed number of rounds of extend requests. Reply "timeout" if the new member does not make progress for an election timeout, or if the last round takes longer than an election timeout.
+2. Catch the new member up for a fixed number of rounds of extend requests. Reply "timeout" if the new member does not make progress for an election timeout, or if the last round takes longer than an election timeout. If the new member's journal already matches the coordinator's, catch-up is complete at once.
 3. Wait until the previous configuration entry in the coordinator's journal is committed.
 4. Append a configuration entry containing the current configuration plus the new member; commit it using a majority of the new configuration.
 5. Reply "ok".

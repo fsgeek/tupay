@@ -3,7 +3,7 @@
 This is the design you are to build, exactly as written. It is not a contract you may satisfy by any design you like: where this specification says how something is done, do it that way, even if you believe another way is better. If you find a place where you think the design is wrong, do not fix it; record it in your README as an interpretation or a concern, and build what is written. Where the specification is silent, choose, and record the choice.
 
 ## Source
-The design below is quoted from Diego Ongaro, *Consensus: Bridging Theory and Practice*, PhD dissertation, Stanford University, 2014 (https://web.stanford.edu/~ouster/cgi-bin/papers/OngaroPhD.pdf): chapter 3's Figure 3.1 and sections 3.3 to 3.8 (the basic algorithm), and chapter 4's introduction, Figure 4.1 and section 4.1 (single-server membership changes). The text is extracted with `pdftotext` and reproduced as extracted, including page headers; figures other than Figures 3.1 and 4.1 are images and are not reproduced, so references to them can be ignored; Figures 3.1 and 4.1 are transcribed. Build what this text describes, with the vocabulary it uses. Where it refers to sections not reproduced here (for example §6.2, client interaction, or §4.2, availability), those mechanisms are not part of what you build, except that a removed server stops acting as described in Figure 4.1. The contract you build to is `replay/contract.md`; its terms map onto this text as: member = server, epoch = term, coordinator = leader, journal = log, configuration = configuration.
+The design below is quoted from Diego Ongaro, *Consensus: Bridging Theory and Practice*, PhD dissertation, Stanford University, 2014 (https://web.stanford.edu/~ouster/cgi-bin/papers/OngaroPhD.pdf): chapter 3's Figure 3.1 and sections 3.3 to 3.8 (the basic algorithm), and chapter 4's introduction, Figure 4.1 and section 4.1 (single-server membership changes). The text is extracted with `pdftotext` and reproduced as extracted, including page headers; figures other than Figures 3.1 and 4.1 are images and are not reproduced, so references to them can be ignored; Figures 3.1 and 4.1 are transcribed. Build what this text describes, with the vocabulary it uses. Where it refers to sections not reproduced here (for example §6.2, client interaction, or §4.2, availability), those mechanisms are not part of what you build, except that a coordinator that removes itself steps down after the change is committed, as Figure 4.1 (RemoveServer, step 4) says. The contract you build to is `replay/contract.md`; its terms map onto this text as: member = server, epoch = term, coordinator = leader, journal = log, configuration = configuration.
 
 ## Figure 3.1 (transcribed)
 
@@ -510,16 +510,7 @@ whose elements are described in the remainder of this chapter.
                                                  32
 CHAPTER 4. CLUSTER MEMBERSHIP CHANGES                                                               33
 
-      &                   '
-          (
-
-                      "                                   !
- #    !                                                    "
-       "                                              #
- "                                                                $                   %
-              $                %                                      "
-                  "                                   "
- )                                                         "
+[Assembler's note: Figure 4.1 is an image here; its transcription is in the section "Figure 4.1 (transcribed)" below.]
 
   Figure 4.1: RPCs used to change cluster membership. The AddServer RPC is used to add a
   new server to the current configuration, and the RemoveServer RPC is used to remove a server
@@ -639,6 +630,8 @@ Receiver implementation:
 3. Wait until previous configuration in log is committed (§4.1)
 4. Append new configuration entry to log (old configuration plus newServer), commit it using majority of new configuration (§4.1)
 5. Reply OK
+
+Assembler's note on step 2: if the new server's log already matches the leader's, catch-up is complete at once.
 
 ### RemoveServer RPC
 Invoked by admin to remove a server from the cluster configuration.

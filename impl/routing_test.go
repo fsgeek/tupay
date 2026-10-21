@@ -162,3 +162,35 @@ func TestFixRFairStandingRequests(t *testing.T) {
 		t.Fatalf("eligible requester starved: %+v", v)
 	}
 }
+
+// An expired old grant must not satisfy readiness for a pause after renewal issuance.
+// derives: C1.1, C1.4, F1.3, F2.1, F2.2, T3
+func TestFixRRenewalPauseWaitsForReceipt(t *testing.T) {
+	s := fixtureSchedule()
+	s.Name = "renewal-pause"
+	s.Bound.Events = 200
+	s.End = Trigger{Quiescent: true}
+	s.Steps = []Step{
+		{At: Trigger{Start: true}, Do: Action{Request: "c1"}},
+		{At: Trigger{Filters: map[string]string{"event": "Grant", "client": "c1"}}, Do: Action{Request: "c1"}},
+		{At: Trigger{Filters: map[string]string{"event": "Grant", "client": "c1"}}, Do: Action{Cell: "F1.3", Pause: "holder"}},
+		{At: Trigger{Start: true}, Do: Action{Request: "c2"}},
+		{At: Trigger{Filters: map[string]string{"event": "Grant", "client": "c2"}}, Do: Action{Cell: "F1.3", Resume: "c1"}},
+	}
+	path := filepath.Join(t.TempDir(), "renewal.jsonl")
+	out, err := newEmitter(path, s.Name)
+	if err != nil {
+		t.Fatal(err)
+	}
+	e, err := newEngine(s, out, 1, "")
+	if err != nil {
+		out.close()
+		t.Fatal(err)
+	}
+	ev := e.drive()
+	e.close()
+	out.close()
+	if v := checkTrace(path, s, ev); v != (Verdict{}) {
+		t.Fatalf("renewal pause failed: %+v", v)
+	}
+}

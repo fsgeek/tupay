@@ -128,7 +128,7 @@ func (e *Engine) workloadReady(f FrozenAction) bool {
 		// derives: C1.4, F1.3, F2.1, F2.2, T3
 		if a.Pause != "" {
 			c := e.clients[a.Pause]
-			if c == nil || !c.up || c.paused || len(c.grants) == 0 {
+			if c == nil || !c.up || c.paused || len(c.grants) == 0 || !time.Now().Before(c.grants[len(c.grants)-1].expires) {
 				return false
 			}
 		}

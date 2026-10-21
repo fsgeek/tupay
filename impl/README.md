@@ -932,3 +932,17 @@ trusted duration/receipt certificates, five-second operational waits and event
 bounds remain. Unreachable-trigger or over-bound schedules without a witnessed
 clause violation remain UNEXPLAINED. These limits are retained to keep this fix
 within routing and the established independently checked Raft allocation path.
+
+### FixR source-review renewal correction
+
+<!-- derives: C1.1, C1.4, F1.3, F2.1, F2.2, T3 -->
+The first complete shared matrix at 786a384 passed all 105 runs; all 96 mutations
+failed their predicted clauses. Source review then found the expired-old-grant
+pause-readiness interaction. Additive registration `abd85e2` (stamp `4de31ef`)
+preceded a regression that failed with "pause requires an unexpired holder".
+Readiness now waits for an unexpired held grant, while the F1.3 action's validation
+remains unchanged. The renewal fixture and full suite pass. This corrects the
+new interpretation 77's receipt-before-pause behavior; it was not prompted by a
+shared schedule failure. Both first matrices, their traces and the passing first
+audit are retained; everything is rerun after this correction. No prediction,
+mutation placement, liveness horizon, scoring rule or shared schedule changed.

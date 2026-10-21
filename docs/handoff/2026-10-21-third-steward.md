@@ -2,12 +2,13 @@
 
 A living note, updated at every boundary, so that a crash of this steward's context leaves a recovery record (log entry "third steward accepts", decision 1). The log outranks it. If this steward's session ended without warning, the state below as of its last update is the state; anything after it is in the log or not done.
 
-## State at last update (2026-10-21 19:30Z)
-- Replay inputs **frozen** 18:15Z (`experiments/replay/inputs-frozen.sha256`). K1 unchanged, `a44ab378…ce24`.
-- Replay pre-registration: **draft 1** `experiments/replay-prereg.md` (`7f4590d`). Fable's review archived (`experiments/replay/prereg-review/fable-review-draft1.md`); every item accepted; decisions in the log entry "Fable's review of the replay pre-registration draft; decisions" (`1810a34`), including the new model-brief requirement (an invariant check over all behaviours within stated bounds). **ChatGPT's review is pending, via Tony.** Next: merge both into draft 2, write the four briefs as files (hash them in the registration), K1's sealed resource needs, the attribution rule; then a short second review; then the hold-out author; then register.
-- Seed-dependence: diagnosed as **timing-dependent** (`experiments/sdiag/`, log "seed-dependence diagnostic, scored"); revert insufficient. Steward practice gained the ten-repetition rule. **Flake census of all pairs on `main`** was running at 19:24Z (scratchpad `sdiag/census.sh` → `census.txt`); score it against the FC-1 to FC-3 predictions in the log. Owed before X3: the implementation author repairs the wall-clock dependence (scheduler-driven time), acceptance = ten repetitions per seed, no flaky cell.
-- Scratch worktrees `sdiag/main` and `sdiag/revert` are registered git worktrees; remove with `git worktree remove` when done.
-- Open questions to Tony: the context figure (asked; Tony offered to say at half).
+## State at last update (2026-10-21 19:55Z)
+- Replay inputs **reopened** (log "two defects after the freeze"): contract v2 (J1.2 retired, J1.4), `end: {settle: N}`, retags applied (`0d70262`). K1 is now **v3**, `tmp/replay/K1v3.yaml`, `0761a820…ddc9`; v1, v2, v2-needs and the Fable K1 check are withheld beside it in `tmp/replay/` (the K1 v2 check report is in the session transcript only; if lost, rerun the check on v3).
+- **Validation gate running**: a fresh Opus reference model of spec F (SPEC and GATED variants) under `tmp/replay/reference/`. Required: both variants take every step of S1–S8 with no violation; SPEC FAILs K1v3; GATED PASSes it. Then re-hash `experiments/replay/inputs-frozen.sha256` and freeze. If it finds a defect needing more than a mechanical fix, consider stopping the replay (logged bound).
+- Pre-registration: draft 1 `experiments/replay-prereg.md`; Fable's review accepted (decisions logged); **ChatGPT's review pending via Tony**. Draft 2 must also carry: J1.4 for J1.2; K1 v3 hash and needs (correct the needs per the K1 v2 check: epochs ≥ 3, m4's journal may be empty, witness at first Elected of m1 or m5 under C1 after Committed(m2)); history-free checkouts; briefs by hash (`docs/briefs/replay-*.md`, regenerate from template if edited).
+- Seed diagnostic and flake census scored (`experiments/sdiag/`); owed before X3: implementation repair (F1.3 wall-clock; P29/P30 mutations), acceptance by the ten-repetition rule.
+- Scratch worktrees `sdiag/main` and `sdiag/revert` are registered git worktrees; remove with `git worktree remove --force` when done.
+- Open questions to Tony: none.
 
 ## Standing practice for this tenure
 - Ask Tony for the framework's context-remaining figure at each round boundary and before any outcome-bearing round; treat about half as the handoff zone (Tony: quality degrades with context, not only at the edge).

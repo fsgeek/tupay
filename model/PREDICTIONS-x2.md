@@ -70,3 +70,10 @@ Additive. The earlier prediction files are not edited. Committed after reading t
 - **20 (Fault records)**: extended with `links` and the heal record.
 - **R2.2 (E1 "in flight")**: extended. A message sent on an up link stays in flight after the link goes down. A message sent on a down link is never in flight.
 - **TLC bound on terms**: extended. `MaxTerm` counts `cut` and `drop`.
+
+## Outcome (appended after the runs; the predictions above are unedited)
+- **Schedules.** All 31 print `PASS`, as predicted. State counts are in the README X2 section. P3, P4, P6, P7, P9, P10, P12, P13, P15, P16 and P18 have exactly their X1 state counts (P10 reports depth 16, not 15). The others changed, as expected, because in-flight messages survive partitions and because of CheckQuorum.
+- **Mutations.** All 30 print `FAIL` on the predicted clause: P1-P3, P19 and P20 `C1_1`; P4-P6, P21 and P22 `C1_2`; P7-P9, P23 and P24 `C1_3`; P10-P12, P25 and P26 `C1_4`; P13-P15, P27 and P28 `C2_1`; P16-P18, P29 and P30 `C2_2`.
+- **Named risk, P19.** It did not materialise. The duplicate token was found at depth 12, before the term bound. The route was as predicted: n3, cut from n1, was elected in term 2 through n2, and granted token 2 again.
+- **Partial miss, P21.** The counterexample's stale accept is c1's v1 write delivered a second time (the `MaxDups = 1` duplicate), not its v3 write. It is still the predicted break, storage deferring to a grantor it can reach. The route differs from the one I described.
+- **Interpretations.** Each one I listed changed as predicted. Not predicted, and added in the README: X2.4 (grants go only to a connected requester, an under-approximation under F2.2), X2.5 (no forwarding: a limit on C1.4 under L3 that no shared schedule exercises), X2.6 and X2.7.

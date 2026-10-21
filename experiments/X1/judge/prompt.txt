@@ -1,0 +1,1400 @@
+# Judge task: one divergence from tupay's X1 regenerate arm (R1)
+
+You are the judge. You belong to a model family that wrote neither side. Work only from the files inlined below. Do not assume either side is at fault.
+
+Background: a TLA+ model (`model/`) and a Go implementation (`impl/`) were each built from nothing, independently, from `inputs/contract-v2.md`, `inputs/failure-model-v1.md` and `inputs/schedule-format.md`. Both pass all nineteen shared schedules and kill all eighteen mutations. The steward then ran both on a hold-out schedule neither author had seen, `inputs/schedule-H3.yaml`.
+
+**D4. H3.** The model reports FAIL C1_4 (the liveness clause: if a majority of lease nodes and storage stay up and connected to each other and to some requester for long enough, that requester eventually obtains a grant). The implementation reports PASS on three seeds. Evidence: `traces/model-H3-tlc-counterexample.txt` (TLC's lasso, ending in stuttering at state 22), `traces/model-H3-counterexample.jsonl` (the same trace as observe records), `model/Lease-grantor-excerpt.tla` (the model's Elect, GrantTo, MayGrantTo and Expire definitions), `model/README.md` (its interpretations, especially I3, I4, I10 and I11), `impl/README.md`, and `traces/impl-H3-seed1.jsonl` (a passing implementation trace).
+
+Answer in the JSON schema given. `verdict` is "explained" or "unexplained". If explained, `locus` is "model", "implementation", "inputs" (the contract or failure model underdetermine the behaviour), "interface" (the schedule format underdetermines it), or "both". `evidence` names the specific states, lines or records that discriminate. `reasoning` gives the mechanism. `what_would_settle_it` says what would overturn an explained verdict or settle an unexplained one. Also answer `same_class_as_M1_P10`: in M1, the original model stalled because a leader elected by a non-maximal quorum could not bring a lagging follower into its term, so after a quorum member crashed it could neither grant nor be replaced; say whether this H3 stall is that mechanism, a different stale-leadership mechanism, or something else, with the evidence. Be concrete and brief. Do not propose fixes.
+
+Every file named above follows, inline. Work only from these.
+
+===== FILE: inputs/contract-v2.md =====
+# Service contract v2: reads are fenced too
+
+Version 2, fixed 2026-10-21. v1 (`contract/v1.md`) is unchanged and its clause ids C1.1 to C1.4 keep their meaning. v2 is **additive**: it adds terms, two clauses and four observable events. No v1 clause is retired. This is change experiment X1's input.
+
+## Terms (in addition to v1's)
+- **Read.** A client's request to storage to return the key's current value, carrying a token. Storage either **serves** it, returning the value it currently holds, or **rejects** it.
+- **Given a value.** A client "is given a value" when it receives an ack of a served read carrying that value.
+
+## Clauses (C1.1 to C1.4 as in v1, plus)
+- **C2.1** Storage serves a read only if its token is at least the highest token storage has accepted for the key. Serving a read does not change the highest accepted token.
+- **C2.2** A client is given a value only after storage served the read that returned it, and the value given is the value storage held when it served the read.
+
+C2.1 and C2.2 are safety clauses. C1.4 (liveness) is unchanged and says nothing about reads.
+
+## Observable events (in addition to v1's)
+- `ReadAttempt(client, key, token)`
+- `ReadAccept(key, token, highest_before, value)` and `ReadReject(key, token, highest_before)` recorded by storage; `highest_before` is the fence ledger at the decision, as for writes
+- `ReadAck(client, key, token, outcome, value)` recorded by the client on receipt; `value` is present only when `outcome` is `served`
+
+## Out of scope in v2
+As in v1: one key; no delegated tokens; no ledger rollback. A read served under a token that is later superseded is not a violation; the fence decides at the moment of the read, as it does for writes.
+
+## Amendment 2026-10-21: v1 restated for readers who have no v1 (additive; no clause changes)
+This section was added after the X1 regenerate arm started, when its implementation author reported that the C1 clauses were "missing" from its inputs (its interpretation 1): v2 referred to v1 by id without restating it, and the regenerate arm is deliberately not given v1. Nothing above changes; the ids and wording below are v1's, verbatim.
+
+**Terms (v1).** Key: one protected key. Lease nodes: three processes that together act as the grantor. Storage: the service holding the key's value and the fence ledger (the highest token it has accepted for the key). Client: a process that requests a grant and, while it believes it holds one, writes to storage. Grant: the grantor's reply to a request, a token (an integer) and a lifetime; a client holding an unexpired grant is a holder. Write: a client's request to storage carrying a value and a token; storage accepts or rejects it. Ack: the reply that reaches the client; "told a write succeeded" means the client received an ack of acceptance.
+
+**Clauses (v1).**
+- **C1.1** Each grant carries a token strictly greater than every token previously granted for the key.
+- **C1.2** Storage accepts a write only if its token is at least the highest token storage has accepted for the key, and on acceptance records that token as the new highest.
+- **C1.3** A client is told a write succeeded only after storage accepted it.
+- **C1.4** (liveness) If a majority of lease nodes and storage stay up and connected to each other and to some requester for long enough, that requester eventually obtains a grant.
+
+**Observable events (v1).** `Request(client, key)`; `Grant(client, key, token, lifetime, grantor_term)`; `WriteAttempt(client, key, token, value)`; `WriteAccept(key, token, highest_before)` and `WriteReject(key, token, highest_before)` recorded by storage; `WriteAck(client, key, token, outcome)` recorded by the client. Each is recorded by the process that produces it, with that process's own sequence number; there is no cross-process clock.
+
+===== FILE: inputs/failure-model-v1.md =====
+# Failure model v1
+
+Version 1, fixed 2026-10-20. Never edited in place. Retired cell ids are never reused.
+
+A failure model is an **environment** (what the world can do) applied to **authority loci** (where a grant, a token, or a decision lives). A test cell is one environmental fault applied during one transition. The loci are named so that later changes are visibly additions.
+
+## Authority loci in v1
+- **Holder:** the client that believes it has an unexpired grant.
+- **Grantor:** the lease leader of the moment, identified by `grantor_term`.
+- **Fence ledger:** storage's highest accepted token for the key.
+
+## Cells
+- **F1.1 Crash-stop.** Any lease node, client, or storage replica stops without warning. It may later restart with whatever it had durably recorded and nothing else. A restarted client has no grant.
+- **F1.2 Complete partition.** The processes are split into two sides. No message crosses between sides until the partition heals. Any bipartition is allowed, including one that isolates the current grantor from the other lease nodes while leaving it connected to a holder, or that isolates a holder from the grantor while leaving it connected to storage. Partitions heal; messages sent across the cut during the partition are lost, not delayed.
+- **F1.3 Holder pause.** A client holding a grant is paused for longer than the grant's lifetime, then resumes and continues as if no time had passed. This is the case fencing tokens exist for.
+
+Faults compose: a schedule may apply several cells in one run. Messages inside a connected side may be reordered and duplicated but not corrupted.
+
+## Not in v1
+Partial and simplex partitions (X2). Delegated tokens (X3). Byzantine behaviour. Ledger rollback or storage restored from backup. Clock skew beyond what F1.3 produces. These are not oversights; some are held out on purpose for later evaluation, and they must not creep into M1.
+
+## What counts as an unknown category
+A violation of C1.1, C1.2, or C1.3 observed in a run whose fault schedule contains only F1.1 to F1.3, and which no cell explains, is an unknown category. It is reported as **unexplained** until a judge discriminates. It is not assumed to be the implementation's fault.
+
+===== FILE: inputs/schedule-format.md =====
+# Fault schedule format v2.1 (shared interface)
+
+v2.1 fixed 2026-10-21 (two clarifications, listed in the changelog). v2 fixed 2026-10-20 by the steward, after M1's cross-run. v1 is kept as `schedule-format-v1.md`; nothing in it is removed. v2 adds the rules that v1 left open and that the judge named (M1 result, D2 and D3). Every schedule compiler derives from this file; a compiler that implements v1 is stale under v2.
+
+## Shape (unchanged from v1)
+```yaml
+schedule: <name>                 # unique; used as the run id
+derives: [F1.2, C1.2]            # cells and clauses this schedule exercises
+processes:
+  lease: [n1, n2, n3]
+  clients: [c1, c2]
+  storage: [s]
+steps:                           # applied in order; each waits for its trigger
+  - at: <trigger>
+    do: <action>
+end: <trigger>                   # see "End of a run"
+bound: {events: 200}             # safety bound for both sides
+```
+
+## Triggers
+A trigger is `start` or an observable event from `contract/v1.md` with optional field filters:
+```yaml
+at: start
+at: {event: Grant, client: c1}
+at: {event: WriteAck, client: c2, outcome: accepted}
+at: {event: WriteReject}
+```
+
+**Rule T1, arming (new in v2; settles D2).** Step 1's trigger is armed at the start of the run. Step *i*'s trigger (*i* > 1) is armed at the moment step *i*−1's action is taken. A trigger matches only events emitted **after** it was armed. An event emitted before the trigger was armed never satisfies it, however well it matches. `start` fires the moment it is armed. **(v2.1)** The events that step *i*−1's own action emits synchronously (its `Request`, `WriteAttempt` or `Fault`) count as emitted after step *i*'s trigger was armed, so a step may be triggered by the event its predecessor produced. Both authors read v2 this way; v2.1 says it.
+
+**Rule T2, taking the action.** Once a step's trigger has fired, the action is taken at some later point. The model side explores every such point; the impl side samples one. The next step's trigger is not armed until the action is taken, so no two steps are ever pending at once.
+
+**Rule T3, waiting workload.** A workload action (`request`, `write`) whose client is crashed or paused waits until the client is running. A `request` by a client that already has a request outstanding waits until that request is answered. A `write` by a client that holds no token waits until it holds one, except `token: stale`, which waits until the client has a superseded token.
+
+## Actions (unchanged from v1 except as marked)
+Workload:
+```yaml
+do: {request: c1}
+do: {write: c1, value: v1}                # with the client's current token
+do: {write: c1, value: v2, token: stale}  # with the client's most recent token that is lower than the highest token granted so far
+```
+Faults, one per cell:
+```yaml
+do: {cell: F1.1, crash: n2}
+do: {cell: F1.1, restart: n2}
+do: {cell: F1.2, partition: [[grantor, c1, s], [rest]]}
+do: {cell: F1.2, heal: true}
+do: {cell: F1.3, pause: c1}
+do: {cell: F1.3, resume: c1}
+```
+A `pause` must outlast the grant's lifetime: the matching `resume` must be triggered by an event that can only happen after expiry (a later `Grant` to another client, or an ack of a write made under a later grant).
+
+**Rule A1, aliases (new in v2; settles D3).** `grantor`, `holder` and `rest` are process selectors and may appear **wherever a process name may appear**: as the target of `crash`, `restart`, `pause`, `resume`, `request` and `write`, and as members of a partition side. `grantor` is the node that issued the most recent `Grant` event; `holder` is the client that received it; `rest` is every process not named on the other side of the same partition. Aliases are resolved at the moment the step's trigger fires. A schedule that uses `grantor` or `holder` before any `Grant` can have occurred is rejected by the compiler. **(v2.1)** A fourth selector, `non-grantor`, means a lease node other than `grantor` that is up at the moment the trigger fires. The model side explores every such node; the impl side picks the lowest-numbered one. It exists because leadership before the first `Grant` is not observable, so "crash a follower" can only be said after a grant.
+
+**Rule A2, crash and restart.** `restart` of a process that is not crashed, `crash` of a process already crashed, `pause` of a paused client, `resume` of a running client, and `pause` of a lease node or storage are all rejected by the compiler.
+
+## End of a run
+**Rule E1 (new in v2).** `end:` is either an event trigger, armed when the last step's action is taken and matched by Rule T1, or the word `quiescent`. `quiescent` means: every step has been applied and no request, write or ack is in flight and no client is waiting for a grant, with crashed and paused processes not counted. On the model side `quiescent` is a state predicate; on the impl side it is a bounded wait for in-flight work, after which an unanswered request is reported through the liveness checker, not as `end` unreachable. The shared schedules use `quiescent` unless the end must be a specific event.
+
+**Rule E2.** A clause violation witnessed before the end is a `FAIL` whether or not the end is reached. `UNEXPLAINED end unreachable` is reported only when no violation was witnessed.
+
+## Rules carried from v1
+- A schedule may not name an action the failure model does not contain; the compiler rejects it.
+- Nondeterminism the schedule leaves open (message order within a side, delay between trigger and action) is explored by TLC and sampled by the impl. A pass on one side and a failure on the other is a divergence, not a bug on either side.
+- **Schedules live in `testbed/schedules/<name>.yaml` and nowhere else.** Both runners resolve a name there. The authors' private schedule sets from M1 are kept under their own directories as history and are no longer run.
+
+## Changelog
+- v2.1 (2026-10-21): T1 clarified for a predecessor's own events; `non-grantor` selector. Reasons: M1 result, round 2 residues. Shared P10 rewritten to use it.
+- v2 (2026-10-20): T1 arming, T2, T3, A1 aliases, A2, E1 `quiescent`, E2; schedules shared. Reasons: M1 result D2 and D3.
+
+## v3 addendum (2026-10-21, for contract v2; additive)
+One workload action is added. Everything else in v2.1 is unchanged.
+```yaml
+do: {read: c1}                 # c1 reads the key with its current token
+do: {read: c1, token: stale}   # with its most recent token lower than the highest granted so far
+```
+Rule T3 applies to `read` as it does to `write`. Triggers may name the new events `ReadAttempt`, `ReadAccept`, `ReadReject` and `ReadAck` (with `outcome: served` or `rejected`). Changelog: v3 (2026-10-21): `read` action and the four read events. Reason: X1, contract v2.
+
+===== FILE: inputs/schedule-H3.yaml =====
+schedule: H3
+derives: [C2.1, C1.1, F1.1, F1.2]
+processes:
+  lease: [n1, n2, n3]
+  clients: [c1, c2]
+  storage: [s]
+steps:
+  # derives: hold-out H3 (C2.1, C1.1, F1.1, F1.2). The grantor is isolated with the holder and storage; the majority side grants; the heal and a grantor crash follow; the old holder's read after the new holder's write must be rejected, and tokens must still increase.
+  - {at: start, do: {request: c1}}
+  - {at: {event: Grant, client: c1}, do: {cell: F1.2, partition: [[grantor, holder, s], [rest]]}}
+  - {at: start, do: {request: c2}}
+  - {at: {event: Grant, client: c2}, do: {cell: F1.2, heal: true}}
+  - {at: start, do: {write: c2, value: v2}}
+  - {at: {event: WriteAck, client: c2, outcome: accepted}, do: {cell: F1.1, crash: grantor}}
+  - {at: start, do: {read: c1}}
+  - {at: {event: ReadAck, client: c1}, do: {request: c1}}
+end: quiescent
+bound: {events: 200}
+
+===== FILE: model/README.md =====
+# model-regen: TLA+ model of tupay, X1 regenerate arm
+
+derives: C1.1, C1.2, C1.3, C1.4, C2.1, C2.2, F1.1, F1.2, F1.3
+
+Built from nothing by the model author (Claude, Opus 5.5) from `contract/v2.md`, `failure-model/v1.md`,
+`tests/pairs-v2.md`, `testbed/schedule-format.md` (v2.1 + v3 addendum), `observe/schema.md` and the
+nineteen shared schedules in `testbed/schedules/`. No other file was read (see "Blocked" for what that cost).
+
+## Files
+| File | What | derives |
+|---|---|---|
+| `Lease.tla` | the model: 3 lease nodes, 2 clients, 1 storage replica, one key; abstract grantor; fault actions as schedule steps; the properties | all |
+| `compile.py` | schedule compiler: `testbed/schedules/<name>.yaml` -> `MC.tla` (constants `Steps`, `EndTrig`), `MC.cfg` (properties), `MC_reach.cfg` (end reachability) | F1.1, F1.2, F1.3 |
+| `export.py` | trace exporter: TLC trace (counterexample or end witness) -> `observe/<run>.jsonl` | all |
+| `mutate.py` | generates `mutations/Pk/Lease.tla` (one break each, `\* mutation: Pk ...`) | all |
+| `mutations/P1..P18/Lease.tla` | the generated mutation models (committed) | per pair |
+| `run.sh` | one-command runner | all |
+| `PREDICTIONS.md` | verdicts pre-registered before any run | all |
+
+## How to run
+```
+model-regen/run.sh <schedule-name>     # e.g. false-suspicion-v1, P5
+model-regen/run.sh --mutations         # all 18 mutations, each on its pair's shared schedule
+model-regen/run.sh --mutation P5       # one mutation
+```
+Needs Java 11, `/home/tony/projects/tlaplus/tla2tools.jar` (override with `TLA2TOOLS`), and `uv`
+(PyYAML is fetched by `uv run --with pyyaml`). `TLC_WORKERS` (default 16) sets TLC's worker count;
+`OBSERVE_DIR` (default `<repo>/observe`) sets where the observe file goes. Scratch output goes to
+`model-regen/tmp/<run>/` (never committed).
+
+`run.sh <name>` resolves only `testbed/schedules/<name>.yaml`. It (1) compiles the schedule; a schedule the
+format forbids prints `UNEXPLAINED schedule rejected: <reason>`; (2) runs TLC over the whole bounded state
+space with the safety invariants `C1_1 C1_2 C1_3 C2_1 C2_2`, the action property `C2_1_ledger` and the
+liveness property `C1_4`; any violation prints `FAIL <property>` (Rule E2: whether or not the end is reached),
+and the counterexample is exported; (3) if nothing is violated, runs TLC again with the invariant `NotDone`
+(the negation of Rule E1's end predicate): if TLC finds a state where the end holds it prints `PASS` and that
+shortest trace to the end is exported; if not, `UNEXPLAINED end unreachable`. Any other TLC outcome prints
+`UNEXPLAINED TLC error`. The observe file is `observe/<run>.jsonl` with run id = schedule name
+(`<Pk>-mutation` for mutations), `side: "model"`.
+
+The pair tests are named by pair id: the checking run of pair Pk is `run.sh Pk` (the shared schedule
+`testbed/schedules/Pk.yaml`), and its mutation is `run.sh --mutation Pk`.
+
+## TLC bounds
+Every run is exhaustive over a finite state space; nothing is sampled. Finiteness comes from the schedule:
+- **Grants**: at most one per `request` step (a grant answers an outstanding request), so 3 in P1, 2 in most
+  schedules. Tokens are therefore bounded by the number of request steps.
+- **Writes / reads**: exactly the schedule's `write`/`read` steps (0 to 4 writes, 0 to 3 reads); each
+  client-to-storage message may be duplicated, **at most one duplicate per run** (`Dup = TRUE`,
+  `DupUsed` in Lease.tla; B4). The duplicate may be delivered at any later point, so a late duplicate of
+  any one write or read is explored.
+- **Elections / terms**: `MaxTerm = 2 + (number of crash and partition steps)`; elections happen only when a
+  node reaches no leader, so this bound is not reached in the shared schedules (a starving run would show up
+  as a `C1_4` failure, which none of the correct-model runs did).
+- **Events**: `CONSTRAINT Len(log) <= bound.events` (200 in every shared schedule; never binding).
+- State-space sizes per run are in "Results".
+
+## Interpretations
+Interpretation is expected; each one below is a place where the inputs did not settle a modelling choice.
+
+- **I1 (C1.1..C1.4 text).** `contract/v2.md` says C1.1 to C1.4 are "as in v1", but `contract/v1.md` is not in
+  my read list. I reconstructed them from the v2 wording of C2.1/C2.2 and the shared schedules' comments:
+  - C1.1: every Grant's token is strictly greater than every earlier Grant's token ("tokens must still strictly
+    increase", P1..P3).
+  - C1.2: storage accepts a write only if its token is at least the highest token storage has accepted for the
+    key (the write analogue of C2.1; equality allowed, so a holder may write repeatedly).
+  - C1.3: a client is told a write succeeded only after storage accepted that write ("no client is told success
+    for a write storage did not accept", P7). Rejections are not constrained.
+  - C1.4 (liveness): a client that requests a grant is eventually granted (or crashes), assuming the schedule
+    eventually heals partitions and resumes pauses, which every shared schedule does.
+- **I2 (v1 event signatures).** Reconstructed as `Request(client)`, `Grant(client, token)` (proc = the granting
+  node, `grantor_term` = its term), `WriteAttempt(client, key, token, value)`,
+  `WriteAccept(key, token, highest_before)`, `WriteReject(key, token, highest_before)`,
+  `WriteAck(client, key, token, outcome)`; trigger filters are allowed only on these fields (compile.py
+  `EVENTS`). `WriteAttempt` carries the value because a `write` action does.
+- **I3 (grantor).** Abstract, as the brief allows: a node that reaches no live leader may gather any majority
+  of up, connected nodes into a new term (it leads, the others follow). A grant is issued by a leader and
+  recorded on some majority of up, connected nodes none of which is in a higher term; the token is one more
+  than the highest token recorded on that majority (majorities intersect, so tokens increase). A deposed
+  leader on a minority side keeps believing it leads but cannot gather a majority, so cannot grant. Nodes do
+  not step down on learning a higher term (no effect on any property: a stale leader can never grant).
+  Elections are not spontaneous while a leader is reachable: this is the reduction that keeps the state space
+  small; "false suspicion" is produced by partitions, as in the shared schedule.
+- **I4 (time and expiry).** Time is abstract. An environment step `Expire` ends the latest grant's lifetime at
+  any moment after it is issued (weakly fair). The grantor grants a different client only after the previous
+  grant expired; it may re-grant the same client at any time. **A client does not police its own expiry**: it
+  keeps using its last token for writes and reads until it crashes or receives a new one, and storage's fence
+  alone decides. This is required by the shared schedules (P5, P14, false-suspicion-v1 have the old holder
+  write or read after the newer grant, and T3 says a client with no token would wait forever). Consequently
+  `pause` (F1.3) is modelled as the client taking no steps and receiving nothing; on `resume` it continues with
+  its token and outstanding attempts as if no time had passed.
+- **I5 (grant delivery).** Request and Grant are not messages: a leader grants a client with an outstanding
+  request only while it is connected to it, and the client holds the token in the same step. So a grant cannot
+  be lost in flight. Requests are effectively retried (I6).
+- **I6 (requests).** An outstanding request reaches every leader the client is connected to (clients retry to
+  all nodes).
+- **I7 (reordering, duplication, loss).** In-flight messages are a set (any order). Write and read messages
+  client-to-storage may be delivered twice (once duplicated); a client ignores an ack for an attempt it has
+  already answered, so duplicated acks are not modelled separately. At most one duplicate per run (B4). A message is lost if, when sent or at a
+  later partition, its two ends are on different sides; messages to a crashed process are lost at the crash,
+  and a message sent to crashed storage is never delivered. A message already sent by a process that then
+  crashes is still delivered.
+- **I8 (observe records).** Fields per I2 plus `value` on `ReadAccept` and served `ReadAck` (schema v2
+  addendum), `key: "k"`, `grantor_term` on `Grant` and on every write/read event (the term carried with the
+  token), `highest_before` on storage decisions. `causes`: a `Grant` names the client's latest `Request`; an
+  attempt names the `Grant` of its token and term; a decision names its attempt; an ack names the decision.
+  A fabricated ack (only in mutations) has no decision to name, so `causes: []`: that is the provenance gap.
+  A `Fault` record has `proc: "env"`, `cell`, `action` (the step's text) and `target` (resolved processes; for a
+  partition, the first side).
+- **I9 (initial value).** The key holds `nil` (JSON `null`) before any accepted write.
+- **I10 (fairness).** Weak fairness on every system action (election, grant, expiry, storage decisions, ack
+  receipt) and on taking the pending schedule step. Without fairness on the schedule no liveness claim about a
+  schedule could hold.
+- **I11 (storage durability).** Storage's ledger and value are durable (ledger rollback is out of scope). Its
+  per-client tables and a cached copy of the ledger exist in the model only so that mutations can break them;
+  the correct model's decisions use only the ledger.
+- **I12 (`non-grantor` on restart).** v2.1 defines `non-grantor` as a lease node other than `grantor` that is
+  *up* when the trigger fires, but shared P10 does `restart: non-grantor`, and A2 rejects restarting an up node.
+  For `restart` I resolve it to a *crashed* lease node other than `grantor` (in P10: the follower crashed in
+  step 2). For `crash` and partitions it is as written (partitions: not supported, see B3).
+- **I13 (client durability).** A client records nothing durably: a restarted client has no grant, no tokens
+  and no outstanding attempts. `token: stale` after a restart therefore waits forever (no shared schedule does
+  this).
+- **I14 (stale token).** `token: stale` = the client's most recent token (highest among those it received)
+  that is lower than the highest token granted so far (from the `Grant` events).
+- **I15 (C2.1, "serving a read does not change the highest accepted token").** Checked as the action property
+  `C2_1_ledger`: a step that records `ReadAccept` leaves the ledger unchanged.
+- **I16 (what the properties measure).** C1.2 and C2.1 compare the token with the highest token in every
+  `WriteAccept` so far (the log), not with storage's variable, so a storage that forgets its ledger is caught.
+  C2.2 requires a served `ReadAck` to name a `ReadAccept` for the same read with the same value, and every
+  `ReadAccept`'s value to equal the value of the last `WriteAccept` before it ("the value storage held").
+  C1.3 requires an accepted `WriteAck` to name an earlier `WriteAccept` of the same write, same token.
+- **I17 (`quiescent`).** No message in flight except acks to paused clients, and no running client with an
+  outstanding request. A lost message is not in flight, so an attempt whose message was lost does not block
+  quiescence.
+- **I18 (T2, A2 at run time).** A fired step is taken at any later point (TLC explores all). A step whose
+  target is in the wrong state when it would be taken (possible only through aliases) never becomes enabled,
+  which would show as `end unreachable`; the compiler rejects every A2 case it can see statically, tracking
+  aliases by name.
+- **I19 (pairs P1..P12).** `tests/pairs-v1.md` is not in my read list. P1..P12's meaning is taken from the
+  shared schedules' `derives:` comments; their mutations are designed fresh here.
+- **I20 (observe file name).** The schema puts both sides in `observe/<run>.jsonl` with run = schedule name;
+  the impl side would write the same file names. I follow the schema and leave the observe files uncommitted
+  (they are regenerated by every run); records carry `side: "model"`.
+
+## Blocked
+- **B1.** `contract/v1.md` and `tests/pairs-v1.md` are outside my read list, so C1.1..C1.4's exact text and
+  P1..P12's mutation definitions were not available. Not blocking: reconstructed as I1/I2/I19, but anything
+  derived from C1.x rests on that reconstruction.
+- **B2.** `observe/provenance_check.py` is outside my read list, so I did not run it on the exported files.
+- **B3.** `non-grantor` inside a partition side is rejected by the compiler (no shared schedule uses it).
+- **B4 (bound, not a block).** With unbounded duplication (every write/read message duplicable once) P18's
+  state space exceeded 14 million distinct states at depth 27 and was still growing after 20 minutes; with
+  duplication off it is 1,442 states. I bounded duplication to one duplicated message per run. Runs that
+  had already completed under the unbounded rule (all shared schedules except P18; all mutations) gave the
+  same verdicts as the final runs below. Multiple simultaneous duplicates are therefore not explored.
+
+## Results (final model, 2026-10-20; every run exhaustive)
+derives: C1.1, C1.2, C1.3, C1.4, C2.1, C2.2, F1.1, F1.2, F1.3
+
+Distinct states are those of the property-checking run (the reachability run is a subset).
+
+| Schedule | Verdict | Distinct states | | Mutation | Verdict | Distinct states |
+|---|---|---|---|---|---|---|
+| false-suspicion-v1 | PASS | 5,660 | | | | |
+| P1 | PASS | 5,398 | | P1 | FAIL C1_1 | 441 |
+| P2 | PASS | 254 | | P2 | FAIL C1_1 | 104 |
+| P3 | PASS | 290 | | P3 | FAIL C1_1 | 93 |
+| P4 | PASS | 6,620 | | P4 | FAIL C1_2 | 3,090 |
+| P5 | PASS | 3,752 | | P5 | FAIL C1_2 | 1,816 |
+| P6 | PASS | 8,018 | | P6 | FAIL C1_2 | 1,123 |
+| P7 | PASS | 58,538 | | P7 | FAIL C1_3 | 959 |
+| P8 | PASS | 1,190 | | P8 | FAIL C1_3 | 281 |
+| P9 | PASS | 30,968 | | P9 | FAIL C1_3 | 3,818 |
+| P10 | PASS | 434 | | P10 | FAIL C1_4 | 50 |
+| P11 | PASS | 254 | | P11 | FAIL C1_4 | 218 |
+| P12 | PASS | 194 | | P12 | FAIL C1_4 | 110 |
+| P13 | PASS | 10,022 | | P13 | FAIL C2_1 | 3,114 |
+| P14 | PASS | 5,804 | | P14 | FAIL C2_1 | 2,022 |
+| P15 | PASS | 8,018 | | P15 | FAIL C2_1 | 1,372 |
+| P16 | PASS | 81,308 | | P16 | FAIL C2_2 | 1,502 |
+| P17 | PASS | 4,190 | | P17 | FAIL C2_2 | 951 |
+| P18 | PASS | 58,250 | | P18 | FAIL C2_2 | 6,276 |
+
+Every verdict matches PREDICTIONS.md. The whole suite takes about 3 minutes on this machine.
+Agreement with the impl side, when it comes, is not evidence of correctness (AGENTS.md rule 5); the
+mutation column is what shows each property can fail on its pair's schedule.
+
+Notes from the counterexamples (read, not judged):
+- P6 mutation fails through a *late duplicate* of c1's first write (token 1) delivered after c2's token-2
+  write; the retry bypass accepts it. The resumed write v3 would fail the same way.
+- P2 and P11 have the same state count (254) because their schedules have the same shape and no writes.
+- In false-suspicion-v1, the isolated old holder's write v2 (token 1) is *accepted* after c2's grant (token 2),
+  because no token-2 write has reached storage yet; its later write v4 is rejected. Per the contract this is
+  not a violation (the fence decides at the moment of the write).
+
+## History
+- Before the final runs, a P4 run failed with a TLC parse error: parallel runs shared `/tmp` for TLC's
+  standard modules. Fixed by giving each run its own `java.io.tmpdir`. Tooling only.
+- The first mutation batch reported `UNEXPLAINED trace export failed` for P10..P12: the exporter took the
+  lasso's final "Stuttering" block, which prints no variables. Fixed in export.py; TLC's verdict on those runs
+  was already `Temporal properties were violated`. Tooling only.
+- Duplication bound B4 was added after P18 did not finish; see Blocked.
+
+===== FILE: model/Lease-grantor-excerpt.tla =====
+  /\ fired = (Trig(1).kind = "start")
+  /\ snap = [at |-> 0, up |-> Nodes]
+
+\* ==========================================================================
+\* Grantor (abstract): election and grant
+\* ==========================================================================
+
+\* derives: C1.1, C1.4, F1.1, F1.2 -- a node that reaches no leader gathers a majority for a new term
+Elect(n, Q) ==
+  /\ up[n] /\ n \in Q
+  /\ \A q \in Q : up[q] /\ Connected(n, q)
+  /\ ~\E l \in Nodes : IsLeader(l) /\ Connected(n, l)
+  /\ LET nt == Max({term[q] : q \in Q}) + 1 IN
+       /\ nt <= MaxTerm
+       /\ term' = [m \in Nodes |-> IF m \in Q THEN nt ELSE term[m]]
+       /\ lead' = [m \in Nodes |-> IF m = n THEN nt ELSE IF m \in Q THEN 0 ELSE lead[m]]
+  /\ UNCHANGED <<maxTok, grant, clientVars, storeVars, envVars, net, nid, schedVars>>
+
+\* derives: C1.4, F1.2 -- which leaders a client's (retried) request reaches (README I6)
+ReachesGrantor(c, l) == TRUE
+
+\* derives: C1.1, C1.4 -- the majority a grant is recorded on
+GrantQuorums(l) == {Q \in Quorums : l \in Q}
+
+\* derives: C1.4, F1.3 -- the grantor may grant c if no other client's grant is unexpired
+MayGrantTo(c) == grant.client \in {None, c} \/ grant.expired
+
+\* derives: C1.1, F1.1 -- the token a grant issues and where it is recorded
+NewTok(Q) == Max({maxTok[q] : q \in Q}) + 1
+RecordTok(Q, l, tok) == [m \in Nodes |-> IF m \in Q THEN tok ELSE maxTok[m]]
+
+\* derives: C1.1, C1.4, F1.1, F1.2, F1.3 -- leader l grants client c (README I5: atomic delivery)
+GrantTo(l, c) ==
+  /\ IsLeader(l) /\ want[c] /\ Running(c) /\ Connected(l, c)
+  /\ ReachesGrantor(c, l)
+  /\ MayGrantTo(c)
+  /\ \E Q \in GrantQuorums(l) :
+       /\ \A q \in Q : up[q] /\ Connected(l, q) /\ term[q] <= term[l]
+       /\ LET tok == NewTok(Q) IN
+            /\ maxTok' = RecordTok(Q, l, tok)
+            /\ term' = [m \in Nodes |-> IF m \in Q THEN term[l] ELSE term[m]]
+            /\ lead' = [m \in Nodes |-> IF m \in Q \ {l} THEN 0 ELSE lead[m]]
+            /\ grant' = [client |-> c, tok |-> tok, expired |-> FALSE, node |-> l, term |-> term[l]]
+            /\ want' = [want EXCEPT ![c] = FALSE]
+            /\ ctok' = [ctok EXCEPT ![c] = tok]
+            /\ cterm' = [cterm EXCEPT ![c] = term[l]]
+            /\ ctoks' = [ctoks EXCEPT ![c] = @ \cup {<<tok, term[l]>>}]
+            /\ lastGrantor' = [lastGrantor EXCEPT ![c] = l]
+            /\ Record(<<[Ev("Grant") EXCEPT !.proc = l, !.client = c, !.token = tok, !.term = term[l]]>>, pc, up)
+  /\ UNCHANGED <<lastW, pendW, pendR, storeVars, envVars, net, nid>>
+
+\* derives: C1.4, F1.3 -- time passes: the latest grant's lifetime ends (README I4)
+ExpireTok == maxTok
+Expire ==
+  /\ grant.client # None /\ ~grant.expired
+  /\ grant' = [grant EXCEPT !.expired = TRUE]
+  /\ maxTok' = ExpireTok
+  /\ UNCHANGED <<term, lead, clientVars, storeVars, envVars, net, nid, schedVars>>
+
+\* ==========================================================================
+\* Storage: the fence (C1.2, C2.1) and the value (C2.2)
+\* ==========================================================================
+
+\* derives: C1.2 -- storage accepts a write only if its token is at least the ledger
+WFence(m) == m.tok >= hi
+\* derives: C2.1 -- storage serves a read only if its token is at least the ledger
+
+===== FILE: impl/README.md =====
+<!-- derives: C1.1, C1.2, C1.3, C1.4, C2.1, C2.2, F1.1, F1.2, F1.3 -->
+# Regenerated implementation
+
+Implementation author works from the brief's allowed inputs only. Branch:
+`x1-regen-impl`. No formal artifact or predecessor implementation has been read.
+
+## Interpretations recorded before building
+
+1. The permitted contract v2 references but does not reproduce C1.1–C1.4.
+   From the shared schedules, provisionally interpret C1.1 as strictly increasing
+   tokens in distinct grants; C1.2 as accepting writes only at or above storage's
+   highest previously accepted write token; C1.3 as reporting accepted writes
+   only after a corresponding storage acceptance; C1.4 as eventual grants to
+   running requesters with a reachable live majority after expiry and recovery.
+   Exact conformance to the absent text cannot be established.
+2. The permitted pairs v2 references but does not reproduce P1–P12 or their
+   mutation definitions. Implement these halves from their shared schedules
+   and preregister new enforcing-path mutations. These cannot be certified as
+   unchanged from the absent definitions.
+3. P10's `restart: non-grantor` contradicts A1's requirement that non-grantor be
+   up when selected and A2's rejection of restarting an up process. For restart
+   only, select the lowest-numbered crashed non-grantor. Other non-grantor uses
+   select the lowest-numbered up non-grantor. This explicit repair is needed to
+   execute the supplied schedule; strict simultaneous compliance is blocked.
+4. Three real Raft participants use in-memory transports and durable store
+   objects retained by the environment across simulated crashes. All volatile
+   Raft state and state-machine state are reconstructed on restart from those
+   stores. This models process loss, not loss of the host holding the stores.
+5. Leases expire against a shared monotone logical clock (no clock skew is in
+   scope); paused clients keep old tokens, and normal storage access does not
+   check client-side expiry. Only writes advance storage's durable fence. Reads
+   use that fence and never advance it. Initial value is the empty string.
+6. Grant allocation is a replicated Raft state-machine command, including lease
+   expiration, rather than a new consensus protocol. Clients retry unanswered
+   grant requests. Writes/reads have no automatic retry; dropped operations
+   remain unacknowledged. A crash destroys volatile messages to/from that
+   process and a client's grants. A paused client buffers already in-flight
+   responses; partitioned messages are dropped, including queued messages at
+   the cut. Raft's built-in retries are new sends.
+7. Observe `causes` point from a consequence to its antecedents, matching the
+   schema's examples and read addendum (the write prose reverses the verb).
+   Client request and grant delivery are separate; the grant records its
+   request cause, and operations record their grant cause. Diagnostic timing
+   is kept outside JSONL; ordering uses process sequence and causal links.
+
+## Blocked
+
+- Exact baseline C1.1–C1.4 conformance: clause text is absent from the allowed
+  inputs. The user forbids reading the referenced v1 file. Provisional checks
+  are explicit above; this does not block implementing and running them.
+- Exact preservation of P1–P12 mutation definitions: those definitions are
+  absent from the allowed inputs; provisional replacements are preregistered.
+- Literal P10 under A1 and A2 simultaneously: contradictory selector/restart
+  requirements; interpretation 3 permits execution without changing inputs.
+- Formal halves and cross-family comparison belong to another author; this
+  author does not inspect or implement them.
+
+## Sampling
+
+Default seeds are 1–5, as preregistered in `PREDICTIONS.md`. Each seed samples
+workload message order and duplication, delivery delays, and trigger/action
+delay. Raft uses its own timer and goroutine scheduling, so seeds reproduce
+sampling choices rather than promise byte-identical concurrent traces.
+
+## Run
+
+The completed runner and results will be described additively below.
+
+## Additional interpretations (before outcome-bearing runs)
+
+8. A schedule's later grant proves the paused client's previous grant has
+   expired, as specified by the schedule format. The pause validator requires
+   resume to be past that grant's expiry, rather than a full fresh lifetime
+   measured from the pause action (which may occur near expiry).
+9. The environment emits trigger/fault causal links: a scheduled action is a
+   consequence of its fired trigger, subsequent effects include the most
+   recent fault, and grant records link the preceding committed allocation.
+   These make causal reconstruction possible without treating JSONL line
+   order as a clock. Local process order supplies storage's decision order.
+10. Liveness is a bounded observation, not proof of an unbounded temporal
+    property. An incomplete schedule runs for 1500 logical ticks (2 ms nominal
+    scheduler pacing), with a 5-second wall-time watchdog. A pending request
+    is C1.4 only after this bound with a running requester and reachable live
+    majority. Standalone `--check` checks safety/provenance only, since a bare
+    JSONL does not certify how long observation continued after its last event.
+11. Timing and goroutine choices inside the standard Raft library are not
+    controlled by the seed. The scheduler duplicates 1 in 5 eligible sends,
+    samples 1–5 tick delivery delay and 0–3 tick trigger delay, and randomly
+    selects one eligible message per tick. Grant requests retry every 5 ticks;
+    a replicated lease lasts 30 ticks. No guarantee of covering every possible
+    execution is claimed.
+
+12. Code review after initial passing samples identified that the dependency's
+    stock in-memory transport can deliver an already-pending RPC response
+    after DisconnectAll. Use a gated in-memory transport implementing Raft's
+    existing Transport interface instead: atomic rendezvous delivery, per-link
+    cut generations, and per-process incarnation identity reject such late
+    responses even after healing/restart. Raft itself is unchanged. RPC
+    pipelining is disabled using Raft's supported fallback. This is a fault
+    injector correction; original passing observations alone did not establish
+    that the cut was complete.
+
+13. The liveness checker receives the bounded-observation certificate only
+    when at least 300 logical ticks have elapsed since the last schedule
+    action, ensuring that the final request/topology has had a recovery window.
+    Earlier watchdog cutoffs remain unexplained if no safety witness exists.
+    This tightens interpretation 10 and the preregistered scoring window.
+
+14. Even in fence-bypass mutations, an accepted stale write does not lower the
+    durable highest-token ledger; only the comparison is broken. The independent
+    provenance checker reconstructs the maximum of accepted write tokens. A
+    mutation suite cannot succeed if the trace has a provenance error, even when
+    a clause violation is also witnessed (the violation is still reported per E2).
+
+15. Fault fields in the observe log contain the concrete process selectors
+    resolved at trigger fire, making the target identity recoverable after a
+    leadership change. The unchanged YAML retains the original alias spelling.
+16. A successful grant operation completes committed issuance and client token
+    installation within one scheduler transition. The Request is retried while
+    disconnected; grantor selection requires connectivity and a live majority.
+    Raft replication/election remains asynchronous. The sampled workload does
+    not expose an extra independent grant-response transit phase; reads and
+    writes do have separately scheduled attempt, decision and ack phases.
+
+## Completed runner
+
+From the repository root:
+
+```sh
+impl-regen/run.sh false-suspicion-v1 --seeds 5
+impl-regen/run.sh --all --seeds 5
+impl-regen/run.sh --mutations --seeds 5
+impl-regen/run.sh P18 --mutation P18 --seeds 5
+impl-regen/run.sh --check observe/P18-seed-1.jsonl
+```
+
+`--seeds N` uses integer seeds 1 through N; the default is 5. A schedule name
+resolves only to `testbed/schedules/<name>.yaml`. `--all` runs exactly P1–P18
+and false-suspicion-v1. A single mutant invocation exits unsuccessfully for its
+expected FAIL; the complete `--mutations` suite exits zero only if every seed
+of every mutation fails its predicted clause with sound provenance. Normal
+schedule invocations exit zero only for PASS. `--check` replays safety and
+provenance over a previously completed log, without a liveness certificate.
+
+Observe logs live in `impl-regen/observe/<schedule>-seed-N.jsonl`; mutant names
+append `-mutation-Pn`. `run` in each record matches its basename. Per-seed
+machine-readable reports, including all findings, end reached, steps, event
+count and diagnostic duration, live in `impl-regen/results/`. These generated
+directories are ignored; the committed `RESULTS.md` retains the outcome matrix.
+The runner never uses a wall clock to order records. Grant term comes directly
+from the committed Raft log entry, so a concurrent later election cannot
+relabel the token's originating authority.
+
+Build/test caches, temporary files and the binary stay under `impl-regen/`.
+`run.sh` sets GOPATH, GOMODCACHE, GOCACHE, GOTMPDIR, TMPDIR and disables Go
+telemetry before building with `/usr/local/go/bin/go`. First use downloads
+the pinned modules; later runs reuse this directory's cache. Verify with:
+
+```sh
+cd impl-regen
+export GOPATH="$PWD/.cache/gopath" GOMODCACHE="$PWD/.cache/mod"
+export GOCACHE="$PWD/.cache/build" GOTMPDIR="$PWD/.cache/tmp"
+export TMPDIR="$PWD/.cache/tmp" GOTELEMETRY=off
+/usr/local/go/bin/go test -race ./...
+/usr/local/go/bin/go vet ./...
+```
+
+Every authored package, named type, named function, injector, checker and test
+has a derivation comment. P1–P18 have explicit clause/cell mappings on the
+runner's expectation path and derivation/mutation markers at the enforcing
+paths. No input files were changed. Nothing under a `tmp/` directory is staged.
+No formal comparison was performed; any future divergence remains unexplained
+until discriminating evidence is available.
+
+===== FILE: traces/model-H3-tlc-counterexample.txt =====
+Implied-temporal checking--satisfiability problem has 2 branches.
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-10-20 19:06:58.
+Progress(21) at 2026-10-20 19:07:00: 1,982 states generated, 1,118 distinct states found, 0 states left on queue.
+Checking 2 branches of temporal properties for the complete state space with 2236 total distinct states at (2026-10-20 19:07:00)
+Error: Temporal properties were violated.
+
+Error: The following behavior constitutes a counter-example:
+
+State 1: <Initial predicate>
+/\ pendR = [c1 |-> {}, c2 |-> {}]
+/\ pendW = [c1 |-> {}, c2 |-> {}]
+/\ paused = [c1 |-> FALSE, c2 |-> FALSE]
+/\ lead = [n1 |-> 0, n2 |-> 0, n3 |-> 0]
+/\ sRead = [c1 |-> 0, c2 |-> 0]
+/\ val = "nil"
+/\ snap = [up |-> {"n1", "n2", "n3"}, at |-> 0]
+/\ log = <<>>
+/\ ctoks = [c1 |-> {}, c2 |-> {}]
+/\ maxTok = [n1 |-> 0, n2 |-> 0, n3 |-> 0]
+/\ pc = 1
+/\ sAcc = [c1 |-> 0, c2 |-> 0]
+/\ net = {}
+/\ fired = TRUE
+/\ lastW = [c1 |-> "nil", c2 |-> "nil"]
+/\ hi = 0
+/\ cterm = [c1 |-> 0, c2 |-> 0]
+/\ up = [s |-> TRUE, n1 |-> TRUE, n2 |-> TRUE, n3 |-> TRUE, c1 |-> TRUE, c2 |-> TRUE]
+/\ nid = 1
+/\ rfence = 0
+/\ lastGrantor = [c1 |-> "none", c2 |-> "none"]
+/\ term = [n1 |-> 0, n2 |-> 0, n3 |-> 0]
+/\ want = [c1 |-> FALSE, c2 |-> FALSE]
+/\ ctok = [c1 |-> 0, c2 |-> 0]
+/\ side = [s |-> 0, n1 |-> 0, n2 |-> 0, n3 |-> 0, c1 |-> 0, c2 |-> 0]
+/\ grant = [client |-> "none", term |-> 0, tok |-> 0, expired |-> TRUE, node |-> "none"]
+
+State 2: <Elect line 184, col 3 to line 191, col 85 of module Lease>
+/\ pendR = [c1 |-> {}, c2 |-> {}]
+/\ pendW = [c1 |-> {}, c2 |-> {}]
+/\ paused = [c1 |-> FALSE, c2 |-> FALSE]
+/\ lead = [n1 |-> 0, n2 |-> 0, n3 |-> 1]
+/\ sRead = [c1 |-> 0, c2 |-> 0]
+/\ val = "nil"
+/\ snap = [up |-> {"n1", "n2", "n3"}, at |-> 0]
+/\ log = <<>>
+/\ ctoks = [c1 |-> {}, c2 |-> {}]
+/\ maxTok = [n1 |-> 0, n2 |-> 0, n3 |-> 0]
+/\ pc = 1
+/\ sAcc = [c1 |-> 0, c2 |-> 0]
+/\ net = {}
+/\ fired = TRUE
+/\ lastW = [c1 |-> "nil", c2 |-> "nil"]
+/\ hi = 0
+/\ cterm = [c1 |-> 0, c2 |-> 0]
+/\ up = [s |-> TRUE, n1 |-> TRUE, n2 |-> TRUE, n3 |-> TRUE, c1 |-> TRUE, c2 |-> TRUE]
+/\ nid = 1
+/\ rfence = 0
+/\ lastGrantor = [c1 |-> "none", c2 |-> "none"]
+/\ term = [n1 |-> 1, n2 |-> 1, n3 |-> 1]
+/\ want = [c1 |-> FALSE, c2 |-> FALSE]
+/\ ctok = [c1 |-> 0, c2 |-> 0]
+/\ side = [s |-> 0, n1 |-> 0, n2 |-> 0, n3 |-> 0, c1 |-> 0, c2 |-> 0]
+/\ grant = [client |-> "none", term |-> 0, tok |-> 0, expired |-> TRUE, node |-> "none"]
+
+State 3: <TakeStep line 460, col 3 to line 470, col 44 of module Lease>
+/\ pendR = [c1 |-> {}, c2 |-> {}]
+/\ pendW = [c1 |-> {}, c2 |-> {}]
+/\ paused = [c1 |-> FALSE, c2 |-> FALSE]
+/\ lead = [n1 |-> 0, n2 |-> 0, n3 |-> 1]
+/\ sRead = [c1 |-> 0, c2 |-> 0]
+/\ val = "nil"
+/\ snap = [up |-> {"n1", "n2", "n3"}, at |-> 0]
+/\ log = << [ ev |-> "Request",
+     client |-> "c1",
+     outcome |-> "",
+     token |-> 0,
+     value |-> "nil",
+     cell |-> "",
+     desc |-> "",
+     term |-> 0,
+     proc |-> "c1",
+     hb |-> 0,
+     id |-> 0,
+     target |-> {} ] >>
+/\ ctoks = [c1 |-> {}, c2 |-> {}]
+/\ maxTok = [n1 |-> 0, n2 |-> 0, n3 |-> 0]
+/\ pc = 2
+/\ sAcc = [c1 |-> 0, c2 |-> 0]
+/\ net = {}
+/\ fired = FALSE
+/\ lastW = [c1 |-> "nil", c2 |-> "nil"]
+/\ hi = 0
+/\ cterm = [c1 |-> 0, c2 |-> 0]
+/\ up = [s |-> TRUE, n1 |-> TRUE, n2 |-> TRUE, n3 |-> TRUE, c1 |-> TRUE, c2 |-> TRUE]
+/\ nid = 1
+/\ rfence = 0
+/\ lastGrantor = [c1 |-> "none", c2 |-> "none"]
+/\ term = [n1 |-> 1, n2 |-> 1, n3 |-> 1]
+/\ want = [c1 |-> TRUE, c2 |-> FALSE]
+/\ ctok = [c1 |-> 0, c2 |-> 0]
+/\ side = [s |-> 0, n1 |-> 0, n2 |-> 0, n3 |-> 0, c1 |-> 0, c2 |-> 0]
+/\ grant = [client |-> "none", term |-> 0, tok |-> 0, expired |-> TRUE, node |-> "none"]
+
+State 4: <GrantTo line 208, col 3 to line 224, col 68 of module Lease>
+/\ pendR = [c1 |-> {}, c2 |-> {}]
+/\ pendW = [c1 |-> {}, c2 |-> {}]
+/\ paused = [c1 |-> FALSE, c2 |-> FALSE]
+/\ lead = [n1 |-> 0, n2 |-> 0, n3 |-> 1]
+/\ sRead = [c1 |-> 0, c2 |-> 0]
+/\ val = "nil"
+/\ snap = [up |-> {"n1", "n2", "n3"}, at |-> 2]
+/\ log = << [ ev |-> "Request",
+     client |-> "c1",
+     outcome |-> "",
+     token |-> 0,
+     value |-> "nil",
+     cell |-> "",
+     desc |-> "",
+     term |-> 0,
+     proc |-> "c1",
+     hb |-> 0,
+     id |-> 0,
+     target |-> {} ],
+   [ ev |-> "Grant",
+     client |-> "c1",
+     outcome |-> "",
+     token |-> 1,
+     value |-> "nil",
+     cell |-> "",
+     desc |-> "",
+     term |-> 1,
+     proc |-> "n3",
+     hb |-> 0,
+     id |-> 0,
+     target |-> {} ] >>
+/\ ctoks = [c1 |-> {<<1, 1>>}, c2 |-> {}]
+/\ maxTok = [n1 |-> 1, n2 |-> 0, n3 |-> 1]
+/\ pc = 2
+/\ sAcc = [c1 |-> 0, c2 |-> 0]
+/\ net = {}
+/\ fired = TRUE
+/\ lastW = [c1 |-> "nil", c2 |-> "nil"]
+/\ hi = 0
+/\ cterm = [c1 |-> 1, c2 |-> 0]
+/\ up = [s |-> TRUE, n1 |-> TRUE, n2 |-> TRUE, n3 |-> TRUE, c1 |-> TRUE, c2 |-> TRUE]
+/\ nid = 1
+/\ rfence = 0
+/\ lastGrantor = [c1 |-> "n3", c2 |-> "none"]
+/\ term = [n1 |-> 1, n2 |-> 1, n3 |-> 1]
+/\ want = [c1 |-> FALSE, c2 |-> FALSE]
+/\ ctok = [c1 |-> 1, c2 |-> 0]
+/\ side = [s |-> 0, n1 |-> 0, n2 |-> 0, n3 |-> 0, c1 |-> 0, c2 |-> 0]
+/\ grant = [client |-> "c1", term |-> 1, tok |-> 1, expired |-> FALSE, node |-> "n3"]
+
+State 5: <Expire line 229, col 3 to line 232, col 82 of module Lease>
+/\ pendR = [c1 |-> {}, c2 |-> {}]
+/\ pendW = [c1 |-> {}, c2 |-> {}]
+/\ paused = [c1 |-> FALSE, c2 |-> FALSE]
+/\ lead = [n1 |-> 0, n2 |-> 0, n3 |-> 1]
+/\ sRead = [c1 |-> 0, c2 |-> 0]
+/\ val = "nil"
+/\ snap = [up |-> {"n1", "n2", "n3"}, at |-> 2]
+/\ log = << [ ev |-> "Request",
+     client |-> "c1",
+     outcome |-> "",
+     token |-> 0,
+     value |-> "nil",
+     cell |-> "",
+     desc |-> "",
+     term |-> 0,
+     proc |-> "c1",
+     hb |-> 0,
+     id |-> 0,
+     target |-> {} ],
+   [ ev |-> "Grant",
+     client |-> "c1",
+     outcome |-> "",
+     token |-> 1,
+     value |-> "nil",
+     cell |-> "",
+     desc |-> "",
+     term |-> 1,
+     proc |-> "n3",
+     hb |-> 0,
+     id |-> 0,
+     target |-> {} ] >>
+/\ ctoks = [c1 |-> {<<1, 1>>}, c2 |-> {}]
+/\ maxTok = [n1 |-> 1, n2 |-> 0, n3 |-> 1]
+/\ pc = 2
+/\ sAcc = [c1 |-> 0, c2 |-> 0]
+/\ net = {}
+/\ fired = TRUE
+/\ lastW = [c1 |-> "nil", c2 |-> "nil"]
+/\ hi = 0
+/\ cterm = [c1 |-> 1, c2 |-> 0]
+/\ up = [s |-> TRUE, n1 |-> TRUE, n2 |-> TRUE, n3 |-> TRUE, c1 |-> TRUE, c2 |-> TRUE]
+/\ nid = 1
+/\ rfence = 0
+/\ lastGrantor = [c1 |-> "n3", c2 |-> "none"]
+/\ term = [n1 |-> 1, n2 |-> 1, n3 |-> 1]
+/\ want = [c1 |-> FALSE, c2 |-> FALSE]
+/\ ctok = [c1 |-> 1, c2 |-> 0]
+/\ side = [s |-> 0, n1 |-> 0, n2 |-> 0, n3 |-> 0, c1 |-> 0, c2 |-> 0]
+/\ grant = [client |-> "c1", term |-> 1, tok |-> 1, expired |-> TRUE, node |-> "n3"]
+
+State 6: <TakeStep line 460, col 3 to line 470, col 44 of module Lease>
+/\ pendR = [c1 |-> {}, c2 |-> {}]
+/\ pendW = [c1 |-> {}, c2 |-> {}]
+/\ paused = [c1 |-> FALSE, c2 |-> FALSE]
+/\ lead = [n1 |-> 0, n2 |-> 0, n3 |-> 1]
+/\ sRead = [c1 |-> 0, c2 |-> 0]
+/\ val = "nil"
+/\ snap = [up |-> {"n1", "n2", "n3"}, at |-> 3]
+/\ log = <<[ev |-> "Request", client |-> "c1", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "", desc |-> "", term |-> 0, proc |-> "c1", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Grant", client |-> "c1", outcome |-> "", token |-> 1, value |-> "nil", cell |-> "", desc |-> "", term |-> 1, proc |-> "n3", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Fault", client |-> "none", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "F1.2", desc |-> "F1.2 partition [[\"grantor\", \"holder\", \"s\"], [\"rest\"]]", term |-> 0, proc |-> "env", hb |-> 0, id |-> 0, target |-> {"s", "n3", "c1"}]>>
+/\ ctoks = [c1 |-> {<<1, 1>>}, c2 |-> {}]
+/\ maxTok = [n1 |-> 1, n2 |-> 0, n3 |-> 1]
+/\ pc = 3
+/\ sAcc = [c1 |-> 0, c2 |-> 0]
+/\ net = {}
+/\ fired = TRUE
+/\ lastW = [c1 |-> "nil", c2 |-> "nil"]
+/\ hi = 0
+/\ cterm = [c1 |-> 1, c2 |-> 0]
+/\ up = [s |-> TRUE, n1 |-> TRUE, n2 |-> TRUE, n3 |-> TRUE, c1 |-> TRUE, c2 |-> TRUE]
+/\ nid = 1
+/\ rfence = 0
+/\ lastGrantor = [c1 |-> "n3", c2 |-> "none"]
+/\ term = [n1 |-> 1, n2 |-> 1, n3 |-> 1]
+/\ want = [c1 |-> FALSE, c2 |-> FALSE]
+/\ ctok = [c1 |-> 1, c2 |-> 0]
+/\ side = [s |-> 0, n1 |-> 1, n2 |-> 1, n3 |-> 0, c1 |-> 0, c2 |-> 1]
+/\ grant = [client |-> "c1", term |-> 1, tok |-> 1, expired |-> TRUE, node |-> "n3"]
+
+State 7: <Elect line 184, col 3 to line 191, col 85 of module Lease>
+/\ pendR = [c1 |-> {}, c2 |-> {}]
+/\ pendW = [c1 |-> {}, c2 |-> {}]
+/\ paused = [c1 |-> FALSE, c2 |-> FALSE]
+/\ lead = [n1 |-> 0, n2 |-> 2, n3 |-> 1]
+/\ sRead = [c1 |-> 0, c2 |-> 0]
+/\ val = "nil"
+/\ snap = [up |-> {"n1", "n2", "n3"}, at |-> 3]
+/\ log = <<[ev |-> "Request", client |-> "c1", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "", desc |-> "", term |-> 0, proc |-> "c1", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Grant", client |-> "c1", outcome |-> "", token |-> 1, value |-> "nil", cell |-> "", desc |-> "", term |-> 1, proc |-> "n3", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Fault", client |-> "none", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "F1.2", desc |-> "F1.2 partition [[\"grantor\", \"holder\", \"s\"], [\"rest\"]]", term |-> 0, proc |-> "env", hb |-> 0, id |-> 0, target |-> {"s", "n3", "c1"}]>>
+/\ ctoks = [c1 |-> {<<1, 1>>}, c2 |-> {}]
+/\ maxTok = [n1 |-> 1, n2 |-> 0, n3 |-> 1]
+/\ pc = 3
+/\ sAcc = [c1 |-> 0, c2 |-> 0]
+/\ net = {}
+/\ fired = TRUE
+/\ lastW = [c1 |-> "nil", c2 |-> "nil"]
+/\ hi = 0
+/\ cterm = [c1 |-> 1, c2 |-> 0]
+/\ up = [s |-> TRUE, n1 |-> TRUE, n2 |-> TRUE, n3 |-> TRUE, c1 |-> TRUE, c2 |-> TRUE]
+/\ nid = 1
+/\ rfence = 0
+/\ lastGrantor = [c1 |-> "n3", c2 |-> "none"]
+/\ term = [n1 |-> 2, n2 |-> 2, n3 |-> 1]
+/\ want = [c1 |-> FALSE, c2 |-> FALSE]
+/\ ctok = [c1 |-> 1, c2 |-> 0]
+/\ side = [s |-> 0, n1 |-> 1, n2 |-> 1, n3 |-> 0, c1 |-> 0, c2 |-> 1]
+/\ grant = [client |-> "c1", term |-> 1, tok |-> 1, expired |-> TRUE, node |-> "n3"]
+
+State 8: <TakeStep line 460, col 3 to line 470, col 44 of module Lease>
+/\ pendR = [c1 |-> {}, c2 |-> {}]
+/\ pendW = [c1 |-> {}, c2 |-> {}]
+/\ paused = [c1 |-> FALSE, c2 |-> FALSE]
+/\ lead = [n1 |-> 0, n2 |-> 2, n3 |-> 1]
+/\ sRead = [c1 |-> 0, c2 |-> 0]
+/\ val = "nil"
+/\ snap = [up |-> {"n1", "n2", "n3"}, at |-> 3]
+/\ log = <<[ev |-> "Request", client |-> "c1", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "", desc |-> "", term |-> 0, proc |-> "c1", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Grant", client |-> "c1", outcome |-> "", token |-> 1, value |-> "nil", cell |-> "", desc |-> "", term |-> 1, proc |-> "n3", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Fault", client |-> "none", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "F1.2", desc |-> "F1.2 partition [[\"grantor\", \"holder\", \"s\"], [\"rest\"]]", term |-> 0, proc |-> "env", hb |-> 0, id |-> 0, target |-> {"s", "n3", "c1"}], [ev |-> "Request", client |-> "c2", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "", desc |-> "", term |-> 0, proc |-> "c2", hb |-> 0, id |-> 0, target |-> {}]>>
+/\ ctoks = [c1 |-> {<<1, 1>>}, c2 |-> {}]
+/\ maxTok = [n1 |-> 1, n2 |-> 0, n3 |-> 1]
+/\ pc = 4
+/\ sAcc = [c1 |-> 0, c2 |-> 0]
+/\ net = {}
+/\ fired = FALSE
+/\ lastW = [c1 |-> "nil", c2 |-> "nil"]
+/\ hi = 0
+/\ cterm = [c1 |-> 1, c2 |-> 0]
+/\ up = [s |-> TRUE, n1 |-> TRUE, n2 |-> TRUE, n3 |-> TRUE, c1 |-> TRUE, c2 |-> TRUE]
+/\ nid = 1
+/\ rfence = 0
+/\ lastGrantor = [c1 |-> "n3", c2 |-> "none"]
+/\ term = [n1 |-> 2, n2 |-> 2, n3 |-> 1]
+/\ want = [c1 |-> FALSE, c2 |-> TRUE]
+/\ ctok = [c1 |-> 1, c2 |-> 0]
+/\ side = [s |-> 0, n1 |-> 1, n2 |-> 1, n3 |-> 0, c1 |-> 0, c2 |-> 1]
+/\ grant = [client |-> "c1", term |-> 1, tok |-> 1, expired |-> TRUE, node |-> "n3"]
+
+State 9: <GrantTo line 208, col 3 to line 224, col 68 of module Lease>
+/\ pendR = [c1 |-> {}, c2 |-> {}]
+/\ pendW = [c1 |-> {}, c2 |-> {}]
+/\ paused = [c1 |-> FALSE, c2 |-> FALSE]
+/\ lead = [n1 |-> 0, n2 |-> 2, n3 |-> 1]
+/\ sRead = [c1 |-> 0, c2 |-> 0]
+/\ val = "nil"
+/\ snap = [up |-> {"n1", "n2", "n3"}, at |-> 5]
+/\ log = <<[ev |-> "Request", client |-> "c1", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "", desc |-> "", term |-> 0, proc |-> "c1", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Grant", client |-> "c1", outcome |-> "", token |-> 1, value |-> "nil", cell |-> "", desc |-> "", term |-> 1, proc |-> "n3", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Fault", client |-> "none", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "F1.2", desc |-> "F1.2 partition [[\"grantor\", \"holder\", \"s\"], [\"rest\"]]", term |-> 0, proc |-> "env", hb |-> 0, id |-> 0, target |-> {"s", "n3", "c1"}], [ev |-> "Request", client |-> "c2", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "", desc |-> "", term |-> 0, proc |-> "c2", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Grant", client |-> "c2", outcome |-> "", token |-> 2, value |-> "nil", cell |-> "", desc |-> "", term |-> 2, proc |-> "n2", hb |-> 0, id |-> 0, target |-> {}]>>
+/\ ctoks = [c1 |-> {<<1, 1>>}, c2 |-> {<<2, 2>>}]
+/\ maxTok = [n1 |-> 2, n2 |-> 2, n3 |-> 1]
+/\ pc = 4
+/\ sAcc = [c1 |-> 0, c2 |-> 0]
+/\ net = {}
+/\ fired = TRUE
+/\ lastW = [c1 |-> "nil", c2 |-> "nil"]
+/\ hi = 0
+/\ cterm = [c1 |-> 1, c2 |-> 2]
+/\ up = [s |-> TRUE, n1 |-> TRUE, n2 |-> TRUE, n3 |-> TRUE, c1 |-> TRUE, c2 |-> TRUE]
+/\ nid = 1
+/\ rfence = 0
+/\ lastGrantor = [c1 |-> "n3", c2 |-> "n2"]
+/\ term = [n1 |-> 2, n2 |-> 2, n3 |-> 1]
+/\ want = [c1 |-> FALSE, c2 |-> FALSE]
+/\ ctok = [c1 |-> 1, c2 |-> 2]
+/\ side = [s |-> 0, n1 |-> 1, n2 |-> 1, n3 |-> 0, c1 |-> 0, c2 |-> 1]
+/\ grant = [client |-> "c2", term |-> 2, tok |-> 2, expired |-> FALSE, node |-> "n2"]
+
+State 10: <Expire line 229, col 3 to line 232, col 82 of module Lease>
+/\ pendR = [c1 |-> {}, c2 |-> {}]
+/\ pendW = [c1 |-> {}, c2 |-> {}]
+/\ paused = [c1 |-> FALSE, c2 |-> FALSE]
+/\ lead = [n1 |-> 0, n2 |-> 2, n3 |-> 1]
+/\ sRead = [c1 |-> 0, c2 |-> 0]
+/\ val = "nil"
+/\ snap = [up |-> {"n1", "n2", "n3"}, at |-> 5]
+/\ log = <<[ev |-> "Request", client |-> "c1", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "", desc |-> "", term |-> 0, proc |-> "c1", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Grant", client |-> "c1", outcome |-> "", token |-> 1, value |-> "nil", cell |-> "", desc |-> "", term |-> 1, proc |-> "n3", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Fault", client |-> "none", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "F1.2", desc |-> "F1.2 partition [[\"grantor\", \"holder\", \"s\"], [\"rest\"]]", term |-> 0, proc |-> "env", hb |-> 0, id |-> 0, target |-> {"s", "n3", "c1"}], [ev |-> "Request", client |-> "c2", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "", desc |-> "", term |-> 0, proc |-> "c2", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Grant", client |-> "c2", outcome |-> "", token |-> 2, value |-> "nil", cell |-> "", desc |-> "", term |-> 2, proc |-> "n2", hb |-> 0, id |-> 0, target |-> {}]>>
+/\ ctoks = [c1 |-> {<<1, 1>>}, c2 |-> {<<2, 2>>}]
+/\ maxTok = [n1 |-> 2, n2 |-> 2, n3 |-> 1]
+/\ pc = 4
+/\ sAcc = [c1 |-> 0, c2 |-> 0]
+/\ net = {}
+/\ fired = TRUE
+/\ lastW = [c1 |-> "nil", c2 |-> "nil"]
+/\ hi = 0
+/\ cterm = [c1 |-> 1, c2 |-> 2]
+/\ up = [s |-> TRUE, n1 |-> TRUE, n2 |-> TRUE, n3 |-> TRUE, c1 |-> TRUE, c2 |-> TRUE]
+/\ nid = 1
+/\ rfence = 0
+/\ lastGrantor = [c1 |-> "n3", c2 |-> "n2"]
+/\ term = [n1 |-> 2, n2 |-> 2, n3 |-> 1]
+/\ want = [c1 |-> FALSE, c2 |-> FALSE]
+/\ ctok = [c1 |-> 1, c2 |-> 2]
+/\ side = [s |-> 0, n1 |-> 1, n2 |-> 1, n3 |-> 0, c1 |-> 0, c2 |-> 1]
+/\ grant = [client |-> "c2", term |-> 2, tok |-> 2, expired |-> TRUE, node |-> "n2"]
+
+State 11: <TakeStep line 460, col 3 to line 470, col 44 of module Lease>
+/\ pendR = [c1 |-> {}, c2 |-> {}]
+/\ pendW = [c1 |-> {}, c2 |-> {}]
+/\ paused = [c1 |-> FALSE, c2 |-> FALSE]
+/\ lead = [n1 |-> 0, n2 |-> 2, n3 |-> 1]
+/\ sRead = [c1 |-> 0, c2 |-> 0]
+/\ val = "nil"
+/\ snap = [up |-> {"n1", "n2", "n3"}, at |-> 6]
+/\ log = <<[ev |-> "Request", client |-> "c1", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "", desc |-> "", term |-> 0, proc |-> "c1", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Grant", client |-> "c1", outcome |-> "", token |-> 1, value |-> "nil", cell |-> "", desc |-> "", term |-> 1, proc |-> "n3", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Fault", client |-> "none", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "F1.2", desc |-> "F1.2 partition [[\"grantor\", \"holder\", \"s\"], [\"rest\"]]", term |-> 0, proc |-> "env", hb |-> 0, id |-> 0, target |-> {"s", "n3", "c1"}], [ev |-> "Request", client |-> "c2", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "", desc |-> "", term |-> 0, proc |-> "c2", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Grant", client |-> "c2", outcome |-> "", token |-> 2, value |-> "nil", cell |-> "", desc |-> "", term |-> 2, proc |-> "n2", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Fault", client |-> "none", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "F1.2", desc |-> "F1.2 heal true", term |-> 0, proc |-> "env", hb |-> 0, id |-> 0, target |-> {}]>>
+/\ ctoks = [c1 |-> {<<1, 1>>}, c2 |-> {<<2, 2>>}]
+/\ maxTok = [n1 |-> 2, n2 |-> 2, n3 |-> 1]
+/\ pc = 5
+/\ sAcc = [c1 |-> 0, c2 |-> 0]
+/\ net = {}
+/\ fired = TRUE
+/\ lastW = [c1 |-> "nil", c2 |-> "nil"]
+/\ hi = 0
+/\ cterm = [c1 |-> 1, c2 |-> 2]
+/\ up = [s |-> TRUE, n1 |-> TRUE, n2 |-> TRUE, n3 |-> TRUE, c1 |-> TRUE, c2 |-> TRUE]
+/\ nid = 1
+/\ rfence = 0
+/\ lastGrantor = [c1 |-> "n3", c2 |-> "n2"]
+/\ term = [n1 |-> 2, n2 |-> 2, n3 |-> 1]
+/\ want = [c1 |-> FALSE, c2 |-> FALSE]
+/\ ctok = [c1 |-> 1, c2 |-> 2]
+/\ side = [s |-> 0, n1 |-> 0, n2 |-> 0, n3 |-> 0, c1 |-> 0, c2 |-> 0]
+/\ grant = [client |-> "c2", term |-> 2, tok |-> 2, expired |-> TRUE, node |-> "n2"]
+
+State 12: <TakeStep line 460, col 3 to line 470, col 44 of module Lease>
+/\ pendR = [c1 |-> {}, c2 |-> {}]
+/\ pendW = [c1 |-> {}, c2 |-> {1}]
+/\ paused = [c1 |-> FALSE, c2 |-> FALSE]
+/\ lead = [n1 |-> 0, n2 |-> 2, n3 |-> 1]
+/\ sRead = [c1 |-> 0, c2 |-> 0]
+/\ val = "nil"
+/\ snap = [up |-> {"n1", "n2", "n3"}, at |-> 6]
+/\ log = <<[ev |-> "Request", client |-> "c1", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "", desc |-> "", term |-> 0, proc |-> "c1", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Grant", client |-> "c1", outcome |-> "", token |-> 1, value |-> "nil", cell |-> "", desc |-> "", term |-> 1, proc |-> "n3", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Fault", client |-> "none", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "F1.2", desc |-> "F1.2 partition [[\"grantor\", \"holder\", \"s\"], [\"rest\"]]", term |-> 0, proc |-> "env", hb |-> 0, id |-> 0, target |-> {"s", "n3", "c1"}], [ev |-> "Request", client |-> "c2", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "", desc |-> "", term |-> 0, proc |-> "c2", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Grant", client |-> "c2", outcome |-> "", token |-> 2, value |-> "nil", cell |-> "", desc |-> "", term |-> 2, proc |-> "n2", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Fault", client |-> "none", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "F1.2", desc |-> "F1.2 heal true", term |-> 0, proc |-> "env", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "WriteAttempt", client |-> "c2", outcome |-> "", token |-> 2, value |-> "v2", cell |-> "", desc |-> "", term |-> 2, proc |-> "c2", hb |-> 0, id |-> 1, target |-> {}]>>
+/\ ctoks = [c1 |-> {<<1, 1>>}, c2 |-> {<<2, 2>>}]
+/\ maxTok = [n1 |-> 2, n2 |-> 2, n3 |-> 1]
+/\ pc = 6
+/\ sAcc = [c1 |-> 0, c2 |-> 0]
+/\ net = { [ outcome |-> "",
+    value |-> "v2",
+    term |-> 2,
+    id |-> 1,
+    t |-> "W",
+    c |-> "c2",
+    tok |-> 2,
+    dup |-> FALSE ] }
+/\ fired = FALSE
+/\ lastW = [c1 |-> "nil", c2 |-> "v2"]
+/\ hi = 0
+/\ cterm = [c1 |-> 1, c2 |-> 2]
+/\ up = [s |-> TRUE, n1 |-> TRUE, n2 |-> TRUE, n3 |-> TRUE, c1 |-> TRUE, c2 |-> TRUE]
+/\ nid = 2
+/\ rfence = 0
+/\ lastGrantor = [c1 |-> "n3", c2 |-> "n2"]
+/\ term = [n1 |-> 2, n2 |-> 2, n3 |-> 1]
+/\ want = [c1 |-> FALSE, c2 |-> FALSE]
+/\ ctok = [c1 |-> 1, c2 |-> 2]
+/\ side = [s |-> 0, n1 |-> 0, n2 |-> 0, n3 |-> 0, c1 |-> 0, c2 |-> 0]
+/\ grant = [client |-> "c2", term |-> 2, tok |-> 2, expired |-> TRUE, node |-> "n2"]
+
+State 13: <Next line 482, col 6 to line 482, col 90 of module Lease>
+/\ pendR = [c1 |-> {}, c2 |-> {}]
+/\ pendW = [c1 |-> {}, c2 |-> {1}]
+/\ paused = [c1 |-> FALSE, c2 |-> FALSE]
+/\ lead = [n1 |-> 0, n2 |-> 2, n3 |-> 1]
+/\ sRead = [c1 |-> 0, c2 |-> 0]
+/\ val = "v2"
+/\ snap = [up |-> {"n1", "n2", "n3"}, at |-> 6]
+/\ log = <<[ev |-> "Request", client |-> "c1", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "", desc |-> "", term |-> 0, proc |-> "c1", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Grant", client |-> "c1", outcome |-> "", token |-> 1, value |-> "nil", cell |-> "", desc |-> "", term |-> 1, proc |-> "n3", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Fault", client |-> "none", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "F1.2", desc |-> "F1.2 partition [[\"grantor\", \"holder\", \"s\"], [\"rest\"]]", term |-> 0, proc |-> "env", hb |-> 0, id |-> 0, target |-> {"s", "n3", "c1"}], [ev |-> "Request", client |-> "c2", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "", desc |-> "", term |-> 0, proc |-> "c2", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Grant", client |-> "c2", outcome |-> "", token |-> 2, value |-> "nil", cell |-> "", desc |-> "", term |-> 2, proc |-> "n2", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Fault", client |-> "none", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "F1.2", desc |-> "F1.2 heal true", term |-> 0, proc |-> "env", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "WriteAttempt", client |-> "c2", outcome |-> "", token |-> 2, value |-> "v2", cell |-> "", desc |-> "", term |-> 2, proc |-> "c2", hb |-> 0, id |-> 1, target |-> {}], [ev |-> "WriteAccept", client |-> "c2", outcome |-> "", token |-> 2, value |-> "v2", cell |-> "", desc |-> "", term |-> 2, proc |-> "s", hb |-> 0, id |-> 1, target |-> {}]>>
+/\ ctoks = [c1 |-> {<<1, 1>>}, c2 |-> {<<2, 2>>}]
+/\ maxTok = [n1 |-> 2, n2 |-> 2, n3 |-> 1]
+/\ pc = 6
+/\ sAcc = [c1 |-> 0, c2 |-> 2]
+/\ net = { [ outcome |-> "",
+    value |-> "v2",
+    term |-> 2,
+    id |-> 1,
+    t |-> "W",
+    c |-> "c2",
+    tok |-> 2,
+    dup |-> TRUE ],
+  [ outcome |-> "accepted",
+    value |-> "nil",
+    term |-> 2,
+    id |-> 1,
+    t |-> "WA",
+    c |-> "c2",
+    tok |-> 2,
+    dup |-> FALSE ] }
+/\ fired = FALSE
+/\ lastW = [c1 |-> "nil", c2 |-> "v2"]
+/\ hi = 2
+/\ cterm = [c1 |-> 1, c2 |-> 2]
+/\ up = [s |-> TRUE, n1 |-> TRUE, n2 |-> TRUE, n3 |-> TRUE, c1 |-> TRUE, c2 |-> TRUE]
+/\ nid = 2
+/\ rfence = 2
+/\ lastGrantor = [c1 |-> "n3", c2 |-> "n2"]
+/\ term = [n1 |-> 2, n2 |-> 2, n3 |-> 1]
+/\ want = [c1 |-> FALSE, c2 |-> FALSE]
+/\ ctok = [c1 |-> 1, c2 |-> 2]
+/\ side = [s |-> 0, n1 |-> 0, n2 |-> 0, n3 |-> 0, c1 |-> 0, c2 |-> 0]
+/\ grant = [client |-> "c2", term |-> 2, tok |-> 2, expired |-> TRUE, node |-> "n2"]
+
+State 14: <Next line 482, col 6 to line 482, col 90 of module Lease>
+/\ pendR = [c1 |-> {}, c2 |-> {}]
+/\ pendW = [c1 |-> {}, c2 |-> {}]
+/\ paused = [c1 |-> FALSE, c2 |-> FALSE]
+/\ lead = [n1 |-> 0, n2 |-> 2, n3 |-> 1]
+/\ sRead = [c1 |-> 0, c2 |-> 0]
+/\ val = "v2"
+/\ snap = [up |-> {"n1", "n2", "n3"}, at |-> 9]
+/\ log = <<[ev |-> "Request", client |-> "c1", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "", desc |-> "", term |-> 0, proc |-> "c1", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Grant", client |-> "c1", outcome |-> "", token |-> 1, value |-> "nil", cell |-> "", desc |-> "", term |-> 1, proc |-> "n3", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Fault", client |-> "none", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "F1.2", desc |-> "F1.2 partition [[\"grantor\", \"holder\", \"s\"], [\"rest\"]]", term |-> 0, proc |-> "env", hb |-> 0, id |-> 0, target |-> {"s", "n3", "c1"}], [ev |-> "Request", client |-> "c2", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "", desc |-> "", term |-> 0, proc |-> "c2", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Grant", client |-> "c2", outcome |-> "", token |-> 2, value |-> "nil", cell |-> "", desc |-> "", term |-> 2, proc |-> "n2", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Fault", client |-> "none", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "F1.2", desc |-> "F1.2 heal true", term |-> 0, proc |-> "env", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "WriteAttempt", client |-> "c2", outcome |-> "", token |-> 2, value |-> "v2", cell |-> "", desc |-> "", term |-> 2, proc |-> "c2", hb |-> 0, id |-> 1, target |-> {}], [ev |-> "WriteAccept", client |-> "c2", outcome |-> "", token |-> 2, value |-> "v2", cell |-> "", desc |-> "", term |-> 2, proc |-> "s", hb |-> 0, id |-> 1, target |-> {}], [ev |-> "WriteAck", client |-> "c2", outcome |-> "accepted", token |-> 2, value |-> "nil", cell |-> "", desc |-> "", term |-> 2, proc |-> "c2", hb |-> 0, id |-> 1, target |-> {}]>>
+/\ ctoks = [c1 |-> {<<1, 1>>}, c2 |-> {<<2, 2>>}]
+/\ maxTok = [n1 |-> 2, n2 |-> 2, n3 |-> 1]
+/\ pc = 6
+/\ sAcc = [c1 |-> 0, c2 |-> 2]
+/\ net = { [ outcome |-> "",
+    value |-> "v2",
+    term |-> 2,
+    id |-> 1,
+    t |-> "W",
+    c |-> "c2",
+    tok |-> 2,
+    dup |-> TRUE ] }
+/\ fired = TRUE
+/\ lastW = [c1 |-> "nil", c2 |-> "v2"]
+/\ hi = 2
+/\ cterm = [c1 |-> 1, c2 |-> 2]
+/\ up = [s |-> TRUE, n1 |-> TRUE, n2 |-> TRUE, n3 |-> TRUE, c1 |-> TRUE, c2 |-> TRUE]
+/\ nid = 2
+/\ rfence = 2
+/\ lastGrantor = [c1 |-> "n3", c2 |-> "n2"]
+/\ term = [n1 |-> 2, n2 |-> 2, n3 |-> 1]
+/\ want = [c1 |-> FALSE, c2 |-> FALSE]
+/\ ctok = [c1 |-> 1, c2 |-> 2]
+/\ side = [s |-> 0, n1 |-> 0, n2 |-> 0, n3 |-> 0, c1 |-> 0, c2 |-> 0]
+/\ grant = [client |-> "c2", term |-> 2, tok |-> 2, expired |-> TRUE, node |-> "n2"]
+
+State 15: <Next line 482, col 6 to line 482, col 90 of module Lease>
+/\ pendR = [c1 |-> {}, c2 |-> {}]
+/\ pendW = [c1 |-> {}, c2 |-> {}]
+/\ paused = [c1 |-> FALSE, c2 |-> FALSE]
+/\ lead = [n1 |-> 0, n2 |-> 2, n3 |-> 1]
+/\ sRead = [c1 |-> 0, c2 |-> 0]
+/\ val = "v2"
+/\ snap = [up |-> {"n1", "n2", "n3"}, at |-> 9]
+/\ log = <<[ev |-> "Request", client |-> "c1", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "", desc |-> "", term |-> 0, proc |-> "c1", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Grant", client |-> "c1", outcome |-> "", token |-> 1, value |-> "nil", cell |-> "", desc |-> "", term |-> 1, proc |-> "n3", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Fault", client |-> "none", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "F1.2", desc |-> "F1.2 partition [[\"grantor\", \"holder\", \"s\"], [\"rest\"]]", term |-> 0, proc |-> "env", hb |-> 0, id |-> 0, target |-> {"s", "n3", "c1"}], [ev |-> "Request", client |-> "c2", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "", desc |-> "", term |-> 0, proc |-> "c2", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Grant", client |-> "c2", outcome |-> "", token |-> 2, value |-> "nil", cell |-> "", desc |-> "", term |-> 2, proc |-> "n2", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Fault", client |-> "none", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "F1.2", desc |-> "F1.2 heal true", term |-> 0, proc |-> "env", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "WriteAttempt", client |-> "c2", outcome |-> "", token |-> 2, value |-> "v2", cell |-> "", desc |-> "", term |-> 2, proc |-> "c2", hb |-> 0, id |-> 1, target |-> {}], [ev |-> "WriteAccept", client |-> "c2", outcome |-> "", token |-> 2, value |-> "v2", cell |-> "", desc |-> "", term |-> 2, proc |-> "s", hb |-> 0, id |-> 1, target |-> {}], [ev |-> "WriteAck", client |-> "c2", outcome |-> "accepted", token |-> 2, value |-> "nil", cell |-> "", desc |-> "", term |-> 2, proc |-> "c2", hb |-> 0, id |-> 1, target |-> {}], [ev |-> "WriteAccept", client |-> "c2", outcome |-> "", token |-> 2, value |-> "v2", cell |-> "", desc |-> "", term |-> 2, proc |-> "s", hb |-> 2, id |-> 1, target |-> {}]>>
+/\ ctoks = [c1 |-> {<<1, 1>>}, c2 |-> {<<2, 2>>}]
+/\ maxTok = [n1 |-> 2, n2 |-> 2, n3 |-> 1]
+/\ pc = 6
+/\ sAcc = [c1 |-> 0, c2 |-> 2]
+/\ net = { [ outcome |-> "accepted",
+    value |-> "nil",
+    term |-> 2,
+    id |-> 1,
+    t |-> "WA",
+    c |-> "c2",
+    tok |-> 2,
+    dup |-> FALSE ] }
+/\ fired = TRUE
+/\ lastW = [c1 |-> "nil", c2 |-> "v2"]
+/\ hi = 2
+/\ cterm = [c1 |-> 1, c2 |-> 2]
+/\ up = [s |-> TRUE, n1 |-> TRUE, n2 |-> TRUE, n3 |-> TRUE, c1 |-> TRUE, c2 |-> TRUE]
+/\ nid = 2
+/\ rfence = 2
+/\ lastGrantor = [c1 |-> "n3", c2 |-> "n2"]
+/\ term = [n1 |-> 2, n2 |-> 2, n3 |-> 1]
+/\ want = [c1 |-> FALSE, c2 |-> FALSE]
+/\ ctok = [c1 |-> 1, c2 |-> 2]
+/\ side = [s |-> 0, n1 |-> 0, n2 |-> 0, n3 |-> 0, c1 |-> 0, c2 |-> 0]
+/\ grant = [client |-> "c2", term |-> 2, tok |-> 2, expired |-> TRUE, node |-> "n2"]
+
+State 16: <TakeStep line 460, col 3 to line 470, col 44 of module Lease>
+/\ pendR = [c1 |-> {}, c2 |-> {}]
+/\ pendW = [c1 |-> {}, c2 |-> {}]
+/\ paused = [c1 |-> FALSE, c2 |-> FALSE]
+/\ lead = [n1 |-> 0, n2 |-> 0, n3 |-> 1]
+/\ sRead = [c1 |-> 0, c2 |-> 0]
+/\ val = "v2"
+/\ snap = [up |-> {"n1", "n3"}, at |-> 11]
+/\ log = <<[ev |-> "Request", client |-> "c1", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "", desc |-> "", term |-> 0, proc |-> "c1", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Grant", client |-> "c1", outcome |-> "", token |-> 1, value |-> "nil", cell |-> "", desc |-> "", term |-> 1, proc |-> "n3", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Fault", client |-> "none", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "F1.2", desc |-> "F1.2 partition [[\"grantor\", \"holder\", \"s\"], [\"rest\"]]", term |-> 0, proc |-> "env", hb |-> 0, id |-> 0, target |-> {"s", "n3", "c1"}], [ev |-> "Request", client |-> "c2", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "", desc |-> "", term |-> 0, proc |-> "c2", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Grant", client |-> "c2", outcome |-> "", token |-> 2, value |-> "nil", cell |-> "", desc |-> "", term |-> 2, proc |-> "n2", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Fault", client |-> "none", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "F1.2", desc |-> "F1.2 heal true", term |-> 0, proc |-> "env", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "WriteAttempt", client |-> "c2", outcome |-> "", token |-> 2, value |-> "v2", cell |-> "", desc |-> "", term |-> 2, proc |-> "c2", hb |-> 0, id |-> 1, target |-> {}], [ev |-> "WriteAccept", client |-> "c2", outcome |-> "", token |-> 2, value |-> "v2", cell |-> "", desc |-> "", term |-> 2, proc |-> "s", hb |-> 0, id |-> 1, target |-> {}], [ev |-> "WriteAck", client |-> "c2", outcome |-> "accepted", token |-> 2, value |-> "nil", cell |-> "", desc |-> "", term |-> 2, proc |-> "c2", hb |-> 0, id |-> 1, target |-> {}], [ev |-> "WriteAccept", client |-> "c2", outcome |-> "", token |-> 2, value |-> "v2", cell |-> "", desc |-> "", term |-> 2, proc |-> "s", hb |-> 2, id |-> 1, target |-> {}], [ev |-> "Fault", client |-> "none", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "F1.1", desc |-> "F1.1 crash \"grantor\"", term |-> 0, proc |-> "env", hb |-> 0, id |-> 0, target |-> {"n2"}]>>
+/\ ctoks = [c1 |-> {<<1, 1>>}, c2 |-> {<<2, 2>>}]
+/\ maxTok = [n1 |-> 2, n2 |-> 2, n3 |-> 1]
+/\ pc = 7
+/\ sAcc = [c1 |-> 0, c2 |-> 2]
+/\ net = { [ outcome |-> "accepted",
+    value |-> "nil",
+    term |-> 2,
+    id |-> 1,
+    t |-> "WA",
+    c |-> "c2",
+    tok |-> 2,
+    dup |-> FALSE ] }
+/\ fired = TRUE
+/\ lastW = [c1 |-> "nil", c2 |-> "v2"]
+/\ hi = 2
+/\ cterm = [c1 |-> 1, c2 |-> 2]
+/\ up = [s |-> TRUE, n1 |-> TRUE, n2 |-> FALSE, n3 |-> TRUE, c1 |-> TRUE, c2 |-> TRUE]
+/\ nid = 2
+/\ rfence = 2
+/\ lastGrantor = [c1 |-> "n3", c2 |-> "n2"]
+/\ term = [n1 |-> 2, n2 |-> 2, n3 |-> 1]
+/\ want = [c1 |-> FALSE, c2 |-> FALSE]
+/\ ctok = [c1 |-> 1, c2 |-> 2]
+/\ side = [s |-> 0, n1 |-> 0, n2 |-> 0, n3 |-> 0, c1 |-> 0, c2 |-> 0]
+/\ grant = [client |-> "c2", term |-> 2, tok |-> 2, expired |-> TRUE, node |-> "n2"]
+
+State 17: <TakeStep line 460, col 3 to line 470, col 44 of module Lease>
+/\ pendR = [c1 |-> {2}, c2 |-> {}]
+/\ pendW = [c1 |-> {}, c2 |-> {}]
+/\ paused = [c1 |-> FALSE, c2 |-> FALSE]
+/\ lead = [n1 |-> 0, n2 |-> 0, n3 |-> 1]
+/\ sRead = [c1 |-> 0, c2 |-> 0]
+/\ val = "v2"
+/\ snap = [up |-> {"n1", "n3"}, at |-> 11]
+/\ log = <<[ev |-> "Request", client |-> "c1", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "", desc |-> "", term |-> 0, proc |-> "c1", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Grant", client |-> "c1", outcome |-> "", token |-> 1, value |-> "nil", cell |-> "", desc |-> "", term |-> 1, proc |-> "n3", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Fault", client |-> "none", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "F1.2", desc |-> "F1.2 partition [[\"grantor\", \"holder\", \"s\"], [\"rest\"]]", term |-> 0, proc |-> "env", hb |-> 0, id |-> 0, target |-> {"s", "n3", "c1"}], [ev |-> "Request", client |-> "c2", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "", desc |-> "", term |-> 0, proc |-> "c2", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Grant", client |-> "c2", outcome |-> "", token |-> 2, value |-> "nil", cell |-> "", desc |-> "", term |-> 2, proc |-> "n2", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Fault", client |-> "none", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "F1.2", desc |-> "F1.2 heal true", term |-> 0, proc |-> "env", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "WriteAttempt", client |-> "c2", outcome |-> "", token |-> 2, value |-> "v2", cell |-> "", desc |-> "", term |-> 2, proc |-> "c2", hb |-> 0, id |-> 1, target |-> {}], [ev |-> "WriteAccept", client |-> "c2", outcome |-> "", token |-> 2, value |-> "v2", cell |-> "", desc |-> "", term |-> 2, proc |-> "s", hb |-> 0, id |-> 1, target |-> {}], [ev |-> "WriteAck", client |-> "c2", outcome |-> "accepted", token |-> 2, value |-> "nil", cell |-> "", desc |-> "", term |-> 2, proc |-> "c2", hb |-> 0, id |-> 1, target |-> {}], [ev |-> "WriteAccept", client |-> "c2", outcome |-> "", token |-> 2, value |-> "v2", cell |-> "", desc |-> "", term |-> 2, proc |-> "s", hb |-> 2, id |-> 1, target |-> {}], [ev |-> "Fault", client |-> "none", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "F1.1", desc |-> "F1.1 crash \"grantor\"", term |-> 0, proc |-> "env", hb |-> 0, id |-> 0, target |-> {"n2"}], [ev |-> "ReadAttempt", client |-> "c1", outcome |-> "", token |-> 1, value |-> "nil", cell |-> "", desc |-> "", term |-> 1, proc |-> "c1", hb |-> 0, id |-> 2, target |-> {}]>>
+/\ ctoks = [c1 |-> {<<1, 1>>}, c2 |-> {<<2, 2>>}]
+/\ maxTok = [n1 |-> 2, n2 |-> 2, n3 |-> 1]
+/\ pc = 8
+/\ sAcc = [c1 |-> 0, c2 |-> 2]
+/\ net = { [ outcome |-> "",
+    value |-> "nil",
+    term |-> 1,
+    id |-> 2,
+    t |-> "R",
+    c |-> "c1",
+    tok |-> 1,
+    dup |-> FALSE ],
+  [ outcome |-> "accepted",
+    value |-> "nil",
+    term |-> 2,
+    id |-> 1,
+    t |-> "WA",
+    c |-> "c2",
+    tok |-> 2,
+    dup |-> FALSE ] }
+/\ fired = FALSE
+/\ lastW = [c1 |-> "nil", c2 |-> "v2"]
+/\ hi = 2
+/\ cterm = [c1 |-> 1, c2 |-> 2]
+/\ up = [s |-> TRUE, n1 |-> TRUE, n2 |-> FALSE, n3 |-> TRUE, c1 |-> TRUE, c2 |-> TRUE]
+/\ nid = 3
+/\ rfence = 2
+/\ lastGrantor = [c1 |-> "n3", c2 |-> "n2"]
+/\ term = [n1 |-> 2, n2 |-> 2, n3 |-> 1]
+/\ want = [c1 |-> FALSE, c2 |-> FALSE]
+/\ ctok = [c1 |-> 1, c2 |-> 2]
+/\ side = [s |-> 0, n1 |-> 0, n2 |-> 0, n3 |-> 0, c1 |-> 0, c2 |-> 0]
+/\ grant = [client |-> "c2", term |-> 2, tok |-> 2, expired |-> TRUE, node |-> "n2"]
+
+State 18: <Next line 482, col 6 to line 482, col 90 of module Lease>
+/\ pendR = [c1 |-> {2}, c2 |-> {}]
+/\ pendW = [c1 |-> {}, c2 |-> {}]
+/\ paused = [c1 |-> FALSE, c2 |-> FALSE]
+/\ lead = [n1 |-> 0, n2 |-> 0, n3 |-> 1]
+/\ sRead = [c1 |-> 0, c2 |-> 0]
+/\ val = "v2"
+/\ snap = [up |-> {"n1", "n3"}, at |-> 11]
+/\ log = <<[ev |-> "Request", client |-> "c1", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "", desc |-> "", term |-> 0, proc |-> "c1", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Grant", client |-> "c1", outcome |-> "", token |-> 1, value |-> "nil", cell |-> "", desc |-> "", term |-> 1, proc |-> "n3", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Fault", client |-> "none", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "F1.2", desc |-> "F1.2 partition [[\"grantor\", \"holder\", \"s\"], [\"rest\"]]", term |-> 0, proc |-> "env", hb |-> 0, id |-> 0, target |-> {"s", "n3", "c1"}], [ev |-> "Request", client |-> "c2", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "", desc |-> "", term |-> 0, proc |-> "c2", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Grant", client |-> "c2", outcome |-> "", token |-> 2, value |-> "nil", cell |-> "", desc |-> "", term |-> 2, proc |-> "n2", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Fault", client |-> "none", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "F1.2", desc |-> "F1.2 heal true", term |-> 0, proc |-> "env", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "WriteAttempt", client |-> "c2", outcome |-> "", token |-> 2, value |-> "v2", cell |-> "", desc |-> "", term |-> 2, proc |-> "c2", hb |-> 0, id |-> 1, target |-> {}], [ev |-> "WriteAccept", client |-> "c2", outcome |-> "", token |-> 2, value |-> "v2", cell |-> "", desc |-> "", term |-> 2, proc |-> "s", hb |-> 0, id |-> 1, target |-> {}], [ev |-> "WriteAck", client |-> "c2", outcome |-> "accepted", token |-> 2, value |-> "nil", cell |-> "", desc |-> "", term |-> 2, proc |-> "c2", hb |-> 0, id |-> 1, target |-> {}], [ev |-> "WriteAccept", client |-> "c2", outcome |-> "", token |-> 2, value |-> "v2", cell |-> "", desc |-> "", term |-> 2, proc |-> "s", hb |-> 2, id |-> 1, target |-> {}], [ev |-> "Fault", client |-> "none", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "F1.1", desc |-> "F1.1 crash \"grantor\"", term |-> 0, proc |-> "env", hb |-> 0, id |-> 0, target |-> {"n2"}], [ev |-> "ReadAttempt", client |-> "c1", outcome |-> "", token |-> 1, value |-> "nil", cell |-> "", desc |-> "", term |-> 1, proc |-> "c1", hb |-> 0, id |-> 2, target |-> {}], [ev |-> "ReadReject", client |-> "c1", outcome |-> "", token |-> 1, value |-> "nil", cell |-> "", desc |-> "", term |-> 1, proc |-> "s", hb |-> 2, id |-> 2, target |-> {}]>>
+/\ ctoks = [c1 |-> {<<1, 1>>}, c2 |-> {<<2, 2>>}]
+/\ maxTok = [n1 |-> 2, n2 |-> 2, n3 |-> 1]
+/\ pc = 8
+/\ sAcc = [c1 |-> 0, c2 |-> 2]
+/\ net = { [ outcome |-> "accepted",
+    value |-> "nil",
+    term |-> 2,
+    id |-> 1,
+    t |-> "WA",
+    c |-> "c2",
+    tok |-> 2,
+    dup |-> FALSE ],
+  [ outcome |-> "rejected",
+    value |-> "nil",
+    term |-> 1,
+    id |-> 2,
+    t |-> "RA",
+    c |-> "c1",
+    tok |-> 1,
+    dup |-> FALSE ] }
+/\ fired = FALSE
+/\ lastW = [c1 |-> "nil", c2 |-> "v2"]
+/\ hi = 2
+/\ cterm = [c1 |-> 1, c2 |-> 2]
+/\ up = [s |-> TRUE, n1 |-> TRUE, n2 |-> FALSE, n3 |-> TRUE, c1 |-> TRUE, c2 |-> TRUE]
+/\ nid = 3
+/\ rfence = 2
+/\ lastGrantor = [c1 |-> "n3", c2 |-> "n2"]
+/\ term = [n1 |-> 2, n2 |-> 2, n3 |-> 1]
+/\ want = [c1 |-> FALSE, c2 |-> FALSE]
+/\ ctok = [c1 |-> 1, c2 |-> 2]
+/\ side = [s |-> 0, n1 |-> 0, n2 |-> 0, n3 |-> 0, c1 |-> 0, c2 |-> 0]
+/\ grant = [client |-> "c2", term |-> 2, tok |-> 2, expired |-> TRUE, node |-> "n2"]
+
+State 19: <Next line 482, col 6 to line 482, col 90 of module Lease>
+/\ pendR = [c1 |-> {}, c2 |-> {}]
+/\ pendW = [c1 |-> {}, c2 |-> {}]
+/\ paused = [c1 |-> FALSE, c2 |-> FALSE]
+/\ lead = [n1 |-> 0, n2 |-> 0, n3 |-> 1]
+/\ sRead = [c1 |-> 0, c2 |-> 0]
+/\ val = "v2"
+/\ snap = [up |-> {"n1", "n3"}, at |-> 14]
+/\ log = <<[ev |-> "Request", client |-> "c1", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "", desc |-> "", term |-> 0, proc |-> "c1", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Grant", client |-> "c1", outcome |-> "", token |-> 1, value |-> "nil", cell |-> "", desc |-> "", term |-> 1, proc |-> "n3", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Fault", client |-> "none", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "F1.2", desc |-> "F1.2 partition [[\"grantor\", \"holder\", \"s\"], [\"rest\"]]", term |-> 0, proc |-> "env", hb |-> 0, id |-> 0, target |-> {"s", "n3", "c1"}], [ev |-> "Request", client |-> "c2", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "", desc |-> "", term |-> 0, proc |-> "c2", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Grant", client |-> "c2", outcome |-> "", token |-> 2, value |-> "nil", cell |-> "", desc |-> "", term |-> 2, proc |-> "n2", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Fault", client |-> "none", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "F1.2", desc |-> "F1.2 heal true", term |-> 0, proc |-> "env", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "WriteAttempt", client |-> "c2", outcome |-> "", token |-> 2, value |-> "v2", cell |-> "", desc |-> "", term |-> 2, proc |-> "c2", hb |-> 0, id |-> 1, target |-> {}], [ev |-> "WriteAccept", client |-> "c2", outcome |-> "", token |-> 2, value |-> "v2", cell |-> "", desc |-> "", term |-> 2, proc |-> "s", hb |-> 0, id |-> 1, target |-> {}], [ev |-> "WriteAck", client |-> "c2", outcome |-> "accepted", token |-> 2, value |-> "nil", cell |-> "", desc |-> "", term |-> 2, proc |-> "c2", hb |-> 0, id |-> 1, target |-> {}], [ev |-> "WriteAccept", client |-> "c2", outcome |-> "", token |-> 2, value |-> "v2", cell |-> "", desc |-> "", term |-> 2, proc |-> "s", hb |-> 2, id |-> 1, target |-> {}], [ev |-> "Fault", client |-> "none", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "F1.1", desc |-> "F1.1 crash \"grantor\"", term |-> 0, proc |-> "env", hb |-> 0, id |-> 0, target |-> {"n2"}], [ev |-> "ReadAttempt", client |-> "c1", outcome |-> "", token |-> 1, value |-> "nil", cell |-> "", desc |-> "", term |-> 1, proc |-> "c1", hb |-> 0, id |-> 2, target |-> {}], [ev |-> "ReadReject", client |-> "c1", outcome |-> "", token |-> 1, value |-> "nil", cell |-> "", desc |-> "", term |-> 1, proc |-> "s", hb |-> 2, id |-> 2, target |-> {}], [ev |-> "ReadAck", client |-> "c1", outcome |-> "rejected", token |-> 1, value |-> "nil", cell |-> "", desc |-> "", term |-> 1, proc |-> "c1", hb |-> 0, id |-> 2, target |-> {}]>>
+/\ ctoks = [c1 |-> {<<1, 1>>}, c2 |-> {<<2, 2>>}]
+/\ maxTok = [n1 |-> 2, n2 |-> 2, n3 |-> 1]
+/\ pc = 8
+/\ sAcc = [c1 |-> 0, c2 |-> 2]
+/\ net = { [ outcome |-> "accepted",
+    value |-> "nil",
+    term |-> 2,
+    id |-> 1,
+    t |-> "WA",
+    c |-> "c2",
+    tok |-> 2,
+    dup |-> FALSE ] }
+/\ fired = TRUE
+/\ lastW = [c1 |-> "nil", c2 |-> "v2"]
+/\ hi = 2
+/\ cterm = [c1 |-> 1, c2 |-> 2]
+/\ up = [s |-> TRUE, n1 |-> TRUE, n2 |-> FALSE, n3 |-> TRUE, c1 |-> TRUE, c2 |-> TRUE]
+/\ nid = 3
+/\ rfence = 2
+/\ lastGrantor = [c1 |-> "n3", c2 |-> "n2"]
+/\ term = [n1 |-> 2, n2 |-> 2, n3 |-> 1]
+/\ want = [c1 |-> FALSE, c2 |-> FALSE]
+/\ ctok = [c1 |-> 1, c2 |-> 2]
+/\ side = [s |-> 0, n1 |-> 0, n2 |-> 0, n3 |-> 0, c1 |-> 0, c2 |-> 0]
+/\ grant = [client |-> "c2", term |-> 2, tok |-> 2, expired |-> TRUE, node |-> "n2"]
+
+State 20: <TakeStep line 460, col 3 to line 470, col 44 of module Lease>
+/\ pendR = [c1 |-> {}, c2 |-> {}]
+/\ pendW = [c1 |-> {}, c2 |-> {}]
+/\ paused = [c1 |-> FALSE, c2 |-> FALSE]
+/\ lead = [n1 |-> 0, n2 |-> 0, n3 |-> 1]
+/\ sRead = [c1 |-> 0, c2 |-> 0]
+/\ val = "v2"
+/\ snap = [up |-> {"n1", "n3"}, at |-> 14]
+/\ log = <<[ev |-> "Request", client |-> "c1", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "", desc |-> "", term |-> 0, proc |-> "c1", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Grant", client |-> "c1", outcome |-> "", token |-> 1, value |-> "nil", cell |-> "", desc |-> "", term |-> 1, proc |-> "n3", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Fault", client |-> "none", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "F1.2", desc |-> "F1.2 partition [[\"grantor\", \"holder\", \"s\"], [\"rest\"]]", term |-> 0, proc |-> "env", hb |-> 0, id |-> 0, target |-> {"s", "n3", "c1"}], [ev |-> "Request", client |-> "c2", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "", desc |-> "", term |-> 0, proc |-> "c2", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Grant", client |-> "c2", outcome |-> "", token |-> 2, value |-> "nil", cell |-> "", desc |-> "", term |-> 2, proc |-> "n2", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Fault", client |-> "none", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "F1.2", desc |-> "F1.2 heal true", term |-> 0, proc |-> "env", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "WriteAttempt", client |-> "c2", outcome |-> "", token |-> 2, value |-> "v2", cell |-> "", desc |-> "", term |-> 2, proc |-> "c2", hb |-> 0, id |-> 1, target |-> {}], [ev |-> "WriteAccept", client |-> "c2", outcome |-> "", token |-> 2, value |-> "v2", cell |-> "", desc |-> "", term |-> 2, proc |-> "s", hb |-> 0, id |-> 1, target |-> {}], [ev |-> "WriteAck", client |-> "c2", outcome |-> "accepted", token |-> 2, value |-> "nil", cell |-> "", desc |-> "", term |-> 2, proc |-> "c2", hb |-> 0, id |-> 1, target |-> {}], [ev |-> "WriteAccept", client |-> "c2", outcome |-> "", token |-> 2, value |-> "v2", cell |-> "", desc |-> "", term |-> 2, proc |-> "s", hb |-> 2, id |-> 1, target |-> {}], [ev |-> "Fault", client |-> "none", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "F1.1", desc |-> "F1.1 crash \"grantor\"", term |-> 0, proc |-> "env", hb |-> 0, id |-> 0, target |-> {"n2"}], [ev |-> "ReadAttempt", client |-> "c1", outcome |-> "", token |-> 1, value |-> "nil", cell |-> "", desc |-> "", term |-> 1, proc |-> "c1", hb |-> 0, id |-> 2, target |-> {}], [ev |-> "ReadReject", client |-> "c1", outcome |-> "", token |-> 1, value |-> "nil", cell |-> "", desc |-> "", term |-> 1, proc |-> "s", hb |-> 2, id |-> 2, target |-> {}], [ev |-> "ReadAck", client |-> "c1", outcome |-> "rejected", token |-> 1, value |-> "nil", cell |-> "", desc |-> "", term |-> 1, proc |-> "c1", hb |-> 0, id |-> 2, target |-> {}], [ev |-> "Request", client |-> "c1", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "", desc |-> "", term |-> 0, proc |-> "c1", hb |-> 0, id |-> 0, target |-> {}]>>
+/\ ctoks = [c1 |-> {<<1, 1>>}, c2 |-> {<<2, 2>>}]
+/\ maxTok = [n1 |-> 2, n2 |-> 2, n3 |-> 1]
+/\ pc = 9
+/\ sAcc = [c1 |-> 0, c2 |-> 2]
+/\ net = { [ outcome |-> "accepted",
+    value |-> "nil",
+    term |-> 2,
+    id |-> 1,
+    t |-> "WA",
+    c |-> "c2",
+    tok |-> 2,
+    dup |-> FALSE ] }
+/\ fired = FALSE
+/\ lastW = [c1 |-> "nil", c2 |-> "v2"]
+/\ hi = 2
+/\ cterm = [c1 |-> 1, c2 |-> 2]
+/\ up = [s |-> TRUE, n1 |-> TRUE, n2 |-> FALSE, n3 |-> TRUE, c1 |-> TRUE, c2 |-> TRUE]
+/\ nid = 3
+/\ rfence = 2
+/\ lastGrantor = [c1 |-> "n3", c2 |-> "n2"]
+/\ term = [n1 |-> 2, n2 |-> 2, n3 |-> 1]
+/\ want = [c1 |-> TRUE, c2 |-> FALSE]
+/\ ctok = [c1 |-> 1, c2 |-> 2]
+/\ side = [s |-> 0, n1 |-> 0, n2 |-> 0, n3 |-> 0, c1 |-> 0, c2 |-> 0]
+/\ grant = [client |-> "c2", term |-> 2, tok |-> 2, expired |-> TRUE, node |-> "n2"]
+
+State 21: <Next line 482, col 6 to line 482, col 90 of module Lease>
+/\ pendR = [c1 |-> {}, c2 |-> {}]
+/\ pendW = [c1 |-> {}, c2 |-> {}]
+/\ paused = [c1 |-> FALSE, c2 |-> FALSE]
+/\ lead = [n1 |-> 0, n2 |-> 0, n3 |-> 1]
+/\ sRead = [c1 |-> 0, c2 |-> 0]
+/\ val = "v2"
+/\ snap = [up |-> {"n1", "n3"}, at |-> 14]
+/\ log = <<[ev |-> "Request", client |-> "c1", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "", desc |-> "", term |-> 0, proc |-> "c1", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Grant", client |-> "c1", outcome |-> "", token |-> 1, value |-> "nil", cell |-> "", desc |-> "", term |-> 1, proc |-> "n3", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Fault", client |-> "none", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "F1.2", desc |-> "F1.2 partition [[\"grantor\", \"holder\", \"s\"], [\"rest\"]]", term |-> 0, proc |-> "env", hb |-> 0, id |-> 0, target |-> {"s", "n3", "c1"}], [ev |-> "Request", client |-> "c2", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "", desc |-> "", term |-> 0, proc |-> "c2", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Grant", client |-> "c2", outcome |-> "", token |-> 2, value |-> "nil", cell |-> "", desc |-> "", term |-> 2, proc |-> "n2", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Fault", client |-> "none", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "F1.2", desc |-> "F1.2 heal true", term |-> 0, proc |-> "env", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "WriteAttempt", client |-> "c2", outcome |-> "", token |-> 2, value |-> "v2", cell |-> "", desc |-> "", term |-> 2, proc |-> "c2", hb |-> 0, id |-> 1, target |-> {}], [ev |-> "WriteAccept", client |-> "c2", outcome |-> "", token |-> 2, value |-> "v2", cell |-> "", desc |-> "", term |-> 2, proc |-> "s", hb |-> 0, id |-> 1, target |-> {}], [ev |-> "WriteAck", client |-> "c2", outcome |-> "accepted", token |-> 2, value |-> "nil", cell |-> "", desc |-> "", term |-> 2, proc |-> "c2", hb |-> 0, id |-> 1, target |-> {}], [ev |-> "WriteAccept", client |-> "c2", outcome |-> "", token |-> 2, value |-> "v2", cell |-> "", desc |-> "", term |-> 2, proc |-> "s", hb |-> 2, id |-> 1, target |-> {}], [ev |-> "Fault", client |-> "none", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "F1.1", desc |-> "F1.1 crash \"grantor\"", term |-> 0, proc |-> "env", hb |-> 0, id |-> 0, target |-> {"n2"}], [ev |-> "ReadAttempt", client |-> "c1", outcome |-> "", token |-> 1, value |-> "nil", cell |-> "", desc |-> "", term |-> 1, proc |-> "c1", hb |-> 0, id |-> 2, target |-> {}], [ev |-> "ReadReject", client |-> "c1", outcome |-> "", token |-> 1, value |-> "nil", cell |-> "", desc |-> "", term |-> 1, proc |-> "s", hb |-> 2, id |-> 2, target |-> {}], [ev |-> "ReadAck", client |-> "c1", outcome |-> "rejected", token |-> 1, value |-> "nil", cell |-> "", desc |-> "", term |-> 1, proc |-> "c1", hb |-> 0, id |-> 2, target |-> {}], [ev |-> "Request", client |-> "c1", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "", desc |-> "", term |-> 0, proc |-> "c1", hb |-> 0, id |-> 0, target |-> {}]>>
+/\ ctoks = [c1 |-> {<<1, 1>>}, c2 |-> {<<2, 2>>}]
+/\ maxTok = [n1 |-> 2, n2 |-> 2, n3 |-> 1]
+/\ pc = 9
+/\ sAcc = [c1 |-> 0, c2 |-> 2]
+/\ net = {}
+/\ fired = FALSE
+/\ lastW = [c1 |-> "nil", c2 |-> "v2"]
+/\ hi = 2
+/\ cterm = [c1 |-> 1, c2 |-> 2]
+/\ up = [s |-> TRUE, n1 |-> TRUE, n2 |-> FALSE, n3 |-> TRUE, c1 |-> TRUE, c2 |-> TRUE]
+/\ nid = 3
+/\ rfence = 2
+/\ lastGrantor = [c1 |-> "n3", c2 |-> "n2"]
+/\ term = [n1 |-> 2, n2 |-> 2, n3 |-> 1]
+/\ want = [c1 |-> TRUE, c2 |-> FALSE]
+/\ ctok = [c1 |-> 1, c2 |-> 2]
+/\ side = [s |-> 0, n1 |-> 0, n2 |-> 0, n3 |-> 0, c1 |-> 0, c2 |-> 0]
+/\ grant = [client |-> "c2", term |-> 2, tok |-> 2, expired |-> TRUE, node |-> "n2"]
+
+State 22: Stuttering
+Finished checking temporal properties in 00s at 2026-10-20 19:07:00
+1982 states generated, 1118 distinct states found, 0 states left on queue.
+Finished in 03s at (2026-10-20 19:07:00)
+
+===== FILE: traces/model-H3-counterexample.jsonl =====
+{"proc": "c1", "seq": 1, "event": "Request", "client": "c1", "causes": [], "run": "H3", "side": "model"}
+{"proc": "n3", "seq": 1, "event": "Grant", "client": "c1", "token": 1, "grantor_term": 1, "causes": [{"proc": "c1", "seq": 1}], "run": "H3", "side": "model"}
+{"proc": "env", "seq": 1, "event": "Fault", "cell": "F1.2", "action": "F1.2 partition [[\"grantor\", \"holder\", \"s\"], [\"rest\"]]", "target": ["c1", "n3", "s"], "causes": [], "run": "H3", "side": "model"}
+{"proc": "c2", "seq": 1, "event": "Request", "client": "c2", "causes": [], "run": "H3", "side": "model"}
+{"proc": "n2", "seq": 1, "event": "Grant", "client": "c2", "token": 2, "grantor_term": 2, "causes": [{"proc": "c2", "seq": 1}], "run": "H3", "side": "model"}
+{"proc": "env", "seq": 2, "event": "Fault", "cell": "F1.2", "action": "F1.2 heal true", "target": [], "causes": [], "run": "H3", "side": "model"}
+{"proc": "c2", "seq": 2, "event": "WriteAttempt", "client": "c2", "key": "k", "token": 2, "value": "v2", "grantor_term": 2, "causes": [{"proc": "n2", "seq": 1}], "run": "H3", "side": "model"}
+{"proc": "s", "seq": 1, "event": "WriteAccept", "key": "k", "token": 2, "highest_before": 0, "grantor_term": 2, "causes": [{"proc": "c2", "seq": 2}], "run": "H3", "side": "model"}
+{"proc": "c2", "seq": 3, "event": "WriteAck", "client": "c2", "key": "k", "token": 2, "outcome": "accepted", "grantor_term": 2, "causes": [{"proc": "s", "seq": 1}], "run": "H3", "side": "model"}
+{"proc": "s", "seq": 2, "event": "WriteAccept", "key": "k", "token": 2, "highest_before": 2, "grantor_term": 2, "causes": [{"proc": "c2", "seq": 2}], "run": "H3", "side": "model"}
+{"proc": "env", "seq": 3, "event": "Fault", "cell": "F1.1", "action": "F1.1 crash \"grantor\"", "target": ["n2"], "causes": [], "run": "H3", "side": "model"}
+{"proc": "c1", "seq": 2, "event": "ReadAttempt", "client": "c1", "key": "k", "token": 1, "grantor_term": 1, "causes": [{"proc": "n3", "seq": 1}], "run": "H3", "side": "model"}
+{"proc": "s", "seq": 3, "event": "ReadReject", "key": "k", "token": 1, "highest_before": 2, "grantor_term": 1, "causes": [{"proc": "c1", "seq": 2}], "run": "H3", "side": "model"}
+{"proc": "c1", "seq": 3, "event": "ReadAck", "client": "c1", "key": "k", "token": 1, "outcome": "rejected", "grantor_term": 1, "causes": [{"proc": "s", "seq": 3}], "run": "H3", "side": "model"}
+{"proc": "c1", "seq": 4, "event": "Request", "client": "c1", "causes": [], "run": "H3", "side": "model"}
+
+===== FILE: traces/impl-H3-seed1.jsonl =====
+{"causes":[],"client":"c1","event":"Request","key":"k","proc":"c1","run":"H3-seed-1","seq":1,"side":"impl"}
+{"causes":[{"proc":"c1","seq":1}],"client":"c1","event":"Grant","grantor_term":2,"key":"k","proc":"n1","run":"H3-seed-1","seq":1,"side":"impl","token":1}
+{"causes":[{"proc":"n1","seq":1}],"cell":"F1.2","event":"Fault","partition":[["n1","c1","s"],["n2","n3","c2"]],"proc":"env","run":"H3-seed-1","seq":1,"side":"impl"}
+{"causes":[{"proc":"env","seq":1},{"proc":"env","seq":1}],"client":"c2","event":"Request","key":"k","proc":"c2","run":"H3-seed-1","seq":1,"side":"impl"}
+{"causes":[{"proc":"c2","seq":1},{"proc":"n1","seq":1},{"proc":"env","seq":1}],"client":"c2","event":"Grant","grantor_term":3,"key":"k","proc":"n3","run":"H3-seed-1","seq":1,"side":"impl","token":2}
+{"causes":[{"proc":"env","seq":1},{"proc":"n3","seq":1}],"cell":"F1.2","event":"Fault","heal":true,"proc":"env","run":"H3-seed-1","seq":2,"side":"impl"}
+{"causes":[{"proc":"n3","seq":1},{"proc":"env","seq":2},{"proc":"env","seq":2}],"client":"c2","event":"WriteAttempt","grantor_term":3,"key":"k","proc":"c2","run":"H3-seed-1","seq":2,"side":"impl","token":2,"value":"v2"}
+{"causes":[{"proc":"c2","seq":2},{"proc":"env","seq":2}],"event":"WriteAccept","grantor_term":3,"highest_before":0,"key":"k","proc":"s","run":"H3-seed-1","seq":1,"side":"impl","token":2,"value":"v2"}
+{"causes":[{"proc":"s","seq":1},{"proc":"env","seq":2}],"client":"c2","event":"WriteAck","grantor_term":3,"key":"k","outcome":"accepted","proc":"c2","run":"H3-seed-1","seq":3,"side":"impl","token":2}
+{"causes":[{"proc":"env","seq":2},{"proc":"c2","seq":3}],"cell":"F1.1","crash":"n3","event":"Fault","proc":"env","run":"H3-seed-1","seq":3,"side":"impl"}
+{"causes":[{"proc":"n1","seq":1},{"proc":"env","seq":3},{"proc":"env","seq":3}],"client":"c1","event":"ReadAttempt","grantor_term":2,"key":"k","proc":"c1","run":"H3-seed-1","seq":2,"side":"impl","token":1}
+{"causes":[{"proc":"c1","seq":2},{"proc":"env","seq":3}],"event":"ReadReject","grantor_term":2,"highest_before":2,"key":"k","proc":"s","run":"H3-seed-1","seq":2,"side":"impl","token":1}
+{"causes":[{"proc":"s","seq":2},{"proc":"env","seq":3}],"client":"c1","event":"ReadAck","grantor_term":2,"key":"k","outcome":"rejected","proc":"c1","run":"H3-seed-1","seq":3,"side":"impl","token":1}
+{"causes":[{"proc":"env","seq":3},{"proc":"c1","seq":3}],"client":"c1","event":"Request","key":"k","proc":"c1","run":"H3-seed-1","seq":4,"side":"impl"}
+{"causes":[{"proc":"c1","seq":4},{"proc":"n3","seq":1},{"proc":"env","seq":3}],"client":"c1","event":"Grant","grantor_term":4,"key":"k","proc":"n1","run":"H3-seed-1","seq":2,"side":"impl","token":3}

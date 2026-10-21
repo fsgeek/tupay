@@ -1,0 +1,23 @@
+go: downloading github.com/hashicorp/raft v1.7.0
+go: downloading gopkg.in/yaml.v3 v3.0.1
+go: downloading github.com/armon/go-metrics v0.4.1
+go: downloading github.com/hashicorp/go-hclog v1.6.2
+go: downloading github.com/hashicorp/go-msgpack/v2 v2.1.1
+go: downloading github.com/mattn/go-isatty v0.0.14
+go: downloading github.com/fatih/color v1.13.0
+go: downloading github.com/hashicorp/go-immutable-radix v1.0.0
+go: downloading golang.org/x/sys v0.13.0
+go: downloading github.com/hashicorp/golang-lru v0.5.0
+go: downloading github.com/mattn/go-colorable v0.1.12
+PASS schedule=H4 seed=1 trace=observe/H4-x1-v3-baseline-seed-1-4498da3701d51adf.jsonl
+PASS schedule=H4 seed=2 trace=observe/H4-x1-v3-baseline-seed-2-92b620398a0d4393.jsonl
+PASS schedule=H4 seed=3 trace=observe/H4-x1-v3-baseline-seed-3-6e926a6b31d38fbe.jsonl
+exit 0
+PASS schedule=H5 seed=1 trace=observe/H5-x1-v3-baseline-seed-1-efeb5cf7480b83ea.jsonl
+PASS schedule=H5 seed=2 trace=observe/H5-x1-v3-baseline-seed-2-378fa123fe121a7c.jsonl
+PASS schedule=H5 seed=3 trace=observe/H5-x1-v3-baseline-seed-3-89673eeb02c514ec.jsonl
+exit 0
+PASS schedule=H6 seed=1 trace=observe/H6-x1-v3-baseline-seed-1-4cfe03304032c360.jsonl
+PASS schedule=H6 seed=2 trace=observe/H6-x1-v3-baseline-seed-2-2cf4d9dd768b1c67.jsonl
+PASS schedule=H6 seed=3 trace=observe/H6-x1-v3-baseline-seed-3-6468b289de7233ed.jsonl
+exit 0

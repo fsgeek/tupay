@@ -6,7 +6,7 @@
 
 **The question.** When the contract or the failure model changes, does the workflow adapt its artifacts, or is it better to regenerate them? Regenerating is restart (the coarsest fence); adapting is recovery. The yardstick, inherited from the cloudflare project: *adaptation must match regeneration on correctness and beat it on cost.*
 
-**Status (2026-10-21):** M1 closed. Both artifacts exist, every element is tagged with the clauses and cells it derives from, the twelve paired tests and the false-suspicion run pass on both sides on one shared schedule set, every mutation pair fails, and the first cross-run's three divergences have judged verdicts (`experiments/M1-result.md`). Next: the X1 pre-registration (fenced reads).
+**Status (2026-10-21):** M1 closed (`experiments/M1-result.md`); X1 scored (`experiments/X1-result.md`): on an additive contract change, adaptation matched regeneration on correctness and beat it on cost, by a wide margin for the model and a narrow one for the implementation; the one divergence, in a regenerate arm on a hold-out schedule, was judged a model defect of the stale-leadership class. Next: interface v2.2, then X2 (partial and simplex partitions).
 
 Start with `docs/seed.md`. `docs/seed-log.md` is the append-only record of how the idea evolved.
 

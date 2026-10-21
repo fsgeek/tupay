@@ -1,0 +1,745 @@
+Implied-temporal checking--satisfiability problem has 2 branches.
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-10-20 19:06:58.
+Progress(21) at 2026-10-20 19:07:00: 1,982 states generated, 1,118 distinct states found, 0 states left on queue.
+Checking 2 branches of temporal properties for the complete state space with 2236 total distinct states at (2026-10-20 19:07:00)
+Error: Temporal properties were violated.
+
+Error: The following behavior constitutes a counter-example:
+
+State 1: <Initial predicate>
+/\ pendR = [c1 |-> {}, c2 |-> {}]
+/\ pendW = [c1 |-> {}, c2 |-> {}]
+/\ paused = [c1 |-> FALSE, c2 |-> FALSE]
+/\ lead = [n1 |-> 0, n2 |-> 0, n3 |-> 0]
+/\ sRead = [c1 |-> 0, c2 |-> 0]
+/\ val = "nil"
+/\ snap = [up |-> {"n1", "n2", "n3"}, at |-> 0]
+/\ log = <<>>
+/\ ctoks = [c1 |-> {}, c2 |-> {}]
+/\ maxTok = [n1 |-> 0, n2 |-> 0, n3 |-> 0]
+/\ pc = 1
+/\ sAcc = [c1 |-> 0, c2 |-> 0]
+/\ net = {}
+/\ fired = TRUE
+/\ lastW = [c1 |-> "nil", c2 |-> "nil"]
+/\ hi = 0
+/\ cterm = [c1 |-> 0, c2 |-> 0]
+/\ up = [s |-> TRUE, n1 |-> TRUE, n2 |-> TRUE, n3 |-> TRUE, c1 |-> TRUE, c2 |-> TRUE]
+/\ nid = 1
+/\ rfence = 0
+/\ lastGrantor = [c1 |-> "none", c2 |-> "none"]
+/\ term = [n1 |-> 0, n2 |-> 0, n3 |-> 0]
+/\ want = [c1 |-> FALSE, c2 |-> FALSE]
+/\ ctok = [c1 |-> 0, c2 |-> 0]
+/\ side = [s |-> 0, n1 |-> 0, n2 |-> 0, n3 |-> 0, c1 |-> 0, c2 |-> 0]
+/\ grant = [client |-> "none", term |-> 0, tok |-> 0, expired |-> TRUE, node |-> "none"]
+
+State 2: <Elect line 184, col 3 to line 191, col 85 of module Lease>
+/\ pendR = [c1 |-> {}, c2 |-> {}]
+/\ pendW = [c1 |-> {}, c2 |-> {}]
+/\ paused = [c1 |-> FALSE, c2 |-> FALSE]
+/\ lead = [n1 |-> 0, n2 |-> 0, n3 |-> 1]
+/\ sRead = [c1 |-> 0, c2 |-> 0]
+/\ val = "nil"
+/\ snap = [up |-> {"n1", "n2", "n3"}, at |-> 0]
+/\ log = <<>>
+/\ ctoks = [c1 |-> {}, c2 |-> {}]
+/\ maxTok = [n1 |-> 0, n2 |-> 0, n3 |-> 0]
+/\ pc = 1
+/\ sAcc = [c1 |-> 0, c2 |-> 0]
+/\ net = {}
+/\ fired = TRUE
+/\ lastW = [c1 |-> "nil", c2 |-> "nil"]
+/\ hi = 0
+/\ cterm = [c1 |-> 0, c2 |-> 0]
+/\ up = [s |-> TRUE, n1 |-> TRUE, n2 |-> TRUE, n3 |-> TRUE, c1 |-> TRUE, c2 |-> TRUE]
+/\ nid = 1
+/\ rfence = 0
+/\ lastGrantor = [c1 |-> "none", c2 |-> "none"]
+/\ term = [n1 |-> 1, n2 |-> 1, n3 |-> 1]
+/\ want = [c1 |-> FALSE, c2 |-> FALSE]
+/\ ctok = [c1 |-> 0, c2 |-> 0]
+/\ side = [s |-> 0, n1 |-> 0, n2 |-> 0, n3 |-> 0, c1 |-> 0, c2 |-> 0]
+/\ grant = [client |-> "none", term |-> 0, tok |-> 0, expired |-> TRUE, node |-> "none"]
+
+State 3: <TakeStep line 460, col 3 to line 470, col 44 of module Lease>
+/\ pendR = [c1 |-> {}, c2 |-> {}]
+/\ pendW = [c1 |-> {}, c2 |-> {}]
+/\ paused = [c1 |-> FALSE, c2 |-> FALSE]
+/\ lead = [n1 |-> 0, n2 |-> 0, n3 |-> 1]
+/\ sRead = [c1 |-> 0, c2 |-> 0]
+/\ val = "nil"
+/\ snap = [up |-> {"n1", "n2", "n3"}, at |-> 0]
+/\ log = << [ ev |-> "Request",
+     client |-> "c1",
+     outcome |-> "",
+     token |-> 0,
+     value |-> "nil",
+     cell |-> "",
+     desc |-> "",
+     term |-> 0,
+     proc |-> "c1",
+     hb |-> 0,
+     id |-> 0,
+     target |-> {} ] >>
+/\ ctoks = [c1 |-> {}, c2 |-> {}]
+/\ maxTok = [n1 |-> 0, n2 |-> 0, n3 |-> 0]
+/\ pc = 2
+/\ sAcc = [c1 |-> 0, c2 |-> 0]
+/\ net = {}
+/\ fired = FALSE
+/\ lastW = [c1 |-> "nil", c2 |-> "nil"]
+/\ hi = 0
+/\ cterm = [c1 |-> 0, c2 |-> 0]
+/\ up = [s |-> TRUE, n1 |-> TRUE, n2 |-> TRUE, n3 |-> TRUE, c1 |-> TRUE, c2 |-> TRUE]
+/\ nid = 1
+/\ rfence = 0
+/\ lastGrantor = [c1 |-> "none", c2 |-> "none"]
+/\ term = [n1 |-> 1, n2 |-> 1, n3 |-> 1]
+/\ want = [c1 |-> TRUE, c2 |-> FALSE]
+/\ ctok = [c1 |-> 0, c2 |-> 0]
+/\ side = [s |-> 0, n1 |-> 0, n2 |-> 0, n3 |-> 0, c1 |-> 0, c2 |-> 0]
+/\ grant = [client |-> "none", term |-> 0, tok |-> 0, expired |-> TRUE, node |-> "none"]
+
+State 4: <GrantTo line 208, col 3 to line 224, col 68 of module Lease>
+/\ pendR = [c1 |-> {}, c2 |-> {}]
+/\ pendW = [c1 |-> {}, c2 |-> {}]
+/\ paused = [c1 |-> FALSE, c2 |-> FALSE]
+/\ lead = [n1 |-> 0, n2 |-> 0, n3 |-> 1]
+/\ sRead = [c1 |-> 0, c2 |-> 0]
+/\ val = "nil"
+/\ snap = [up |-> {"n1", "n2", "n3"}, at |-> 2]
+/\ log = << [ ev |-> "Request",
+     client |-> "c1",
+     outcome |-> "",
+     token |-> 0,
+     value |-> "nil",
+     cell |-> "",
+     desc |-> "",
+     term |-> 0,
+     proc |-> "c1",
+     hb |-> 0,
+     id |-> 0,
+     target |-> {} ],
+   [ ev |-> "Grant",
+     client |-> "c1",
+     outcome |-> "",
+     token |-> 1,
+     value |-> "nil",
+     cell |-> "",
+     desc |-> "",
+     term |-> 1,
+     proc |-> "n3",
+     hb |-> 0,
+     id |-> 0,
+     target |-> {} ] >>
+/\ ctoks = [c1 |-> {<<1, 1>>}, c2 |-> {}]
+/\ maxTok = [n1 |-> 1, n2 |-> 0, n3 |-> 1]
+/\ pc = 2
+/\ sAcc = [c1 |-> 0, c2 |-> 0]
+/\ net = {}
+/\ fired = TRUE
+/\ lastW = [c1 |-> "nil", c2 |-> "nil"]
+/\ hi = 0
+/\ cterm = [c1 |-> 1, c2 |-> 0]
+/\ up = [s |-> TRUE, n1 |-> TRUE, n2 |-> TRUE, n3 |-> TRUE, c1 |-> TRUE, c2 |-> TRUE]
+/\ nid = 1
+/\ rfence = 0
+/\ lastGrantor = [c1 |-> "n3", c2 |-> "none"]
+/\ term = [n1 |-> 1, n2 |-> 1, n3 |-> 1]
+/\ want = [c1 |-> FALSE, c2 |-> FALSE]
+/\ ctok = [c1 |-> 1, c2 |-> 0]
+/\ side = [s |-> 0, n1 |-> 0, n2 |-> 0, n3 |-> 0, c1 |-> 0, c2 |-> 0]
+/\ grant = [client |-> "c1", term |-> 1, tok |-> 1, expired |-> FALSE, node |-> "n3"]
+
+State 5: <Expire line 229, col 3 to line 232, col 82 of module Lease>
+/\ pendR = [c1 |-> {}, c2 |-> {}]
+/\ pendW = [c1 |-> {}, c2 |-> {}]
+/\ paused = [c1 |-> FALSE, c2 |-> FALSE]
+/\ lead = [n1 |-> 0, n2 |-> 0, n3 |-> 1]
+/\ sRead = [c1 |-> 0, c2 |-> 0]
+/\ val = "nil"
+/\ snap = [up |-> {"n1", "n2", "n3"}, at |-> 2]
+/\ log = << [ ev |-> "Request",
+     client |-> "c1",
+     outcome |-> "",
+     token |-> 0,
+     value |-> "nil",
+     cell |-> "",
+     desc |-> "",
+     term |-> 0,
+     proc |-> "c1",
+     hb |-> 0,
+     id |-> 0,
+     target |-> {} ],
+   [ ev |-> "Grant",
+     client |-> "c1",
+     outcome |-> "",
+     token |-> 1,
+     value |-> "nil",
+     cell |-> "",
+     desc |-> "",
+     term |-> 1,
+     proc |-> "n3",
+     hb |-> 0,
+     id |-> 0,
+     target |-> {} ] >>
+/\ ctoks = [c1 |-> {<<1, 1>>}, c2 |-> {}]
+/\ maxTok = [n1 |-> 1, n2 |-> 0, n3 |-> 1]
+/\ pc = 2
+/\ sAcc = [c1 |-> 0, c2 |-> 0]
+/\ net = {}
+/\ fired = TRUE
+/\ lastW = [c1 |-> "nil", c2 |-> "nil"]
+/\ hi = 0
+/\ cterm = [c1 |-> 1, c2 |-> 0]
+/\ up = [s |-> TRUE, n1 |-> TRUE, n2 |-> TRUE, n3 |-> TRUE, c1 |-> TRUE, c2 |-> TRUE]
+/\ nid = 1
+/\ rfence = 0
+/\ lastGrantor = [c1 |-> "n3", c2 |-> "none"]
+/\ term = [n1 |-> 1, n2 |-> 1, n3 |-> 1]
+/\ want = [c1 |-> FALSE, c2 |-> FALSE]
+/\ ctok = [c1 |-> 1, c2 |-> 0]
+/\ side = [s |-> 0, n1 |-> 0, n2 |-> 0, n3 |-> 0, c1 |-> 0, c2 |-> 0]
+/\ grant = [client |-> "c1", term |-> 1, tok |-> 1, expired |-> TRUE, node |-> "n3"]
+
+State 6: <TakeStep line 460, col 3 to line 470, col 44 of module Lease>
+/\ pendR = [c1 |-> {}, c2 |-> {}]
+/\ pendW = [c1 |-> {}, c2 |-> {}]
+/\ paused = [c1 |-> FALSE, c2 |-> FALSE]
+/\ lead = [n1 |-> 0, n2 |-> 0, n3 |-> 1]
+/\ sRead = [c1 |-> 0, c2 |-> 0]
+/\ val = "nil"
+/\ snap = [up |-> {"n1", "n2", "n3"}, at |-> 3]
+/\ log = <<[ev |-> "Request", client |-> "c1", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "", desc |-> "", term |-> 0, proc |-> "c1", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Grant", client |-> "c1", outcome |-> "", token |-> 1, value |-> "nil", cell |-> "", desc |-> "", term |-> 1, proc |-> "n3", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Fault", client |-> "none", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "F1.2", desc |-> "F1.2 partition [[\"grantor\", \"holder\", \"s\"], [\"rest\"]]", term |-> 0, proc |-> "env", hb |-> 0, id |-> 0, target |-> {"s", "n3", "c1"}]>>
+/\ ctoks = [c1 |-> {<<1, 1>>}, c2 |-> {}]
+/\ maxTok = [n1 |-> 1, n2 |-> 0, n3 |-> 1]
+/\ pc = 3
+/\ sAcc = [c1 |-> 0, c2 |-> 0]
+/\ net = {}
+/\ fired = TRUE
+/\ lastW = [c1 |-> "nil", c2 |-> "nil"]
+/\ hi = 0
+/\ cterm = [c1 |-> 1, c2 |-> 0]
+/\ up = [s |-> TRUE, n1 |-> TRUE, n2 |-> TRUE, n3 |-> TRUE, c1 |-> TRUE, c2 |-> TRUE]
+/\ nid = 1
+/\ rfence = 0
+/\ lastGrantor = [c1 |-> "n3", c2 |-> "none"]
+/\ term = [n1 |-> 1, n2 |-> 1, n3 |-> 1]
+/\ want = [c1 |-> FALSE, c2 |-> FALSE]
+/\ ctok = [c1 |-> 1, c2 |-> 0]
+/\ side = [s |-> 0, n1 |-> 1, n2 |-> 1, n3 |-> 0, c1 |-> 0, c2 |-> 1]
+/\ grant = [client |-> "c1", term |-> 1, tok |-> 1, expired |-> TRUE, node |-> "n3"]
+
+State 7: <Elect line 184, col 3 to line 191, col 85 of module Lease>
+/\ pendR = [c1 |-> {}, c2 |-> {}]
+/\ pendW = [c1 |-> {}, c2 |-> {}]
+/\ paused = [c1 |-> FALSE, c2 |-> FALSE]
+/\ lead = [n1 |-> 0, n2 |-> 2, n3 |-> 1]
+/\ sRead = [c1 |-> 0, c2 |-> 0]
+/\ val = "nil"
+/\ snap = [up |-> {"n1", "n2", "n3"}, at |-> 3]
+/\ log = <<[ev |-> "Request", client |-> "c1", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "", desc |-> "", term |-> 0, proc |-> "c1", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Grant", client |-> "c1", outcome |-> "", token |-> 1, value |-> "nil", cell |-> "", desc |-> "", term |-> 1, proc |-> "n3", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Fault", client |-> "none", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "F1.2", desc |-> "F1.2 partition [[\"grantor\", \"holder\", \"s\"], [\"rest\"]]", term |-> 0, proc |-> "env", hb |-> 0, id |-> 0, target |-> {"s", "n3", "c1"}]>>
+/\ ctoks = [c1 |-> {<<1, 1>>}, c2 |-> {}]
+/\ maxTok = [n1 |-> 1, n2 |-> 0, n3 |-> 1]
+/\ pc = 3
+/\ sAcc = [c1 |-> 0, c2 |-> 0]
+/\ net = {}
+/\ fired = TRUE
+/\ lastW = [c1 |-> "nil", c2 |-> "nil"]
+/\ hi = 0
+/\ cterm = [c1 |-> 1, c2 |-> 0]
+/\ up = [s |-> TRUE, n1 |-> TRUE, n2 |-> TRUE, n3 |-> TRUE, c1 |-> TRUE, c2 |-> TRUE]
+/\ nid = 1
+/\ rfence = 0
+/\ lastGrantor = [c1 |-> "n3", c2 |-> "none"]
+/\ term = [n1 |-> 2, n2 |-> 2, n3 |-> 1]
+/\ want = [c1 |-> FALSE, c2 |-> FALSE]
+/\ ctok = [c1 |-> 1, c2 |-> 0]
+/\ side = [s |-> 0, n1 |-> 1, n2 |-> 1, n3 |-> 0, c1 |-> 0, c2 |-> 1]
+/\ grant = [client |-> "c1", term |-> 1, tok |-> 1, expired |-> TRUE, node |-> "n3"]
+
+State 8: <TakeStep line 460, col 3 to line 470, col 44 of module Lease>
+/\ pendR = [c1 |-> {}, c2 |-> {}]
+/\ pendW = [c1 |-> {}, c2 |-> {}]
+/\ paused = [c1 |-> FALSE, c2 |-> FALSE]
+/\ lead = [n1 |-> 0, n2 |-> 2, n3 |-> 1]
+/\ sRead = [c1 |-> 0, c2 |-> 0]
+/\ val = "nil"
+/\ snap = [up |-> {"n1", "n2", "n3"}, at |-> 3]
+/\ log = <<[ev |-> "Request", client |-> "c1", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "", desc |-> "", term |-> 0, proc |-> "c1", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Grant", client |-> "c1", outcome |-> "", token |-> 1, value |-> "nil", cell |-> "", desc |-> "", term |-> 1, proc |-> "n3", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Fault", client |-> "none", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "F1.2", desc |-> "F1.2 partition [[\"grantor\", \"holder\", \"s\"], [\"rest\"]]", term |-> 0, proc |-> "env", hb |-> 0, id |-> 0, target |-> {"s", "n3", "c1"}], [ev |-> "Request", client |-> "c2", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "", desc |-> "", term |-> 0, proc |-> "c2", hb |-> 0, id |-> 0, target |-> {}]>>
+/\ ctoks = [c1 |-> {<<1, 1>>}, c2 |-> {}]
+/\ maxTok = [n1 |-> 1, n2 |-> 0, n3 |-> 1]
+/\ pc = 4
+/\ sAcc = [c1 |-> 0, c2 |-> 0]
+/\ net = {}
+/\ fired = FALSE
+/\ lastW = [c1 |-> "nil", c2 |-> "nil"]
+/\ hi = 0
+/\ cterm = [c1 |-> 1, c2 |-> 0]
+/\ up = [s |-> TRUE, n1 |-> TRUE, n2 |-> TRUE, n3 |-> TRUE, c1 |-> TRUE, c2 |-> TRUE]
+/\ nid = 1
+/\ rfence = 0
+/\ lastGrantor = [c1 |-> "n3", c2 |-> "none"]
+/\ term = [n1 |-> 2, n2 |-> 2, n3 |-> 1]
+/\ want = [c1 |-> FALSE, c2 |-> TRUE]
+/\ ctok = [c1 |-> 1, c2 |-> 0]
+/\ side = [s |-> 0, n1 |-> 1, n2 |-> 1, n3 |-> 0, c1 |-> 0, c2 |-> 1]
+/\ grant = [client |-> "c1", term |-> 1, tok |-> 1, expired |-> TRUE, node |-> "n3"]
+
+State 9: <GrantTo line 208, col 3 to line 224, col 68 of module Lease>
+/\ pendR = [c1 |-> {}, c2 |-> {}]
+/\ pendW = [c1 |-> {}, c2 |-> {}]
+/\ paused = [c1 |-> FALSE, c2 |-> FALSE]
+/\ lead = [n1 |-> 0, n2 |-> 2, n3 |-> 1]
+/\ sRead = [c1 |-> 0, c2 |-> 0]
+/\ val = "nil"
+/\ snap = [up |-> {"n1", "n2", "n3"}, at |-> 5]
+/\ log = <<[ev |-> "Request", client |-> "c1", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "", desc |-> "", term |-> 0, proc |-> "c1", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Grant", client |-> "c1", outcome |-> "", token |-> 1, value |-> "nil", cell |-> "", desc |-> "", term |-> 1, proc |-> "n3", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Fault", client |-> "none", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "F1.2", desc |-> "F1.2 partition [[\"grantor\", \"holder\", \"s\"], [\"rest\"]]", term |-> 0, proc |-> "env", hb |-> 0, id |-> 0, target |-> {"s", "n3", "c1"}], [ev |-> "Request", client |-> "c2", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "", desc |-> "", term |-> 0, proc |-> "c2", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Grant", client |-> "c2", outcome |-> "", token |-> 2, value |-> "nil", cell |-> "", desc |-> "", term |-> 2, proc |-> "n2", hb |-> 0, id |-> 0, target |-> {}]>>
+/\ ctoks = [c1 |-> {<<1, 1>>}, c2 |-> {<<2, 2>>}]
+/\ maxTok = [n1 |-> 2, n2 |-> 2, n3 |-> 1]
+/\ pc = 4
+/\ sAcc = [c1 |-> 0, c2 |-> 0]
+/\ net = {}
+/\ fired = TRUE
+/\ lastW = [c1 |-> "nil", c2 |-> "nil"]
+/\ hi = 0
+/\ cterm = [c1 |-> 1, c2 |-> 2]
+/\ up = [s |-> TRUE, n1 |-> TRUE, n2 |-> TRUE, n3 |-> TRUE, c1 |-> TRUE, c2 |-> TRUE]
+/\ nid = 1
+/\ rfence = 0
+/\ lastGrantor = [c1 |-> "n3", c2 |-> "n2"]
+/\ term = [n1 |-> 2, n2 |-> 2, n3 |-> 1]
+/\ want = [c1 |-> FALSE, c2 |-> FALSE]
+/\ ctok = [c1 |-> 1, c2 |-> 2]
+/\ side = [s |-> 0, n1 |-> 1, n2 |-> 1, n3 |-> 0, c1 |-> 0, c2 |-> 1]
+/\ grant = [client |-> "c2", term |-> 2, tok |-> 2, expired |-> FALSE, node |-> "n2"]
+
+State 10: <Expire line 229, col 3 to line 232, col 82 of module Lease>
+/\ pendR = [c1 |-> {}, c2 |-> {}]
+/\ pendW = [c1 |-> {}, c2 |-> {}]
+/\ paused = [c1 |-> FALSE, c2 |-> FALSE]
+/\ lead = [n1 |-> 0, n2 |-> 2, n3 |-> 1]
+/\ sRead = [c1 |-> 0, c2 |-> 0]
+/\ val = "nil"
+/\ snap = [up |-> {"n1", "n2", "n3"}, at |-> 5]
+/\ log = <<[ev |-> "Request", client |-> "c1", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "", desc |-> "", term |-> 0, proc |-> "c1", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Grant", client |-> "c1", outcome |-> "", token |-> 1, value |-> "nil", cell |-> "", desc |-> "", term |-> 1, proc |-> "n3", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Fault", client |-> "none", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "F1.2", desc |-> "F1.2 partition [[\"grantor\", \"holder\", \"s\"], [\"rest\"]]", term |-> 0, proc |-> "env", hb |-> 0, id |-> 0, target |-> {"s", "n3", "c1"}], [ev |-> "Request", client |-> "c2", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "", desc |-> "", term |-> 0, proc |-> "c2", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Grant", client |-> "c2", outcome |-> "", token |-> 2, value |-> "nil", cell |-> "", desc |-> "", term |-> 2, proc |-> "n2", hb |-> 0, id |-> 0, target |-> {}]>>
+/\ ctoks = [c1 |-> {<<1, 1>>}, c2 |-> {<<2, 2>>}]
+/\ maxTok = [n1 |-> 2, n2 |-> 2, n3 |-> 1]
+/\ pc = 4
+/\ sAcc = [c1 |-> 0, c2 |-> 0]
+/\ net = {}
+/\ fired = TRUE
+/\ lastW = [c1 |-> "nil", c2 |-> "nil"]
+/\ hi = 0
+/\ cterm = [c1 |-> 1, c2 |-> 2]
+/\ up = [s |-> TRUE, n1 |-> TRUE, n2 |-> TRUE, n3 |-> TRUE, c1 |-> TRUE, c2 |-> TRUE]
+/\ nid = 1
+/\ rfence = 0
+/\ lastGrantor = [c1 |-> "n3", c2 |-> "n2"]
+/\ term = [n1 |-> 2, n2 |-> 2, n3 |-> 1]
+/\ want = [c1 |-> FALSE, c2 |-> FALSE]
+/\ ctok = [c1 |-> 1, c2 |-> 2]
+/\ side = [s |-> 0, n1 |-> 1, n2 |-> 1, n3 |-> 0, c1 |-> 0, c2 |-> 1]
+/\ grant = [client |-> "c2", term |-> 2, tok |-> 2, expired |-> TRUE, node |-> "n2"]
+
+State 11: <TakeStep line 460, col 3 to line 470, col 44 of module Lease>
+/\ pendR = [c1 |-> {}, c2 |-> {}]
+/\ pendW = [c1 |-> {}, c2 |-> {}]
+/\ paused = [c1 |-> FALSE, c2 |-> FALSE]
+/\ lead = [n1 |-> 0, n2 |-> 2, n3 |-> 1]
+/\ sRead = [c1 |-> 0, c2 |-> 0]
+/\ val = "nil"
+/\ snap = [up |-> {"n1", "n2", "n3"}, at |-> 6]
+/\ log = <<[ev |-> "Request", client |-> "c1", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "", desc |-> "", term |-> 0, proc |-> "c1", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Grant", client |-> "c1", outcome |-> "", token |-> 1, value |-> "nil", cell |-> "", desc |-> "", term |-> 1, proc |-> "n3", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Fault", client |-> "none", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "F1.2", desc |-> "F1.2 partition [[\"grantor\", \"holder\", \"s\"], [\"rest\"]]", term |-> 0, proc |-> "env", hb |-> 0, id |-> 0, target |-> {"s", "n3", "c1"}], [ev |-> "Request", client |-> "c2", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "", desc |-> "", term |-> 0, proc |-> "c2", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Grant", client |-> "c2", outcome |-> "", token |-> 2, value |-> "nil", cell |-> "", desc |-> "", term |-> 2, proc |-> "n2", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Fault", client |-> "none", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "F1.2", desc |-> "F1.2 heal true", term |-> 0, proc |-> "env", hb |-> 0, id |-> 0, target |-> {}]>>
+/\ ctoks = [c1 |-> {<<1, 1>>}, c2 |-> {<<2, 2>>}]
+/\ maxTok = [n1 |-> 2, n2 |-> 2, n3 |-> 1]
+/\ pc = 5
+/\ sAcc = [c1 |-> 0, c2 |-> 0]
+/\ net = {}
+/\ fired = TRUE
+/\ lastW = [c1 |-> "nil", c2 |-> "nil"]
+/\ hi = 0
+/\ cterm = [c1 |-> 1, c2 |-> 2]
+/\ up = [s |-> TRUE, n1 |-> TRUE, n2 |-> TRUE, n3 |-> TRUE, c1 |-> TRUE, c2 |-> TRUE]
+/\ nid = 1
+/\ rfence = 0
+/\ lastGrantor = [c1 |-> "n3", c2 |-> "n2"]
+/\ term = [n1 |-> 2, n2 |-> 2, n3 |-> 1]
+/\ want = [c1 |-> FALSE, c2 |-> FALSE]
+/\ ctok = [c1 |-> 1, c2 |-> 2]
+/\ side = [s |-> 0, n1 |-> 0, n2 |-> 0, n3 |-> 0, c1 |-> 0, c2 |-> 0]
+/\ grant = [client |-> "c2", term |-> 2, tok |-> 2, expired |-> TRUE, node |-> "n2"]
+
+State 12: <TakeStep line 460, col 3 to line 470, col 44 of module Lease>
+/\ pendR = [c1 |-> {}, c2 |-> {}]
+/\ pendW = [c1 |-> {}, c2 |-> {1}]
+/\ paused = [c1 |-> FALSE, c2 |-> FALSE]
+/\ lead = [n1 |-> 0, n2 |-> 2, n3 |-> 1]
+/\ sRead = [c1 |-> 0, c2 |-> 0]
+/\ val = "nil"
+/\ snap = [up |-> {"n1", "n2", "n3"}, at |-> 6]
+/\ log = <<[ev |-> "Request", client |-> "c1", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "", desc |-> "", term |-> 0, proc |-> "c1", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Grant", client |-> "c1", outcome |-> "", token |-> 1, value |-> "nil", cell |-> "", desc |-> "", term |-> 1, proc |-> "n3", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Fault", client |-> "none", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "F1.2", desc |-> "F1.2 partition [[\"grantor\", \"holder\", \"s\"], [\"rest\"]]", term |-> 0, proc |-> "env", hb |-> 0, id |-> 0, target |-> {"s", "n3", "c1"}], [ev |-> "Request", client |-> "c2", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "", desc |-> "", term |-> 0, proc |-> "c2", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Grant", client |-> "c2", outcome |-> "", token |-> 2, value |-> "nil", cell |-> "", desc |-> "", term |-> 2, proc |-> "n2", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Fault", client |-> "none", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "F1.2", desc |-> "F1.2 heal true", term |-> 0, proc |-> "env", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "WriteAttempt", client |-> "c2", outcome |-> "", token |-> 2, value |-> "v2", cell |-> "", desc |-> "", term |-> 2, proc |-> "c2", hb |-> 0, id |-> 1, target |-> {}]>>
+/\ ctoks = [c1 |-> {<<1, 1>>}, c2 |-> {<<2, 2>>}]
+/\ maxTok = [n1 |-> 2, n2 |-> 2, n3 |-> 1]
+/\ pc = 6
+/\ sAcc = [c1 |-> 0, c2 |-> 0]
+/\ net = { [ outcome |-> "",
+    value |-> "v2",
+    term |-> 2,
+    id |-> 1,
+    t |-> "W",
+    c |-> "c2",
+    tok |-> 2,
+    dup |-> FALSE ] }
+/\ fired = FALSE
+/\ lastW = [c1 |-> "nil", c2 |-> "v2"]
+/\ hi = 0
+/\ cterm = [c1 |-> 1, c2 |-> 2]
+/\ up = [s |-> TRUE, n1 |-> TRUE, n2 |-> TRUE, n3 |-> TRUE, c1 |-> TRUE, c2 |-> TRUE]
+/\ nid = 2
+/\ rfence = 0
+/\ lastGrantor = [c1 |-> "n3", c2 |-> "n2"]
+/\ term = [n1 |-> 2, n2 |-> 2, n3 |-> 1]
+/\ want = [c1 |-> FALSE, c2 |-> FALSE]
+/\ ctok = [c1 |-> 1, c2 |-> 2]
+/\ side = [s |-> 0, n1 |-> 0, n2 |-> 0, n3 |-> 0, c1 |-> 0, c2 |-> 0]
+/\ grant = [client |-> "c2", term |-> 2, tok |-> 2, expired |-> TRUE, node |-> "n2"]
+
+State 13: <Next line 482, col 6 to line 482, col 90 of module Lease>
+/\ pendR = [c1 |-> {}, c2 |-> {}]
+/\ pendW = [c1 |-> {}, c2 |-> {1}]
+/\ paused = [c1 |-> FALSE, c2 |-> FALSE]
+/\ lead = [n1 |-> 0, n2 |-> 2, n3 |-> 1]
+/\ sRead = [c1 |-> 0, c2 |-> 0]
+/\ val = "v2"
+/\ snap = [up |-> {"n1", "n2", "n3"}, at |-> 6]
+/\ log = <<[ev |-> "Request", client |-> "c1", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "", desc |-> "", term |-> 0, proc |-> "c1", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Grant", client |-> "c1", outcome |-> "", token |-> 1, value |-> "nil", cell |-> "", desc |-> "", term |-> 1, proc |-> "n3", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Fault", client |-> "none", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "F1.2", desc |-> "F1.2 partition [[\"grantor\", \"holder\", \"s\"], [\"rest\"]]", term |-> 0, proc |-> "env", hb |-> 0, id |-> 0, target |-> {"s", "n3", "c1"}], [ev |-> "Request", client |-> "c2", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "", desc |-> "", term |-> 0, proc |-> "c2", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Grant", client |-> "c2", outcome |-> "", token |-> 2, value |-> "nil", cell |-> "", desc |-> "", term |-> 2, proc |-> "n2", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Fault", client |-> "none", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "F1.2", desc |-> "F1.2 heal true", term |-> 0, proc |-> "env", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "WriteAttempt", client |-> "c2", outcome |-> "", token |-> 2, value |-> "v2", cell |-> "", desc |-> "", term |-> 2, proc |-> "c2", hb |-> 0, id |-> 1, target |-> {}], [ev |-> "WriteAccept", client |-> "c2", outcome |-> "", token |-> 2, value |-> "v2", cell |-> "", desc |-> "", term |-> 2, proc |-> "s", hb |-> 0, id |-> 1, target |-> {}]>>
+/\ ctoks = [c1 |-> {<<1, 1>>}, c2 |-> {<<2, 2>>}]
+/\ maxTok = [n1 |-> 2, n2 |-> 2, n3 |-> 1]
+/\ pc = 6
+/\ sAcc = [c1 |-> 0, c2 |-> 2]
+/\ net = { [ outcome |-> "",
+    value |-> "v2",
+    term |-> 2,
+    id |-> 1,
+    t |-> "W",
+    c |-> "c2",
+    tok |-> 2,
+    dup |-> TRUE ],
+  [ outcome |-> "accepted",
+    value |-> "nil",
+    term |-> 2,
+    id |-> 1,
+    t |-> "WA",
+    c |-> "c2",
+    tok |-> 2,
+    dup |-> FALSE ] }
+/\ fired = FALSE
+/\ lastW = [c1 |-> "nil", c2 |-> "v2"]
+/\ hi = 2
+/\ cterm = [c1 |-> 1, c2 |-> 2]
+/\ up = [s |-> TRUE, n1 |-> TRUE, n2 |-> TRUE, n3 |-> TRUE, c1 |-> TRUE, c2 |-> TRUE]
+/\ nid = 2
+/\ rfence = 2
+/\ lastGrantor = [c1 |-> "n3", c2 |-> "n2"]
+/\ term = [n1 |-> 2, n2 |-> 2, n3 |-> 1]
+/\ want = [c1 |-> FALSE, c2 |-> FALSE]
+/\ ctok = [c1 |-> 1, c2 |-> 2]
+/\ side = [s |-> 0, n1 |-> 0, n2 |-> 0, n3 |-> 0, c1 |-> 0, c2 |-> 0]
+/\ grant = [client |-> "c2", term |-> 2, tok |-> 2, expired |-> TRUE, node |-> "n2"]
+
+State 14: <Next line 482, col 6 to line 482, col 90 of module Lease>
+/\ pendR = [c1 |-> {}, c2 |-> {}]
+/\ pendW = [c1 |-> {}, c2 |-> {}]
+/\ paused = [c1 |-> FALSE, c2 |-> FALSE]
+/\ lead = [n1 |-> 0, n2 |-> 2, n3 |-> 1]
+/\ sRead = [c1 |-> 0, c2 |-> 0]
+/\ val = "v2"
+/\ snap = [up |-> {"n1", "n2", "n3"}, at |-> 9]
+/\ log = <<[ev |-> "Request", client |-> "c1", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "", desc |-> "", term |-> 0, proc |-> "c1", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Grant", client |-> "c1", outcome |-> "", token |-> 1, value |-> "nil", cell |-> "", desc |-> "", term |-> 1, proc |-> "n3", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Fault", client |-> "none", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "F1.2", desc |-> "F1.2 partition [[\"grantor\", \"holder\", \"s\"], [\"rest\"]]", term |-> 0, proc |-> "env", hb |-> 0, id |-> 0, target |-> {"s", "n3", "c1"}], [ev |-> "Request", client |-> "c2", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "", desc |-> "", term |-> 0, proc |-> "c2", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Grant", client |-> "c2", outcome |-> "", token |-> 2, value |-> "nil", cell |-> "", desc |-> "", term |-> 2, proc |-> "n2", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Fault", client |-> "none", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "F1.2", desc |-> "F1.2 heal true", term |-> 0, proc |-> "env", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "WriteAttempt", client |-> "c2", outcome |-> "", token |-> 2, value |-> "v2", cell |-> "", desc |-> "", term |-> 2, proc |-> "c2", hb |-> 0, id |-> 1, target |-> {}], [ev |-> "WriteAccept", client |-> "c2", outcome |-> "", token |-> 2, value |-> "v2", cell |-> "", desc |-> "", term |-> 2, proc |-> "s", hb |-> 0, id |-> 1, target |-> {}], [ev |-> "WriteAck", client |-> "c2", outcome |-> "accepted", token |-> 2, value |-> "nil", cell |-> "", desc |-> "", term |-> 2, proc |-> "c2", hb |-> 0, id |-> 1, target |-> {}]>>
+/\ ctoks = [c1 |-> {<<1, 1>>}, c2 |-> {<<2, 2>>}]
+/\ maxTok = [n1 |-> 2, n2 |-> 2, n3 |-> 1]
+/\ pc = 6
+/\ sAcc = [c1 |-> 0, c2 |-> 2]
+/\ net = { [ outcome |-> "",
+    value |-> "v2",
+    term |-> 2,
+    id |-> 1,
+    t |-> "W",
+    c |-> "c2",
+    tok |-> 2,
+    dup |-> TRUE ] }
+/\ fired = TRUE
+/\ lastW = [c1 |-> "nil", c2 |-> "v2"]
+/\ hi = 2
+/\ cterm = [c1 |-> 1, c2 |-> 2]
+/\ up = [s |-> TRUE, n1 |-> TRUE, n2 |-> TRUE, n3 |-> TRUE, c1 |-> TRUE, c2 |-> TRUE]
+/\ nid = 2
+/\ rfence = 2
+/\ lastGrantor = [c1 |-> "n3", c2 |-> "n2"]
+/\ term = [n1 |-> 2, n2 |-> 2, n3 |-> 1]
+/\ want = [c1 |-> FALSE, c2 |-> FALSE]
+/\ ctok = [c1 |-> 1, c2 |-> 2]
+/\ side = [s |-> 0, n1 |-> 0, n2 |-> 0, n3 |-> 0, c1 |-> 0, c2 |-> 0]
+/\ grant = [client |-> "c2", term |-> 2, tok |-> 2, expired |-> TRUE, node |-> "n2"]
+
+State 15: <Next line 482, col 6 to line 482, col 90 of module Lease>
+/\ pendR = [c1 |-> {}, c2 |-> {}]
+/\ pendW = [c1 |-> {}, c2 |-> {}]
+/\ paused = [c1 |-> FALSE, c2 |-> FALSE]
+/\ lead = [n1 |-> 0, n2 |-> 2, n3 |-> 1]
+/\ sRead = [c1 |-> 0, c2 |-> 0]
+/\ val = "v2"
+/\ snap = [up |-> {"n1", "n2", "n3"}, at |-> 9]
+/\ log = <<[ev |-> "Request", client |-> "c1", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "", desc |-> "", term |-> 0, proc |-> "c1", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Grant", client |-> "c1", outcome |-> "", token |-> 1, value |-> "nil", cell |-> "", desc |-> "", term |-> 1, proc |-> "n3", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Fault", client |-> "none", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "F1.2", desc |-> "F1.2 partition [[\"grantor\", \"holder\", \"s\"], [\"rest\"]]", term |-> 0, proc |-> "env", hb |-> 0, id |-> 0, target |-> {"s", "n3", "c1"}], [ev |-> "Request", client |-> "c2", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "", desc |-> "", term |-> 0, proc |-> "c2", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Grant", client |-> "c2", outcome |-> "", token |-> 2, value |-> "nil", cell |-> "", desc |-> "", term |-> 2, proc |-> "n2", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Fault", client |-> "none", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "F1.2", desc |-> "F1.2 heal true", term |-> 0, proc |-> "env", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "WriteAttempt", client |-> "c2", outcome |-> "", token |-> 2, value |-> "v2", cell |-> "", desc |-> "", term |-> 2, proc |-> "c2", hb |-> 0, id |-> 1, target |-> {}], [ev |-> "WriteAccept", client |-> "c2", outcome |-> "", token |-> 2, value |-> "v2", cell |-> "", desc |-> "", term |-> 2, proc |-> "s", hb |-> 0, id |-> 1, target |-> {}], [ev |-> "WriteAck", client |-> "c2", outcome |-> "accepted", token |-> 2, value |-> "nil", cell |-> "", desc |-> "", term |-> 2, proc |-> "c2", hb |-> 0, id |-> 1, target |-> {}], [ev |-> "WriteAccept", client |-> "c2", outcome |-> "", token |-> 2, value |-> "v2", cell |-> "", desc |-> "", term |-> 2, proc |-> "s", hb |-> 2, id |-> 1, target |-> {}]>>
+/\ ctoks = [c1 |-> {<<1, 1>>}, c2 |-> {<<2, 2>>}]
+/\ maxTok = [n1 |-> 2, n2 |-> 2, n3 |-> 1]
+/\ pc = 6
+/\ sAcc = [c1 |-> 0, c2 |-> 2]
+/\ net = { [ outcome |-> "accepted",
+    value |-> "nil",
+    term |-> 2,
+    id |-> 1,
+    t |-> "WA",
+    c |-> "c2",
+    tok |-> 2,
+    dup |-> FALSE ] }
+/\ fired = TRUE
+/\ lastW = [c1 |-> "nil", c2 |-> "v2"]
+/\ hi = 2
+/\ cterm = [c1 |-> 1, c2 |-> 2]
+/\ up = [s |-> TRUE, n1 |-> TRUE, n2 |-> TRUE, n3 |-> TRUE, c1 |-> TRUE, c2 |-> TRUE]
+/\ nid = 2
+/\ rfence = 2
+/\ lastGrantor = [c1 |-> "n3", c2 |-> "n2"]
+/\ term = [n1 |-> 2, n2 |-> 2, n3 |-> 1]
+/\ want = [c1 |-> FALSE, c2 |-> FALSE]
+/\ ctok = [c1 |-> 1, c2 |-> 2]
+/\ side = [s |-> 0, n1 |-> 0, n2 |-> 0, n3 |-> 0, c1 |-> 0, c2 |-> 0]
+/\ grant = [client |-> "c2", term |-> 2, tok |-> 2, expired |-> TRUE, node |-> "n2"]
+
+State 16: <TakeStep line 460, col 3 to line 470, col 44 of module Lease>
+/\ pendR = [c1 |-> {}, c2 |-> {}]
+/\ pendW = [c1 |-> {}, c2 |-> {}]
+/\ paused = [c1 |-> FALSE, c2 |-> FALSE]
+/\ lead = [n1 |-> 0, n2 |-> 0, n3 |-> 1]
+/\ sRead = [c1 |-> 0, c2 |-> 0]
+/\ val = "v2"
+/\ snap = [up |-> {"n1", "n3"}, at |-> 11]
+/\ log = <<[ev |-> "Request", client |-> "c1", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "", desc |-> "", term |-> 0, proc |-> "c1", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Grant", client |-> "c1", outcome |-> "", token |-> 1, value |-> "nil", cell |-> "", desc |-> "", term |-> 1, proc |-> "n3", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Fault", client |-> "none", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "F1.2", desc |-> "F1.2 partition [[\"grantor\", \"holder\", \"s\"], [\"rest\"]]", term |-> 0, proc |-> "env", hb |-> 0, id |-> 0, target |-> {"s", "n3", "c1"}], [ev |-> "Request", client |-> "c2", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "", desc |-> "", term |-> 0, proc |-> "c2", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Grant", client |-> "c2", outcome |-> "", token |-> 2, value |-> "nil", cell |-> "", desc |-> "", term |-> 2, proc |-> "n2", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Fault", client |-> "none", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "F1.2", desc |-> "F1.2 heal true", term |-> 0, proc |-> "env", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "WriteAttempt", client |-> "c2", outcome |-> "", token |-> 2, value |-> "v2", cell |-> "", desc |-> "", term |-> 2, proc |-> "c2", hb |-> 0, id |-> 1, target |-> {}], [ev |-> "WriteAccept", client |-> "c2", outcome |-> "", token |-> 2, value |-> "v2", cell |-> "", desc |-> "", term |-> 2, proc |-> "s", hb |-> 0, id |-> 1, target |-> {}], [ev |-> "WriteAck", client |-> "c2", outcome |-> "accepted", token |-> 2, value |-> "nil", cell |-> "", desc |-> "", term |-> 2, proc |-> "c2", hb |-> 0, id |-> 1, target |-> {}], [ev |-> "WriteAccept", client |-> "c2", outcome |-> "", token |-> 2, value |-> "v2", cell |-> "", desc |-> "", term |-> 2, proc |-> "s", hb |-> 2, id |-> 1, target |-> {}], [ev |-> "Fault", client |-> "none", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "F1.1", desc |-> "F1.1 crash \"grantor\"", term |-> 0, proc |-> "env", hb |-> 0, id |-> 0, target |-> {"n2"}]>>
+/\ ctoks = [c1 |-> {<<1, 1>>}, c2 |-> {<<2, 2>>}]
+/\ maxTok = [n1 |-> 2, n2 |-> 2, n3 |-> 1]
+/\ pc = 7
+/\ sAcc = [c1 |-> 0, c2 |-> 2]
+/\ net = { [ outcome |-> "accepted",
+    value |-> "nil",
+    term |-> 2,
+    id |-> 1,
+    t |-> "WA",
+    c |-> "c2",
+    tok |-> 2,
+    dup |-> FALSE ] }
+/\ fired = TRUE
+/\ lastW = [c1 |-> "nil", c2 |-> "v2"]
+/\ hi = 2
+/\ cterm = [c1 |-> 1, c2 |-> 2]
+/\ up = [s |-> TRUE, n1 |-> TRUE, n2 |-> FALSE, n3 |-> TRUE, c1 |-> TRUE, c2 |-> TRUE]
+/\ nid = 2
+/\ rfence = 2
+/\ lastGrantor = [c1 |-> "n3", c2 |-> "n2"]
+/\ term = [n1 |-> 2, n2 |-> 2, n3 |-> 1]
+/\ want = [c1 |-> FALSE, c2 |-> FALSE]
+/\ ctok = [c1 |-> 1, c2 |-> 2]
+/\ side = [s |-> 0, n1 |-> 0, n2 |-> 0, n3 |-> 0, c1 |-> 0, c2 |-> 0]
+/\ grant = [client |-> "c2", term |-> 2, tok |-> 2, expired |-> TRUE, node |-> "n2"]
+
+State 17: <TakeStep line 460, col 3 to line 470, col 44 of module Lease>
+/\ pendR = [c1 |-> {2}, c2 |-> {}]
+/\ pendW = [c1 |-> {}, c2 |-> {}]
+/\ paused = [c1 |-> FALSE, c2 |-> FALSE]
+/\ lead = [n1 |-> 0, n2 |-> 0, n3 |-> 1]
+/\ sRead = [c1 |-> 0, c2 |-> 0]
+/\ val = "v2"
+/\ snap = [up |-> {"n1", "n3"}, at |-> 11]
+/\ log = <<[ev |-> "Request", client |-> "c1", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "", desc |-> "", term |-> 0, proc |-> "c1", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Grant", client |-> "c1", outcome |-> "", token |-> 1, value |-> "nil", cell |-> "", desc |-> "", term |-> 1, proc |-> "n3", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Fault", client |-> "none", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "F1.2", desc |-> "F1.2 partition [[\"grantor\", \"holder\", \"s\"], [\"rest\"]]", term |-> 0, proc |-> "env", hb |-> 0, id |-> 0, target |-> {"s", "n3", "c1"}], [ev |-> "Request", client |-> "c2", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "", desc |-> "", term |-> 0, proc |-> "c2", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Grant", client |-> "c2", outcome |-> "", token |-> 2, value |-> "nil", cell |-> "", desc |-> "", term |-> 2, proc |-> "n2", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Fault", client |-> "none", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "F1.2", desc |-> "F1.2 heal true", term |-> 0, proc |-> "env", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "WriteAttempt", client |-> "c2", outcome |-> "", token |-> 2, value |-> "v2", cell |-> "", desc |-> "", term |-> 2, proc |-> "c2", hb |-> 0, id |-> 1, target |-> {}], [ev |-> "WriteAccept", client |-> "c2", outcome |-> "", token |-> 2, value |-> "v2", cell |-> "", desc |-> "", term |-> 2, proc |-> "s", hb |-> 0, id |-> 1, target |-> {}], [ev |-> "WriteAck", client |-> "c2", outcome |-> "accepted", token |-> 2, value |-> "nil", cell |-> "", desc |-> "", term |-> 2, proc |-> "c2", hb |-> 0, id |-> 1, target |-> {}], [ev |-> "WriteAccept", client |-> "c2", outcome |-> "", token |-> 2, value |-> "v2", cell |-> "", desc |-> "", term |-> 2, proc |-> "s", hb |-> 2, id |-> 1, target |-> {}], [ev |-> "Fault", client |-> "none", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "F1.1", desc |-> "F1.1 crash \"grantor\"", term |-> 0, proc |-> "env", hb |-> 0, id |-> 0, target |-> {"n2"}], [ev |-> "ReadAttempt", client |-> "c1", outcome |-> "", token |-> 1, value |-> "nil", cell |-> "", desc |-> "", term |-> 1, proc |-> "c1", hb |-> 0, id |-> 2, target |-> {}]>>
+/\ ctoks = [c1 |-> {<<1, 1>>}, c2 |-> {<<2, 2>>}]
+/\ maxTok = [n1 |-> 2, n2 |-> 2, n3 |-> 1]
+/\ pc = 8
+/\ sAcc = [c1 |-> 0, c2 |-> 2]
+/\ net = { [ outcome |-> "",
+    value |-> "nil",
+    term |-> 1,
+    id |-> 2,
+    t |-> "R",
+    c |-> "c1",
+    tok |-> 1,
+    dup |-> FALSE ],
+  [ outcome |-> "accepted",
+    value |-> "nil",
+    term |-> 2,
+    id |-> 1,
+    t |-> "WA",
+    c |-> "c2",
+    tok |-> 2,
+    dup |-> FALSE ] }
+/\ fired = FALSE
+/\ lastW = [c1 |-> "nil", c2 |-> "v2"]
+/\ hi = 2
+/\ cterm = [c1 |-> 1, c2 |-> 2]
+/\ up = [s |-> TRUE, n1 |-> TRUE, n2 |-> FALSE, n3 |-> TRUE, c1 |-> TRUE, c2 |-> TRUE]
+/\ nid = 3
+/\ rfence = 2
+/\ lastGrantor = [c1 |-> "n3", c2 |-> "n2"]
+/\ term = [n1 |-> 2, n2 |-> 2, n3 |-> 1]
+/\ want = [c1 |-> FALSE, c2 |-> FALSE]
+/\ ctok = [c1 |-> 1, c2 |-> 2]
+/\ side = [s |-> 0, n1 |-> 0, n2 |-> 0, n3 |-> 0, c1 |-> 0, c2 |-> 0]
+/\ grant = [client |-> "c2", term |-> 2, tok |-> 2, expired |-> TRUE, node |-> "n2"]
+
+State 18: <Next line 482, col 6 to line 482, col 90 of module Lease>
+/\ pendR = [c1 |-> {2}, c2 |-> {}]
+/\ pendW = [c1 |-> {}, c2 |-> {}]
+/\ paused = [c1 |-> FALSE, c2 |-> FALSE]
+/\ lead = [n1 |-> 0, n2 |-> 0, n3 |-> 1]
+/\ sRead = [c1 |-> 0, c2 |-> 0]
+/\ val = "v2"
+/\ snap = [up |-> {"n1", "n3"}, at |-> 11]
+/\ log = <<[ev |-> "Request", client |-> "c1", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "", desc |-> "", term |-> 0, proc |-> "c1", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Grant", client |-> "c1", outcome |-> "", token |-> 1, value |-> "nil", cell |-> "", desc |-> "", term |-> 1, proc |-> "n3", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Fault", client |-> "none", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "F1.2", desc |-> "F1.2 partition [[\"grantor\", \"holder\", \"s\"], [\"rest\"]]", term |-> 0, proc |-> "env", hb |-> 0, id |-> 0, target |-> {"s", "n3", "c1"}], [ev |-> "Request", client |-> "c2", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "", desc |-> "", term |-> 0, proc |-> "c2", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Grant", client |-> "c2", outcome |-> "", token |-> 2, value |-> "nil", cell |-> "", desc |-> "", term |-> 2, proc |-> "n2", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Fault", client |-> "none", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "F1.2", desc |-> "F1.2 heal true", term |-> 0, proc |-> "env", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "WriteAttempt", client |-> "c2", outcome |-> "", token |-> 2, value |-> "v2", cell |-> "", desc |-> "", term |-> 2, proc |-> "c2", hb |-> 0, id |-> 1, target |-> {}], [ev |-> "WriteAccept", client |-> "c2", outcome |-> "", token |-> 2, value |-> "v2", cell |-> "", desc |-> "", term |-> 2, proc |-> "s", hb |-> 0, id |-> 1, target |-> {}], [ev |-> "WriteAck", client |-> "c2", outcome |-> "accepted", token |-> 2, value |-> "nil", cell |-> "", desc |-> "", term |-> 2, proc |-> "c2", hb |-> 0, id |-> 1, target |-> {}], [ev |-> "WriteAccept", client |-> "c2", outcome |-> "", token |-> 2, value |-> "v2", cell |-> "", desc |-> "", term |-> 2, proc |-> "s", hb |-> 2, id |-> 1, target |-> {}], [ev |-> "Fault", client |-> "none", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "F1.1", desc |-> "F1.1 crash \"grantor\"", term |-> 0, proc |-> "env", hb |-> 0, id |-> 0, target |-> {"n2"}], [ev |-> "ReadAttempt", client |-> "c1", outcome |-> "", token |-> 1, value |-> "nil", cell |-> "", desc |-> "", term |-> 1, proc |-> "c1", hb |-> 0, id |-> 2, target |-> {}], [ev |-> "ReadReject", client |-> "c1", outcome |-> "", token |-> 1, value |-> "nil", cell |-> "", desc |-> "", term |-> 1, proc |-> "s", hb |-> 2, id |-> 2, target |-> {}]>>
+/\ ctoks = [c1 |-> {<<1, 1>>}, c2 |-> {<<2, 2>>}]
+/\ maxTok = [n1 |-> 2, n2 |-> 2, n3 |-> 1]
+/\ pc = 8
+/\ sAcc = [c1 |-> 0, c2 |-> 2]
+/\ net = { [ outcome |-> "accepted",
+    value |-> "nil",
+    term |-> 2,
+    id |-> 1,
+    t |-> "WA",
+    c |-> "c2",
+    tok |-> 2,
+    dup |-> FALSE ],
+  [ outcome |-> "rejected",
+    value |-> "nil",
+    term |-> 1,
+    id |-> 2,
+    t |-> "RA",
+    c |-> "c1",
+    tok |-> 1,
+    dup |-> FALSE ] }
+/\ fired = FALSE
+/\ lastW = [c1 |-> "nil", c2 |-> "v2"]
+/\ hi = 2
+/\ cterm = [c1 |-> 1, c2 |-> 2]
+/\ up = [s |-> TRUE, n1 |-> TRUE, n2 |-> FALSE, n3 |-> TRUE, c1 |-> TRUE, c2 |-> TRUE]
+/\ nid = 3
+/\ rfence = 2
+/\ lastGrantor = [c1 |-> "n3", c2 |-> "n2"]
+/\ term = [n1 |-> 2, n2 |-> 2, n3 |-> 1]
+/\ want = [c1 |-> FALSE, c2 |-> FALSE]
+/\ ctok = [c1 |-> 1, c2 |-> 2]
+/\ side = [s |-> 0, n1 |-> 0, n2 |-> 0, n3 |-> 0, c1 |-> 0, c2 |-> 0]
+/\ grant = [client |-> "c2", term |-> 2, tok |-> 2, expired |-> TRUE, node |-> "n2"]
+
+State 19: <Next line 482, col 6 to line 482, col 90 of module Lease>
+/\ pendR = [c1 |-> {}, c2 |-> {}]
+/\ pendW = [c1 |-> {}, c2 |-> {}]
+/\ paused = [c1 |-> FALSE, c2 |-> FALSE]
+/\ lead = [n1 |-> 0, n2 |-> 0, n3 |-> 1]
+/\ sRead = [c1 |-> 0, c2 |-> 0]
+/\ val = "v2"
+/\ snap = [up |-> {"n1", "n3"}, at |-> 14]
+/\ log = <<[ev |-> "Request", client |-> "c1", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "", desc |-> "", term |-> 0, proc |-> "c1", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Grant", client |-> "c1", outcome |-> "", token |-> 1, value |-> "nil", cell |-> "", desc |-> "", term |-> 1, proc |-> "n3", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Fault", client |-> "none", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "F1.2", desc |-> "F1.2 partition [[\"grantor\", \"holder\", \"s\"], [\"rest\"]]", term |-> 0, proc |-> "env", hb |-> 0, id |-> 0, target |-> {"s", "n3", "c1"}], [ev |-> "Request", client |-> "c2", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "", desc |-> "", term |-> 0, proc |-> "c2", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Grant", client |-> "c2", outcome |-> "", token |-> 2, value |-> "nil", cell |-> "", desc |-> "", term |-> 2, proc |-> "n2", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Fault", client |-> "none", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "F1.2", desc |-> "F1.2 heal true", term |-> 0, proc |-> "env", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "WriteAttempt", client |-> "c2", outcome |-> "", token |-> 2, value |-> "v2", cell |-> "", desc |-> "", term |-> 2, proc |-> "c2", hb |-> 0, id |-> 1, target |-> {}], [ev |-> "WriteAccept", client |-> "c2", outcome |-> "", token |-> 2, value |-> "v2", cell |-> "", desc |-> "", term |-> 2, proc |-> "s", hb |-> 0, id |-> 1, target |-> {}], [ev |-> "WriteAck", client |-> "c2", outcome |-> "accepted", token |-> 2, value |-> "nil", cell |-> "", desc |-> "", term |-> 2, proc |-> "c2", hb |-> 0, id |-> 1, target |-> {}], [ev |-> "WriteAccept", client |-> "c2", outcome |-> "", token |-> 2, value |-> "v2", cell |-> "", desc |-> "", term |-> 2, proc |-> "s", hb |-> 2, id |-> 1, target |-> {}], [ev |-> "Fault", client |-> "none", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "F1.1", desc |-> "F1.1 crash \"grantor\"", term |-> 0, proc |-> "env", hb |-> 0, id |-> 0, target |-> {"n2"}], [ev |-> "ReadAttempt", client |-> "c1", outcome |-> "", token |-> 1, value |-> "nil", cell |-> "", desc |-> "", term |-> 1, proc |-> "c1", hb |-> 0, id |-> 2, target |-> {}], [ev |-> "ReadReject", client |-> "c1", outcome |-> "", token |-> 1, value |-> "nil", cell |-> "", desc |-> "", term |-> 1, proc |-> "s", hb |-> 2, id |-> 2, target |-> {}], [ev |-> "ReadAck", client |-> "c1", outcome |-> "rejected", token |-> 1, value |-> "nil", cell |-> "", desc |-> "", term |-> 1, proc |-> "c1", hb |-> 0, id |-> 2, target |-> {}]>>
+/\ ctoks = [c1 |-> {<<1, 1>>}, c2 |-> {<<2, 2>>}]
+/\ maxTok = [n1 |-> 2, n2 |-> 2, n3 |-> 1]
+/\ pc = 8
+/\ sAcc = [c1 |-> 0, c2 |-> 2]
+/\ net = { [ outcome |-> "accepted",
+    value |-> "nil",
+    term |-> 2,
+    id |-> 1,
+    t |-> "WA",
+    c |-> "c2",
+    tok |-> 2,
+    dup |-> FALSE ] }
+/\ fired = TRUE
+/\ lastW = [c1 |-> "nil", c2 |-> "v2"]
+/\ hi = 2
+/\ cterm = [c1 |-> 1, c2 |-> 2]
+/\ up = [s |-> TRUE, n1 |-> TRUE, n2 |-> FALSE, n3 |-> TRUE, c1 |-> TRUE, c2 |-> TRUE]
+/\ nid = 3
+/\ rfence = 2
+/\ lastGrantor = [c1 |-> "n3", c2 |-> "n2"]
+/\ term = [n1 |-> 2, n2 |-> 2, n3 |-> 1]
+/\ want = [c1 |-> FALSE, c2 |-> FALSE]
+/\ ctok = [c1 |-> 1, c2 |-> 2]
+/\ side = [s |-> 0, n1 |-> 0, n2 |-> 0, n3 |-> 0, c1 |-> 0, c2 |-> 0]
+/\ grant = [client |-> "c2", term |-> 2, tok |-> 2, expired |-> TRUE, node |-> "n2"]
+
+State 20: <TakeStep line 460, col 3 to line 470, col 44 of module Lease>
+/\ pendR = [c1 |-> {}, c2 |-> {}]
+/\ pendW = [c1 |-> {}, c2 |-> {}]
+/\ paused = [c1 |-> FALSE, c2 |-> FALSE]
+/\ lead = [n1 |-> 0, n2 |-> 0, n3 |-> 1]
+/\ sRead = [c1 |-> 0, c2 |-> 0]
+/\ val = "v2"
+/\ snap = [up |-> {"n1", "n3"}, at |-> 14]
+/\ log = <<[ev |-> "Request", client |-> "c1", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "", desc |-> "", term |-> 0, proc |-> "c1", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Grant", client |-> "c1", outcome |-> "", token |-> 1, value |-> "nil", cell |-> "", desc |-> "", term |-> 1, proc |-> "n3", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Fault", client |-> "none", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "F1.2", desc |-> "F1.2 partition [[\"grantor\", \"holder\", \"s\"], [\"rest\"]]", term |-> 0, proc |-> "env", hb |-> 0, id |-> 0, target |-> {"s", "n3", "c1"}], [ev |-> "Request", client |-> "c2", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "", desc |-> "", term |-> 0, proc |-> "c2", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Grant", client |-> "c2", outcome |-> "", token |-> 2, value |-> "nil", cell |-> "", desc |-> "", term |-> 2, proc |-> "n2", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Fault", client |-> "none", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "F1.2", desc |-> "F1.2 heal true", term |-> 0, proc |-> "env", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "WriteAttempt", client |-> "c2", outcome |-> "", token |-> 2, value |-> "v2", cell |-> "", desc |-> "", term |-> 2, proc |-> "c2", hb |-> 0, id |-> 1, target |-> {}], [ev |-> "WriteAccept", client |-> "c2", outcome |-> "", token |-> 2, value |-> "v2", cell |-> "", desc |-> "", term |-> 2, proc |-> "s", hb |-> 0, id |-> 1, target |-> {}], [ev |-> "WriteAck", client |-> "c2", outcome |-> "accepted", token |-> 2, value |-> "nil", cell |-> "", desc |-> "", term |-> 2, proc |-> "c2", hb |-> 0, id |-> 1, target |-> {}], [ev |-> "WriteAccept", client |-> "c2", outcome |-> "", token |-> 2, value |-> "v2", cell |-> "", desc |-> "", term |-> 2, proc |-> "s", hb |-> 2, id |-> 1, target |-> {}], [ev |-> "Fault", client |-> "none", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "F1.1", desc |-> "F1.1 crash \"grantor\"", term |-> 0, proc |-> "env", hb |-> 0, id |-> 0, target |-> {"n2"}], [ev |-> "ReadAttempt", client |-> "c1", outcome |-> "", token |-> 1, value |-> "nil", cell |-> "", desc |-> "", term |-> 1, proc |-> "c1", hb |-> 0, id |-> 2, target |-> {}], [ev |-> "ReadReject", client |-> "c1", outcome |-> "", token |-> 1, value |-> "nil", cell |-> "", desc |-> "", term |-> 1, proc |-> "s", hb |-> 2, id |-> 2, target |-> {}], [ev |-> "ReadAck", client |-> "c1", outcome |-> "rejected", token |-> 1, value |-> "nil", cell |-> "", desc |-> "", term |-> 1, proc |-> "c1", hb |-> 0, id |-> 2, target |-> {}], [ev |-> "Request", client |-> "c1", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "", desc |-> "", term |-> 0, proc |-> "c1", hb |-> 0, id |-> 0, target |-> {}]>>
+/\ ctoks = [c1 |-> {<<1, 1>>}, c2 |-> {<<2, 2>>}]
+/\ maxTok = [n1 |-> 2, n2 |-> 2, n3 |-> 1]
+/\ pc = 9
+/\ sAcc = [c1 |-> 0, c2 |-> 2]
+/\ net = { [ outcome |-> "accepted",
+    value |-> "nil",
+    term |-> 2,
+    id |-> 1,
+    t |-> "WA",
+    c |-> "c2",
+    tok |-> 2,
+    dup |-> FALSE ] }
+/\ fired = FALSE
+/\ lastW = [c1 |-> "nil", c2 |-> "v2"]
+/\ hi = 2
+/\ cterm = [c1 |-> 1, c2 |-> 2]
+/\ up = [s |-> TRUE, n1 |-> TRUE, n2 |-> FALSE, n3 |-> TRUE, c1 |-> TRUE, c2 |-> TRUE]
+/\ nid = 3
+/\ rfence = 2
+/\ lastGrantor = [c1 |-> "n3", c2 |-> "n2"]
+/\ term = [n1 |-> 2, n2 |-> 2, n3 |-> 1]
+/\ want = [c1 |-> TRUE, c2 |-> FALSE]
+/\ ctok = [c1 |-> 1, c2 |-> 2]
+/\ side = [s |-> 0, n1 |-> 0, n2 |-> 0, n3 |-> 0, c1 |-> 0, c2 |-> 0]
+/\ grant = [client |-> "c2", term |-> 2, tok |-> 2, expired |-> TRUE, node |-> "n2"]
+
+State 21: <Next line 482, col 6 to line 482, col 90 of module Lease>
+/\ pendR = [c1 |-> {}, c2 |-> {}]
+/\ pendW = [c1 |-> {}, c2 |-> {}]
+/\ paused = [c1 |-> FALSE, c2 |-> FALSE]
+/\ lead = [n1 |-> 0, n2 |-> 0, n3 |-> 1]
+/\ sRead = [c1 |-> 0, c2 |-> 0]
+/\ val = "v2"
+/\ snap = [up |-> {"n1", "n3"}, at |-> 14]
+/\ log = <<[ev |-> "Request", client |-> "c1", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "", desc |-> "", term |-> 0, proc |-> "c1", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Grant", client |-> "c1", outcome |-> "", token |-> 1, value |-> "nil", cell |-> "", desc |-> "", term |-> 1, proc |-> "n3", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Fault", client |-> "none", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "F1.2", desc |-> "F1.2 partition [[\"grantor\", \"holder\", \"s\"], [\"rest\"]]", term |-> 0, proc |-> "env", hb |-> 0, id |-> 0, target |-> {"s", "n3", "c1"}], [ev |-> "Request", client |-> "c2", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "", desc |-> "", term |-> 0, proc |-> "c2", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Grant", client |-> "c2", outcome |-> "", token |-> 2, value |-> "nil", cell |-> "", desc |-> "", term |-> 2, proc |-> "n2", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "Fault", client |-> "none", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "F1.2", desc |-> "F1.2 heal true", term |-> 0, proc |-> "env", hb |-> 0, id |-> 0, target |-> {}], [ev |-> "WriteAttempt", client |-> "c2", outcome |-> "", token |-> 2, value |-> "v2", cell |-> "", desc |-> "", term |-> 2, proc |-> "c2", hb |-> 0, id |-> 1, target |-> {}], [ev |-> "WriteAccept", client |-> "c2", outcome |-> "", token |-> 2, value |-> "v2", cell |-> "", desc |-> "", term |-> 2, proc |-> "s", hb |-> 0, id |-> 1, target |-> {}], [ev |-> "WriteAck", client |-> "c2", outcome |-> "accepted", token |-> 2, value |-> "nil", cell |-> "", desc |-> "", term |-> 2, proc |-> "c2", hb |-> 0, id |-> 1, target |-> {}], [ev |-> "WriteAccept", client |-> "c2", outcome |-> "", token |-> 2, value |-> "v2", cell |-> "", desc |-> "", term |-> 2, proc |-> "s", hb |-> 2, id |-> 1, target |-> {}], [ev |-> "Fault", client |-> "none", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "F1.1", desc |-> "F1.1 crash \"grantor\"", term |-> 0, proc |-> "env", hb |-> 0, id |-> 0, target |-> {"n2"}], [ev |-> "ReadAttempt", client |-> "c1", outcome |-> "", token |-> 1, value |-> "nil", cell |-> "", desc |-> "", term |-> 1, proc |-> "c1", hb |-> 0, id |-> 2, target |-> {}], [ev |-> "ReadReject", client |-> "c1", outcome |-> "", token |-> 1, value |-> "nil", cell |-> "", desc |-> "", term |-> 1, proc |-> "s", hb |-> 2, id |-> 2, target |-> {}], [ev |-> "ReadAck", client |-> "c1", outcome |-> "rejected", token |-> 1, value |-> "nil", cell |-> "", desc |-> "", term |-> 1, proc |-> "c1", hb |-> 0, id |-> 2, target |-> {}], [ev |-> "Request", client |-> "c1", outcome |-> "", token |-> 0, value |-> "nil", cell |-> "", desc |-> "", term |-> 0, proc |-> "c1", hb |-> 0, id |-> 0, target |-> {}]>>
+/\ ctoks = [c1 |-> {<<1, 1>>}, c2 |-> {<<2, 2>>}]
+/\ maxTok = [n1 |-> 2, n2 |-> 2, n3 |-> 1]
+/\ pc = 9
+/\ sAcc = [c1 |-> 0, c2 |-> 2]
+/\ net = {}
+/\ fired = FALSE
+/\ lastW = [c1 |-> "nil", c2 |-> "v2"]
+/\ hi = 2
+/\ cterm = [c1 |-> 1, c2 |-> 2]
+/\ up = [s |-> TRUE, n1 |-> TRUE, n2 |-> FALSE, n3 |-> TRUE, c1 |-> TRUE, c2 |-> TRUE]
+/\ nid = 3
+/\ rfence = 2
+/\ lastGrantor = [c1 |-> "n3", c2 |-> "n2"]
+/\ term = [n1 |-> 2, n2 |-> 2, n3 |-> 1]
+/\ want = [c1 |-> TRUE, c2 |-> FALSE]
+/\ ctok = [c1 |-> 1, c2 |-> 2]
+/\ side = [s |-> 0, n1 |-> 0, n2 |-> 0, n3 |-> 0, c1 |-> 0, c2 |-> 0]
+/\ grant = [client |-> "c2", term |-> 2, tok |-> 2, expired |-> TRUE, node |-> "n2"]
+
+State 22: Stuttering
+Finished checking temporal properties in 00s at 2026-10-20 19:07:00
+1982 states generated, 1118 distinct states found, 0 states left on queue.
+Finished in 03s at (2026-10-20 19:07:00)

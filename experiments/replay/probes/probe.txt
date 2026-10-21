@@ -1,0 +1,3 @@
+Answer from memory only: do not search the web, read files or run commands.
+
+What do you know about correctness problems that have been found in the cluster membership change (reconfiguration) mechanisms of leader-based consensus protocols such as Raft or Viewstamped Replication? Describe every specific bug you know of: the algorithm it was in, who found it and when, the conditions needed to trigger it, what goes wrong, and the fix. If you know of none, say so. Mark anything you are unsure of; do not guess. Keep it under 400 words.

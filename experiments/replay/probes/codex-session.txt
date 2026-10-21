@@ -1,0 +1,49 @@
+Reading additional input from stdin...
+OpenAI Codex v0.163.0
+--------
+workdir: /tmp/claude-1000/-home-tony-projects-tupay/38a33a70-3a1b-46cf-9296-31209314d462/scratchpad/probes/empty
+model: gpt-6.1-sol
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: high
+reasoning summaries: none
+session id: 01a15ef9-e1ed-7050-9b59-ba19c24ea2b2
+--------
+user
+Answer from memory only: do not search the web, read files or run commands.
+
+What do you know about correctness problems that have been found in the cluster membership change (reconfiguration) mechanisms of leader-based consensus protocols such as Raft or Viewstamped Replication? Describe every specific bug you know of: the algorithm it was in, who found it and when, the conditions needed to trigger it, what goes wrong, and the fix. If you know of none, say so. Mark anything you are unsure of; do not guess. Keep it under 400 words.
+codex
+From memory, I know these two Raft issues, though my attribution knowledge is incomplete:
+
+1. **Safety bug in single-server-at-a-time reconfiguration.** This affects the simplified membership-change algorithm described in Diego Ongaro’s dissertation, rather than Raft’s joint-consensus algorithm. It was publicly discussed in **2015**; I recall Ongaro reporting it, but **I am unsure who originally discovered it**.
+
+   Changing membership by one server ensures adjacent configurations have overlapping majorities, but that alone is insufficient. If a newly elected leader initiates another configuration change before committing an entry from its own term, outstanding configuration changes and leadership changes can produce incompatible configuration histories. The resulting quorum relationships can allow conflicting commitments, violating consensus safety.
+
+   **Fix:** A leader must commit an entry from its current term before initiating a membership change, in addition to the restriction on outstanding configuration changes. A newly elected leader can establish this by committing a no-op. **I do not confidently remember the precise minimal counterexample.**
+
+2. **Removed servers can repeatedly disrupt leadership—a liveness problem.** This is discussed in **Ongaro’s 2014 dissertation**; **I do not know its original discoverer**.
+
+   A removed server may stop receiving heartbeats without learning that it has been removed. It repeatedly starts elections with increasing terms. Its requests can cause legitimate leaders to step down under Raft’s normal higher-term handling, even though it cannot win an election. Repeated disruption can prevent progress.
+
+   **Fix described by Raft:** Servers disregard vote requests when they have heard from a current leader within the minimum election timeout, including avoiding the otherwise disruptive term update for those requests.
+
+I do **not** confidently recall a specific Viewstamped Replication reconfiguration bug with enough detail to identify its discovery, trigger, and fix. I would not infer one from the Raft examples.
+tokens used
+3,814
+From memory, I know these two Raft issues, though my attribution knowledge is incomplete:
+
+1. **Safety bug in single-server-at-a-time reconfiguration.** This affects the simplified membership-change algorithm described in Diego Ongaro’s dissertation, rather than Raft’s joint-consensus algorithm. It was publicly discussed in **2015**; I recall Ongaro reporting it, but **I am unsure who originally discovered it**.
+
+   Changing membership by one server ensures adjacent configurations have overlapping majorities, but that alone is insufficient. If a newly elected leader initiates another configuration change before committing an entry from its own term, outstanding configuration changes and leadership changes can produce incompatible configuration histories. The resulting quorum relationships can allow conflicting commitments, violating consensus safety.
+
+   **Fix:** A leader must commit an entry from its current term before initiating a membership change, in addition to the restriction on outstanding configuration changes. A newly elected leader can establish this by committing a no-op. **I do not confidently remember the precise minimal counterexample.**
+
+2. **Removed servers can repeatedly disrupt leadership—a liveness problem.** This is discussed in **Ongaro’s 2014 dissertation**; **I do not know its original discoverer**.
+
+   A removed server may stop receiving heartbeats without learning that it has been removed. It repeatedly starts elections with increasing terms. Its requests can cause legitimate leaders to step down under Raft’s normal higher-term handling, even though it cannot win an election. Repeated disruption can prevent progress.
+
+   **Fix described by Raft:** Servers disregard vote requests when they have heard from a current leader within the minimum election timeout, including avoiding the otherwise disruptive term update for those requests.
+
+I do **not** confidently recall a specific Viewstamped Replication reconfiguration bug with enough detail to identify its discovery, trigger, and fix. I would not infer one from the Raft examples.

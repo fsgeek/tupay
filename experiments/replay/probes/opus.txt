@@ -1,0 +1,17 @@
+**Bugs I can describe with confidence**
+
+1. **Raft single-server membership change (safety bug).**
+   - **Algorithm:** the one-server-at-a-time change from Ongaro's PhD dissertation (2014). The original Raft paper used joint consensus, which is not affected.
+   - **Who and when:** Diego Ongaro reported it himself on the raft-dev mailing list in mid-2015 (I believe July).
+   - **Trigger:** a leader change in the middle of two different single-server changes. For example, in a 4-server cluster {S1–S4}:
+     - Leader A starts adding S5 and replicates that entry to only some servers.
+     - A new leader B, in a later term and without that entry, starts removing S4.
+     - A third leader then appears that holds the first entry.
+   - **What goes wrong:** the two uncommitted configurations don't share a majority (they are not "adjacent"). Two leaders can then be elected in the same term, or a committed entry can be overwritten. That breaks safety.
+   - **Fix (from Ongaro):** a new leader must not start a membership change until it has committed an entry in its own term. In practice it appends a no-op at the start of its term and waits for it to commit.
+
+2. **Raft disruptive removed servers (liveness only, not safety).** Source: the Raft paper and dissertation (Ongaro and Ousterhout, 2014). A removed server times out and sends RequestVote with a higher term; the leader keeps stepping down. Fix: ignore RequestVote while a current leader is believed to exist; PreVote also helps.
+
+Unsure: MongoDB logless reconfiguration (Schultz, Dardik, Tan, ~2021, TLA+ found violations in early designs); VR Revisited recovery bugs (Michael, Ports et al., ~DISC 2017), not known to be in reconfiguration; implementation bugs in etcd/raft, HashiCorp Raft, Redis-Raft not recalled specifically; Zab dynamic reconfiguration, no known bug.
+
+Summary: the only specific bug I can describe in full from memory is Ongaro's 2015 single-server-change bug.

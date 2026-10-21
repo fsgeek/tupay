@@ -1,0 +1,13 @@
+These are the membership-change failures I can state precisely. They are from Raft as published by Ongaro and Ousterhout (USENIX ATC 2014) and in Ongaro’s Stanford dissertation (2014). I cannot accurately recall a later safety bug in that protocol, or any reconfiguration bug in Viewstamped Replication Revisited (Liskov and Cowling, 2012).
+
+**Disjoint quorums.** If the new configuration can commit while a majority of the old one still can, the quorums can be disjoint. For C_old = {1,2,3} and C_new = {3,4,5}, {1,2} and {4,5} can commit different entries, so the logs diverge. Adding two voters at once fails the same way: {A,B} is a majority of {A,B,C}, and {C,D,E} is a majority of {A,B,C,D,E}.
+
+Joint consensus inserts C_old,new, where a decision needs a majority of both sides, so it meets every old quorum and every new quorum. The leader commits C_old,new, then replicates and commits C_new. The dissertation’s one-server variant adds or removes one server, whose successive majorities must intersect, and keeps a single change in flight: the next configuration entry is proposed only after the current one commits. A second change started sooner can commit on voters that miss the configuration a later leader is elected under, so an entry treated as committed is missing from that log.
+
+**A new voter that is behind (availability).** If it counts toward quorum before catching up, a commit can depend on a replica that cannot accept new entries, and the cluster stalls while the old majority is healthy. Fix: add it as a non-voting learner, then grant the vote in a second change after it catches up.
+
+**A removed server still campaigns (availability).** A higher term makes the leader step down. A removed server that can still reach the cluster can repeat this indefinitely. Ongaro’s 2014 mitigation is Pre-Vote: raise the term only after a quorum agrees the leader is likely dead. A non-member cannot collect that quorum.
+
+**The leader steps down too early (availability).** If a removed leader abdicates before the new configuration is committed, the transition can stall with no server able to finish it. The leader continues under the transitional quorum rules until that commit, then steps down.
+
+I am unsure of mailing-list dates and of production incidents in etcd, HashiCorp Raft, or similar. Snapshot contents, and a follower that never sees its own removal, are pitfalls I remember only as a class.

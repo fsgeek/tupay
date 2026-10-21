@@ -1,0 +1,26 @@
+# derives: C1.1, C1.2, C1.3, C1.4, C2.1, C2.2, F1.1, F1.2, F1.3, F2.1, F2.2
+mode	schedule	seed	kind1	value1	kind2	value2
+all-initial	H7	1	read_fence	3	final_read	v3
+all-initial	H7	2	read_fence	3	final_read	v3
+all-initial	H7	3	read_fence	3	final_read	v3
+all-initial	H8	1	lost_issued_token	4	recovered_token	6
+all-initial	H8	2	lost_issued_token	4	recovered_token	6
+all-initial	H8	3	lost_issued_token	4	recovered_token	6
+all-initial	H9	1	request_hops	3	reply_hops	2
+all-initial	H9	2	request_hops	3	reply_hops	2
+all-initial	H9	3	request_hops	3	reply_hops	2
+all-initial	H10	1	first_token	3	later_token	4
+all-initial	H10	2	first_token	3	later_token	4
+all-initial	H10	3	first_token	3	later_token	4
+all	H7	1	read_fence	3	final_read	v3
+all	H7	2	read_fence	3	final_read	v3
+all	H7	3	read_fence	3	final_read	v3
+all	H8	1	lost_issued_token	4	recovered_token	6
+all	H8	2	lost_issued_token	4	recovered_token	6
+all	H8	3	lost_issued_token	4	recovered_token	6
+all	H9	1	request_hops	3	reply_hops	2
+all	H9	2	request_hops	3	reply_hops	2
+all	H9	3	request_hops	3	reply_hops	2
+all	H10	1	first_token	3	later_token	4
+all	H10	2	first_token	3	later_token	4
+all	H10	3	first_token	3	later_token	4

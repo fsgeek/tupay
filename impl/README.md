@@ -966,3 +966,44 @@ its existing lifetime origin/duration and F1.3 validity rule; the brief allows
 recording an adverse result, and the evidence does not justify weakening F1.3
 or claiming a read safety failure. The complete raw trace and sidecar are retained.
 The first all-PASS matrix and final prediction miss will both appear in results.
+
+## FixR final results and limitations
+
+<!-- derives: C1.1, C1.2, C1.3, C1.4, C2.1, C2.2, F1.1, F1.2, F1.3, F2.1, F2.2, L3, T3, E1, E2, E3 -->
+The routing repair is verified on H8 and H9 on all three seeds. H7 and H10 also
+pass all seeds. The final source checkpoint is e77dc22, stamped by 5b3a98f.
+[RESULTS-fixr.md](RESULTS-fixr.md) records every shared schedule and mutation by
+seed, all interpretations, declared limits, amendments and evidence links.
+
+Final --all exits 1: 104 PASS and one UNEXPLAINED (P18 seed 2). Final --mutations
+exits 1: 95 expected clause failures and one UNEXPLAINED (P18 seed 2); the latter
+is not a kill, giving 31/32 killed across all three seeds. Per seed, baseline
+passes are 35/35, 34/35, 35/35; expected mutation failures are 32/32, 31/32, 32/32.
+The pause-window result and its reason remain recorded above. All 48 top-level
+Go fixture tests and vet pass. The first matrices at 786a384 had 105 passes and
+96 expected failures; their evidence is retained without replacing final results.
+
+Both R1 and R2 fail C1.4 on every final seed. R2 issues 71 grants to c2 per seed
+but delivers none, demonstrating the checker's sensitivity to lost receipt even
+when issuance is observable. In final H8, c2's issued token 4 is lost, its issuer
+crashes, and the same Request receives token 6 from a surviving grantor. Final
+H9 uses three request hops and two reply hops for c2 while keeping the original
+leader. H7 preserves the old write fence across a higher-token read; H10 grants
+and accepts c2's higher-token write despite its deaf follower.
+
+The raw-record audit passes validation across 402 retained runs (804 hashed
+JSONL/sidecar files), checking 832 grant receipts, 965 ack references, all four
+newly shared schedule witnesses and 42 unchanged input hashes. It explicitly
+records two prediction misses; audit success does not turn them into PASS.
+Task files remain under impl/, no tmp/ or cache is committed, .venv is untouched,
+and nothing is pushed. No model artifact or external file was read this round.
+
+Declared limitations are part of this result: a P18-like post-grant workload can
+consume the finite unexpired-holder window before a pause, leaving an incomplete
+run and an unexercised mutation. Pinned Raft election behavior, bounded sampling,
+logical crashes and trusted duration/receipt certificates remain. A sustained
+no-commit election pattern could still exhaust C1.4's finite horizon; no such new
+counterexample was seen here and no further stable-leader routing shape is known
+to be intentionally unfixed. No lifetime, validity rule, input or score was tuned
+after the adverse result. Wall time begins 2026-10-21 14:59:31 UTC and is reported
+through the adapted commit and hook in the final answer.

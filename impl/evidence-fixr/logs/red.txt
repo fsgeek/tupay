@@ -1,0 +1,23 @@
+go: downloading gopkg.in/yaml.v3 v3.0.1
+go: downloading github.com/hashicorp/raft v1.7.0
+go: downloading github.com/hashicorp/go-msgpack/v2 v2.1.1
+go: downloading github.com/hashicorp/go-hclog v1.6.2
+go: downloading github.com/armon/go-metrics v0.4.1
+go: downloading github.com/mattn/go-isatty v0.0.14
+go: downloading github.com/fatih/color v1.13.0
+go: downloading github.com/hashicorp/go-immutable-radix v1.0.0
+go: downloading golang.org/x/sys v0.13.0
+go: downloading github.com/mattn/go-colorable v0.1.12
+go: downloading github.com/hashicorp/golang-lru v0.5.0
+--- FAIL: TestFixRIssuanceBeforeReceipt (0.09s)
+    routing_test.go:29: issued-but-undelivered Grant omitted
+--- FAIL: TestFixRC14IssuedNotDelivered (0.00s)
+    routing_test.go:47: undelivered issuance masked liveness: {Clause: Reason:horizon exhausted}
+--- FAIL: TestFixRRenamedRoutingShapes (6.35s)
+    --- FAIL: TestFixRRenamedRoutingShapes/H8 (3.18s)
+        routing_test.go:77: routing shape failed: {Clause:C1.4 Reason:eligible request {c2 1} unfulfilled through finite horizon}
+    --- FAIL: TestFixRRenamedRoutingShapes/H9 (3.17s)
+        routing_test.go:77: routing shape failed: {Clause:C1.4 Reason:eligible request {c2 1} unfulfilled through finite horizon}
+FAIL
+FAIL	tupay/impl	6.445s
+FAIL

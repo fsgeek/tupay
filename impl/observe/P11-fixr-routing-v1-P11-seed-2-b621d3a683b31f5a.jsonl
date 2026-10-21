@@ -1,0 +1,4 @@
+{"proc":"c1","seq":1,"event":"Request","client":"c1","key":"k","causes":[],"run":"P11-fixr-routing-v1-P11-seed-2-b621d3a683b31f5a","side":"impl"}
+{"proc":"n1","seq":1,"event":"Grant","client":"c1","key":"k","token":3,"lifetime":40,"grantor_term":2,"causes":[{"proc":"c1","seq":1}],"run":"P11-fixr-routing-v1-P11-seed-2-b621d3a683b31f5a","side":"impl"}
+{"proc":"env","seq":1,"event":"Fault","causes":[{"proc":"n1","seq":1}],"run":"P11-fixr-routing-v1-P11-seed-2-b621d3a683b31f5a","side":"impl","cell":"F1.2","partition":[["c1","n1"],["c2","n2","n3","s"]]}
+{"proc":"c2","seq":1,"event":"Request","client":"c2","key":"k","causes":[{"proc":"env","seq":1}],"run":"P11-fixr-routing-v1-P11-seed-2-b621d3a683b31f5a","side":"impl"}

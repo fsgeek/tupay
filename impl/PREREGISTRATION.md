@@ -694,3 +694,16 @@ as a bounded-sampling/injection limitation with its trace, rather than treating
 an expired client as F1.3's unexpired holder. The original PASS predictions and
 first 105-pass matrix remain intact. No additional baseline retry will replace
 or obscure this final matrix.
+
+### FixR final mutation outcome: P18 seed 2 is not a kill
+
+<!-- derives: C2.2, C1.4, F1.3, T3, E1 -->
+Outcome-informed. The single final --mutations run at e77dc22 has 95 expected
+clause failures and one UNEXPLAINED, P18 seed 2, workload unavailable under T3.
+Its pause never applies, so the P18 mutation is not reached and is not killed on
+that seed. The final overall kill count is 31/32 across all three seeds. All other
+mutations, including new R1/R2 on unchanged H9, fail the predeclared clause on
+every seed. R2 issues 71 c2 Grants on each final seed while delivering none and
+fails C1.4 with a qualified 3000 ms pending-request certificate. Original
+predictions remain unchanged and both P18 prediction misses are explicit. There
+is no rerun, re-placement, duration/lifetime change or scoring amendment.

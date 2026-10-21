@@ -1,0 +1,6 @@
+=== RUN   TestFixRRenewalPauseWaitsForReceipt
+    routing_test.go:194: renewal pause failed: {Clause: Reason:pause requires an unexpired holder}
+--- FAIL: TestFixRRenewalPauseWaitsForReceipt (0.21s)
+FAIL
+FAIL	tupay/impl	0.213s
+FAIL

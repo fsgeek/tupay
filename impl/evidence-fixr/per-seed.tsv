@@ -1,0 +1,404 @@
+# derives: C1.1, C1.2, C1.3, C1.4, C2.1, C2.2, F1.1, F1.2, F1.3, F2.1, F2.2
+mode	schedule	mutation	seed	verdict
+all-initial	P1		1	PASS
+all-initial	P1		2	PASS
+all-initial	P1		3	PASS
+all-initial	P2		1	PASS
+all-initial	P2		2	PASS
+all-initial	P2		3	PASS
+all-initial	P3		1	PASS
+all-initial	P3		2	PASS
+all-initial	P3		3	PASS
+all-initial	P4		1	PASS
+all-initial	P4		2	PASS
+all-initial	P4		3	PASS
+all-initial	P5		1	PASS
+all-initial	P5		2	PASS
+all-initial	P5		3	PASS
+all-initial	P6		1	PASS
+all-initial	P6		2	PASS
+all-initial	P6		3	PASS
+all-initial	P7		1	PASS
+all-initial	P7		2	PASS
+all-initial	P7		3	PASS
+all-initial	P8		1	PASS
+all-initial	P8		2	PASS
+all-initial	P8		3	PASS
+all-initial	P9		1	PASS
+all-initial	P9		2	PASS
+all-initial	P9		3	PASS
+all-initial	P10		1	PASS
+all-initial	P10		2	PASS
+all-initial	P10		3	PASS
+all-initial	P11		1	PASS
+all-initial	P11		2	PASS
+all-initial	P11		3	PASS
+all-initial	P12		1	PASS
+all-initial	P12		2	PASS
+all-initial	P12		3	PASS
+all-initial	P13		1	PASS
+all-initial	P13		2	PASS
+all-initial	P13		3	PASS
+all-initial	P14		1	PASS
+all-initial	P14		2	PASS
+all-initial	P14		3	PASS
+all-initial	P15		1	PASS
+all-initial	P15		2	PASS
+all-initial	P15		3	PASS
+all-initial	P16		1	PASS
+all-initial	P16		2	PASS
+all-initial	P16		3	PASS
+all-initial	P17		1	PASS
+all-initial	P17		2	PASS
+all-initial	P17		3	PASS
+all-initial	P18		1	PASS
+all-initial	P18		2	PASS
+all-initial	P18		3	PASS
+all-initial	P19		1	PASS
+all-initial	P19		2	PASS
+all-initial	P19		3	PASS
+all-initial	P20		1	PASS
+all-initial	P20		2	PASS
+all-initial	P20		3	PASS
+all-initial	P21		1	PASS
+all-initial	P21		2	PASS
+all-initial	P21		3	PASS
+all-initial	P22		1	PASS
+all-initial	P22		2	PASS
+all-initial	P22		3	PASS
+all-initial	P23		1	PASS
+all-initial	P23		2	PASS
+all-initial	P23		3	PASS
+all-initial	P24		1	PASS
+all-initial	P24		2	PASS
+all-initial	P24		3	PASS
+all-initial	P25		1	PASS
+all-initial	P25		2	PASS
+all-initial	P25		3	PASS
+all-initial	P26		1	PASS
+all-initial	P26		2	PASS
+all-initial	P26		3	PASS
+all-initial	P27		1	PASS
+all-initial	P27		2	PASS
+all-initial	P27		3	PASS
+all-initial	P28		1	PASS
+all-initial	P28		2	PASS
+all-initial	P28		3	PASS
+all-initial	P29		1	PASS
+all-initial	P29		2	PASS
+all-initial	P29		3	PASS
+all-initial	P30		1	PASS
+all-initial	P30		2	PASS
+all-initial	P30		3	PASS
+all-initial	H7		1	PASS
+all-initial	H7		2	PASS
+all-initial	H7		3	PASS
+all-initial	H8		1	PASS
+all-initial	H8		2	PASS
+all-initial	H8		3	PASS
+all-initial	H9		1	PASS
+all-initial	H9		2	PASS
+all-initial	H9		3	PASS
+all-initial	H10		1	PASS
+all-initial	H10		2	PASS
+all-initial	H10		3	PASS
+all-initial	false-suspicion-v1		1	PASS
+all-initial	false-suspicion-v1		2	PASS
+all-initial	false-suspicion-v1		3	PASS
+mutations-initial	P1	P1	1	FAIL C1.1
+mutations-initial	P1	P1	2	FAIL C1.1
+mutations-initial	P1	P1	3	FAIL C1.1
+mutations-initial	P2	P2	1	FAIL C1.1
+mutations-initial	P2	P2	2	FAIL C1.1
+mutations-initial	P2	P2	3	FAIL C1.1
+mutations-initial	P3	P3	1	FAIL C1.1
+mutations-initial	P3	P3	2	FAIL C1.1
+mutations-initial	P3	P3	3	FAIL C1.1
+mutations-initial	P4	P4	1	FAIL C1.2
+mutations-initial	P4	P4	2	FAIL C1.2
+mutations-initial	P4	P4	3	FAIL C1.2
+mutations-initial	P5	P5	1	FAIL C1.2
+mutations-initial	P5	P5	2	FAIL C1.2
+mutations-initial	P5	P5	3	FAIL C1.2
+mutations-initial	P6	P6	1	FAIL C1.2
+mutations-initial	P6	P6	2	FAIL C1.2
+mutations-initial	P6	P6	3	FAIL C1.2
+mutations-initial	P7	P7	1	FAIL C1.3
+mutations-initial	P7	P7	2	FAIL C1.3
+mutations-initial	P7	P7	3	FAIL C1.3
+mutations-initial	P8	P8	1	FAIL C1.3
+mutations-initial	P8	P8	2	FAIL C1.3
+mutations-initial	P8	P8	3	FAIL C1.3
+mutations-initial	P9	P9	1	FAIL C1.3
+mutations-initial	P9	P9	2	FAIL C1.3
+mutations-initial	P9	P9	3	FAIL C1.3
+mutations-initial	P10	P10	1	FAIL C1.4
+mutations-initial	P10	P10	2	FAIL C1.4
+mutations-initial	P10	P10	3	FAIL C1.4
+mutations-initial	P11	P11	1	FAIL C1.4
+mutations-initial	P11	P11	2	FAIL C1.4
+mutations-initial	P11	P11	3	FAIL C1.4
+mutations-initial	P12	P12	1	FAIL C1.4
+mutations-initial	P12	P12	2	FAIL C1.4
+mutations-initial	P12	P12	3	FAIL C1.4
+mutations-initial	P13	P13	1	FAIL C2.1
+mutations-initial	P13	P13	2	FAIL C2.1
+mutations-initial	P13	P13	3	FAIL C2.1
+mutations-initial	P14	P14	1	FAIL C2.1
+mutations-initial	P14	P14	2	FAIL C2.1
+mutations-initial	P14	P14	3	FAIL C2.1
+mutations-initial	P15	P15	1	FAIL C2.1
+mutations-initial	P15	P15	2	FAIL C2.1
+mutations-initial	P15	P15	3	FAIL C2.1
+mutations-initial	P16	P16	1	FAIL C2.2
+mutations-initial	P16	P16	2	FAIL C2.2
+mutations-initial	P16	P16	3	FAIL C2.2
+mutations-initial	P17	P17	1	FAIL C2.2
+mutations-initial	P17	P17	2	FAIL C2.2
+mutations-initial	P17	P17	3	FAIL C2.2
+mutations-initial	P18	P18	1	FAIL C2.2
+mutations-initial	P18	P18	2	FAIL C2.2
+mutations-initial	P18	P18	3	FAIL C2.2
+mutations-initial	P19	P19	1	FAIL C1.1
+mutations-initial	P19	P19	2	FAIL C1.1
+mutations-initial	P19	P19	3	FAIL C1.1
+mutations-initial	P20	P20	1	FAIL C1.1
+mutations-initial	P20	P20	2	FAIL C1.1
+mutations-initial	P20	P20	3	FAIL C1.1
+mutations-initial	P21	P21	1	FAIL C1.2
+mutations-initial	P21	P21	2	FAIL C1.2
+mutations-initial	P21	P21	3	FAIL C1.2
+mutations-initial	P22	P22	1	FAIL C1.2
+mutations-initial	P22	P22	2	FAIL C1.2
+mutations-initial	P22	P22	3	FAIL C1.2
+mutations-initial	P23	P23	1	FAIL C1.3
+mutations-initial	P23	P23	2	FAIL C1.3
+mutations-initial	P23	P23	3	FAIL C1.3
+mutations-initial	P24	P24	1	FAIL C1.3
+mutations-initial	P24	P24	2	FAIL C1.3
+mutations-initial	P24	P24	3	FAIL C1.3
+mutations-initial	P25	P25	1	FAIL C1.4
+mutations-initial	P25	P25	2	FAIL C1.4
+mutations-initial	P25	P25	3	FAIL C1.4
+mutations-initial	P26	P26	1	FAIL C1.4
+mutations-initial	P26	P26	2	FAIL C1.4
+mutations-initial	P26	P26	3	FAIL C1.4
+mutations-initial	P27	P27	1	FAIL C2.1
+mutations-initial	P27	P27	2	FAIL C2.1
+mutations-initial	P27	P27	3	FAIL C2.1
+mutations-initial	P28	P28	1	FAIL C2.1
+mutations-initial	P28	P28	2	FAIL C2.1
+mutations-initial	P28	P28	3	FAIL C2.1
+mutations-initial	P29	P29	1	FAIL C2.2
+mutations-initial	P29	P29	2	FAIL C2.2
+mutations-initial	P29	P29	3	FAIL C2.2
+mutations-initial	P30	P30	1	FAIL C2.2
+mutations-initial	P30	P30	2	FAIL C2.2
+mutations-initial	P30	P30	3	FAIL C2.2
+mutations-initial	H9	R1	1	FAIL C1.4
+mutations-initial	H9	R1	2	FAIL C1.4
+mutations-initial	H9	R1	3	FAIL C1.4
+mutations-initial	H9	R2	1	FAIL C1.4
+mutations-initial	H9	R2	2	FAIL C1.4
+mutations-initial	H9	R2	3	FAIL C1.4
+all	P1		1	PASS
+all	P1		2	PASS
+all	P1		3	PASS
+all	P2		1	PASS
+all	P2		2	PASS
+all	P2		3	PASS
+all	P3		1	PASS
+all	P3		2	PASS
+all	P3		3	PASS
+all	P4		1	PASS
+all	P4		2	PASS
+all	P4		3	PASS
+all	P5		1	PASS
+all	P5		2	PASS
+all	P5		3	PASS
+all	P6		1	PASS
+all	P6		2	PASS
+all	P6		3	PASS
+all	P7		1	PASS
+all	P7		2	PASS
+all	P7		3	PASS
+all	P8		1	PASS
+all	P8		2	PASS
+all	P8		3	PASS
+all	P9		1	PASS
+all	P9		2	PASS
+all	P9		3	PASS
+all	P10		1	PASS
+all	P10		2	PASS
+all	P10		3	PASS
+all	P11		1	PASS
+all	P11		2	PASS
+all	P11		3	PASS
+all	P12		1	PASS
+all	P12		2	PASS
+all	P12		3	PASS
+all	P13		1	PASS
+all	P13		2	PASS
+all	P13		3	PASS
+all	P14		1	PASS
+all	P14		2	PASS
+all	P14		3	PASS
+all	P15		1	PASS
+all	P15		2	PASS
+all	P15		3	PASS
+all	P16		1	PASS
+all	P16		2	PASS
+all	P16		3	PASS
+all	P17		1	PASS
+all	P17		2	PASS
+all	P17		3	PASS
+all	P18		1	PASS
+all	P18		2	UNEXPLAINED workload unavailable under T3
+all	P18		3	PASS
+all	P19		1	PASS
+all	P19		2	PASS
+all	P19		3	PASS
+all	P20		1	PASS
+all	P20		2	PASS
+all	P20		3	PASS
+all	P21		1	PASS
+all	P21		2	PASS
+all	P21		3	PASS
+all	P22		1	PASS
+all	P22		2	PASS
+all	P22		3	PASS
+all	P23		1	PASS
+all	P23		2	PASS
+all	P23		3	PASS
+all	P24		1	PASS
+all	P24		2	PASS
+all	P24		3	PASS
+all	P25		1	PASS
+all	P25		2	PASS
+all	P25		3	PASS
+all	P26		1	PASS
+all	P26		2	PASS
+all	P26		3	PASS
+all	P27		1	PASS
+all	P27		2	PASS
+all	P27		3	PASS
+all	P28		1	PASS
+all	P28		2	PASS
+all	P28		3	PASS
+all	P29		1	PASS
+all	P29		2	PASS
+all	P29		3	PASS
+all	P30		1	PASS
+all	P30		2	PASS
+all	P30		3	PASS
+all	H7		1	PASS
+all	H7		2	PASS
+all	H7		3	PASS
+all	H8		1	PASS
+all	H8		2	PASS
+all	H8		3	PASS
+all	H9		1	PASS
+all	H9		2	PASS
+all	H9		3	PASS
+all	H10		1	PASS
+all	H10		2	PASS
+all	H10		3	PASS
+all	false-suspicion-v1		1	PASS
+all	false-suspicion-v1		2	PASS
+all	false-suspicion-v1		3	PASS
+mutations	P1	P1	1	FAIL C1.1
+mutations	P1	P1	2	FAIL C1.1
+mutations	P1	P1	3	FAIL C1.1
+mutations	P2	P2	1	FAIL C1.1
+mutations	P2	P2	2	FAIL C1.1
+mutations	P2	P2	3	FAIL C1.1
+mutations	P3	P3	1	FAIL C1.1
+mutations	P3	P3	2	FAIL C1.1
+mutations	P3	P3	3	FAIL C1.1
+mutations	P4	P4	1	FAIL C1.2
+mutations	P4	P4	2	FAIL C1.2
+mutations	P4	P4	3	FAIL C1.2
+mutations	P5	P5	1	FAIL C1.2
+mutations	P5	P5	2	FAIL C1.2
+mutations	P5	P5	3	FAIL C1.2
+mutations	P6	P6	1	FAIL C1.2
+mutations	P6	P6	2	FAIL C1.2
+mutations	P6	P6	3	FAIL C1.2
+mutations	P7	P7	1	FAIL C1.3
+mutations	P7	P7	2	FAIL C1.3
+mutations	P7	P7	3	FAIL C1.3
+mutations	P8	P8	1	FAIL C1.3
+mutations	P8	P8	2	FAIL C1.3
+mutations	P8	P8	3	FAIL C1.3
+mutations	P9	P9	1	FAIL C1.3
+mutations	P9	P9	2	FAIL C1.3
+mutations	P9	P9	3	FAIL C1.3
+mutations	P10	P10	1	FAIL C1.4
+mutations	P10	P10	2	FAIL C1.4
+mutations	P10	P10	3	FAIL C1.4
+mutations	P11	P11	1	FAIL C1.4
+mutations	P11	P11	2	FAIL C1.4
+mutations	P11	P11	3	FAIL C1.4
+mutations	P12	P12	1	FAIL C1.4
+mutations	P12	P12	2	FAIL C1.4
+mutations	P12	P12	3	FAIL C1.4
+mutations	P13	P13	1	FAIL C2.1
+mutations	P13	P13	2	FAIL C2.1
+mutations	P13	P13	3	FAIL C2.1
+mutations	P14	P14	1	FAIL C2.1
+mutations	P14	P14	2	FAIL C2.1
+mutations	P14	P14	3	FAIL C2.1
+mutations	P15	P15	1	FAIL C2.1
+mutations	P15	P15	2	FAIL C2.1
+mutations	P15	P15	3	FAIL C2.1
+mutations	P16	P16	1	FAIL C2.2
+mutations	P16	P16	2	FAIL C2.2
+mutations	P16	P16	3	FAIL C2.2
+mutations	P17	P17	1	FAIL C2.2
+mutations	P17	P17	2	FAIL C2.2
+mutations	P17	P17	3	FAIL C2.2
+mutations	P18	P18	1	FAIL C2.2
+mutations	P18	P18	2	UNEXPLAINED workload unavailable under T3
+mutations	P18	P18	3	FAIL C2.2
+mutations	P19	P19	1	FAIL C1.1
+mutations	P19	P19	2	FAIL C1.1
+mutations	P19	P19	3	FAIL C1.1
+mutations	P20	P20	1	FAIL C1.1
+mutations	P20	P20	2	FAIL C1.1
+mutations	P20	P20	3	FAIL C1.1
+mutations	P21	P21	1	FAIL C1.2
+mutations	P21	P21	2	FAIL C1.2
+mutations	P21	P21	3	FAIL C1.2
+mutations	P22	P22	1	FAIL C1.2
+mutations	P22	P22	2	FAIL C1.2
+mutations	P22	P22	3	FAIL C1.2
+mutations	P23	P23	1	FAIL C1.3
+mutations	P23	P23	2	FAIL C1.3
+mutations	P23	P23	3	FAIL C1.3
+mutations	P24	P24	1	FAIL C1.3
+mutations	P24	P24	2	FAIL C1.3
+mutations	P24	P24	3	FAIL C1.3
+mutations	P25	P25	1	FAIL C1.4
+mutations	P25	P25	2	FAIL C1.4
+mutations	P25	P25	3	FAIL C1.4
+mutations	P26	P26	1	FAIL C1.4
+mutations	P26	P26	2	FAIL C1.4
+mutations	P26	P26	3	FAIL C1.4
+mutations	P27	P27	1	FAIL C2.1
+mutations	P27	P27	2	FAIL C2.1
+mutations	P27	P27	3	FAIL C2.1
+mutations	P28	P28	1	FAIL C2.1
+mutations	P28	P28	2	FAIL C2.1
+mutations	P28	P28	3	FAIL C2.1
+mutations	P29	P29	1	FAIL C2.2
+mutations	P29	P29	2	FAIL C2.2
+mutations	P29	P29	3	FAIL C2.2
+mutations	P30	P30	1	FAIL C2.2
+mutations	P30	P30	2	FAIL C2.2
+mutations	P30	P30	3	FAIL C2.2
+mutations	H9	R1	1	FAIL C1.4
+mutations	H9	R1	2	FAIL C1.4
+mutations	H9	R1	3	FAIL C1.4
+mutations	H9	R2	1	FAIL C1.4
+mutations	H9	R2	2	FAIL C1.4
+mutations	H9	R2	3	FAIL C1.4

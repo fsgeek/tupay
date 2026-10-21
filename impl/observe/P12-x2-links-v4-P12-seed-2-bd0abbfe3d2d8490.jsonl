@@ -1,0 +1,4 @@
+{"proc":"c1","seq":1,"event":"Request","client":"c1","key":"k","causes":[],"run":"P12-x2-links-v4-P12-seed-2-bd0abbfe3d2d8490","side":"impl"}
+{"proc":"n1","seq":1,"event":"Grant","client":"c1","key":"k","token":3,"lifetime":40,"grantor_term":2,"causes":[{"proc":"c1","seq":1}],"run":"P12-x2-links-v4-P12-seed-2-bd0abbfe3d2d8490","side":"impl"}
+{"proc":"env","seq":1,"event":"Fault","causes":[{"proc":"n1","seq":1}],"run":"P12-x2-links-v4-P12-seed-2-bd0abbfe3d2d8490","side":"impl","cell":"F1.3","pause":"c1"}
+{"proc":"c2","seq":1,"event":"Request","client":"c2","key":"k","causes":[{"proc":"env","seq":1}],"run":"P12-x2-links-v4-P12-seed-2-bd0abbfe3d2d8490","side":"impl"}

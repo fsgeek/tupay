@@ -1,0 +1,4 @@
+{"proc":"c1","seq":1,"event":"Request","client":"c1","key":"k","causes":[],"run":"P26-x2-links-v4-P26-seed-3-9974bbcbe8d9b723","side":"impl"}
+{"proc":"n1","seq":1,"event":"Grant","client":"c1","key":"k","token":3,"lifetime":40,"grantor_term":2,"causes":[{"proc":"c1","seq":1}],"run":"P26-x2-links-v4-P26-seed-3-9974bbcbe8d9b723","side":"impl"}
+{"proc":"env","seq":1,"event":"Fault","causes":[{"proc":"n1","seq":1}],"run":"P26-x2-links-v4-P26-seed-3-9974bbcbe8d9b723","side":"impl","cell":"F2.2","links":[["n2","n1"],["n3","n1"]]}
+{"proc":"c2","seq":1,"event":"Request","client":"c2","key":"k","causes":[{"proc":"env","seq":1}],"run":"P26-x2-links-v4-P26-seed-3-9974bbcbe8d9b723","side":"impl"}

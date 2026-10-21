@@ -1,0 +1,20 @@
+# derives: C1.1, C1.2, C1.3, C1.4, C2.1, C2.2, F1.1, F1.2, F1.3, F2.1, F2.2
+receipt	schedule	seed	first_grantor	c2_grantor:term:token	horizons
+all-initial	P25	1	n1	n1:2:4	0
+all-initial	P25	2	n1	n1:2:4	0
+all-initial	P25	3	n1	n1:2:4	0
+all-initial	P26	1	n1	n3:3:6	0
+all-initial	P26	2	n1	n2:3:6	0
+all-initial	P26	3	n1	n2:3:5	0
+all	P25	1	n1	n1:2:4	0
+all	P25	2	n1	n1:2:4	0
+all	P25	3	n1	n1:2:4	0
+all	P26	1	n1	n3:3:6	0
+all	P26	2	n1	n3:3:6	0
+all	P26	3	n1	n3:3:6	0
+mutations	P25	1	n1	none	1
+mutations	P25	2	n1	none	1
+mutations	P25	3	n1	none	1
+mutations	P26	1	n1	none	1
+mutations	P26	2	n1	none	1
+mutations	P26	3	n1	none	1

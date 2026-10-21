@@ -1,0 +1,5 @@
+--- FAIL: TestX2StorageCrashLosesOnlyUnsentReplies (0.14s)
+    links_v2_test.go:267: unsent reply survived crash: [{kind:ack client:c1 generation:1 attempt:{Proc: Seq:0} decision:{Proc: Seq:0} grant:{token:0 term:0 ref:{Proc: Seq:0} expires:{wall:0 ext:0 loc:<nil>}} value: outcome: due:{wall:0 ext:0 loc:<nil>} pendingSend:true} {kind:read-ack client:c1 generation:1 attempt:{Proc: Seq:0} decision:{Proc: Seq:0} grant:{token:0 term:0 ref:{Proc: Seq:0} expires:{wall:0 ext:0 loc:<nil>}} value: outcome: due:{wall:0 ext:0 loc:<nil>} pendingSend:true} {kind:ack client:c1 generation:1 attempt:{Proc: Seq:0} decision:{Proc:s Seq:1} grant:{token:0 term:0 ref:{Proc: Seq:0} expires:{wall:0 ext:0 loc:<nil>}} value: outcome: due:{wall:0 ext:0 loc:<nil>} pendingSend:false}]
+FAIL
+FAIL	tupay/impl	0.145s
+FAIL

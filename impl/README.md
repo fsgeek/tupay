@@ -794,3 +794,45 @@ The full fixture suite passes again. Additional fixtures independently exercise
 runtime clique eligibility and verify that a failed reverse grant send leaves
 the requester outstanding until a later allocation's reply succeeds. No baseline
 or mutation prediction, placement, horizon, schedule or scoring rule changed.
+
+## X2 adapted version — final recorded results
+
+<!-- derives: C1.1, C1.2, C1.3, C1.4, C2.1, C2.2, F1.1, F1.2, F1.3, F2.1, F2.2, L1, L2, L3, E1, E2, E3, T3 -->
+This section supersedes earlier current-round headlines additively. The final
+implementation checkpoint is `8321ab5` (OTS stamp `acae806`). Both required
+commands exit 0: all 31 shared schedules PASS seeds 1, 2 and 3 (93/93); all 30
+mutations FAIL their predeclared clause on each seed (90/90, 30/30 kills across
+three seeds). All 42 top-level Go fixture tests and vet pass. No shared baseline
+failed, no verdict prediction missed, and no mutation was re-placed. The initial
+93-pass matrix, preregistered source-review correction, all raw traces/sidecars,
+per-seed verdicts and interpretations are in [RESULTS-x2.md](RESULTS-x2.md).
+
+The independent raw-record audit validates 646 ack references, 108 F2.x fault
+records and 38 unchanged input hashes across 276 retained runs (552 evidence
+files). An initial audit null-list handling error was corrected; its receipt is
+retained and no outcome or score changed. P23/P24 have no old-holder write acks;
+P29/P30 have no old-holder read values and do have correct post-heal c2 values.
+P25 and P26 both have working halves to mutate, and both mutations fail C1.4.
+
+73. **New, outcome-informed timing limitation:** P17's first served read reply
+    is received after healing on all three final seeds. The short cut ends before
+    the reply's send; the second read sent on the down link is lost. This is
+    consistent with v2 send-time fate and C2.2. The schedule's comment about its
+    first ack being lost is not forced by its actions. Its mutation still fails
+    C2.2 through the distinct unserved second attempt. No schedule, timing,
+    prediction or scorer was changed to conceal this coverage limitation.
+    <!-- derives: C2.2, F1.2, F2.1, F2.2, L2, T2, T3 -->
+74. **New, bounded observation:** P25 retains n1, term 2, granting token 4 to c2
+    after c1's token 3, on every final seed. P26 transfers from n1, term 2, token 3
+    to n3, term 3, token 6, while the one-way drop remains. These short traces
+    witness progress under the new cells; they do not establish resilience to
+    every long-running election pattern. Mutation suppression independently
+    demonstrates sensitivity of the finite C1.4 checker, not unbounded liveness.
+    <!-- derives: C1.1, C1.4, F2.1, F2.2, L3 -->
+
+<!-- derives: C1.4, C1.3, C2.2, F2.1, F2.2 -->
+Current X2 blockers: none. No formal-model comparison or divergence attribution
+has been made. The access deviations, finite sampling, unseeded Raft randomness
+and trusted duration-certificate limitations remain explicitly recorded above.
+First clock: 2026-10-21 05:51:48 UTC; final response reports elapsed time through
+the adapted-version commit and OTS hook. Nothing is pushed; .venv is untouched.

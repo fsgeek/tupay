@@ -1,0 +1,25 @@
+go: downloading gopkg.in/yaml.v3 v3.0.1
+go: downloading github.com/hashicorp/raft v1.7.0
+go: downloading github.com/hashicorp/go-hclog v1.6.2
+go: downloading github.com/hashicorp/go-msgpack/v2 v2.1.1
+go: downloading github.com/armon/go-metrics v0.4.1
+go: downloading github.com/mattn/go-isatty v0.0.14
+go: downloading github.com/fatih/color v1.13.0
+go: downloading github.com/hashicorp/go-immutable-radix v1.0.0
+go: downloading github.com/hashicorp/golang-lru v0.5.0
+go: downloading github.com/mattn/go-colorable v0.1.12
+go: downloading golang.org/x/sys v0.13.0
+# tupay/impl [tupay/impl.test]
+./links_v2_test.go:18:16: unknown field Cut in struct literal of type struct{Request string "yaml:\"request,omitempty\""; Write string "yaml:\"write,omitempty\""; Read string "yaml:\"read,omitempty\""; Value string "yaml:\"value,omitempty\""; Token string "yaml:\"token,omitempty\""; Cell string "yaml:\"cell,omitempty\""; Crash string "yaml:\"crash,omitempty\""; Restart string "yaml:\"restart,omitempty\""; Partition [][]string "yaml:\"partition,omitempty\""; Heal bool "yaml:\"heal,omitempty\""; Pause string "yaml:\"pause,omitempty\""; Resume string "yaml:\"resume,omitempty\""}
+./links_v2_test.go:19:16: unknown field Drop in struct literal of type struct{Request string "yaml:\"request,omitempty\""; Write string "yaml:\"write,omitempty\""; Read string "yaml:\"read,omitempty\""; Value string "yaml:\"value,omitempty\""; Token string "yaml:\"token,omitempty\""; Cell string "yaml:\"cell,omitempty\""; Crash string "yaml:\"crash,omitempty\""; Restart string "yaml:\"restart,omitempty\""; Partition [][]string "yaml:\"partition,omitempty\""; Heal bool "yaml:\"heal,omitempty\""; Pause string "yaml:\"pause,omitempty\""; Resume string "yaml:\"resume,omitempty\""}
+./links_v2_test.go:20:16: unknown field Drop in struct literal of type struct{Request string "yaml:\"request,omitempty\""; Write string "yaml:\"write,omitempty\""; Read string "yaml:\"read,omitempty\""; Value string "yaml:\"value,omitempty\""; Token string "yaml:\"token,omitempty\""; Cell string "yaml:\"cell,omitempty\""; Crash string "yaml:\"crash,omitempty\""; Restart string "yaml:\"restart,omitempty\""; Partition [][]string "yaml:\"partition,omitempty\""; Heal bool "yaml:\"heal,omitempty\""; Pause string "yaml:\"pause,omitempty\""; Resume string "yaml:\"resume,omitempty\""}
+./links_v2_test.go:21:16: unknown field Cut in struct literal of type struct{Request string "yaml:\"request,omitempty\""; Write string "yaml:\"write,omitempty\""; Read string "yaml:\"read,omitempty\""; Value string "yaml:\"value,omitempty\""; Token string "yaml:\"token,omitempty\""; Cell string "yaml:\"cell,omitempty\""; Crash string "yaml:\"crash,omitempty\""; Restart string "yaml:\"restart,omitempty\""; Partition [][]string "yaml:\"partition,omitempty\""; Heal bool "yaml:\"heal,omitempty\""; Pause string "yaml:\"pause,omitempty\""; Resume string "yaml:\"resume,omitempty\""}
+./links_v2_test.go:22:16: unknown field Drop in struct literal of type struct{Request string "yaml:\"request,omitempty\""; Write string "yaml:\"write,omitempty\""; Read string "yaml:\"read,omitempty\""; Value string "yaml:\"value,omitempty\""; Token string "yaml:\"token,omitempty\""; Cell string "yaml:\"cell,omitempty\""; Crash string "yaml:\"crash,omitempty\""; Restart string "yaml:\"restart,omitempty\""; Partition [][]string "yaml:\"partition,omitempty\""; Heal bool "yaml:\"heal,omitempty\""; Pause string "yaml:\"pause,omitempty\""; Resume string "yaml:\"resume,omitempty\""}
+./links_v2_test.go:24:84: unknown field Cut in struct literal of type Action
+./links_v2_test.go:32:4: n.setDown undefined (type *RaftNetwork has no field or method setDown)
+./links_v2_test.go:36:4: n.setDown undefined (type *RaftNetwork has no field or method setDown)
+./links_v2_test.go:38:4: n.setDown undefined (type *RaftNetwork has no field or method setDown)
+./links_v2_test.go:48:43: unknown field Cut in struct literal of type Action
+./links_v2_test.go:48:43: too many errors
+FAIL	tupay/impl [build failed]
+FAIL

@@ -656,3 +656,19 @@ no known additional stable-leader routing shape within that premise intentionall
 left unfixed. The work retains the pinned Raft protocol, logical process crashes,
 finite sampling and trusted duration/receipt instrumentation instead of claiming
 a proof for unbounded schedules or arbitrary operating-system delays.
+
+### FixR additive source-review amendment: renewal before holder pause
+
+<!-- derives: C1.1, C1.4, F1.3, F2.1, F2.2, T3 -->
+The first shared matrix passed 105/105; all 96 mutation runs failed their intended
+clauses. Those outcomes did not prompt this amendment. Source review found a
+new issuance/receipt interaction: when a client already has an expired old grant,
+a pause triggered by its freshly issued renewal sees a nonempty grant list and
+can reach the F1.3 action before the renewal arrives. The action then correctly
+rejects the expired holder instead of waiting for the actual new holder. This
+contradicts this round's registered pause-readiness interpretation. A repeated-
+request/renewal fixture is predicted to fail before the change and pass after
+readiness also requires the currently held grant to be unexpired. Existing F1.3
+action validation is retained. No shared schedule, prediction, mutation placement,
+scoring rule or horizon changes. Preserve the first matrices and repeat everything
+after this correction; all original per-seed predictions remain in force.

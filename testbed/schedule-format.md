@@ -67,3 +67,11 @@ A `pause` must outlast the grant's lifetime: the matching `resume` must be trigg
 ## Changelog
 - v2.1 (2026-10-21): T1 clarified for a predecessor's own events; `non-grantor` selector. Reasons: M1 result, round 2 residues. Shared P10 rewritten to use it.
 - v2 (2026-10-20): T1 arming, T2, T3, A1 aliases, A2, E1 `quiescent`, E2; schedules shared. Reasons: M1 result D2 and D3.
+
+## v3 addendum (2026-10-21, for contract v2; additive)
+One workload action is added. Everything else in v2.1 is unchanged.
+```yaml
+do: {read: c1}                 # c1 reads the key with its current token
+do: {read: c1, token: stale}   # with its most recent token lower than the highest granted so far
+```
+Rule T3 applies to `read` as it does to `write`. Triggers may name the new events `ReadAttempt`, `ReadAccept`, `ReadReject` and `ReadAck` (with `outcome: served` or `rejected`). Changelog: v3 (2026-10-21): `read` action and the four read events. Reason: X1, contract v2.

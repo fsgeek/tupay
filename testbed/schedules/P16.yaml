@@ -1,0 +1,20 @@
+schedule: P16
+derives: [C2.2, F1.1]
+processes:
+  lease: [n1, n2, n3]
+  clients: [c1, c2]
+  storage: [s]
+steps:
+  # derives: P16 (C2.2, F1.1). Storage crashes between receiving a read and acking it, then the client crashes after a served read; no client is given a value storage did not serve.
+  - {at: start, do: {request: c1}}
+  - {at: {event: Grant, client: c1}, do: {write: c1, value: v1}}
+  - {at: {event: WriteAck, client: c1, outcome: accepted}, do: {read: c1}}
+  - {at: {event: ReadAttempt, client: c1}, do: {cell: F1.1, crash: s}}
+  - {at: start, do: {cell: F1.1, restart: s}}
+  - {at: start, do: {read: c1}}
+  - {at: {event: ReadAccept}, do: {cell: F1.1, crash: c1}}
+  - {at: start, do: {cell: F1.1, restart: c1}}
+  - {at: start, do: {request: c2}}
+  - {at: {event: Grant, client: c2}, do: {read: c2}}
+end: quiescent
+bound: {events: 200}

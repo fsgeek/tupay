@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Steward's independent check of the observability layer.
-derives: C1.1, C1.2, C1.3, F1.1, F1.2, F1.3 (observe/schema.md: the provenance question)
+derives: C1.1, C1.2, C1.3, C2.1, C2.2, F1.1, F1.2, F1.3 (observe/schema.md v2: the provenance question, writes and reads)
 
 For every WriteAccept and WriteReject in an observe file: follow `causes`
 backwards and require that the chain reaches a Grant whose token equals the
@@ -18,7 +18,7 @@ def check(path):
         r = json.loads(line)
         recs[(r['proc'], r['seq'])] = r
         order.append(r)
-    decisions = [r for r in order if r['event'] in ('WriteAccept', 'WriteReject')]
+    decisions = [r for r in order if r['event'] in ('WriteAccept', 'WriteReject', 'ReadAccept', 'ReadReject')]
     bad = []
     for d in decisions:
         if 'highest_before' not in d: bad.append((d, 'no highest_before')); continue

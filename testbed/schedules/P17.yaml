@@ -1,0 +1,17 @@
+schedule: P17
+derives: [C2.2, F1.2]
+processes:
+  lease: [n1, n2, n3]
+  clients: [c1, c2]
+  storage: [s]
+steps:
+  # derives: P17 (C2.2, F1.2). A served read's ack is lost in a partition; the client is not given a value; after the heal a served read carries storage's value.
+  - {at: start, do: {request: c1}}
+  - {at: {event: Grant, client: c1}, do: {write: c1, value: v1}}
+  - {at: {event: WriteAck, client: c1, outcome: accepted}, do: {read: c1}}
+  - {at: {event: ReadAccept}, do: {cell: F1.2, partition: [[holder], [rest]]}}
+  - {at: start, do: {read: c1}}
+  - {at: start, do: {cell: F1.2, heal: true}}
+  - {at: start, do: {read: c1}}
+end: quiescent
+bound: {events: 200}

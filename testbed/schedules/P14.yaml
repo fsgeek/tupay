@@ -1,0 +1,18 @@
+schedule: P14
+derives: [C2.1, F1.2]
+processes:
+  lease: [n1, n2, n3]
+  clients: [c1, c2]
+  storage: [s]
+steps:
+  # derives: P14 (C2.1, F1.2). Grantor isolated alone; the new holder's write is accepted; the old holder, still reaching storage, reads and is rejected.
+  - {at: start, do: {request: c1}}
+  - {at: {event: Grant, client: c1}, do: {write: c1, value: v1}}
+  - {at: {event: WriteAck, client: c1}, do: {cell: F1.2, partition: [[grantor], [rest]]}}
+  - {at: start, do: {request: c2}}
+  - {at: {event: Grant, client: c2}, do: {write: c2, value: v2}}
+  - {at: {event: WriteAck, client: c2, outcome: accepted}, do: {read: c1}}
+  - {at: {event: ReadAck, client: c1}, do: {cell: F1.2, heal: true}}
+  - {at: start, do: {read: c2}}
+end: quiescent
+bound: {events: 200}

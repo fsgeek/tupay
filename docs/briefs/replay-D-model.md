@@ -4,10 +4,10 @@ Your repository contains only what you need: `AGENTS.md`, this brief, and under 
 
 ## What you build
 A TLA+ model of the design, in `model/`, with `tla2tools.jar` from `~/projects/tlaplus`.
-- The design's members, messages and state as actions; J1.1, J1.2 and J1.3 from `replay/contract.md` as invariants; the failure model's cells as environment actions.
+- The design's members, messages and state as actions; J1.1, J1.3 and J1.4 from `replay/contract.md` as invariants; the failure model's cells as environment actions.
 - A compiler from a scenario file (`replay/scenario-format.md`) to a TLC configuration that constrains the environment to the scenario's steps while exploring every interleaving the scenario leaves open.
 - `model/run.sh <scenario-file>` prints `PASS`, `FAIL <clause>` or `UNEXPLAINED <reason>` and writes the observe file (`replay/observe.md`) from TLC's trace when there is one. `model/run.sh --mutations` runs every mutation against its scenario.
-- **`model/run.sh --explore`**: check J1.1, J1.2 and J1.3 over all behaviours of the model within bounds you choose, with no scenario constraining the environment, and print the outcome as above. State every bound in your README with the reason for its value. Your bounds must at least let every shared scenario reach its end.
+- **`model/run.sh --explore`**: check J1.1, J1.3 and J1.4 over all behaviours of the model within bounds you choose, with no scenario constraining the environment, and print the outcome as above. State every bound in your README with the reason for its value. Your bounds must at least let every shared scenario reach its end.
 
 ## The rules (the same for every author)
 1. **Build the design in `replay/spec-D.md` exactly as written.** Its opening paragraph is part of this brief: where it says how something is done, do it that way, even if you believe another way is better; if you believe the design is wrong somewhere, record that and build what is written; where it is silent, choose, and record the choice.

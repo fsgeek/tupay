@@ -6,5 +6,5 @@ steps:
   - {at: {event: Elected}, do: {remove: m3, at: coordinator}}
   - {at: {event: ChangeReplied, status: ok}, do: {add: m5, at: coordinator}}
   - {at: {event: ChangeReplied, status: ok}, do: {add: m3, at: coordinator}}
-end: quiescent
+end: {settle: 100}
 bound: {events: 400}

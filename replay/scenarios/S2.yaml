@@ -5,5 +5,5 @@ steps:
   # derives: S2 (J1.1, G1.3). The coordinator is cut from the others after it is elected; the others elect; heal.
   - {at: {event: Elected}, do: {cut: [[coordinator, m1], [coordinator, m2], [coordinator, m3], [coordinator, m4]]}}
   - {at: {event: Elected}, do: {heal: true}}
-end: quiescent
+end: {settle: 100}
 bound: {events: 400}

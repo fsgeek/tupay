@@ -6,7 +6,7 @@ Your repository contains only what you need: `AGENTS.md`, this brief, and under 
 An implementation of the design, in `impl/`, in Go (`/usr/local/go/bin/go`), using the standard library and `gopkg.in/yaml.v3` only. Use no library that implements leader election, log replication or membership change: build the design from the specification.
 - Members as concurrent processes exchanging messages through a network layer the runner controls, so that every failure-model cell can be injected.
 - A runner that compiles a scenario file into fault injection and administrator requests against the running system, and records events as `replay/observe.md` describes.
-- Checkers for J1.1, J1.2 and J1.3 over the recorded events.
+- Checkers for J1.1, J1.3 and J1.4 over the recorded events.
 - `impl/run.sh <scenario-file> --seeds N` prints, per seed, `PASS`, `FAIL <clause>` or `UNEXPLAINED <reason>`, and writes the observe file. `impl/run.sh --mutations --seeds N` runs every mutation against its scenario.
 
 ## The rules (the same for every author)

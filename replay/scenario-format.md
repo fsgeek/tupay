@@ -5,12 +5,12 @@ Version 1, fixed 2026-10-21. Both sides compile a scenario: the model side into 
 ## Shape
 ```yaml
 scenario: <name>
-derives: [J1.2, G1.3]           # clauses and cells exercised
+derives: [J1.4, G1.3]           # clauses and cells exercised
 initial: [m1, m2, m3, m4]       # initial configuration; m5 exists too and is started with it
 steps:
   - at: <trigger>
     do: <action>
-end: quiescent                   # or an event trigger
+end: {settle: 100}               # events after the last step's action
 bound: {events: 400}
 ```
 
@@ -31,7 +31,7 @@ do: {command: c1, at: m1}             # an administrator asks m1 to append comma
 Three selectors may stand for a member name anywhere one is allowed, resolved when the step's trigger fires: `coordinator`, the member most recently `Elected`; `follower`, a member that is up and is not `coordinator` (the model explores every such member, the implementation picks the lowest-numbered); `crashed`, the member most recently crashed by a `crash` step (a scenario that uses it before any crash is rejected; likewise `coordinator` before any `Elected`). A self-pair in `cut` or `drop` is ignored; link failures accumulate until `heal`.
 
 ## End and bound
-`quiescent`: every step taken, no change request unanswered, no message in flight, crashed members not counted. Reaching `bound` before the end is `UNEXPLAINED bound`, never PASS. A violation of J1.1, J1.2 or J1.3 witnessed at any point is `FAIL <clause>`, whether or not the end is reached.
+`end: {settle: N}`: the run continues for N events after the last step's action is taken, then stops. A violation of J1.1, J1.3 or J1.4 witnessed at any point is `FAIL <clause>`. If `bound` is reached before every step's action is taken, the outcome is `UNEXPLAINED steps` (the scenario never reached its point), never PASS. Otherwise the outcome is `PASS`. The model side explores every behaviour within its bounds that takes every step and at most N further events, with every prefix of such behaviours; it reports `UNEXPLAINED steps` if no behaviour within its bounds takes every step.
 
 ## Where scenarios live
 Shared scenarios are in `replay/scenarios/<name>.yaml`. Each side's runner also accepts a path to a scenario file anywhere, because the steward may run scenarios the authors have not seen.

@@ -6,5 +6,5 @@ steps:
   - {at: {event: Elected}, do: {command: c1, at: coordinator}}
   - {at: {event: Committed}, do: {crash: coordinator}}
   - {at: {event: Elected}, do: {restart: crashed}}
-end: quiescent
+end: {settle: 100}
 bound: {events: 400}

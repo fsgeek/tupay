@@ -1,0 +1,12 @@
+77c77
+< - If there exists an N such that N > commitIndex, a majority of matchIndex[i] ≥ N, and log[N].term == currentTerm: set commitIndex = N (§3.5, §3.6).
+---
+> - If there exists an N such that N > commitIndex, a majority of matchIndex[i] > N, and log[N].term == currentTerm: set commitIndex = N (§3.5, §3.6).
+10c10
+< 3. Wait until previous configuration in log is committed (§4.1)
+---
+> 3. Wait until previous configuration in log is committed (§4.2)
+20c20
+< 2. Wait until previous configuration in log is committed (§4.1)
+---
+> 2. Wait until previous configuration in log is committed (§4.2)

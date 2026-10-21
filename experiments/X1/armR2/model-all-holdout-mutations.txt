@@ -1,0 +1,45 @@
+P1: PASS
+P2: PASS
+P3: PASS
+P4: PASS
+P5: PASS
+P6: PASS
+P7: PASS
+P8: PASS
+P9: PASS
+P10: PASS
+P11: PASS
+P12: PASS
+P13: PASS
+P14: PASS
+P15: PASS
+P16: PASS
+P17: PASS
+P18: PASS
+false-suspicion-v1: PASS
+H1: PASS
+H2: PASS
+H3: PASS
+H4: PASS
+H5: PASS
+H6: PASS
+== mutations
+P1: FAIL C1_1   [states 1272]
+P2: FAIL C1_1   [states 287]
+P3: FAIL C1_1   [states 245]
+P4: FAIL C1_2   [states 4977]
+P5: FAIL C1_2   [states 2840]
+P6: FAIL C1_2   [states 3535]
+P7: FAIL C1_3   [states 996]
+P8: FAIL C1_3   [states 510]
+P9: FAIL C1_3   [states 7800]
+P10: FAIL C1_4   [states 125]
+P11: FAIL C1_4   [states 299]
+P12: FAIL C1_4   [states 209]
+P13: FAIL C2_1   [states 4970]
+P14: FAIL C2_1   [states 2983]
+P15: FAIL C2_1   [states 3348]
+P16: FAIL C2_2   [states 2440]
+P17: FAIL C2_2   [states 896]
+P18: FAIL C2_2   [states 15127]
+exit 0

@@ -1,0 +1,149 @@
+go: downloading gopkg.in/yaml.v3 v3.0.1
+go: downloading github.com/hashicorp/go-hclog v1.6.2
+go: downloading github.com/hashicorp/raft v1.7.3
+go: downloading github.com/fatih/color v1.13.0
+go: downloading github.com/mattn/go-isatty v0.0.14
+go: downloading github.com/hashicorp/go-metrics v0.5.4
+go: downloading github.com/hashicorp/go-msgpack/v2 v2.1.2
+go: downloading golang.org/x/sys v0.13.0
+go: downloading github.com/mattn/go-colorable v0.1.12
+go: downloading github.com/armon/go-metrics v0.4.1
+go: downloading github.com/hashicorp/go-immutable-radix v1.0.0
+go: downloading github.com/hashicorp/golang-lru v0.5.0
+PASS schedule=P1 seed=1 observe=impl-regen/observe/P1-seed-1.jsonl
+PASS schedule=P1 seed=2 observe=impl-regen/observe/P1-seed-2.jsonl
+PASS schedule=P1 seed=3 observe=impl-regen/observe/P1-seed-3.jsonl
+PASS schedule=P2 seed=1 observe=impl-regen/observe/P2-seed-1.jsonl
+PASS schedule=P2 seed=2 observe=impl-regen/observe/P2-seed-2.jsonl
+PASS schedule=P2 seed=3 observe=impl-regen/observe/P2-seed-3.jsonl
+PASS schedule=P3 seed=1 observe=impl-regen/observe/P3-seed-1.jsonl
+PASS schedule=P3 seed=2 observe=impl-regen/observe/P3-seed-2.jsonl
+PASS schedule=P3 seed=3 observe=impl-regen/observe/P3-seed-3.jsonl
+PASS schedule=P4 seed=1 observe=impl-regen/observe/P4-seed-1.jsonl
+PASS schedule=P4 seed=2 observe=impl-regen/observe/P4-seed-2.jsonl
+PASS schedule=P4 seed=3 observe=impl-regen/observe/P4-seed-3.jsonl
+PASS schedule=P5 seed=1 observe=impl-regen/observe/P5-seed-1.jsonl
+PASS schedule=P5 seed=2 observe=impl-regen/observe/P5-seed-2.jsonl
+PASS schedule=P5 seed=3 observe=impl-regen/observe/P5-seed-3.jsonl
+PASS schedule=P6 seed=1 observe=impl-regen/observe/P6-seed-1.jsonl
+PASS schedule=P6 seed=2 observe=impl-regen/observe/P6-seed-2.jsonl
+PASS schedule=P6 seed=3 observe=impl-regen/observe/P6-seed-3.jsonl
+PASS schedule=P7 seed=1 observe=impl-regen/observe/P7-seed-1.jsonl
+PASS schedule=P7 seed=2 observe=impl-regen/observe/P7-seed-2.jsonl
+PASS schedule=P7 seed=3 observe=impl-regen/observe/P7-seed-3.jsonl
+PASS schedule=P8 seed=1 observe=impl-regen/observe/P8-seed-1.jsonl
+PASS schedule=P8 seed=2 observe=impl-regen/observe/P8-seed-2.jsonl
+PASS schedule=P8 seed=3 observe=impl-regen/observe/P8-seed-3.jsonl
+PASS schedule=P9 seed=1 observe=impl-regen/observe/P9-seed-1.jsonl
+PASS schedule=P9 seed=2 observe=impl-regen/observe/P9-seed-2.jsonl
+PASS schedule=P9 seed=3 observe=impl-regen/observe/P9-seed-3.jsonl
+PASS schedule=P10 seed=1 observe=impl-regen/observe/P10-seed-1.jsonl
+PASS schedule=P10 seed=2 observe=impl-regen/observe/P10-seed-2.jsonl
+PASS schedule=P10 seed=3 observe=impl-regen/observe/P10-seed-3.jsonl
+PASS schedule=P11 seed=1 observe=impl-regen/observe/P11-seed-1.jsonl
+PASS schedule=P11 seed=2 observe=impl-regen/observe/P11-seed-2.jsonl
+PASS schedule=P11 seed=3 observe=impl-regen/observe/P11-seed-3.jsonl
+PASS schedule=P12 seed=1 observe=impl-regen/observe/P12-seed-1.jsonl
+PASS schedule=P12 seed=2 observe=impl-regen/observe/P12-seed-2.jsonl
+PASS schedule=P12 seed=3 observe=impl-regen/observe/P12-seed-3.jsonl
+PASS schedule=P13 seed=1 observe=impl-regen/observe/P13-seed-1.jsonl
+PASS schedule=P13 seed=2 observe=impl-regen/observe/P13-seed-2.jsonl
+PASS schedule=P13 seed=3 observe=impl-regen/observe/P13-seed-3.jsonl
+PASS schedule=P14 seed=1 observe=impl-regen/observe/P14-seed-1.jsonl
+PASS schedule=P14 seed=2 observe=impl-regen/observe/P14-seed-2.jsonl
+PASS schedule=P14 seed=3 observe=impl-regen/observe/P14-seed-3.jsonl
+PASS schedule=P15 seed=1 observe=impl-regen/observe/P15-seed-1.jsonl
+PASS schedule=P15 seed=2 observe=impl-regen/observe/P15-seed-2.jsonl
+PASS schedule=P15 seed=3 observe=impl-regen/observe/P15-seed-3.jsonl
+PASS schedule=P16 seed=1 observe=impl-regen/observe/P16-seed-1.jsonl
+PASS schedule=P16 seed=2 observe=impl-regen/observe/P16-seed-2.jsonl
+PASS schedule=P16 seed=3 observe=impl-regen/observe/P16-seed-3.jsonl
+PASS schedule=P17 seed=1 observe=impl-regen/observe/P17-seed-1.jsonl
+PASS schedule=P17 seed=2 observe=impl-regen/observe/P17-seed-2.jsonl
+PASS schedule=P17 seed=3 observe=impl-regen/observe/P17-seed-3.jsonl
+PASS schedule=P18 seed=1 observe=impl-regen/observe/P18-seed-1.jsonl
+PASS schedule=P18 seed=2 observe=impl-regen/observe/P18-seed-2.jsonl
+PASS schedule=P18 seed=3 observe=impl-regen/observe/P18-seed-3.jsonl
+PASS schedule=false-suspicion-v1 seed=1 observe=impl-regen/observe/false-suspicion-v1-seed-1.jsonl
+PASS schedule=false-suspicion-v1 seed=2 observe=impl-regen/observe/false-suspicion-v1-seed-2.jsonl
+PASS schedule=false-suspicion-v1 seed=3 observe=impl-regen/observe/false-suspicion-v1-seed-3.jsonl
+exit 0
+FAIL C1.1 schedule=P1 seed=1 mutation=P1 observe=impl-regen/observe/P1-seed-1-mutation-P1.jsonl
+FAIL C1.1 schedule=P1 seed=2 mutation=P1 observe=impl-regen/observe/P1-seed-2-mutation-P1.jsonl
+FAIL C1.1 schedule=P1 seed=3 mutation=P1 observe=impl-regen/observe/P1-seed-3-mutation-P1.jsonl
+FAIL C1.1 schedule=P2 seed=1 mutation=P2 observe=impl-regen/observe/P2-seed-1-mutation-P2.jsonl
+FAIL C1.1 schedule=P2 seed=2 mutation=P2 observe=impl-regen/observe/P2-seed-2-mutation-P2.jsonl
+FAIL C1.1 schedule=P2 seed=3 mutation=P2 observe=impl-regen/observe/P2-seed-3-mutation-P2.jsonl
+FAIL C1.1 schedule=P3 seed=1 mutation=P3 observe=impl-regen/observe/P3-seed-1-mutation-P3.jsonl
+FAIL C1.1 schedule=P3 seed=2 mutation=P3 observe=impl-regen/observe/P3-seed-2-mutation-P3.jsonl
+FAIL C1.1 schedule=P3 seed=3 mutation=P3 observe=impl-regen/observe/P3-seed-3-mutation-P3.jsonl
+FAIL C1.2 schedule=P4 seed=1 mutation=P4 observe=impl-regen/observe/P4-seed-1-mutation-P4.jsonl
+FAIL C1.2 schedule=P4 seed=2 mutation=P4 observe=impl-regen/observe/P4-seed-2-mutation-P4.jsonl
+FAIL C1.2 schedule=P4 seed=3 mutation=P4 observe=impl-regen/observe/P4-seed-3-mutation-P4.jsonl
+FAIL C1.2 schedule=P5 seed=1 mutation=P5 observe=impl-regen/observe/P5-seed-1-mutation-P5.jsonl
+FAIL C1.2 schedule=P5 seed=2 mutation=P5 observe=impl-regen/observe/P5-seed-2-mutation-P5.jsonl
+FAIL C1.2 schedule=P5 seed=3 mutation=P5 observe=impl-regen/observe/P5-seed-3-mutation-P5.jsonl
+FAIL C1.2 schedule=P6 seed=1 mutation=P6 observe=impl-regen/observe/P6-seed-1-mutation-P6.jsonl
+FAIL C1.2 schedule=P6 seed=2 mutation=P6 observe=impl-regen/observe/P6-seed-2-mutation-P6.jsonl
+FAIL C1.2 schedule=P6 seed=3 mutation=P6 observe=impl-regen/observe/P6-seed-3-mutation-P6.jsonl
+FAIL C1.3 schedule=P7 seed=1 mutation=P7 observe=impl-regen/observe/P7-seed-1-mutation-P7.jsonl
+FAIL C1.3 schedule=P7 seed=2 mutation=P7 observe=impl-regen/observe/P7-seed-2-mutation-P7.jsonl
+FAIL C1.3 schedule=P7 seed=3 mutation=P7 observe=impl-regen/observe/P7-seed-3-mutation-P7.jsonl
+FAIL C1.3 schedule=P8 seed=1 mutation=P8 observe=impl-regen/observe/P8-seed-1-mutation-P8.jsonl
+FAIL C1.3 schedule=P8 seed=2 mutation=P8 observe=impl-regen/observe/P8-seed-2-mutation-P8.jsonl
+FAIL C1.3 schedule=P8 seed=3 mutation=P8 observe=impl-regen/observe/P8-seed-3-mutation-P8.jsonl
+FAIL C1.3 schedule=P9 seed=1 mutation=P9 observe=impl-regen/observe/P9-seed-1-mutation-P9.jsonl
+FAIL C1.3 schedule=P9 seed=2 mutation=P9 observe=impl-regen/observe/P9-seed-2-mutation-P9.jsonl
+FAIL C1.3 schedule=P9 seed=3 mutation=P9 observe=impl-regen/observe/P9-seed-3-mutation-P9.jsonl
+FAIL C1.4 schedule=P10 seed=1 mutation=P10 observe=impl-regen/observe/P10-seed-1-mutation-P10.jsonl
+FAIL C1.4 schedule=P10 seed=2 mutation=P10 observe=impl-regen/observe/P10-seed-2-mutation-P10.jsonl
+FAIL C1.4 schedule=P10 seed=3 mutation=P10 observe=impl-regen/observe/P10-seed-3-mutation-P10.jsonl
+FAIL C1.4 schedule=P11 seed=1 mutation=P11 observe=impl-regen/observe/P11-seed-1-mutation-P11.jsonl
+FAIL C1.4 schedule=P11 seed=2 mutation=P11 observe=impl-regen/observe/P11-seed-2-mutation-P11.jsonl
+FAIL C1.4 schedule=P11 seed=3 mutation=P11 observe=impl-regen/observe/P11-seed-3-mutation-P11.jsonl
+FAIL C1.4 schedule=P12 seed=1 mutation=P12 observe=impl-regen/observe/P12-seed-1-mutation-P12.jsonl
+FAIL C1.4 schedule=P12 seed=2 mutation=P12 observe=impl-regen/observe/P12-seed-2-mutation-P12.jsonl
+FAIL C1.4 schedule=P12 seed=3 mutation=P12 observe=impl-regen/observe/P12-seed-3-mutation-P12.jsonl
+FAIL C2.1 schedule=P13 seed=1 mutation=P13 observe=impl-regen/observe/P13-seed-1-mutation-P13.jsonl
+FAIL C2.1 schedule=P13 seed=2 mutation=P13 observe=impl-regen/observe/P13-seed-2-mutation-P13.jsonl
+FAIL C2.1 schedule=P13 seed=3 mutation=P13 observe=impl-regen/observe/P13-seed-3-mutation-P13.jsonl
+FAIL C2.1 schedule=P14 seed=1 mutation=P14 observe=impl-regen/observe/P14-seed-1-mutation-P14.jsonl
+FAIL C2.1 schedule=P14 seed=2 mutation=P14 observe=impl-regen/observe/P14-seed-2-mutation-P14.jsonl
+FAIL C2.1 schedule=P14 seed=3 mutation=P14 observe=impl-regen/observe/P14-seed-3-mutation-P14.jsonl
+FAIL C2.1 schedule=P15 seed=1 mutation=P15 observe=impl-regen/observe/P15-seed-1-mutation-P15.jsonl
+FAIL C2.1 schedule=P15 seed=2 mutation=P15 observe=impl-regen/observe/P15-seed-2-mutation-P15.jsonl
+FAIL C2.1 schedule=P15 seed=3 mutation=P15 observe=impl-regen/observe/P15-seed-3-mutation-P15.jsonl
+FAIL C2.2 schedule=P16 seed=1 mutation=P16 observe=impl-regen/observe/P16-seed-1-mutation-P16.jsonl
+FAIL C2.2 schedule=P16 seed=2 mutation=P16 observe=impl-regen/observe/P16-seed-2-mutation-P16.jsonl
+FAIL C2.2 schedule=P16 seed=3 mutation=P16 observe=impl-regen/observe/P16-seed-3-mutation-P16.jsonl
+FAIL C2.2 schedule=P17 seed=1 mutation=P17 observe=impl-regen/observe/P17-seed-1-mutation-P17.jsonl
+FAIL C2.2 schedule=P17 seed=2 mutation=P17 observe=impl-regen/observe/P17-seed-2-mutation-P17.jsonl
+FAIL C2.2 schedule=P17 seed=3 mutation=P17 observe=impl-regen/observe/P17-seed-3-mutation-P17.jsonl
+FAIL C2.2 schedule=P18 seed=1 mutation=P18 observe=impl-regen/observe/P18-seed-1-mutation-P18.jsonl
+FAIL C2.2 schedule=P18 seed=2 mutation=P18 observe=impl-regen/observe/P18-seed-2-mutation-P18.jsonl
+FAIL C2.2 schedule=P18 seed=3 mutation=P18 observe=impl-regen/observe/P18-seed-3-mutation-P18.jsonl
+exit 0
+PASS schedule=H1 seed=1 observe=impl-regen/observe/H1-seed-1.jsonl
+PASS schedule=H1 seed=2 observe=impl-regen/observe/H1-seed-2.jsonl
+PASS schedule=H1 seed=3 observe=impl-regen/observe/H1-seed-3.jsonl
+exit 0
+PASS schedule=H2 seed=1 observe=impl-regen/observe/H2-seed-1.jsonl
+PASS schedule=H2 seed=2 observe=impl-regen/observe/H2-seed-2.jsonl
+PASS schedule=H2 seed=3 observe=impl-regen/observe/H2-seed-3.jsonl
+exit 0
+PASS schedule=H3 seed=1 observe=impl-regen/observe/H3-seed-1.jsonl
+PASS schedule=H3 seed=2 observe=impl-regen/observe/H3-seed-2.jsonl
+PASS schedule=H3 seed=3 observe=impl-regen/observe/H3-seed-3.jsonl
+exit 0
+PASS schedule=H4 seed=1 observe=impl-regen/observe/H4-seed-1.jsonl
+PASS schedule=H4 seed=2 observe=impl-regen/observe/H4-seed-2.jsonl
+PASS schedule=H4 seed=3 observe=impl-regen/observe/H4-seed-3.jsonl
+exit 0
+PASS schedule=H5 seed=1 observe=impl-regen/observe/H5-seed-1.jsonl
+PASS schedule=H5 seed=2 observe=impl-regen/observe/H5-seed-2.jsonl
+PASS schedule=H5 seed=3 observe=impl-regen/observe/H5-seed-3.jsonl
+exit 0
+PASS schedule=H6 seed=1 observe=impl-regen/observe/H6-seed-1.jsonl
+PASS schedule=H6 seed=2 observe=impl-regen/observe/H6-seed-2.jsonl
+PASS schedule=H6 seed=3 observe=impl-regen/observe/H6-seed-3.jsonl
+exit 0

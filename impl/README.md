@@ -438,3 +438,77 @@ history above. Contract clauses and failure cells retain their original IDs.
 Wall-clock measurement began at 2026-10-20 23:33:13 UTC, before reading the brief.
 The final reported elapsed time includes the adapted-version commit and its
 stamp hook. It is human workflow metadata, never observe ordering. Blocked: none.
+
+## Schedule format v2.1 — current round
+
+<!-- derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, T1, A1, A2, E1, E2 -->
+This section is additive; the prior rounds above remain historical. The current
+checkout is the fresh full clone on impl-v2.1. Predictions were committed first
+as `dc93d1e` (OTS stamp `1dc4570`), and the implementation checkpoint is `9ff6584`
+(stamp `4b9688d`). All commits in this round use normal signing, without signing
+configuration overrides. No shared input was edited and no out-of-brief artifact
+was read.
+
+The two required commands each exit 0:
+
+```sh
+# derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, T1, A1, A2, E1, E2
+impl/run.sh --all --seeds 3
+impl/run.sh --mutations --seeds 3
+```
+
+All thirteen shared schedules PASS on each seed (39/39); all twelve mutations
+FAIL their predeclared clause on each seed (36/36, 12/12 kills across three seeds).
+The complete fixture suite and go vet pass. No prediction missed and no amendment
+was needed. Detailed per-seed receipts, input/trace hashes and the P10 selector
+binding evidence are in [RESULTS-v2.1.md](RESULTS-v2.1.md). The false-suspicion
+run remains observed, not a paired correctness proof. No mutation was re-placed;
+P10's existing C1.4 mutation now leaves c2's request unanswered after the first
+non-grantor crash. The same qualified three-second horizon checks it.
+
+## New v2.1 interpretations and clarified rules
+
+43. Interpretation 30 is now normative v2.1 T1: the predecessor's synchronous
+    Request, WriteAttempt and Fault count after successor arming. The existing
+    cursor behavior is unchanged and the exact action boundary carries an
+    explicit v2.1 T1 derivation comment; the synchronous/fresh-event regressions
+    remain passing. Checkers introduce no wall-clock ordering.
+    <!-- derives: C1.1, C1.3, F1.1, T1, E1 -->
+44. `non-grantor` excludes the issuer of the most recent observable Grant; it
+    does not probe the current Raft leader. Among up lease nodes it selects the
+    lowest trailing decimal identifier number, with lexical tie-breaking for
+    equal numbers. Missing/overflowing numeric suffixes reject rather than
+    silently inventing an order. All shared nodes are n1, n2 and n3. Selection
+    is frozen at trigger firing, before the existing T2 delay.
+    <!-- derives: C1.1, C1.4, F1.1, A1, A2, T2 -->
+45. Only a successfully applied `crash: non-grantor` updates the remembered
+    target. Resolving a selector, partition membership, or crashing a literal
+    node does not. `restart: non-grantor` uses that remembered ID regardless of
+    subsequent candidate or grantor changes; it never chooses another up node.
+    No remembered crash rejects; restarting an already running remembered node
+    rejects under A2. Restart does not clear the record; the next selector crash
+    replaces it. This is injector state, not protocol authority or durable data.
+    <!-- derives: C1.4, F1.1, A1, A2 -->
+46. The new selector is reserved and role-checked as a lease node in every
+    supported action target and partition position. Client-only operations
+    reject it. Before any possible/actual Grant, or with no up eligible node,
+    resolution rejects. Partition use selects normally and does not change
+    remembered crash state. Static and incremental A2 validation are retained.
+    <!-- derives: C1.4, F1.1, F1.2, F1.3, A1, A2 -->
+47. The rewritten shared P10 supersedes interpretation 41: it first observes a
+    Grant, crashes a selected up non-grantor, obtains another grant, restores the
+    selected node, then crashes the observable grantor and requests again. The
+    runner executes those shared actions without substituting a literal n1 or
+    hidden leadership test. Baseline evidence contains three grants and matching
+    selector crash/restart on each seed; the mutation still fails C1.4.
+    <!-- derives: C1.4, F1.1, T1, A1, A2, E1 -->
+48. The previous round's signing workaround is historical: this round commits
+    normally with signing enabled, and lets each OTS hook add its stamp commit.
+    Runner IDs and the committed-prediction gate now identify v2.1; old evidence
+    remains unchanged. Wall time begins 2026-10-21 00:51:37 UTC and is reported
+    through the final commit and hook; it is workflow metadata only.
+    <!-- derives: C1.1, C1.4, T1, A1, E1, E2 -->
+
+<!-- derives: C1.1, C1.2, C1.3, C1.4, T1, A1, E1, E2 -->
+Current v2.1 blocked items: none. Bounded sampling and the trusted finite liveness
+certificate remain the limitations recorded in previous rounds.

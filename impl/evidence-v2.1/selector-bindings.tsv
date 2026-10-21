@@ -1,0 +1,5 @@
+# derives: C1.4, F1.1, T1, A1, A2, E1
+seed	first_grant	first_grantor	lowest_up_non_grantor	crash	restart	second_grant	grantor_crash
+1	n1:1	n1	n2	n2	n2	n1:2	n1
+2	n1:1	n1	n2	n2	n2	n1:2	n1
+3	n1:1	n1	n2	n2	n2	n1:2	n1

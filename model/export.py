@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# derives: C1.1, C1.2, C1.3, F1.1, F1.2, F1.3 (trace exporter: TLC trace -> observe/schema.md records)
+# derives: C1.1, C1.2, C1.3, C2.1, C2.2, F1.1, F1.2, F1.3 (trace exporter: TLC trace -> observe/schema.md records, incl. v2 addendum)
 """Turn a TLC trace (witness or counterexample) into observe/schema.md records.
 
 Usage: export.py <tlc-output.txt> <schedule.json> <out.jsonl> <run-id>
@@ -165,6 +165,11 @@ CONTRACT_FIELDS = {
     "WriteAccept": ["key", "token", "highest_before", "grantor_term"],
     "WriteReject": ["key", "token", "highest_before", "grantor_term"],
     "WriteAck": ["client", "key", "token", "outcome"],
+    # derives: C2.1, C2.2; observe v2 addendum -- read events, fields as their write counterparts
+    "ReadAttempt": ["client", "key", "token", "grantor_term"],
+    "ReadAccept": ["key", "token", "highest_before", "value", "grantor_term"],
+    "ReadReject": ["key", "token", "highest_before", "grantor_term"],
+    "ReadAck": ["client", "key", "token", "outcome"],   # + value when served
 }
 
 
@@ -210,6 +215,8 @@ def export(tlc_text, sched, run):
             emit("env", "Fault", f, [])
             continue
         fields = {k: ev[k] for k in CONTRACT_FIELDS[e]}
+        if e == "ReadAck" and ev["outcome"] == "served":
+            fields["value"] = ev["value"]   # derives: C2.2 -- value only on a served ReadAck
         if e == "Request":
             ref = emit(ev["client"], e, fields, [])
             last[("req", ev["client"])] = ref
@@ -227,6 +234,24 @@ def export(tlc_text, sched, run):
             last[("dec", ev["client"], ev["token"], ev["value"])] = ref
             if not a or not a[1]:
                 problems.append(f"{e} seq {ref['seq']} (token {ev['token']}) has no traceable Grant")
+        elif e == "ReadAttempt":
+            # derives: C2.1; observe v2 -- a ReadAttempt names the Grant whose token it uses
+            g = last.get(("grant", ev["token"], ev["grantor_term"]))
+            ref = emit(ev["client"], e, fields, [g] if g else [])
+            last[("ratt", ev["client"], ev["rid"])] = (ref, g)
+        elif e in ("ReadAccept", "ReadReject"):
+            # derives: C2.1, C2.2; observe v2 -- a read decision names the ReadAttempt
+            a = last.get(("ratt", ev["client"], ev["rid"]))
+            ref = emit(storage, e, fields, [a[0]] if a else [])
+            last[("rdec", ev["client"], ev["rid"])] = ref
+            if not a or not a[1]:
+                problems.append(f"{e} seq {ref['seq']} (token {ev['token']}) has no traceable Grant")
+        elif e == "ReadAck":
+            # derives: C2.2; observe v2 -- a ReadAck names the storage decision
+            d = last.get(("rdec", ev["client"], ev["rid"]))
+            ref = emit(ev["client"], e, fields, [d] if d else [])
+            if not d and ev["outcome"] == "served":
+                problems.append(f"ReadAck served at {ref} has no storage decision")
         elif e == "WriteAck":
             d = last.get(("dec", ev["client"], ev["token"], ev["value"]))
             ref = emit(ev["client"], e, fields, [d] if d else [])

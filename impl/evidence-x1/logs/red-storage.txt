@@ -1,0 +1,14 @@
+=== RUN   TestX1ReadStoragePath
+=== RUN   TestX1ReadStoragePath/6
+    read_v2_test.go:73: want rejected "", got {Proc: Seq:0 Event: Client: Key: Token:0 Lifetime:0 Term:0 Value: HighestBefore:<nil> Outcome: Causes:[] Run: Side: Cell: Crash: Restart: Partition:[] Heal:false Pause: Resume:}
+=== RUN   TestX1ReadStoragePath/7
+    read_v2_test.go:73: want served "stored", got {Proc: Seq:0 Event: Client: Key: Token:0 Lifetime:0 Term:0 Value: HighestBefore:<nil> Outcome: Causes:[] Run: Side: Cell: Crash: Restart: Partition:[] Heal:false Pause: Resume:}
+=== RUN   TestX1ReadStoragePath/9
+    read_v2_test.go:73: want served "stored", got {Proc: Seq:0 Event: Client: Key: Token:0 Lifetime:0 Term:0 Value: HighestBefore:<nil> Outcome: Causes:[] Run: Side: Cell: Crash: Restart: Partition:[] Heal:false Pause: Resume:}
+--- FAIL: TestX1ReadStoragePath (0.35s)
+    --- FAIL: TestX1ReadStoragePath/6 (0.10s)
+    --- FAIL: TestX1ReadStoragePath/7 (0.14s)
+    --- FAIL: TestX1ReadStoragePath/9 (0.11s)
+FAIL
+FAIL	tupay/impl	0.353s
+FAIL

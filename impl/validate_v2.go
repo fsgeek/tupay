@@ -1,10 +1,10 @@
-// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, A1, A2, T3
+// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, A1, A2, T3, C2.1, C2.2
 package main
 
 import "fmt"
 
 // selectorRole checks alias roles without guessing their eventual incarnation.
-// derives: C1.1, C1.4, F1.1, F1.3, A1, A2
+// derives: C1.1, C1.4, F1.1, F1.3, A1, A2, C2.1, C2.2
 func selectorRole(id string, ids map[string]string) string {
 	switch id {
 	case "grantor", "non-grantor":
@@ -18,7 +18,7 @@ func selectorRole(id string, ids map[string]string) string {
 }
 
 // processRoles is shared by static and incremental compilation of concrete actions.
-// derives: C1.1, C1.4, F1.1, F1.3, A1, A2
+// derives: C1.1, C1.4, F1.1, F1.3, A1, A2, C2.1, C2.2
 func processRoles(s Schedule) map[string]string {
 	ids := map[string]string{}
 	for _, id := range s.Processes.Lease {
@@ -34,9 +34,9 @@ func processRoles(s Schedule) map[string]string {
 }
 
 // actionTarget identifies the one process-selector position outside partitions.
-// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.3, A1, A2, T3
+// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.3, A1, A2, T3, C2.1, C2.2
 func actionTarget(a Action) string {
-	for _, id := range []string{a.Request, a.Write, a.Crash, a.Restart, a.Pause, a.Resume} {
+	for _, id := range []string{a.Request, a.Write, a.Read, a.Crash, a.Restart, a.Pause, a.Resume} {
 		if id != "" {
 			return id
 		}
@@ -45,13 +45,15 @@ func actionTarget(a Action) string {
 }
 
 // replaceTarget substitutes a frozen concrete process without changing operation.
-// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.3, A1
+// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.3, A1, C2.1, C2.2
 func replaceTarget(a Action, id string) Action {
 	switch {
 	case a.Request != "":
 		a.Request = id
 	case a.Write != "":
 		a.Write = id
+	case a.Read != "":
+		a.Read = id
 	case a.Crash != "":
 		a.Crash = id
 	case a.Restart != "":
@@ -66,7 +68,7 @@ func replaceTarget(a Action, id string) Action {
 
 // validateSequence rejects statically impossible aliases and definite A2 errors.
 // Alias-dependent transitions are compiled again against their frozen runtime IDs.
-// derives: C1.1, C1.4, F1.1, F1.3, A1, A2, T1, T3
+// derives: C1.1, C1.4, F1.1, F1.3, A1, A2, T1, T3, C2.1, C2.2
 func validateSequence(s Schedule, ids map[string]string) error {
 	// 0 running, 1 crashed, 2 paused, 3 depends on a dynamic selector.
 	state := map[string]int{}

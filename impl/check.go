@@ -1,4 +1,4 @@
-// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3
+// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, C2.1, C2.2
 package main
 
 import (
@@ -10,14 +10,14 @@ import (
 )
 
 // Verdict distinguishes observed clause failure from missing evidence.
-// derives: C1.1, C1.2, C1.3, C1.4
+// derives: C1.1, C1.2, C1.3, C1.4, C2.1, C2.2
 type Verdict struct {
 	Clause string
 	Reason string
 }
 
 // traceGraph is rebuilt from the JSONL, never from implementation state.
-// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3
+// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, C2.1, C2.2
 type traceGraph struct {
 	events  map[Ref]Event
 	local   map[string][]Event
@@ -25,7 +25,7 @@ type traceGraph struct {
 }
 
 // readTrace validates local sequence continuity and reconstructs causal order.
-// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3
+// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, C2.1, C2.2
 func readTrace(path string) (*traceGraph, error) {
 	f, err := os.Open(path)
 	if err != nil {
@@ -123,7 +123,7 @@ func readTrace(path string) (*traceGraph, error) {
 }
 
 // precedes traverses explicit causes plus implicit per-process program order.
-// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3
+// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, C2.1, C2.2
 func (g *traceGraph) precedes(a, b Ref) bool {
 	if a == b {
 		return false
@@ -156,7 +156,7 @@ func (g *traceGraph) precedes(a, b Ref) bool {
 }
 
 // directEvent finds an explicit causal parent of a particular event type.
-// derives: C1.1, C1.2, C1.3
+// derives: C1.1, C1.2, C1.3, C2.1, C2.2
 func (g *traceGraph) directEvent(e Event, names ...string) (Event, bool) {
 	for _, r := range e.Causes {
 		v := g.events[r]
@@ -170,7 +170,7 @@ func (g *traceGraph) directEvent(e Event, names ...string) (Event, bool) {
 }
 
 // checkC11 compares all ordered grants and demands a total observable grant order.
-// derives: C1.1, F1.1, F1.2, F1.3
+// derives: C1.1, F1.1, F1.2, F1.3, C2.1, C2.2
 func (g *traceGraph) checkC11() Verdict {
 	var grants []Event
 	for _, v := range g.ordered {
@@ -200,13 +200,17 @@ func (g *traceGraph) checkC11() Verdict {
 }
 
 // checkProvenance checks the authority path for EVERY acceptance and rejection.
-// derives: C1.1, C1.2, C1.3, F1.1, F1.2, F1.3
+// derives: C1.1, C1.2, C1.3, F1.1, F1.2, F1.3, C2.1, C2.2
 func (g *traceGraph) checkProvenance() Verdict {
 	for _, e := range g.ordered {
-		if e.Event != "WriteAccept" && e.Event != "WriteReject" {
+		if e.Event != "WriteAccept" && e.Event != "WriteReject" && e.Event != "ReadAccept" && e.Event != "ReadReject" {
 			continue
 		}
-		a, ok := g.directEvent(e, "WriteAttempt")
+		attemptName := "WriteAttempt"
+		if e.Event == "ReadAccept" || e.Event == "ReadReject" {
+			attemptName = "ReadAttempt"
+		}
+		a, ok := g.directEvent(e, attemptName)
 		if !ok || a.Key != e.Key || a.Token != e.Token || a.Term != e.Term || e.HighestBefore == nil {
 			return Verdict{Reason: "storage decision lacks matching attempt/ledger"}
 		}
@@ -219,7 +223,7 @@ func (g *traceGraph) checkProvenance() Verdict {
 }
 
 // checkC12 reconstructs the durable maximum using storage's own sequence only.
-// derives: C1.2, F1.1, F1.2, F1.3
+// derives: C1.2, F1.1, F1.2, F1.3, C2.1, C2.2
 func (g *traceGraph) checkC12(storage string) Verdict {
 	var highest uint64
 	for _, e := range g.local[storage] {
@@ -243,7 +247,7 @@ func (g *traceGraph) checkC12(storage string) Verdict {
 }
 
 // checkC13 correlates each success to THIS attempt's acceptance, including late acks.
-// derives: C1.3, F1.1, F1.2, F1.3
+// derives: C1.3, F1.1, F1.2, F1.3, C2.1, C2.2
 func (g *traceGraph) checkC13() Verdict {
 	unknown := Verdict{}
 acks:
@@ -295,7 +299,7 @@ acks:
 }
 
 // checkC14 independently reconstructs the final environment from Fault records.
-// derives: C1.4, F1.1, F1.2, F1.3, E1
+// derives: C1.4, F1.1, F1.2, F1.3, E1, C2.1, C2.2
 func (g *traceGraph) checkC14(s Schedule, evidence RunEvidence) Verdict {
 	if len(evidence.Witnesses) == 0 {
 		return Verdict{}
@@ -373,13 +377,13 @@ func (g *traceGraph) checkC14(s Schedule, evidence RunEvidence) Verdict {
 }
 
 // checkTrace reports clause failures before operational incompleteness.
-// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, E1, E2
+// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, E1, E2, C2.1, C2.2
 func checkTrace(path string, s Schedule, evidence RunEvidence) Verdict {
 	g, err := readTrace(path)
 	if err != nil {
 		return Verdict{Reason: err.Error()}
 	}
-	checks := []Verdict{g.checkC11(), g.checkC12(s.Processes.Storage[0]), g.checkC13(), g.checkC14(s, evidence), g.checkProvenance()}
+	checks := []Verdict{g.checkC11(), g.checkC12(s.Processes.Storage[0]), g.checkC13(), g.checkC14(s, evidence), g.checkC21(s.Processes.Storage[0]), g.checkC22(s.Processes.Storage[0]), g.checkProvenance()}
 	for _, v := range checks {
 		if v.Clause != "" {
 			return v

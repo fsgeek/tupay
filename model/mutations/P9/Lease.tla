@@ -1,7 +1,8 @@
 -------------------------------- MODULE Lease --------------------------------
 \* mutation: P9 a client records any ack carrying its current token as success, ignoring the outcome
 \* derives: P9, C1.3, F1.3
-\* derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3
+\* derives: C1.1, C1.2, C1.3, C1.4, C2.1, C2.2, F1.1, F1.2, F1.3
+\* (contract v2 / X1: reads are fenced; read elements are tagged C2.x)
 \* Lease service with fencing tokens: 3 lease nodes (the grantor), 2 clients,
 \* one storage service, one key. The grantor is abstract: a leader per term,
 \* elected by a majority; a grant is issued only with a majority's confirmation.
@@ -56,12 +57,23 @@ VARIABLES
     trigG,      \* derives: F1.2, F1.3 -- most recent grant at trigger time (resolves grantor/holder)
     trigNG,     \* derives: F1.1; format v2.1 A1 -- lease nodes other than grantor up at trigger time
     ngDown,     \* derives: F1.1; format v2.1 A1 -- node crashed by the most recent `crash: non-grantor`
-    lastEv      \* derives: C1.1, C1.2, C1.3 -- the event emitted by the last step (for the exporter)
+    lastEv,     \* derives: C1.1, C1.2, C1.3, C2.1, C2.2 -- the event emitted by the last step (for the exporter)
+    \* --- reads (contract v2; derives: C2.1, C2.2)
+    readMsgs,   \* derives: C2.1, F1.2 -- reads in flight, client -> storage
+    rToAck,     \* derives: C2.2, F1.1 -- volatile: decided reads whose ack is not yet sent
+    rAckMsgs,   \* derives: C2.2, F1.2 -- read acks in flight, storage -> client
+    awaitingR,  \* derives: C2.2 -- reads c has sent and not yet had acked
+    rdecisions, \* derives: C2.1, C2.2 -- history: every storage read decision
+    given       \* derives: C2.2 -- history: every value a client was given
 
 \* derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3 -- all state variables
 vars == <<up, paused, sideA, promised, maxTok, leader, term, ltok, reqs,
           pending, tok, myToks, awaiting, grantMsgs, writeMsgs, ackMsgs, dups,
-          highest, stval, toAck, grants, decisions, told, pc, fired, trigG, trigNG, ngDown, lastEv>>
+          highest, stval, toAck, grants, decisions, told, pc, fired, trigG, trigNG, ngDown, lastEv,
+          readMsgs, rToAck, rAckMsgs, awaitingR, rdecisions, given>>
+
+\* derives: C2.1, C2.2 -- the read variables, for UNCHANGED in actions that do not touch reads
+rvars == <<readMsgs, rToAck, rAckMsgs, awaitingR, rdecisions, given>>
 
 \* derives: F1.1, F1.2 -- every process
 Procs == Nodes \cup Clients \cup {Store}
@@ -143,6 +155,12 @@ Init ==
     /\ trigG = [node |-> "none", client |-> "none"]
     /\ trigNG = Nodes
     /\ ngDown = "none"
+    /\ readMsgs = {}       \* derives: C2.1
+    /\ rToAck = {}         \* derives: C2.2
+    /\ rAckMsgs = {}       \* derives: C2.2
+    /\ awaitingR = [c \in Clients |-> {}]   \* derives: C2.2
+    /\ rdecisions = <<>>   \* derives: C2.1, C2.2
+    /\ given = {}          \* derives: C2.2
     /\ lastEv = [event |-> "Init"]
 
 \* ===========================================================================
@@ -154,6 +172,7 @@ Init ==
 \* election; a majority Q (reachable, up) promises a fresh term; the new leader
 \* learns the highest token any member of Q confirmed.
 Elect(n) ==
+    /\ UNCHANGED rvars  \* derives: C2.1, C2.2 -- reads untouched
     /\ up[n] /\ ~leader[n]
     /\ ~\E m \in Nodes : up[m] /\ Conn(n, m) /\ leader[m] /\ term[m] >= promised[n]
     /\ \E Q \in SUBSET {q \in Nodes : up[q] /\ Conn(n, q)} :
@@ -173,6 +192,7 @@ Elect(n) ==
 
 \* derives: C1.1, C1.4, F1.2 -- a leader that reaches a node promised to a higher term steps down
 StepDown(n) ==
+    /\ UNCHANGED rvars  \* derives: C2.1, C2.2 -- reads untouched
     /\ up[n] /\ leader[n]
     /\ \E q \in Nodes : up[q] /\ Conn(n, q) /\ promised[q] > term[n]
     /\ leader' = [leader EXCEPT ![n] = FALSE]
@@ -192,6 +212,7 @@ StepDown(n) ==
 \* connected. Raising a promise is always safe here: promises only grow, and a grant
 \* still needs a majority promised to exactly the leader's term.
 Join(n, q) ==
+    /\ UNCHANGED rvars  \* derives: C2.1, C2.2 -- reads untouched
     /\ up[n] /\ leader[n] /\ up[q] /\ q # n
     /\ Conn(n, q)
     /\ promised[q] < term[n]
@@ -206,6 +227,7 @@ Join(n, q) ==
 \* The leader issues a grant to a requester it can reach, once a majority still
 \* promised to its term durably confirms the new token.
 Grant(n, c) ==
+    /\ UNCHANGED rvars  \* derives: C2.1, C2.2 -- reads untouched
     /\ up[n] /\ leader[n]
     /\ c \in reqs
     /\ Conn(n, c)
@@ -226,6 +248,7 @@ Grant(n, c) ==
 
 \* derives: C1.4, F1.3 -- a (running, unpaused) client receives a grant reply
 RecvGrant(m) ==
+    /\ UNCHANGED rvars  \* derives: C2.1, C2.2 -- reads untouched
     /\ m \in grantMsgs
     /\ up[m.c] /\ ~paused[m.c]
     /\ grantMsgs' = grantMsgs \ {m}
@@ -248,6 +271,7 @@ RecvGrant(m) ==
 \* the ledger. The ack is queued (volatile) and sent by SendAck. dup = TRUE models a
 \* duplicated delivery (the message stays in flight), bounded by MaxDups.
 StorageDecide(m, dup) ==
+    /\ UNCHANGED rvars  \* derives: C2.1, C2.2 -- reads untouched
     /\ up[Store]
     /\ m \in writeMsgs
     /\ dup => dups < MaxDups
@@ -268,6 +292,7 @@ StorageDecide(m, dup) ==
 
 \* derives: C1.3, F1.1, F1.2 -- storage sends a queued ack (lost if the client is cut off or down)
 SendAck(a) ==
+    /\ UNCHANGED rvars  \* derives: C2.1, C2.2 -- reads untouched
     /\ up[Store]
     /\ a \in toAck
     /\ toAck' = toAck \ {a}
@@ -280,6 +305,7 @@ SendAck(a) ==
 \* derives: C1.3, F1.3 -- a client receives an ack for a write it is awaiting
 \* and is told the write's outcome exactly as the ack states it.
 RecvAck(a) ==
+    /\ UNCHANGED rvars  \* derives: C2.1, C2.2 -- reads untouched
     /\ a \in ackMsgs
     /\ up[a.c] /\ ~paused[a.c]
     /\ ackMsgs' = ackMsgs \ {a}
@@ -318,6 +344,7 @@ StaleTok(c) ==
 \* derives: C1.4 -- workload: client requests a grant (a client already waiting for
 \* a grant does not issue a second request; the step waits until it is not waiting)
 DoRequest(c) ==
+    /\ UNCHANGED rvars  \* derives: C2.1, C2.2 -- reads untouched
     /\ up[c] /\ ~paused[c]
     /\ ~pending[c]
     /\ pending' = [pending EXCEPT ![c] = TRUE]
@@ -330,6 +357,7 @@ DoRequest(c) ==
 \* derives: C1.2, C1.3, F1.3 -- workload: client writes with its current (or stale) token
 DoWrite(c, v, stale) ==
     LET k == IF stale THEN StaleTok(c) ELSE tok[c] IN
+    /\ UNCHANGED rvars  \* derives: C2.1, C2.2 -- reads untouched
     /\ up[c] /\ ~paused[c]
     /\ k.t > 0
     /\ writeMsgs' = IF Conn(c, Store) /\ up[Store]
@@ -342,6 +370,89 @@ DoWrite(c, v, stale) ==
     /\ lastEv' = [event |-> "WriteAttempt", client |-> c, key |-> Key, token |-> k.t,
                   value |-> v, grantor_term |-> k.g]
 
+\* ===========================================================================
+\* Reads (contract v2, X1)
+\* ===========================================================================
+
+\* derives: C2.1, C2.2, F1.1 -- storage decides a read: serve iff token >= ledger, returning
+\* the value it holds; the ledger is not changed. The ack is queued (volatile).
+\* dup = TRUE models a duplicated delivery (bounded by MaxDups, shared with writes).
+StorageRead(m, dup) ==
+    /\ up[Store]
+    /\ m \in readMsgs
+    /\ dup => dups < MaxDups
+    /\ LET srv == m.t >= highest
+           out == IF srv THEN "served" ELSE "rejected"
+           val == IF srv THEN stval ELSE "none" IN
+       /\ UNCHANGED <<rAckMsgs, awaitingR, given>>
+       /\ UNCHANGED <<up, paused, sideA, promised, maxTok, leader, term, ltok, reqs,
+                      pending, tok, myToks, awaiting, grantMsgs, writeMsgs, ackMsgs,
+                      highest, stval, toAck, grants, decisions, told>>
+       /\ readMsgs' = IF dup THEN readMsgs ELSE readMsgs \ {m}
+       /\ dups' = IF dup THEN dups + 1 ELSE dups
+       /\ rdecisions' = Append(rdecisions,
+                [token |-> m.t, hb |-> highest, ha |-> highest', outcome |-> out, client |-> m.c,
+                 rid |-> m.r, value |-> val, held |-> stval, nwrites |-> Len(decisions)])
+       /\ rToAck' = rToAck \cup {[c |-> m.c, t |-> m.t, g |-> m.g, r |-> m.r,
+                                  outcome |-> out, v |-> val]}
+       /\ Emit(IF srv
+                THEN [event |-> "ReadAccept", key |-> Key, token |-> m.t, highest_before |-> highest,
+                      value |-> val, grantor_term |-> m.g, client |-> m.c, rid |-> m.r]
+                ELSE [event |-> "ReadReject", key |-> Key, token |-> m.t, highest_before |-> highest,
+                      grantor_term |-> m.g, client |-> m.c, rid |-> m.r])
+
+\* derives: C2.2, F1.1, F1.2 -- storage sends a queued read ack (lost if the client is cut off or down)
+SendReadAck(a) ==
+    /\ up[Store]
+    /\ a \in rToAck
+    /\ rToAck' = rToAck \ {a}
+    /\ rAckMsgs' = IF Conn(Store, a.c) /\ up[a.c] THEN rAckMsgs \cup {a} ELSE rAckMsgs
+    /\ UNCHANGED <<readMsgs, awaitingR, rdecisions, given>>
+    /\ UNCHANGED <<up, paused, sideA, promised, maxTok, leader, term, ltok, reqs, pending,
+                   tok, myToks, awaiting, grantMsgs, writeMsgs, ackMsgs, dups, highest, stval,
+                   toAck, grants, decisions, told>>
+    /\ Internal("SendReadAck", Store)
+
+\* derives: C2.2, F1.3 -- a client receives an ack for a read it is awaiting and is given
+\* exactly the value the ack carries (only when the ack says served)
+RecvReadAck(a) ==
+    /\ a \in rAckMsgs
+    /\ up[a.c] /\ ~paused[a.c]
+    /\ rAckMsgs' = rAckMsgs \ {a}
+    /\ UNCHANGED <<readMsgs, rToAck, rdecisions>>
+    /\ UNCHANGED <<up, paused, sideA, promised, maxTok, leader, term, ltok, reqs, pending,
+                   tok, myToks, awaiting, grantMsgs, writeMsgs, ackMsgs, dups, highest, stval,
+                   toAck, grants, decisions, told>>
+    /\ LET w == [t |-> a.t, g |-> a.g, r |-> a.r] IN
+       IF w \in awaitingR[a.c]
+       THEN /\ awaitingR' = [awaitingR EXCEPT ![a.c] = @ \ {w}]
+            /\ given' = IF a.outcome = "served"
+                        THEN given \cup {[c |-> a.c, t |-> a.t, r |-> a.r, v |-> a.v]} ELSE given
+            /\ Emit(IF a.outcome = "served"
+                     THEN [event |-> "ReadAck", client |-> a.c, key |-> Key, token |-> a.t,
+                           outcome |-> "served", value |-> a.v, grantor_term |-> a.g, rid |-> a.r]
+                     ELSE [event |-> "ReadAck", client |-> a.c, key |-> Key, token |-> a.t,
+                           outcome |-> "rejected", grantor_term |-> a.g, rid |-> a.r])
+       ELSE /\ UNCHANGED <<awaitingR, given>>
+            /\ Internal("DropReadAck", a.c)
+
+\* derives: C2.1, C2.2, F1.3; format v3 (read), v2 T3 -- workload: client reads with its current
+\* (or stale) token; waits as for a write. The read id is the schedule step index.
+DoRead(c, stale) ==
+    LET k == IF stale THEN StaleTok(c) ELSE tok[c] IN
+    /\ up[c] /\ ~paused[c]
+    /\ k.t > 0
+    /\ readMsgs' = IF Conn(c, Store) /\ up[Store]
+                   THEN readMsgs \cup {[c |-> c, t |-> k.t, g |-> k.g, r |-> pc]}
+                   ELSE readMsgs
+    /\ awaitingR' = [awaitingR EXCEPT ![c] = @ \cup {[t |-> k.t, g |-> k.g, r |-> pc]}]
+    /\ UNCHANGED <<rToAck, rAckMsgs, rdecisions, given>>
+    /\ UNCHANGED <<up, paused, sideA, promised, maxTok, leader, term, ltok, reqs, pending,
+                   tok, myToks, awaiting, grantMsgs, writeMsgs, ackMsgs, dups, highest, stval,
+                   toAck, grants, decisions, told>>
+    /\ lastEv' = [event |-> "ReadAttempt", client |-> c, key |-> Key, token |-> k.t,
+                  grantor_term |-> k.g, rid |-> pc]
+
 \* derives: F1.1 -- crash-stop: volatile state lost, durable state kept, messages to p lost
 Crash(p) ==
     /\ up[p]
@@ -352,6 +463,7 @@ Crash(p) ==
             /\ ltok' = [ltok EXCEPT ![p] = 0]
             /\ UNCHANGED <<paused, reqs, pending, tok, myToks, awaiting, grantMsgs,
                            writeMsgs, ackMsgs, toAck>>
+            /\ UNCHANGED <<readMsgs, rToAck, rAckMsgs, awaitingR>>
        ELSE IF p \in Clients
        THEN /\ paused' = [paused EXCEPT ![p] = FALSE]
             /\ reqs' = reqs \ {p}
@@ -362,16 +474,26 @@ Crash(p) ==
             /\ grantMsgs' = {m \in grantMsgs : m.c # p}
             /\ ackMsgs' = {a \in ackMsgs : a.c # p}
             /\ UNCHANGED <<leader, term, ltok, writeMsgs, toAck>>
+            \* derives: C2.2, F1.1 -- a crashed client loses its read acks and awaited reads
+            /\ rAckMsgs' = {a \in rAckMsgs : a.c # p}
+            /\ awaitingR' = [awaitingR EXCEPT ![p] = {}]
+            /\ UNCHANGED <<readMsgs, rToAck>>
        ELSE \* storage
             /\ writeMsgs' = {}
             /\ toAck' = {}
             /\ UNCHANGED <<leader, term, ltok, paused, reqs, pending, tok, myToks,
                            awaiting, grantMsgs, ackMsgs>>
+            \* derives: C2.1, C2.2, F1.1 -- storage loses in-flight reads and unsent read acks
+            /\ readMsgs' = {}
+            /\ rToAck' = {}
+            /\ UNCHANGED <<rAckMsgs, awaitingR>>
     /\ UNCHANGED <<sideA, promised, maxTok, dups, highest, stval, grants, decisions, told>>
+    /\ UNCHANGED <<rdecisions, given>>
     /\ lastEv' = [event |-> "Fault", cell |-> "F1.1", action |-> "crash", target |-> p]
 
 \* derives: F1.1 -- restart with durable state only (a restarted client has no grant)
 Restart(p) ==
+    /\ UNCHANGED rvars  \* derives: C2.1, C2.2 -- reads untouched
     /\ ~up[p]
     /\ up' = [up EXCEPT ![p] = TRUE]
     /\ UNCHANGED <<paused, sideA, promised, maxTok, leader, term, ltok, reqs, pending, tok,
@@ -387,12 +509,17 @@ Partition(A) ==
        /\ grantMsgs' = {m \in grantMsgs : C(m.n, m.c)}
        /\ writeMsgs' = {m \in writeMsgs : C(m.c, Store)}
        /\ ackMsgs' = {a \in ackMsgs : C(Store, a.c)}
+       \* derives: C2.1, C2.2, F1.2 -- reads and read acks crossing the cut are lost too
+       /\ readMsgs' = {m \in readMsgs : C(m.c, Store)}
+       /\ rAckMsgs' = {a \in rAckMsgs : C(Store, a.c)}
+    /\ UNCHANGED <<rToAck, awaitingR, rdecisions, given>>
     /\ UNCHANGED <<up, paused, promised, maxTok, leader, term, ltok, reqs, pending, tok,
                    myToks, awaiting, dups, highest, stval, toAck, grants, decisions, told>>
     /\ lastEv' = [event |-> "Fault", cell |-> "F1.2", action |-> "partition", sideA |-> A]
 
 \* derives: F1.2 -- the partition heals; lost messages stay lost
 Heal ==
+    /\ UNCHANGED rvars  \* derives: C2.1, C2.2 -- reads untouched
     /\ sideA' = Procs
     /\ UNCHANGED <<up, paused, promised, maxTok, leader, term, ltok, reqs, pending, tok,
                    myToks, awaiting, grantMsgs, writeMsgs, ackMsgs, dups, highest, stval,
@@ -401,6 +528,7 @@ Heal ==
 
 \* derives: F1.3 -- holder pause: the client takes no steps; the rest of the world proceeds
 Pause(c) ==
+    /\ UNCHANGED rvars  \* derives: C2.1, C2.2 -- reads untouched
     /\ up[c] /\ ~paused[c]
     /\ paused' = [paused EXCEPT ![c] = TRUE]
     /\ UNCHANGED <<up, sideA, promised, maxTok, leader, term, ltok, reqs, pending, tok,
@@ -410,6 +538,7 @@ Pause(c) ==
 
 \* derives: F1.3 -- resume as if no time had passed (the client keeps its old token)
 Resume(c) ==
+    /\ UNCHANGED rvars  \* derives: C2.1, C2.2 -- reads untouched
     /\ paused[c]
     /\ paused' = [paused EXCEPT ![c] = FALSE]
     /\ UNCHANGED <<up, sideA, promised, maxTok, leader, term, ltok, reqs, pending, tok,
@@ -435,6 +564,7 @@ DoStep(st, ng) ==
     /\ Resolved(st, ng)
     /\ CASE st.kind = "request"   -> DoRequest(Resolve(st.p, ng))
       [] st.kind = "write"     -> DoWrite(Resolve(st.p, ng), st.v, st.stale)
+      [] st.kind = "read"      -> DoRead(Resolve(st.p, ng), st.stale)   \* derives: C2.1, C2.2
       [] st.kind = "crash"     -> Crash(Resolve(st.p, ng))
       [] st.kind = "restart"   -> Restart(Resolve(st.p, ng))
       [] st.kind = "partition" -> Partition(SideOf(st, ng))
@@ -475,6 +605,9 @@ Protocol ==
     \/ \E m \in writeMsgs, d \in BOOLEAN : StorageDecide(m, d)
     \/ \E a \in toAck : SendAck(a)
     \/ \E a \in ackMsgs : RecvAck(a)
+    \/ \E m \in readMsgs, d \in BOOLEAN : StorageRead(m, d)   \* derives: C2.1, C2.2
+    \/ \E a \in rToAck : SendReadAck(a)                       \* derives: C2.2
+    \/ \E a \in rAckMsgs : RecvReadAck(a)                     \* derives: C2.2
 
 \* derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3
 Next == Protocol \/ ScheduleStep
@@ -489,6 +622,9 @@ Fairness ==
     /\ WF_vars(\E m \in writeMsgs : StorageDecide(m, FALSE))
     /\ WF_vars(\E a \in toAck : SendAck(a))
     /\ WF_vars(\E a \in ackMsgs : RecvAck(a))
+    /\ WF_vars(\E m \in readMsgs : StorageRead(m, FALSE))   \* derives: C2.1, C2.2
+    /\ WF_vars(\E a \in rToAck : SendReadAck(a))            \* derives: C2.2
+    /\ WF_vars(\E a \in rAckMsgs : RecvReadAck(a))          \* derives: C2.2
     /\ WF_vars(ScheduleStep)
 
 \* derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3
@@ -524,6 +660,25 @@ C1_3 == \A x \in told : \E i \in 1..Len(decisions) :
           /\ decisions[i].token = x.t
           /\ decisions[i].value = x.v
 
+\* derives: C2.1 -- every served read's token is >= every token a write was accepted with
+\* before it (over history, not over storage's ledger), and a read decision leaves the
+\* ledger unchanged
+C2_1 == \A i \in 1..Len(rdecisions) :
+          /\ rdecisions[i].outcome = "served" =>
+               \A j \in 1..rdecisions[i].nwrites :
+                  decisions[j].outcome = "accept" => decisions[j].token <= rdecisions[i].token
+          /\ rdecisions[i].ha = rdecisions[i].hb
+
+\* derives: C2.2 -- every value a client was given was returned by an earlier serve of that
+\* very read (client, token, read id), and equals what storage held when it served
+C2_2 == \A x \in given : \E i \in 1..Len(rdecisions) :
+          /\ rdecisions[i].outcome = "served"
+          /\ rdecisions[i].client = x.c
+          /\ rdecisions[i].token = x.t
+          /\ rdecisions[i].rid = x.r
+          /\ rdecisions[i].value = x.v
+          /\ rdecisions[i].held = x.v
+
 \* derives: C1.4 -- a majority of lease nodes and storage are up and mutually
 \* connected, and connected to client c, which is up and not paused
 Good(c) == /\ up[Store] /\ up[c] /\ ~paused[c]
@@ -549,6 +704,9 @@ Quiescent == /\ \A m \in grantMsgs : ~Active(m.c)
              /\ \A a \in ackMsgs : ~Active(a.c)
              /\ \A a \in toAck : ~up[Store] \/ ~Active(a.c)
              /\ \A c \in Clients : Active(c) => ~pending[c]
+             /\ readMsgs = {} \/ ~up[Store]                      \* derives: C2.1; format v2 E1
+             /\ \A a \in rAckMsgs : ~Active(a.c)                  \* derives: C2.2; format v2 E1
+             /\ \A a \in rToAck : ~up[Store] \/ ~Active(a.c)      \* derives: C2.2; format v2 E1
 \* derives: F1.1, F1.2, F1.3; format v2 E1 -- the run has reached its end: every step applied,
 \* and either the end trigger fired (armed when the last step was taken) or, for
 \* `end: quiescent`, the state is quiescent

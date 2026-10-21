@@ -90,6 +90,65 @@ C1_1, C1_2 and C1_3 still hold on every shared schedule, and the mutations still
 Written only from `contract/v1.md`, `failure-model/v1.md`, `tests/pairs-v1.md`,
 `testbed/schedule-format.md`, `observe/schema.md`, `AGENTS.md` and this directory.
 
+## X1 adapt arm (contract v2: fenced reads)
+derives: C2.1, C2.2, F1.1, F1.2, F1.3; format v3 (read); observe v2 addendum
+
+Additive. Nothing that derives from a v1 clause is retired. The predictions and their outcome are in `PREDICTIONS-x1.md`.
+
+### What was added
+- **`Lease.tla` variables.** Six new variables, all tagged C2.x: `readMsgs`, `rToAck`, `rAckMsgs`, `awaitingR`, `rdecisions` and `given`. The tuple `rvars` is `UNCHANGED` in every action that does not touch reads.
+- **Actions.**
+  - `DoRead` is the workload action. It waits by rule T3, as a write does.
+  - `StorageRead` serves a read iff `token >= highest`, returns `stval`, and leaves the ledger unchanged. It queues an ack.
+  - `SendReadAck` and `RecvReadAck` deliver the ack. The client is given the value only on a served ack it is awaiting.
+- **Faults on reads.**
+  - Storage crash: storage loses in-flight reads and unsent read acks.
+  - Client crash: the client loses its read acks and awaited reads.
+  - Partition: reads and read acks crossing the cut are dropped.
+  - Fairness: weak fairness for the three read protocol actions.
+- **Invariants.**
+  - `C2_1`: every served read's token is at least every token a write was accepted with before it (over history), and the read decision leaves the ledger unchanged (`ha = hb`).
+  - `C2_2`: every value given has an earlier serve of that same read (client, token, read id) that returned it, and that value equals what storage held at the decision (`held`).
+  - Both are added to `MC.cfg` after `C1_3`.
+- **E1.** `Quiescent` is extended to read messages and read acks.
+- **Compiler.** The `read` action (`token: stale` allowed), the four read events as triggers, and `ReadAck` outcomes `served` and `rejected`.
+- **Exporter.**
+  - `ReadAttempt` names the Grant whose token it uses.
+  - `ReadAccept`, which carries `value`, and `ReadReject` name the `ReadAttempt`.
+  - `ReadAck` names the storage decision, and carries `value` only when the read was served.
+  - The provenance check covers read decisions too.
+- **Runner.** `run.py` runs P1-P18 and false-suspicion-v1.
+- **Mutations P13-P18** (`mutate.py`). The replacement texts of P1, P4, P7 and P8 gained the `UNCHANGED rvars` frame. Their breaks are unchanged.
+
+### Interpretations (X1)
+- **X1.1, read identity.** A read is identified by (client, token, read id), and the read id is the schedule step index of the `read` step. Each read step is a distinct read; P17 issues three reads with the same token.
+- **X1.2, C2.1's first sentence.** "At least the highest token storage has accepted" is checked against the history of accepted write tokens up to the read decision, not against storage's ledger variable. A forgetful ledger is caught (mutation P13).
+- **X1.3, C2.1's second sentence.** "Serving a read does not change the highest accepted token" is checked on every read decision, served or rejected: the ledger after it equals the ledger before. No mutation exercises this half, as predicted. A read could only raise the ledger to its own token, which on these schedules is never above the ledger.
+- **X1.4, C2.2's held value.** "The value storage held when it served" means `stval`, the value of the last accepted write, at the decision step. It is recorded as the ghost `held`, separately from the value storage returned, so a storage that returned something else would be caught. Before any write, the value is `"none"`; no shared schedule reads before writing.
+- **X1.5, rejected reads.** A rejected read gives no value. Its `ReadAck` has outcome `rejected` and no `value` field, and `ReadReject` has no `value`.
+- **X1.6, duplication.** Read deliveries may be duplicated under the same `MaxDups = 1` budget as writes. A duplicate read ack is ignored, because only an awaited read is acked to the client.
+- **X1.7, reads and grants.** Reads never change a client's token or grant belief. `token: stale` for a read is defined exactly as for a write.
+- **X1.8, mutation placement.**
+  - P13's break, a volatile ledger, is P4's locus. The ledger is the one piece of state that enforces both C1.2 and C2.1, and P13's schedule exercises it only through a read.
+  - P14 skips the read comparison.
+  - P15 is an off-by-one "expiry grace" in the read comparison.
+  - P16 acks a read before the volatile decision.
+  - P17 is a client answering its own read while cut off.
+  - P18 looks the value up at ack time instead of serve time.
+
+### Results (X1, `run.sh --all`, about 4 minutes)
+| Run | Verdict | Distinct states | Depth |
+|---|---|---|---|
+| P1-P12, false-suspicion-v1 | PASS | as in Round 2.1 (identical) | as in Round 2.1 |
+| P13 | PASS | 6,581 | 30 |
+| P14 | PASS | 6,488 | 31 |
+| P15 | PASS | 5,459 | 26 |
+| P16 | PASS | 40,439 | 32 |
+| P17 | PASS | 10,184 | 24 |
+| P18 | PASS | 35,240 | 30 |
+
+**Mutations.** P1-P3 `FAIL C1_1`, P4-P6 `FAIL C1_2`, P7-P9 `FAIL C1_3`, P10-P12 `FAIL C1_4`, P13-P15 `FAIL C2_1`, P16-P18 `FAIL C2_2`. `TermHeadroom` held everywhere.
+
 ## Round 2.1 (schedule format v2.1)
 derives: C1.4, F1.1; format v2.1 T1, A1
 

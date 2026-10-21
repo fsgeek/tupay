@@ -1,0 +1,4 @@
+{"proc":"c1","seq":1,"event":"Request","client":"c1","key":"k","causes":[],"run":"P10-x1-v3-P10-seed-1-82f9948d376d728b","side":"impl"}
+{"proc":"n1","seq":1,"event":"Grant","client":"c1","key":"k","token":3,"lifetime":40,"grantor_term":2,"causes":[{"proc":"c1","seq":1}],"run":"P10-x1-v3-P10-seed-1-82f9948d376d728b","side":"impl"}
+{"proc":"env","seq":1,"event":"Fault","causes":[{"proc":"n1","seq":1}],"run":"P10-x1-v3-P10-seed-1-82f9948d376d728b","side":"impl","cell":"F1.1","crash":"n2"}
+{"proc":"c2","seq":1,"event":"Request","client":"c2","key":"k","causes":[{"proc":"env","seq":1}],"run":"P10-x1-v3-P10-seed-1-82f9948d376d728b","side":"impl"}

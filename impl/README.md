@@ -512,3 +512,121 @@ non-grantor crash. The same qualified three-second horizon checks it.
 <!-- derives: C1.1, C1.2, C1.3, C1.4, T1, A1, E1, E2 -->
 Current v2.1 blocked items: none. Bounded sampling and the trusted finite liveness
 certificate remain the limitations recorded in previous rounds.
+
+## X1 contract v2 — fenced reads
+
+<!-- derives: C1.1, C1.2, C1.3, C1.4, C2.1, C2.2, F1.1, F1.2, F1.3, T1, T2, T3, A1, A2, E1, E2 -->
+This additive section records the X1 adapt round on x1-adapt-impl. Predictions
+for all nineteen schedules and eighteen mutations, separately for seeds 1–3,
+were signed and committed as `fc87c3b`, then OTS-stamped by `9d153c5`, before
+any X1 build or outcome-bearing execution. Implementation checkpoint `7bc3488`
+was signed and stamped by `922d690`. No v1 clause, prior prediction, or historical
+evidence was retired or rewritten. Repository reading stayed within the brief's
+allowed inputs and own artifacts; no model, experiment or other docs were read.
+
+The read workload/compiler, storage/client paths, observable records, provenance
+and independent C2.1/C2.2 log checkers now derive explicitly from C2.x. The six
+new enforcing-path mutations preserve P1–P12's placements. To run from the root:
+
+```sh
+# derives: C1.1, C1.2, C1.3, C1.4, C2.1, C2.2, F1.1, F1.2, F1.3, T1, T2, T3, A1, A2, E1, E2
+impl/run.sh --all --seeds 3
+impl/run.sh --mutations --seeds 3
+# One shared schedule, optionally its paired mutation:
+impl/run.sh P18 --seeds 3
+impl/run.sh P18 --mutation P18 --seeds 3
+```
+
+Both required matrix commands exited 0. All 57 schedule runs PASS; all 54 mutation
+runs FAIL their declared clause, giving 18/18 kills on all three seeds. The full
+Go fixture suite and vet pass. Test-first red receipts record the initial missing
+read language/path/value handling, followed by green fixtures; those red runs
+were before adaptation and are not post-adaptation schedule prediction misses.
+No schedule/mutation prediction missed or needed amendment. All 111 runs' raw
+JSONL and sidecars, 48 baseline read-decision provenance rows, three P18 late
+snapshot witnesses, input hashes and per-seed table are linked from
+[RESULTS-x1.md](RESULTS-x1.md). No model/implementation divergence is attributed.
+
+## New X1 interpretations
+
+49. A read presents an actually held current or numerically superseded token;
+    serving compares it to the highest token of an accepted write, not the
+    highest granted token or wall-clock expiry. Equality is allowed. Serving
+    never advances that ledger, even when the read token is larger.
+    <!-- derives: C2.1, C1.2, F1.1, F1.2, F1.3, T3 -->
+50. Storage's single key starts with the empty string. Both its accepted-write
+    ledger and stored value survive storage restart. Serving atomically captures
+    the current value into a reply; subsequent writes cannot change that reply.
+    Reads and rejections never modify the stored value.
+    <!-- derives: C2.1, C2.2, C1.2, F1.1 -->
+51. An empty served value is explicitly serialized as `value: ""` on ReadAccept
+    and served ReadAck. ReadReject and rejected ReadAck omit value. Decoding
+    retains field presence separately from its string contents. Read attempts
+    and decisions carry the originating grantor term and exact causal authority
+    references; read acks name the decision.
+    <!-- derives: C2.1, C2.2, F1.1, F1.2, F1.3 -->
+52. The v3 read action is part of the closed workload language: current/stale
+    selection, client-only roles, A1 freezing, T3 availability/token waits and
+    E1 draining match writes. A read action cannot supply a write value or fault
+    cell. Its synchronous ReadAttempt can trigger its successor under T1. All
+    v2.1 alias and remembered non-grantor semantics remain in force.
+    <!-- derives: C2.1, C2.2, F1.1, F1.3, T1, T2, T3, A1, A2, E1 -->
+53. Read traffic uses the existing sampled network: within-side reordering,
+    one-third duplicate sends, permanent loss for sends across a cut, delivery
+    connectivity checks, and paused-client reply queues. Client crash clears
+    grants and changes incarnation, so old replies cannot reach its restart.
+    Wire messages already handed to the external simulated network may arrive
+    after storage restart if they were not dropped while storage was down; this
+    does not retain a storage process inbox or introduce a new fault cell.
+    <!-- derives: C2.1, C2.2, F1.1, F1.2, F1.3 -->
+54. C2.1 is checked using storage's local sequence and only accepted writes to
+    reconstruct its durable maximum. Both read decision types must report that
+    ledger, while a served read must have token >= maximum. Reads never update
+    the reconstructed maximum. C2.1 states a necessary condition for service;
+    rejecting a non-stale read alone is not scored as a C2.1 violation.
+    <!-- derives: C2.1, C1.2, F1.1, F1.2, F1.3 -->
+55. C2.2's independent checker reconstructs the stored value from the exact
+    WriteAttempt that each storage WriteAccept names, in storage sequence order.
+    It compares every ReadAccept to that reconstructed value. It reads no live
+    ledger, client state or engine value; JSONL line order and wall clocks do not
+    determine causal ordering. Storage sequence continuity spans restart.
+    <!-- derives: C2.2, C1.2, F1.1, F1.2, F1.3 -->
+56. Every served ack must identify a served read of that same client, key and
+    token, with the exact served value. A precisely correlated attempt never
+    served is C2.2 FAIL; an existing serve whose reference was omitted is
+    UNEXPLAINED missing evidence. Missing value fields or missing provenance alone
+    are also UNEXPLAINED. A witnessed wrong snapshot/value remains C2.2 FAIL even
+    if another part of the trace lacks provenance or the end is unreachable.
+    <!-- derives: C2.2, F1.1, F1.2, F1.3, E2 -->
+57. P13/P14/P15 mutations bypass only the read comparison after crash, partition
+    or resume, respectively. They preserve the write ledger and its reported
+    highest_before, exposing stale service directly to C2.1. P1–P12 remain at
+    their previous enforcing paths; no re-placement was necessary this round.
+    <!-- derives: C2.1, C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3 -->
+58. P16 skips serving a read after a crash and fabricates its served ack. P17
+    fabricates a served ack for a read sent across the partition and never served.
+    Both preserve attempt correlation so the checker can discriminate unserved
+    reads from missing references. P16 can leave its ReadAccept trigger
+    unreachable; E2 still scores the earlier witnessed C2.2 violation.
+    <!-- derives: C2.2, F1.1, F1.2, E2 -->
+59. P18 deliberately reloads current storage value at delivery after resume,
+    instead of delivering the captured snapshot. The baseline's served v1 and
+    later v2 write are causally before the late ack on every seed; baseline
+    carries v1 and mutation carries v2, demonstrating the value part of C2.2.
+    <!-- derives: C2.2, F1.3 -->
+60. Read clauses add safety checks only; C1.4 and its qualified three-second
+    progress certificate are unchanged. The five-second operational bound is
+    not a read liveness promise. Seeds 1–3 sample T2 delay (0–2 ms), message delay
+    (1–5 ms), ordering and duplicates; Raft's election timing remains unseeded.
+    Runner IDs use x1-v3 and the committed-prediction gate requires this round's
+    preregistration. Only declared-clause failures kill mutations. Commits remain
+    signed, with OTS hooks allowed to finish. Round wall time starts at
+    2026-10-21 01:06:33 UTC and is reported through the final commit and stamp;
+    it is workflow metadata only. Finite sampling is not exhaustive proof.
+    <!-- derives: C2.1, C2.2, C1.4, F1.1, F1.2, F1.3, T2, E1, E2 -->
+
+## Blocked
+
+<!-- derives: C2.1, C2.2, C1.4, F1.1, F1.2, F1.3, E1, E2 -->
+Current X1 blocked items: none. Prior rounds and their historical limitations
+remain above; finite sampling and the trusted C1.4 certificate still apply.

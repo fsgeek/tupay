@@ -1,4 +1,4 @@
-// derives: C1.1, C1.4, F1.1, F1.2, A1, A2
+// derives: C1.1, C1.4, F1.1, F1.2, F2.1, F2.2, A1, A2
 package main
 
 import (
@@ -24,7 +24,7 @@ func leaseNumber(id string) (uint64, error) {
 }
 
 // nonGrantor resolves A1 at trigger firing, using the observable grantor and live nodes.
-// derives: C1.1, C1.4, F1.1, F1.2, A1, A2
+// derives: C1.1, C1.4, F1.1, F1.2, F2.1, F2.2, A1, A2
 func (e *Engine) nonGrantor() (string, error) {
 	if e.grantor == "" {
 		return "", fmt.Errorf("A1: non-grantor before any observable Grant")

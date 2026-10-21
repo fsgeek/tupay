@@ -370,16 +370,10 @@ func (g *traceGraph) checkC14(s Schedule, evidence RunEvidence) Verdict {
 		if !clique {
 			return Verdict{Reason: "progress certificate lacks connected majority"}
 		}
-		granted := false
-		for _, e := range g.ordered {
-			if e.Event == "Grant" {
-				r, ok := g.directEvent(e, "Request")
-				if ok && (Ref{r.Proc, r.Seq}) == w.Request {
-					granted = true
-					break
-				}
-			}
+		if v := g.checkGrantDeliveries(s, evidence); v.Reason != "" {
+			return v
 		}
+		granted := g.requestObtained(w.Request, evidence)
 		if !granted {
 			return Verdict{Clause: "C1.4", Reason: fmt.Sprintf("eligible request %v unfulfilled through finite horizon", w.Request)}
 		}
@@ -394,7 +388,7 @@ func checkTrace(path string, s Schedule, evidence RunEvidence) Verdict {
 	if err != nil {
 		return Verdict{Reason: err.Error()}
 	}
-	checks := []Verdict{g.checkC11(), g.checkC12(s.Processes.Storage[0]), g.checkC13(), g.checkC14(s, evidence), g.checkC21(s.Processes.Storage[0]), g.checkC22(s.Processes.Storage[0]), g.checkProvenance(), g.checkAckAnswers()}
+	checks := []Verdict{g.checkC11(), g.checkC12(s.Processes.Storage[0]), g.checkC13(), g.checkC14(s, evidence), g.checkC21(s.Processes.Storage[0]), g.checkC22(s.Processes.Storage[0]), g.checkProvenance(), g.checkAckAnswers(), g.checkGrantDeliveries(s, evidence)}
 	for _, v := range checks {
 		if v.Clause != "" {
 			return v

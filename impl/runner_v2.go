@@ -121,9 +121,17 @@ func (e *Engine) highestGranted() uint64 {
 }
 
 // workloadReady waits for client availability, tokens and previous request replies.
-// derives: C1.1, C1.2, C1.4, F1.1, F1.3, T3, A1, C2.1, C2.2
+// derives: C1.1, C1.2, C1.4, F1.1, F1.3, F2.1, F2.2, T3, A1, C2.1, C2.2
 func (e *Engine) workloadReady(f FrozenAction) bool {
 	for _, a := range f.Actions {
+		// Issuance can precede actual holder receipt; a holder pause waits for it.
+		// derives: C1.4, F1.3, F2.1, F2.2, T3
+		if a.Pause != "" {
+			c := e.clients[a.Pause]
+			if c == nil || !c.up || c.paused || len(c.grants) == 0 {
+				return false
+			}
+		}
 		id := a.Request
 		if a.Write != "" {
 			id = a.Write
@@ -166,11 +174,17 @@ func (e *Engine) workloadReady(f FrozenAction) bool {
 }
 
 // quiescent counts active workload only, excluding stopped/paused incarnations.
-// derives: C1.3, C1.4, F1.1, F1.3, E1, C2.1, C2.2
+// derives: C1.3, C1.4, F1.1, F1.3, F2.1, F2.2, E1, C2.1, C2.2
 func (e *Engine) quiescent() bool {
 	for _, r := range e.requests {
 		c := e.clients[r.client]
 		if !r.done && c.up && !c.paused && c.generation == r.generation {
+			return false
+		}
+	}
+	for _, m := range e.leaseWire {
+		c := e.clients[m.request.client]
+		if !m.request.done && c.up && !c.paused && c.generation == m.request.generation {
 			return false
 		}
 	}
@@ -242,7 +256,7 @@ func (e *Engine) drive() RunEvidence {
 			time.Sleep(time.Millisecond)
 		}
 	}
-	finish := func() RunEvidence { result.Witnesses = e.witnesses(); return result }
+	finish := func() RunEvidence { result.Witnesses = e.witnesses(); result.Deliveries = e.deliveries; return result }
 	armed := 0
 	for _, step := range e.schedule.Steps {
 		var trigger Ref

@@ -44,6 +44,9 @@ type RequestState struct {
 	generation    uint64
 	done          bool
 	eligibleSince time.Time
+	retryAt       time.Time             // derives: C1.4, F2.1, F2.2
+	ingress       map[string]uint64     // derives: C1.4, F1.1, F2.1, F2.2
+	paths         map[string][]RouteHop // derives: C1.4, F2.1, F2.2
 }
 
 // WireMessage is a sampled transport delivery or a paused client's inbox item.
@@ -65,6 +68,7 @@ type completedAllocation struct {
 	node       string
 	generation uint64
 	allocation Allocation
+	route      []RouteHop // derives: C1.4, F2.1, F2.2
 	err        error
 }
 
@@ -84,6 +88,7 @@ type RunEvidence struct {
 	Witnesses   []ProgressWitness `json:"progress_horizons"`
 	Completed   bool              `json:"schedule_completed"`
 	Reason      string            `json:"reason,omitempty"`
+	Deliveries  []GrantDelivery   `json:"grant_deliveries,omitempty"` // derives: C1.4, F1.1, F2.1, F2.2
 }
 
 // Engine serializes workload actions while Raft runs its existing goroutines.
@@ -103,6 +108,9 @@ type Engine struct {
 	storageValue                                    string
 	requests                                        []*RequestState
 	wire                                            []WireMessage
+	leaseWire                                       []LeasePacket   // derives: C1.4, F2.1, F2.2
+	deliveries                                      []GrantDelivery // derives: C1.4, F2.1, F2.2
+	nextRequest                                     int             // derives: C1.4 — fair allocation among standing requests
 	results                                         chan completedAllocation
 	inflight                                        bool
 	lastGrant                                       Ref
@@ -290,7 +298,9 @@ func (e *Engine) pump() {
 	default:
 	}
 	e.deliver(now)
+	e.deliverLease(now)
 	for _, r := range e.requests {
+		e.retryRequest(r, now)
 		if r.done {
 			continue
 		}
@@ -305,21 +315,25 @@ func (e *Engine) pump() {
 	if e.inflight || now.Before(e.nextGrant) || e.suppressGrant() {
 		return
 	}
-	for _, r := range e.requests {
+	for offset := 0; offset < len(e.requests); offset++ {
+		index := (e.nextRequest + offset) % len(e.requests)
+		r := e.requests[index]
 		c := e.clients[r.client]
 		if r.done || !c.up || c.paused || r.generation != c.generation {
 			continue
 		}
 		for _, id := range e.schedule.Processes.Lease {
 			n := e.nodes[id]
-			if n.peer == nil || n.peer.State() != raft.Leader || !e.canSend(r.client, id) {
+			if n.peer == nil || n.peer.State() != raft.Leader || r.ingress[id] != n.generation {
 				continue
 			}
 			// Majority authority remains Raft's responsibility; the runner never allocates a token itself.
 			future := n.peer.Apply([]byte("allocate"), 100*time.Millisecond)
 			e.inflight = true
+			e.nextRequest = (index + 1) % len(e.requests)
+			route := append([]RouteHop{}, r.paths[id]...)
 			go func(req *RequestState, node string, generation uint64, f raft.ApplyFuture) {
-				v := completedAllocation{request: req, node: node, generation: generation, err: f.Error()}
+				v := completedAllocation{request: req, node: node, generation: generation, route: route, err: f.Error()}
 				if v.err == nil {
 					allocation, ok := f.Response().(Allocation)
 					if !ok {
@@ -335,13 +349,13 @@ func (e *Engine) pump() {
 	}
 }
 
-// finishAllocation issues a grant only if its committed reply reaches the client.
+// finishAllocation records committed issuance independently of reply delivery.
 // derives: C1.1, C1.4, F1.1, F1.2, F2.1, F2.2, F1.3, C2.1, C2.2
 func (e *Engine) finishAllocation(v completedAllocation) {
 	r := v.request
 	c := e.clients[r.client]
 	n := e.nodes[v.node]
-	if v.err != nil || r.done || c.generation != r.generation || c.paused || n.generation != v.generation || !e.canSend(v.node, r.client) {
+	if v.err != nil || r.done || c.generation != r.generation || !c.up || n.generation != v.generation || !e.alive(v.node) {
 		return
 	}
 	token := v.allocation.Token
@@ -364,12 +378,12 @@ func (e *Engine) finishAllocation(v completedAllocation) {
 	}
 	ref := e.out.emit(Event{Proc: v.node, Event: "Grant", Client: r.client, Key: "k", Token: token, Lifetime: grantLifetime.Milliseconds(), Term: v.allocation.Term}, r.ref, e.lastGrant)
 	now := time.Now()
-	c.grants = append(c.grants, HeldGrant{token: token, term: v.allocation.Term, ref: ref, expires: now.Add(grantLifetime)})
+	grant := HeldGrant{token: token, term: v.allocation.Term, ref: ref, expires: now.Add(grantLifetime)}
+	e.leaseWire = append(e.leaseWire, LeasePacket{kind: "grant-send", from: v.node, to: v.node, targetGeneration: v.generation, request: r, grant: grant, requestHops: v.route, due: now.Add(8 * time.Millisecond)})
 	e.lastGrant = ref
 	e.grantor = v.node
 	e.holder = r.client
 	e.nextGrant = now.Add(grantLifetime)
-	r.done = true
 }
 
 // write selects the client's actual grant and queues delivery to storage.

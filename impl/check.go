@@ -1,4 +1,4 @@
-// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, C2.1, C2.2
+// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F2.1, F2.2, F1.3, C2.1, C2.2
 package main
 
 import (
@@ -17,7 +17,7 @@ type Verdict struct {
 }
 
 // traceGraph is rebuilt from the JSONL, never from implementation state.
-// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, C2.1, C2.2
+// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F2.1, F2.2, F1.3, C2.1, C2.2
 type traceGraph struct {
 	events  map[Ref]Event
 	local   map[string][]Event
@@ -25,7 +25,7 @@ type traceGraph struct {
 }
 
 // readTrace validates local sequence continuity and reconstructs causal order.
-// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, C2.1, C2.2
+// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F2.1, F2.2, F1.3, C2.1, C2.2
 func readTrace(path string) (*traceGraph, error) {
 	f, err := os.Open(path)
 	if err != nil {
@@ -123,7 +123,7 @@ func readTrace(path string) (*traceGraph, error) {
 }
 
 // precedes traverses explicit causes plus implicit per-process program order.
-// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, C2.1, C2.2
+// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F2.1, F2.2, F1.3, C2.1, C2.2
 func (g *traceGraph) precedes(a, b Ref) bool {
 	if a == b {
 		return false
@@ -170,7 +170,7 @@ func (g *traceGraph) directEvent(e Event, names ...string) (Event, bool) {
 }
 
 // checkC11 compares all ordered grants and demands a total observable grant order.
-// derives: C1.1, F1.1, F1.2, F1.3, C2.1, C2.2
+// derives: C1.1, F1.1, F1.2, F2.1, F2.2, F1.3, C2.1, C2.2
 func (g *traceGraph) checkC11() Verdict {
 	var grants []Event
 	for _, v := range g.ordered {
@@ -200,7 +200,7 @@ func (g *traceGraph) checkC11() Verdict {
 }
 
 // checkProvenance checks the authority path for EVERY acceptance and rejection.
-// derives: C1.1, C1.2, C1.3, F1.1, F1.2, F1.3, C2.1, C2.2
+// derives: C1.1, C1.2, C1.3, F1.1, F1.2, F2.1, F2.2, F1.3, C2.1, C2.2
 func (g *traceGraph) checkProvenance() Verdict {
 	for _, e := range g.ordered {
 		if e.Event != "WriteAccept" && e.Event != "WriteReject" && e.Event != "ReadAccept" && e.Event != "ReadReject" {
@@ -223,7 +223,7 @@ func (g *traceGraph) checkProvenance() Verdict {
 }
 
 // checkC12 reconstructs the durable maximum using storage's own sequence only.
-// derives: C1.2, F1.1, F1.2, F1.3, C2.1, C2.2
+// derives: C1.2, F1.1, F1.2, F2.1, F2.2, F1.3, C2.1, C2.2
 func (g *traceGraph) checkC12(storage string) Verdict {
 	var highest uint64
 	for _, e := range g.local[storage] {
@@ -247,7 +247,7 @@ func (g *traceGraph) checkC12(storage string) Verdict {
 }
 
 // checkC13 correlates each success to THIS attempt's acceptance, including late acks.
-// derives: C1.3, F1.1, F1.2, F1.3, C2.1, C2.2
+// derives: C1.3, F1.1, F1.2, F2.1, F2.2, F1.3, C2.1, C2.2
 func (g *traceGraph) checkC13() Verdict {
 	unknown := Verdict{}
 acks:
@@ -299,14 +299,14 @@ acks:
 }
 
 // checkC14 independently reconstructs the final environment from Fault records.
-// derives: C1.4, F1.1, F1.2, F1.3, E1, C2.1, C2.2
+// derives: C1.4, F1.1, F1.2, F2.1, F2.2, F1.3, E1, C2.1, C2.2
 func (g *traceGraph) checkC14(s Schedule, evidence RunEvidence) Verdict {
 	if len(evidence.Witnesses) == 0 {
 		return Verdict{}
 	}
 	up := map[string]bool{}
 	paused := map[string]bool{}
-	sides := map[string]int{}
+	down := map[link]bool{}
 	var lastFault Ref
 	for _, id := range append(append(append([]string{}, s.Processes.Lease...), s.Processes.Clients...), s.Processes.Storage...) {
 		up[id] = true
@@ -323,16 +323,24 @@ func (g *traceGraph) checkC14(s Schedule, evidence RunEvidence) Verdict {
 		if e.Restart != "" {
 			up[e.Restart] = true
 		}
+		// Independently reconstruct the directed environment from observable faults.
+		// derives: C1.4, F1.2, F2.1, F2.2, L2, L3
 		if e.Partition != nil {
-			sides = map[string]int{}
-			for side, ids := range e.Partition {
-				for _, id := range ids {
-					sides[id] = side
+			for _, a := range e.Partition[0] {
+				for _, b := range e.Partition[1] {
+					down[link{a, b}] = true
+					down[link{b, a}] = true
 				}
 			}
 		}
+		for _, pair := range e.Links {
+			if len(pair) != 2 || !upName(s, pair[0]) || !upName(s, pair[1]) || pair[0] == pair[1] {
+				return Verdict{Reason: "malformed directed Fault links"}
+			}
+			down[link{pair[0], pair[1]}] = true
+		}
 		if e.Heal {
-			sides = map[string]int{}
+			down = map[link]bool{}
 		}
 		if e.Pause != "" {
 			paused[e.Pause] = true
@@ -341,22 +349,25 @@ func (g *traceGraph) checkC14(s Schedule, evidence RunEvidence) Verdict {
 			paused[e.Resume] = false
 		}
 	}
+	connected := func(a, b string) bool { return up[a] && up[b] && !down[link{a, b}] && !down[link{b, a}] }
 	for _, w := range evidence.Witnesses {
 		request, ok := g.events[w.Request]
 		if !ok || request.Event != "Request" || w.StableFault != lastFault || w.BudgetMillis < 3000 {
 			return Verdict{Reason: "invalid progress horizon certificate"}
 		}
 		client, storage := request.Client, s.Processes.Storage[0]
-		if !up[client] || paused[client] || !up[storage] || sides[client] != sides[storage] {
+		if !up[client] || paused[client] || !up[storage] || !connected(client, storage) {
 			return Verdict{Reason: "progress certificate has unavailable requester/storage"}
 		}
-		count := 0
-		for _, id := range s.Processes.Lease {
-			if up[id] && sides[id] == sides[client] {
-				count++
+		clique := false
+		for i, a := range s.Processes.Lease {
+			for _, b := range s.Processes.Lease[i+1:] {
+				if connected(a, b) && connected(a, client) && connected(b, client) && connected(a, storage) && connected(b, storage) {
+					clique = true
+				}
 			}
 		}
-		if count < 2 {
+		if !clique {
 			return Verdict{Reason: "progress certificate lacks connected majority"}
 		}
 		granted := false
@@ -377,7 +388,7 @@ func (g *traceGraph) checkC14(s Schedule, evidence RunEvidence) Verdict {
 }
 
 // checkTrace reports clause failures before operational incompleteness.
-// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, E1, E2, C2.1, C2.2
+// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F2.1, F2.2, F1.3, E1, E2, C2.1, C2.2
 func checkTrace(path string, s Schedule, evidence RunEvidence) Verdict {
 	g, err := readTrace(path)
 	if err != nil {
@@ -402,3 +413,7 @@ func checkTrace(path string, s Schedule, evidence RunEvidence) Verdict {
 	}
 	return Verdict{}
 }
+
+// upName validates a reconstructed fault endpoint against the shared identities.
+// derives: C1.4, F2.1, F2.2, L1, L3
+func upName(s Schedule, id string) bool { return processRoles(s)[id] != "" }

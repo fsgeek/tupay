@@ -113,6 +113,7 @@ func TestX1ReadStoragePath(t *testing.T) {
 			}
 			e.deliver(time.Now().Add(time.Second))
 			e.deliver(time.Now().Add(2 * time.Second))
+			e.deliver(time.Now().Add(3 * time.Second))
 			if e.ledger != 7 {
 				t.Fatalf("read advanced ledger to %d", e.ledger)
 			}

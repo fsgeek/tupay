@@ -1,4 +1,4 @@
-// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, C2.1, C2.2
+// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F2.1, F2.2, F1.3, C2.1, C2.2
 package main
 
 import (
@@ -8,14 +8,14 @@ import (
 )
 
 // Ref identifies an event without a cross-process clock.
-// derives: C1.1, C1.2, C1.3, F1.1, F1.2, F1.3, C2.1, C2.2
+// derives: C1.1, C1.2, C1.3, F1.1, F1.2, F2.1, F2.2, F1.3, C2.1, C2.2
 type Ref struct {
 	Proc string `json:"proc"`
 	Seq  uint64 `json:"seq"`
 }
 
 // Event is the shared observable record. Fault fields are copied from the action.
-// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, C2.1, C2.2
+// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F2.1, F2.2, F1.3, C2.1, C2.2
 type Event struct {
 	Proc          string  `json:"proc"`
 	Seq           uint64  `json:"seq"`
@@ -37,16 +37,18 @@ type Event struct {
 	Crash     string     `json:"crash,omitempty"`
 	Restart   string     `json:"restart,omitempty"`
 	Partition [][]string `json:"partition,omitempty"`
-	Heal      bool       `json:"heal,omitempty"`
-	Pause     string     `json:"pause,omitempty"`
-	Resume    string     `json:"resume,omitempty"`
+	// derives: F2.1, F2.2, L1, L2
+	Links  [][]string `json:"links,omitempty"`
+	Heal   bool       `json:"heal,omitempty"`
+	Pause  string     `json:"pause,omitempty"`
+	Resume string     `json:"resume,omitempty"`
 	// Observe schema v3: explicit attempt identity, independent of ack order.
-	// derives: C1.3, C2.2, F1.1, F1.2, F1.3
+	// derives: C1.3, C2.2, F1.1, F1.2, F2.1, F2.2, F1.3
 	Answers *Ref `json:"answers,omitempty"`
 }
 
 // Emitter persists events synchronously; only the runner's event loop calls it.
-// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, C2.1, C2.2
+// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F2.1, F2.2, F1.3, C2.1, C2.2
 type Emitter struct {
 	file   *os.File
 	run    string
@@ -57,7 +59,7 @@ type Emitter struct {
 }
 
 // newEmitter creates one trace per run, without truncating another run's trace.
-// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, C2.1, C2.2
+// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F2.1, F2.2, F1.3, C2.1, C2.2
 func newEmitter(path, run string) (*Emitter, error) {
 	f, err := os.OpenFile(path, os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0644)
 	if err != nil {
@@ -67,7 +69,7 @@ func newEmitter(path, run string) (*Emitter, error) {
 }
 
 // emit adds local program order and the latest environmental cause.
-// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, C2.1, C2.2
+// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F2.1, F2.2, F1.3, C2.1, C2.2
 func (e *Emitter) emit(v Event, causes ...Ref) Ref {
 	e.seq[v.Proc]++
 	v.Seq = e.seq[v.Proc]
@@ -104,7 +106,7 @@ func (e *Emitter) emit(v Event, causes ...Ref) Ref {
 }
 
 // close makes emitter failures operational errors rather than checker results.
-// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, C2.1, C2.2
+// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F2.1, F2.2, F1.3, C2.1, C2.2
 func (e *Emitter) close() error {
 	err := e.file.Close()
 	if e.err != nil {
@@ -121,10 +123,19 @@ func (e Event) MarshalJSON() ([]byte, error) {
 	if e.Event == "ReadAccept" || e.Event == "ReadAck" && e.Outcome == "served" || e.Event == "WriteAttempt" && e.Value != "" {
 		value = &e.Value
 	}
+	var links *[][]string
+	if e.Event == "Fault" && (e.Heal || e.Cell == "F2.1" || e.Cell == "F2.2") {
+		resolved := e.Links
+		if resolved == nil {
+			resolved = [][]string{}
+		}
+		links = &resolved
+	}
 	return json.Marshal(struct {
 		plain
-		Value *string `json:"value,omitempty"`
-	}{plain(e), value})
+		Value *string     `json:"value,omitempty"`
+		Links *[][]string `json:"links,omitempty"`
+	}{plain(e), value, links})
 }
 
 // UnmarshalJSON retains value presence so empty and absent are distinguishable.

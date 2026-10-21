@@ -705,3 +705,77 @@ were read; other docs, model, experiments and git log were not read.
 <!-- derives: C1.4, C1.3, C2.2, F1.1, F1.2, F1.3, E1, E2 -->
 Current v2.2/schema-v3 blocked items: none. Finite sampling and the trusted C1.4
 horizon certificate retain their previously documented limits.
+
+## X2 adaptation checkpoint (before shared schedule execution)
+
+<!-- derives: C1.1, C1.2, C1.3, C1.4, C2.1, C2.2, F1.1, F1.2, F1.3, F2.1, F2.2, L1, L2, L3, E1, E2, E3, T3 -->
+Predictions and scoring for all 31 shared schedules and 30 mutations were signed
+and committed as `6c58815`, OTS stamp `e39c88c`, before adaptation or tests.
+The initial red fixture receipt records absent link-language/API support. The
+six focused X2 tests and full Go fixture suite pass at this checkpoint; no shared
+schedule or mutation has yet run. The existing transport fixture expecting a
+cut/heal history to invalidate a later reply send was replaced to assert v2's
+opposite rule. The read storage fixture now pumps the distinct send and delivery
+stages. These are semantic fixture adaptations, not changes to predictions.
+
+### Interpretations established from the inputs
+
+67. **Contradicted:** interpretations 11, 21, 25 and 53 discard queued messages
+    on a new cut or recheck connectivity at delivery. Failure-model v2 fixes link
+    fate at send. Requests admitted before a cut can reach storage afterwards;
+    sent replies survive later cuts. Messages sent on down links are permanently
+    lost. F1.1 process availability and client incarnation still govern receipt.
+    The prior text and receipts above are retained as history.
+    <!-- derives: C1.3, C2.2, F1.1, F1.2, F2.1, F2.2 -->
+68. **New:** storage prepares each reply locally for 8 ms before its actual send;
+    send then samples 1–5 ms network delivery. This makes the decision-to-send
+    interval explicit. A decision-triggered fault can precede send, explaining
+    the lost-ack schedules without retroactively losing an already sent packet.
+    Raft's reply relay independently admits the reverse direction at its send,
+    with no cut-history or receive-time link recheck. Raft retains its existing
+    protocol and process-incarnation checks.
+    <!-- derives: C1.1, C1.3, C1.4, C2.2, F1.1, F2.1, F2.2 -->
+69. **Extended:** interpretations 19 and 53's partition environment is an
+    accumulated directed matrix. F1.2 adds all cross-side links to the same
+    matrix; F2.1 adds both directions per pair; F2.2 adds just the named direction.
+    Every heal clears the whole matrix. L1 selectors freeze when the trigger
+    fires, self-pairs are removed and duplicates are harmless. Fault links record
+    resolved directed pairs, including already-down links named by that action;
+    a heal explicitly serializes links: []. The old cell IDs remain live.
+    <!-- derives: F1.2, F2.1, F2.2, L1, L2, A1, T2 -->
+70. **Extended:** interpretations 16 and 38 require literal direct connectivity:
+    requester, storage and some two up lease nodes form a bidirectional clique.
+    Counting two lease nodes reachable from the requester/storage is insufficient
+    unless those lease nodes also connect to each other. The observable grantor
+    need not belong to that clique. The engine and offline checker reconstruct
+    this premise independently. The trusted three-second duration certificate
+    remains a limitation; bounded samples do not prove eventuality.
+    <!-- derives: C1.4, F1.1, F2.1, F2.2, L3 -->
+71. **Extended:** interpretation 52 includes read requests and replies in
+    quiescence. T3 allows another read/write despite a lost previous reply; only
+    a prior request waits for its answer. Link-lost grant completions leave the
+    existing RequestState outstanding: a failed send emits no delivered Grant,
+    and the next attempt uses a fresh committed allocation. Allocation gaps are
+    allowed; no duplicate Grant record is used for retransmission. A reached
+    event bound has priority over readiness and cannot silently become PASS.
+    <!-- derives: C1.1, C1.4, C2.2, F2.1, F2.2, T3, E1, E3 -->
+72. **New:** P19–P30 have the preregistered enforcing-path mutations. P24 skips
+    a later write's acceptance (leaving the first WriteAccept trigger intact)
+    and invents success despite the down reverse link. P29/P30 bypass reply loss
+    with a value different from the actual served snapshot, exposing C2.2's value
+    condition. P25/P26 suppress the same grant-service mechanism used normally;
+    a baseline failure means there is no working half to mutate and will be
+    reported as such. No formal model or model mutation has been read or authored.
+    <!-- derives: C1.1, C1.2, C1.3, C1.4, C2.1, C2.2, F2.1, F2.2, E2 -->
+
+### Access and timing record
+
+<!-- derives: C1.1, C1.4, F2.1, F2.2 -->
+The first recorded clock is 2026-10-21 05:51:48 UTC; final wall time will be
+reported through the adapted commit and hook. Before reading the complete brief,
+the agent attempted the absent steward seed files, read an external generic
+using-superpowers workflow SKILL.md, and later displayed six git-log titles.
+These are access-list deviations, recorded explicitly rather than asserting
+perfect scope compliance. No formal-model artifact or other author's code was
+read. After the brief, source/input reads and all task outputs stay in its listed
+paths (plus git commit/status metadata). The untracked .venv is untouched.

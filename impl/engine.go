@@ -1,4 +1,4 @@
-// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, C2.1, C2.2
+// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F2.1, F2.2, F1.3, C2.1, C2.2
 package main
 
 import (
@@ -15,7 +15,7 @@ import (
 const grantLifetime = 40 * time.Millisecond
 
 // progressHorizon is the preregistered finite liveness opportunity.
-// derives: C1.4, F1.1, F1.2, F1.3, C2.1, C2.2
+// derives: C1.4, F1.1, F1.2, F2.1, F2.2, F1.3, C2.1, C2.2
 const progressHorizon = 3 * time.Second
 
 // HeldGrant retains provenance even when an old holder resumes after expiry.
@@ -37,7 +37,7 @@ type Client struct {
 }
 
 // RequestState tracks a particular observable request, not merely a client ID.
-// derives: C1.1, C1.4, F1.1, F1.2, F1.3, C2.1, C2.2
+// derives: C1.1, C1.4, F1.1, F1.2, F2.1, F2.2, F1.3, C2.1, C2.2
 type RequestState struct {
 	client        string
 	ref           Ref
@@ -47,7 +47,7 @@ type RequestState struct {
 }
 
 // WireMessage is a sampled transport delivery or a paused client's inbox item.
-// derives: C1.2, C1.3, F1.1, F1.2, F1.3, C2.1, C2.2
+// derives: C1.2, C1.3, F1.1, F1.2, F2.1, F2.2, F1.3, C2.1, C2.2
 type WireMessage struct {
 	kind, client      string
 	generation        uint64
@@ -55,10 +55,11 @@ type WireMessage struct {
 	grant             HeldGrant
 	value, outcome    string
 	due               time.Time
+	pendingSend       bool // derives: F2.1, F2.2 — local reply work before network send
 }
 
 // completedAllocation never communicates on an unbuffered runner channel.
-// derives: C1.1, C1.4, F1.1, F1.2, C2.1, C2.2
+// derives: C1.1, C1.4, F1.1, F1.2, F2.1, F2.2, C2.1, C2.2
 type completedAllocation struct {
 	request    *RequestState
 	node       string
@@ -68,7 +69,7 @@ type completedAllocation struct {
 }
 
 // ProgressWitness records a finite progress horizon separately from the schema.
-// derives: C1.4, F1.1, F1.2, F1.3, C2.1, C2.2
+// derives: C1.4, F1.1, F1.2, F2.1, F2.2, F1.3, C2.1, C2.2
 type ProgressWitness struct {
 	Request      Ref   `json:"request"`
 	StableFault  Ref   `json:"stable_fault"`
@@ -76,7 +77,7 @@ type ProgressWitness struct {
 }
 
 // RunEvidence contains operational horizon certificates, never event ordering.
-// derives: C1.4, F1.1, F1.2, F1.3, E1, E2, C2.1, C2.2
+// derives: C1.4, F1.1, F1.2, F2.1, F2.2, F1.3, E1, E2, C2.1, C2.2
 type RunEvidence struct {
 	Derives     []string          `json:"derives"`
 	Operational string            `json:"operational_error,omitempty"`
@@ -86,7 +87,7 @@ type RunEvidence struct {
 }
 
 // Engine serializes workload actions while Raft runs its existing goroutines.
-// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, A1, T1, T2, T3, E1, C2.1, C2.2
+// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F2.1, F2.2, F1.3, A1, T1, T2, T3, E1, C2.1, C2.2
 type Engine struct {
 	schedule                                        Schedule
 	out                                             *Emitter
@@ -94,7 +95,7 @@ type Engine struct {
 	nodes                                           map[string]*LeaseNode
 	network                                         *RaftNetwork
 	clients                                         map[string]*Client
-	sides                                           map[string]int
+	down                                            map[link]bool
 	rest                                            []string
 	storage                                         string
 	storageUp                                       bool
@@ -110,12 +111,13 @@ type Engine struct {
 	nextGrant                                       time.Time
 	mutation                                        string
 	crashSeen, partitionSeen, pauseSeen, resumeSeen bool
+	partialSeen, simplexSeen                        bool // derives: F2.1, F2.2 — independent mutation activation
 }
 
 // newEngine bootstraps exactly one fixed three-voter configuration.
-// derives: C1.1, C1.4, F1.1, F1.2, C2.1, C2.2
+// derives: C1.1, C1.4, F1.1, F1.2, F2.1, F2.2, C2.1, C2.2
 func newEngine(s Schedule, out *Emitter, seed int64, mutation string) (*Engine, error) {
-	e := &Engine{schedule: s, out: out, rng: rand.New(rand.NewSource(seed)), nodes: map[string]*LeaseNode{}, network: newRaftNetwork(), clients: map[string]*Client{}, sides: map[string]int{}, storage: s.Processes.Storage[0], storageUp: true, results: make(chan completedAllocation, 1), mutation: mutation}
+	e := &Engine{schedule: s, out: out, rng: rand.New(rand.NewSource(seed)), nodes: map[string]*LeaseNode{}, network: newRaftNetwork(), clients: map[string]*Client{}, down: map[link]bool{}, storage: s.Processes.Storage[0], storageUp: true, results: make(chan completedAllocation, 1), mutation: mutation}
 	for _, id := range s.Processes.Clients {
 		e.clients[id] = &Client{id: id, up: true, generation: 1}
 	}
@@ -144,7 +146,7 @@ func newEngine(s Schedule, out *Emitter, seed int64, mutation string) (*Engine, 
 }
 
 // awaitBootstrap establishes the fixed grantor before start-triggered faults.
-// derives: C1.1, C1.4, F1.1, F1.2, C2.1, C2.2
+// derives: C1.1, C1.4, F1.1, F1.2, F2.1, F2.2, C2.1, C2.2
 func (e *Engine) awaitBootstrap() error {
 	deadline := time.NewTimer(progressHorizon)
 	defer deadline.Stop()
@@ -189,13 +191,13 @@ func (e *Engine) awaitBootstrap() error {
 }
 
 // rpcTimeout samples the Raft RPC timeout (not an observation timestamp).
-// derives: C1.4, F1.2, C2.1, C2.2
+// derives: C1.4, F1.2, F2.1, F2.2, C2.1, C2.2
 func (e *Engine) rpcTimeout() time.Duration {
 	return time.Duration(25+e.rng.Intn(15)) * time.Millisecond
 }
 
 // jitter samples within-side workload delivery order.
-// derives: C1.2, C1.3, F1.2, C2.1, C2.2
+// derives: C1.2, C1.3, F1.2, F2.1, F2.2, C2.1, C2.2
 func (e *Engine) jitter() time.Duration { return time.Duration(1+e.rng.Intn(5)) * time.Millisecond }
 
 // close shuts down nodes even if execution failed partway through setup.
@@ -220,34 +222,38 @@ func (e *Engine) alive(id string) bool {
 	return id == e.storage && e.storageUp
 }
 
-// connected gates ALL application traffic, including replies, across the cut.
-// derives: F1.1, F1.2, C1.3, C1.4, C2.1, C2.2
+// connected is a direct bidirectional relation; send admission uses canSend.
+// derives: F1.1, F1.2, F2.1, F2.2, C1.3, C1.4, C2.1, C2.2
 func (e *Engine) connected(a, b string) bool {
-	return e.alive(a) && e.alive(b) && e.sides[a] == e.sides[b]
+	return e.canSend(a, b) && e.canSend(b, a)
 }
 
-// connect applies the same complete cut to the Raft transport router.
-// derives: F1.1, F1.2, C1.1, C1.4, C2.1, C2.2
-func (e *Engine) connect() { e.network.partition(e.sides) }
+// connect copies the accumulated directed failures to the Raft transport router.
+// derives: F1.1, F1.2, F2.1, F2.2, C1.1, C1.4, C2.1, C2.2
+func (e *Engine) connect() { e.network.setDown(e.down) }
 
 // eligible is the contract's majority/storage/requester connectivity predicate.
-// derives: C1.4, F1.1, F1.2, F1.3, C2.1, C2.2
+// derives: C1.4, F1.1, F1.2, F2.1, F2.2, F1.3, C2.1, C2.2
 func (e *Engine) eligible(r *RequestState) bool {
 	c := e.clients[r.client]
 	if !c.up || c.paused || c.generation != r.generation || !e.connected(r.client, e.storage) {
 		return false
 	}
-	count := 0
-	for _, id := range e.schedule.Processes.Lease {
-		if e.connected(r.client, id) && e.connected(e.storage, id) {
-			count++
+	for i, a := range e.schedule.Processes.Lease {
+		if !e.connected(r.client, a) || !e.connected(e.storage, a) {
+			continue
+		}
+		for _, b := range e.schedule.Processes.Lease[i+1:] {
+			if e.connected(a, b) && e.connected(r.client, b) && e.connected(e.storage, b) {
+				return true
+			}
 		}
 	}
-	return count >= 2
+	return false
 }
 
 // request emits once; retries reuse that request's identity.
-// derives: C1.1, C1.4, F1.1, F1.2, F1.3, C2.1, C2.2
+// derives: C1.1, C1.4, F1.1, F1.2, F2.1, F2.2, F1.3, C2.1, C2.2
 func (e *Engine) request(id string) error {
 	c := e.clients[id]
 	if !c.up || c.paused {
@@ -259,7 +265,7 @@ func (e *Engine) request(id string) error {
 }
 
 // suppressGrant is the deliberate liveness enforcement break, one pair per run.
-// derives: C1.4, F1.1, F1.2, F1.3, C2.1, C2.2
+// derives: C1.4, F1.1, F1.2, F2.1, F2.2, F1.3, C2.1, C2.2
 func (e *Engine) suppressGrant() bool {
 	// mutation: P10 suppress grant service after a minority crash.
 	if e.mutation == "P10" && e.crashSeen {
@@ -270,11 +276,11 @@ func (e *Engine) suppressGrant() bool {
 		return true
 	}
 	// mutation: P12 retain a paused holder forever and suppress later grants.
-	return e.mutation == "P12" && e.pauseSeen
+	return e.mutation == "P12" && e.pauseSeen || e.mutation == "P25" && e.partialSeen || e.mutation == "P26" && e.simplexSeen
 }
 
 // pump advances sampled messages and retries requests without blocking faults.
-// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, C2.1, C2.2
+// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F2.1, F2.2, F1.3, C2.1, C2.2
 func (e *Engine) pump() {
 	now := time.Now()
 	select {
@@ -306,7 +312,7 @@ func (e *Engine) pump() {
 		}
 		for _, id := range e.schedule.Processes.Lease {
 			n := e.nodes[id]
-			if n.peer == nil || n.peer.State() != raft.Leader || !e.connected(r.client, id) {
+			if n.peer == nil || n.peer.State() != raft.Leader || !e.canSend(r.client, id) {
 				continue
 			}
 			// Majority authority remains Raft's responsibility; the runner never allocates a token itself.
@@ -330,12 +336,12 @@ func (e *Engine) pump() {
 }
 
 // finishAllocation issues a grant only if its committed reply reaches the client.
-// derives: C1.1, C1.4, F1.1, F1.2, F1.3, C2.1, C2.2
+// derives: C1.1, C1.4, F1.1, F1.2, F2.1, F2.2, F1.3, C2.1, C2.2
 func (e *Engine) finishAllocation(v completedAllocation) {
 	r := v.request
 	c := e.clients[r.client]
 	n := e.nodes[v.node]
-	if v.err != nil || r.done || c.generation != r.generation || c.paused || n.generation != v.generation || !e.connected(v.node, r.client) {
+	if v.err != nil || r.done || c.generation != r.generation || c.paused || n.generation != v.generation || !e.canSend(v.node, r.client) {
 		return
 	}
 	token := v.allocation.Token
@@ -344,7 +350,7 @@ func (e *Engine) finishAllocation(v completedAllocation) {
 		token = 1
 	}
 	// mutation: P2 reuse the initial token after the grantor is partitioned.
-	if e.mutation == "P2" && e.partitionSeen {
+	if e.mutation == "P2" && e.partitionSeen || e.mutation == "P19" && e.partialSeen || e.mutation == "P20" && e.simplexSeen {
 		token = 1
 	}
 	// mutation: P3 reuse a token while the preceding holder is paused.
@@ -367,7 +373,7 @@ func (e *Engine) finishAllocation(v completedAllocation) {
 }
 
 // write selects the client's actual grant and queues delivery to storage.
-// derives: C1.2, C1.3, F1.1, F1.2, F1.3, T3, C2.1, C2.2
+// derives: C1.2, C1.3, F1.1, F1.2, F2.1, F2.2, F1.3, T3, C2.1, C2.2
 func (e *Engine) write(id, value, selection string) error {
 	c := e.clients[id]
 	if !c.up || c.paused || len(c.grants) == 0 {
@@ -390,7 +396,7 @@ func (e *Engine) write(id, value, selection string) error {
 	}
 	ref := e.out.emit(Event{Proc: id, Event: "WriteAttempt", Client: id, Key: "k", Token: g.token, Term: g.term, Value: value}, g.ref)
 	// A write sent across a cut is lost even if the partition heals immediately.
-	if !e.connected(id, e.storage) {
+	if !e.canSend(id, e.storage) {
 		e.ghostAck(WireMessage{client: id, generation: c.generation, attempt: ref, grant: g})
 		return nil
 	}
@@ -406,7 +412,7 @@ func (e *Engine) write(id, value, selection string) error {
 }
 
 // read selects the client's actual grant and queues delivery to storage.
-// derives: C1.2, C1.3, F1.1, F1.2, F1.3, T3, C2.1, C2.2
+// derives: C1.2, C1.3, F1.1, F1.2, F2.1, F2.2, F1.3, T3, C2.1, C2.2
 func (e *Engine) read(id, selection string) error {
 	c := e.clients[id]
 	if !c.up || c.paused || len(c.grants) == 0 {
@@ -429,7 +435,7 @@ func (e *Engine) read(id, selection string) error {
 	}
 	ref := e.out.emit(Event{Proc: id, Event: "ReadAttempt", Client: id, Key: "k", Token: g.token, Term: g.term}, g.ref)
 	// A read sent across a cut is lost even if the partition heals immediately.
-	if !e.connected(id, e.storage) {
+	if !e.canSend(id, e.storage) {
 		e.ghostReadAck(WireMessage{client: id, generation: c.generation, attempt: ref, grant: g})
 		return nil
 	}
@@ -445,35 +451,53 @@ func (e *Engine) read(id, selection string) error {
 }
 
 // ghostAck breaks the client success path only for writes that never reached storage.
-// derives: C1.3, F1.1, F1.2, C2.1, C2.2
+// derives: C1.3, F1.1, F1.2, F2.1, F2.2, C2.1, C2.2
 func (e *Engine) ghostAck(m WireMessage) {
 	c := e.clients[m.client]
 	if !c.up || c.paused || c.generation != m.generation {
 		return
 	}
 	// mutation: P8 manufacture success for an undelivered write across a partition.
-	if e.mutation == "P8" && e.partitionSeen {
+	if e.mutation == "P8" && e.partitionSeen || e.mutation == "P23" && e.partialSeen {
 		e.out.emit(Event{Proc: m.client, Event: "WriteAck", Answers: &m.attempt, Client: m.client, Key: "k", Token: m.grant.token, Outcome: "accepted"}, m.attempt)
 	}
 }
 
 // storageDecision compares against the retained ledger atomically.
-// derives: C1.2, C1.3, F1.1, F1.2, F1.3, T1, E2, C2.1, C2.2
+// derives: C1.2, C1.3, F1.1, F1.2, F2.1, F2.2, F1.3, T1, E2, C2.1, C2.2
 func (e *Engine) storageDecision(m WireMessage) {
+	// P24 bypasses acceptance on a later write, preserving the first accept trigger.
+	// Skip duplicate deliveries of an already accepted attempt as well.
+	// derives: C1.3, F2.2, P24
+	if e.mutation == "P24" && e.simplexSeen && e.ledger > 0 {
+		accepted := false
+		for _, v := range e.out.events {
+			if v.Event == "WriteAccept" {
+				for _, r := range v.Causes {
+					if r == m.attempt {
+						accepted = true
+					}
+				}
+			}
+		}
+		if !accepted {
+			e.out.emit(Event{Proc: m.client, Event: "WriteAck", Answers: &m.attempt, Client: m.client, Key: "k", Token: m.grant.token, Outcome: "accepted"}, m.attempt)
+			return
+		}
+	}
 	// mutation: P7 after storage restart, bypass acceptance and fabricate its success reply.
 	// derives: C1.3, F1.1, T1, E2, C2.1, C2.2
 	if e.mutation == "P7" && e.crashSeen {
 		m.kind = "ack"
 		m.decision = m.attempt
 		m.outcome = "accepted"
-		m.due = time.Now().Add(e.jitter())
-		e.wire = append(e.wire, m)
+		e.queueReply(m)
 		return
 	}
 	before := e.ledger
 	accept := m.grant.token >= before
 	// mutation: P5 bypass the fencing comparison in the partition path.
-	if e.mutation == "P5" && e.partitionSeen {
+	if e.mutation == "P5" && e.partitionSeen || e.mutation == "P21" && e.partialSeen || e.mutation == "P22" && e.simplexSeen {
 		accept = true
 	}
 	// mutation: P6 bypass the fencing comparison after a paused client resumes.
@@ -491,12 +515,11 @@ func (e *Engine) storageDecision(m WireMessage) {
 	m.kind = "ack"
 	m.decision = ref
 	m.outcome = outcome
-	m.due = time.Now().Add(8*time.Millisecond + e.jitter())
-	e.wire = append(e.wire, m)
+	e.queueReply(m)
 }
 
 // deliver samples due-message order; a cut drops messages rather than delaying them.
-// derives: C1.2, C1.3, F1.1, F1.2, F1.3, C2.1, C2.2
+// derives: C1.2, C1.3, F1.1, F1.2, F2.1, F2.2, F1.3, C2.1, C2.2
 func (e *Engine) deliver(now time.Time) {
 	messages := e.wire
 	e.wire = nil
@@ -508,7 +531,7 @@ func (e *Engine) deliver(now time.Time) {
 		}
 		c := e.clients[m.client]
 		if m.kind == "read" {
-			if !e.connected(m.client, e.storage) {
+			if !e.alive(e.storage) {
 				e.ghostReadAck(m)
 				continue
 			}
@@ -516,14 +539,28 @@ func (e *Engine) deliver(now time.Time) {
 			continue
 		}
 		if m.kind == "write" {
-			if !e.connected(m.client, e.storage) {
+			if !e.alive(e.storage) {
 				e.ghostAck(m)
 				continue
 			}
 			e.storageDecision(m)
 			continue
 		}
-		if !e.connected(e.storage, m.client) || c.generation != m.generation {
+		if m.pendingSend {
+			if !e.canSend(e.storage, m.client) {
+				// Wrong-value mutations bypass loss at the reply enforcing path.
+				// derives: C2.2, F2.1, F2.2, P29, P30
+				if m.kind == "read-ack" && m.outcome == "served" && (e.mutation == "P29" && e.partialSeen || e.mutation == "P30" && e.simplexSeen) && c.up && c.generation == m.generation {
+					e.out.emit(Event{Proc: m.client, Event: "ReadAck", Answers: &m.attempt, Client: m.client, Key: "k", Token: m.grant.token, Outcome: "served", Value: m.value + "-wrong"}, m.decision)
+				}
+				continue
+			}
+			m.pendingSend = false
+			m.due = time.Now().Add(e.jitter())
+			e.wire = append(e.wire, m)
+			continue
+		}
+		if !c.up || c.generation != m.generation {
 			continue
 		}
 		if c.paused {
@@ -549,7 +586,7 @@ func (e *Engine) deliver(now time.Time) {
 }
 
 // expandPartition resolves aliases at the trigger, not when the YAML is parsed.
-// derives: F1.2, C1.1, C1.2, C1.4, A1, C2.1, C2.2
+// derives: F1.2, F2.1, F2.2, C1.1, C1.2, C1.4, A1, C2.1, C2.2
 func (e *Engine) expandPartition(input [][]string) ([][]string, error) {
 	output := [][]string{{}, {}}
 	used := map[string]bool{}
@@ -600,7 +637,7 @@ func (e *Engine) expandPartition(input [][]string) ([][]string, error) {
 }
 
 // act applies only a validated workload action or one admitted failure cell.
-// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, C2.1, C2.2
+// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F2.1, F2.2, F1.3, C2.1, C2.2
 func (e *Engine) act(a Action, trigger Ref) error {
 	if a.Request != "" {
 		return e.request(a.Request)
@@ -619,6 +656,17 @@ func (e *Engine) act(a Action, trigger Ref) error {
 		}
 		v.Partition = resolved
 	}
+	// L1 selectors were frozen at trigger firing; act also validates direct callers.
+	// derives: F2.1, F2.2, L1, L2
+	cut, err := e.expandLinks(a.Cut)
+	if err != nil {
+		return err
+	}
+	drop, err := e.expandLinks(a.Drop)
+	if err != nil {
+		return err
+	}
+	v.Links = faultLinks(v.Partition, cut, drop)
 	if a.Crash != "" && !e.alive(a.Crash) {
 		return fmt.Errorf("crash of stopped process %s", a.Crash)
 	}
@@ -677,20 +725,22 @@ func (e *Engine) act(a Action, trigger Ref) error {
 		}
 		e.connect()
 	}
-	// derives: F1.2 — complete bipartition, dropped application and Raft messages., C2.1, C2.2
-	if v.Partition != nil {
-		e.partitionSeen = true
-		e.sides = map[string]int{}
-		for side, ids := range v.Partition {
-			for _, id := range ids {
-				e.sides[id] = side
-			}
+	// Failures accumulate. Never remove messages already sent on an up link.
+	// derives: F1.2, F2.1, F2.2, L1, L2, C1.1, C1.3, C1.4, C2.2
+	if v.Partition != nil || a.Cut != nil || a.Drop != nil {
+		if e.down == nil {
+			e.down = map[link]bool{}
 		}
-		e.dropCrossing()
+		e.partitionSeen = e.partitionSeen || v.Partition != nil
+		e.partialSeen = e.partialSeen || a.Cut != nil
+		e.simplexSeen = e.simplexSeen || a.Drop != nil
+		for _, pair := range v.Links {
+			e.down[link{pair[0], pair[1]}] = true
+		}
 		e.connect()
 	}
 	if a.Heal {
-		e.sides = map[string]int{}
+		e.down = map[link]bool{}
 		e.connect()
 	}
 	// derives: F1.3 — client execution and reply receipt stop while grant time continues., C2.1, C2.2
@@ -711,20 +761,8 @@ func (e *Engine) act(a Action, trigger Ref) error {
 	return nil
 }
 
-// dropCrossing prevents a queued message from reappearing after heal.
-// derives: F1.2, C1.3, C2.1, C2.2
-func (e *Engine) dropCrossing() {
-	messages := e.wire
-	e.wire = nil
-	for _, m := range messages {
-		if e.sides[m.client] == e.sides[e.storage] {
-			e.wire = append(e.wire, m)
-		}
-	}
-}
-
 // witnesses certifies only uninterrupted, eligible progress opportunities.
-// derives: C1.4, F1.1, F1.2, F1.3, C2.1, C2.2
+// derives: C1.4, F1.1, F1.2, F2.1, F2.2, F1.3, C2.1, C2.2
 func (e *Engine) witnesses() []ProgressWitness {
 	var result []ProgressWitness
 	now := time.Now()
@@ -737,7 +775,7 @@ func (e *Engine) witnesses() []ProgressWitness {
 }
 
 // ghostReadAck breaks only the partition-lost read's client delivery path.
-// derives: C2.2, F1.2, P17
+// derives: C2.2, F1.2, F2.1, F2.2, P17
 func (e *Engine) ghostReadAck(m WireMessage) {
 	c := e.clients[m.client]
 	if e.mutation == "P17" && e.partitionSeen && c.up && !c.paused && c.generation == m.generation {
@@ -746,7 +784,7 @@ func (e *Engine) ghostReadAck(m WireMessage) {
 }
 
 // readDecision snapshots the durable value without changing the accepted-write ledger.
-// derives: C2.1, C2.2, F1.1, F1.2, F1.3, P13, P14, P15, P16
+// derives: C2.1, C2.2, F1.1, F1.2, F2.1, F2.2, F1.3, P13, P14, P15, P16
 func (e *Engine) readDecision(m WireMessage) {
 	if e.mutation == "P16" && e.crashSeen {
 		// Skip serving, then give the client a fabricated served response.
@@ -755,15 +793,14 @@ func (e *Engine) readDecision(m WireMessage) {
 		m.decision = m.attempt
 		m.outcome = "served"
 		m.value = "fabricated"
-		m.due = time.Now().Add(e.jitter())
-		e.wire = append(e.wire, m)
+		e.queueReply(m)
 		return
 	}
 	before := e.ledger
 	serve := m.grant.token >= before
 	// Each mutation bypasses only the read fence; the write ledger remains intact.
-	// derives: C2.1, F1.1, F1.2, F1.3, P13, P14, P15
-	if e.mutation == "P13" && e.crashSeen || e.mutation == "P14" && e.partitionSeen || e.mutation == "P15" && e.resumeSeen {
+	// derives: C2.1, F1.1, F1.2, F2.1, F2.2, F1.3, P13, P14, P15
+	if e.mutation == "P13" && e.crashSeen || e.mutation == "P14" && e.partitionSeen || e.mutation == "P15" && e.resumeSeen || e.mutation == "P27" && e.partialSeen || e.mutation == "P28" && e.simplexSeen {
 		serve = true
 	}
 	name, outcome, value := "ReadReject", "rejected", ""
@@ -777,6 +814,5 @@ func (e *Engine) readDecision(m WireMessage) {
 	m.decision = ref
 	m.outcome = outcome
 	m.value = value
-	m.due = time.Now().Add(8*time.Millisecond + e.jitter())
-	e.wire = append(e.wire, m)
+	e.queueReply(m)
 }

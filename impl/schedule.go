@@ -1,4 +1,4 @@
-// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, T1, T2, T3, A1, A2, E1, C2.1, C2.2
+// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F2.1, F2.2, F1.3, T1, T2, T3, A1, A2, E1, C2.1, C2.2
 package main
 
 import (
@@ -12,7 +12,7 @@ import (
 )
 
 // Trigger describes a freshly armed event predicate or terminal quiescence.
-// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, T1, T2, T3, A1, A2, E1, C2.1, C2.2
+// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F2.1, F2.2, F1.3, T1, T2, T3, A1, A2, E1, C2.1, C2.2
 type Trigger struct {
 	Start     bool
 	Quiescent bool
@@ -20,7 +20,7 @@ type Trigger struct {
 }
 
 // UnmarshalYAML rejects unknown or non-observable trigger fields.
-// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, T1, T2, T3, A1, A2, E1, C2.1, C2.2
+// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F2.1, F2.2, F1.3, T1, T2, T3, A1, A2, E1, C2.1, C2.2
 func (t *Trigger) UnmarshalYAML(n *yaml.Node) error {
 	if n.Kind == yaml.ScalarNode {
 		if n.Value == "quiescent" {
@@ -54,18 +54,18 @@ func (t *Trigger) UnmarshalYAML(n *yaml.Node) error {
 	return nil
 }
 
-// observable excludes injector events from contract triggers.
+// observable includes Fault for the v4 schedule trigger language.
 // derives: C1.1, C1.2, C1.3, C1.4, C2.1, C2.2
 func observable(s string) bool {
 	switch s {
-	case "Request", "Grant", "WriteAttempt", "WriteAccept", "WriteReject", "WriteAck", "ReadAttempt", "ReadAccept", "ReadReject", "ReadAck":
+	case "Fault", "Request", "Grant", "WriteAttempt", "WriteAccept", "WriteReject", "WriteAck", "ReadAttempt", "ReadAccept", "ReadReject", "ReadAck":
 		return true
 	}
 	return false
 }
 
 // Action is the complete, closed action language; there is no arbitrary sleep.
-// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, T1, T2, T3, A1, A2, E1, C2.1, C2.2
+// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F2.1, F2.2, F1.3, T1, T2, T3, A1, A2, E1, C2.1, C2.2
 type Action struct {
 	Request   string     `yaml:"request,omitempty"`
 	Write     string     `yaml:"write,omitempty"`
@@ -76,20 +76,23 @@ type Action struct {
 	Crash     string     `yaml:"crash,omitempty"`
 	Restart   string     `yaml:"restart,omitempty"`
 	Partition [][]string `yaml:"partition,omitempty"`
-	Heal      bool       `yaml:"heal,omitempty"`
-	Pause     string     `yaml:"pause,omitempty"`
-	Resume    string     `yaml:"resume,omitempty"`
+	// derives: F2.1, F2.2, L1, L2
+	Cut    [][]string `yaml:"cut,omitempty"`
+	Drop   [][]string `yaml:"drop,omitempty"`
+	Heal   bool       `yaml:"heal,omitempty"`
+	Pause  string     `yaml:"pause,omitempty"`
+	Resume string     `yaml:"resume,omitempty"`
 }
 
 // Step waits for its trigger and then applies exactly one action.
-// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, T1, T2, T3, A1, A2, E1, C2.1, C2.2
+// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F2.1, F2.2, F1.3, T1, T2, T3, A1, A2, E1, C2.1, C2.2
 type Step struct {
 	At Trigger `yaml:"at"`
 	Do Action  `yaml:"do"`
 }
 
 // Schedule is the shared YAML interface interpreted independently here.
-// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, T1, T2, T3, A1, A2, E1, C2.1, C2.2
+// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F2.1, F2.2, F1.3, T1, T2, T3, A1, A2, E1, C2.1, C2.2
 type Schedule struct {
 	Name      string   `yaml:"schedule"`
 	Derives   []string `yaml:"derives"`
@@ -106,7 +109,7 @@ type Schedule struct {
 }
 
 // loadSchedule resolves only the repository-root shared schedule directory.
-// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, T1, T2, T3, A1, A2, E1, C2.1, C2.2
+// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F2.1, F2.2, F1.3, T1, T2, T3, A1, A2, E1, C2.1, C2.2
 func loadSchedule(name string) (Schedule, error) {
 	var s Schedule
 	base := strings.TrimSuffix(name, ".yaml")
@@ -160,7 +163,7 @@ func loadSchedule(name string) (Schedule, error) {
 			ids[id] = group.role
 		}
 	}
-	known := map[string]bool{"C1.1": true, "C1.2": true, "C1.3": true, "C1.4": true, "C2.1": true, "C2.2": true, "F1.1": true, "F1.2": true, "F1.3": true, "T1": true, "T2": true, "T3": true, "A1": true, "A2": true, "E1": true, "E2": true}
+	known := map[string]bool{"C1.1": true, "C1.2": true, "C1.3": true, "C1.4": true, "C2.1": true, "C2.2": true, "F1.1": true, "F1.2": true, "F1.3": true, "F2.1": true, "F2.2": true, "L1": true, "L2": true, "L3": true, "E3": true, "T1": true, "T2": true, "T3": true, "A1": true, "A2": true, "E1": true, "E2": true}
 	if len(s.Derives) == 0 {
 		return s, fmt.Errorf("missing derivations")
 	}
@@ -190,10 +193,10 @@ func loadSchedule(name string) (Schedule, error) {
 }
 
 // validateAction rejects out-of-model faults and malformed workload actions.
-// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, T1, T2, T3, A1, A2, E1, C2.1, C2.2
+// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F2.1, F2.2, F1.3, T1, T2, T3, A1, A2, E1, C2.1, C2.2
 func validateAction(a Action, ids map[string]string) error {
 	count := 0
-	for _, v := range []bool{a.Request != "", a.Write != "", a.Read != "", a.Crash != "", a.Restart != "", a.Partition != nil, a.Heal, a.Pause != "", a.Resume != ""} {
+	for _, v := range []bool{a.Request != "", a.Write != "", a.Read != "", a.Crash != "", a.Restart != "", a.Partition != nil, a.Cut != nil, a.Drop != nil, a.Heal, a.Pause != "", a.Resume != ""} {
 		if v {
 			count++
 		}
@@ -227,9 +230,29 @@ func validateAction(a Action, ids map[string]string) error {
 		}
 		return nil
 	}
+	if a.Cut != nil || a.Drop != nil {
+		pairs := a.Cut
+		if a.Cut != nil && a.Cell != "F2.1" || a.Drop != nil && a.Cell != "F2.2" {
+			return fmt.Errorf("cut requires F2.1; drop requires F2.2")
+		}
+		if a.Drop != nil {
+			pairs = a.Drop
+		}
+		for _, pair := range pairs {
+			if len(pair) != 2 {
+				return fmt.Errorf("link requires two ends")
+			}
+			for _, id := range pair {
+				if id == "rest" || selectorRole(id, ids) == "" {
+					return fmt.Errorf("invalid link endpoint %s", id)
+				}
+			}
+		}
+		return nil
+	}
 	if a.Partition != nil || a.Heal {
-		if a.Cell != "F1.2" {
-			return fmt.Errorf("partition/heal requires F1.2")
+		if a.Partition != nil && a.Cell != "F1.2" || a.Heal && a.Cell != "F1.2" && a.Cell != "F2.1" && a.Cell != "F2.2" {
+			return fmt.Errorf("partition requires F1.2; heal requires a link fault cell")
 		}
 		if a.Partition != nil {
 			if len(a.Partition) != 2 || len(a.Partition[0]) == 0 || len(a.Partition[1]) == 0 {
@@ -256,7 +279,7 @@ func validateAction(a Action, ids map[string]string) error {
 }
 
 // triggerRef matches only events emitted after the trigger was armed.
-// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, T1, T2, T3, A1, A2, E1, C2.1, C2.2
+// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F2.1, F2.2, F1.3, T1, T2, T3, A1, A2, E1, C2.1, C2.2
 func triggerRef(t Trigger, events []Event, armed int) (Ref, bool) {
 	if t.Start {
 		return Ref{}, true

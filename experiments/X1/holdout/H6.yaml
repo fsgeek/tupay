@@ -1,0 +1,20 @@
+schedule: H6
+derives: [C2.1, C1.4, F1.1, F1.2]
+processes:
+  lease: [n1, n2, n3]
+  clients: [c1, c2]
+  storage: [s]
+steps:
+  # derives: hold-out H6 (C2.1, C1.4, F1.1, F1.2). A follower crashes, then the grantor is isolated alone while the holder keeps reading; the majority side grants to another requester and writes; the heal and a restart follow; liveness and read fencing must both hold.
+  - {at: start, do: {request: c1}}
+  - {at: {event: Grant, client: c1}, do: {cell: F1.1, crash: non-grantor}}
+  - {at: start, do: {read: c1}}
+  - {at: {event: ReadAck, client: c1, outcome: served}, do: {cell: F1.2, partition: [[grantor], [rest]]}}
+  - {at: start, do: {cell: F1.1, restart: non-grantor}}
+  - {at: start, do: {request: c2}}
+  - {at: {event: Grant, client: c2}, do: {write: c2, value: v2}}
+  - {at: {event: WriteAck, client: c2, outcome: accepted}, do: {read: c1}}
+  - {at: {event: ReadAck, client: c1}, do: {cell: F1.2, heal: true}}
+  - {at: start, do: {read: c1}}
+end: quiescent
+bound: {events: 200}

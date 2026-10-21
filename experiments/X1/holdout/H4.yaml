@@ -1,0 +1,21 @@
+schedule: H4
+derives: [C2.1, C2.2, C1.2, F1.1, F1.3]
+processes:
+  lease: [n1, n2, n3]
+  clients: [c1, c2]
+  storage: [s]
+steps:
+  # derives: hold-out H4 (C2.1, C2.2, C1.2, F1.1, F1.3). Crash and pause composed: storage restarts while the old holder is paused; the new holder writes; the resumed holder reads and writes with its old token; a fresh read must carry the new value.
+  - {at: start, do: {request: c1}}
+  - {at: {event: Grant, client: c1}, do: {write: c1, value: v1}}
+  - {at: {event: WriteAck, client: c1, outcome: accepted}, do: {cell: F1.3, pause: c1}}
+  - {at: start, do: {cell: F1.1, crash: s}}
+  - {at: start, do: {cell: F1.1, restart: s}}
+  - {at: start, do: {request: c2}}
+  - {at: {event: Grant, client: c2}, do: {write: c2, value: v2}}
+  - {at: {event: WriteAck, client: c2, outcome: accepted}, do: {cell: F1.3, resume: c1}}
+  - {at: start, do: {read: c1}}
+  - {at: {event: ReadAck, client: c1}, do: {write: c1, value: v3}}
+  - {at: {event: WriteAck, client: c1}, do: {read: c2}}
+end: quiescent
+bound: {events: 200}

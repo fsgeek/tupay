@@ -141,3 +141,7 @@ Model author, resumed: predictions `884b282`, adapted `18f3c66` (stamped `b84d17
 
 ## 2026-10-21: implementation adapted to v2.2 and schema v3 (6m54s)
 Codex, resumed: predictions `b3cbaf6`, adaptation `a912afc`, adapted `60e8f6e` (stamped `557aa68`), about 62k tokens, signed. No verdict changes; 297 ack references validated by its own check. Merging both and running with the steward's extended checker.
+
+## 2026-10-21: interface v2.2 and schema v3 verified; the handoff boundary
+Merge `2a5e8b4`. Steward's runs: model 19 of 19 PASS, 18 of 18 mutations FAIL (4 min); implementation 57 of 57 PASS, 18 of 18 kills on every seed (1.5 min). Extended provenance checker: every non-mutation trace on both sides passes the new `answers` check; on the model side it fails exactly the four mutation counterexamples that forge an ack (P7, P8, P16, P17), whose `causes` do not reach the attempt the ack claims to answer. That is the schema gap closed and the checker acting as a second detector for ack-forging mutations, as the model author's V22.1 predicted. Logs in `experiments/interface-v2.2/`. Cost of this adaptation: model 5 min and 11k tokens; implementation 6m54s and 62k; steward about 20 min.
+This is the boundary named in `docs/handoff/2026-10-21-first-steward.md`: interfaces at v2.2 and schema v3, both artifacts adapted and verified, X1 scored, nothing in flight. The X2 pre-registration is the successor's to write. Checkouts removed; branches `v22-model`, `v22-impl` kept.

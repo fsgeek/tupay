@@ -11,4 +11,4 @@
 {"proc": "env", "seq": 7, "event": "Fault", "cell": "F1.1", "restart": "n2", "causes": [], "run": "P1", "side": "model"}
 {"proc": "env", "seq": 8, "event": "Fault", "cell": "F1.1", "restart": "n3", "causes": [], "run": "P1", "side": "model"}
 {"proc": "c1", "seq": 2, "event": "Request", "client": "c1", "key": "k", "causes": [], "run": "P1", "side": "model"}
-{"proc": "n2", "seq": 2, "event": "Grant", "client": "c1", "key": "k", "token": 3, "lifetime": 1, "grantor_term": 3, "causes": [{"proc": "c1", "seq": 2}], "run": "P1", "side": "model"}
+{"proc": "n1", "seq": 2, "event": "Grant", "client": "c1", "key": "k", "token": 3, "lifetime": 1, "grantor_term": 3, "causes": [{"proc": "c1", "seq": 2}], "run": "P1", "side": "model"}

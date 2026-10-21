@@ -101,3 +101,6 @@ Model author, resumed: predictions `ff09ad3`, adapted `5888a3a` (stamped `a38b20
 
 ## 2026-10-21: X1 arm A, steward's model runs and one residue
 Merge `db11875`. Steward's run of arm A's model: 19 of 19 shared schedules PASS, 18 of 18 mutations FAIL on their clause, hold-out H1 to H3 all PASS, provenance complete; about 5.5 minutes. Residue for measure 4, found by reading, not by running: `model/run.py`'s `mutations()` now runs eighteen mutations, including the six for C2.x, but its derivation tag still names only P1 to P12. The code was adapted; the tag was not. That is one under-tagged element on arm A's model side at the steward's first run, which is what prediction X1-4 said adaptation would leave. Not fixed; scored. The implementation side's runs and the whole of arm R are still pending.
+
+## 2026-10-21: X1 arm A, steward's implementation runs; arm A complete with zero divergences
+Arm A's implementation under the steward: 57 of 57 shared-schedule runs PASS, 18 of 18 mutations killed on every seed, hold-out H1 to H3 PASS on all three seeds, provenance complete; 1 minute 38 seconds. Arm A therefore has zero divergences between its sides on the shared set and zero on the hold-out set. Logs in `experiments/X1/armA/`. Prediction X1-3's first half (arm A at most one divergence) holds; X1-5 and X1-6 wait on arm R.

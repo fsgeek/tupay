@@ -1,0 +1,18 @@
+schedule: H3
+derives: [C2.1, C1.1, F1.1, F1.2]
+processes:
+  lease: [n1, n2, n3]
+  clients: [c1, c2]
+  storage: [s]
+steps:
+  # derives: hold-out H3 (C2.1, C1.1, F1.1, F1.2). The grantor is isolated with the holder and storage; the majority side grants; the heal and a grantor crash follow; the old holder's read after the new holder's write must be rejected, and tokens must still increase.
+  - {at: start, do: {request: c1}}
+  - {at: {event: Grant, client: c1}, do: {cell: F1.2, partition: [[grantor, holder, s], [rest]]}}
+  - {at: start, do: {request: c2}}
+  - {at: {event: Grant, client: c2}, do: {cell: F1.2, heal: true}}
+  - {at: start, do: {write: c2, value: v2}}
+  - {at: {event: WriteAck, client: c2, outcome: accepted}, do: {cell: F1.1, crash: grantor}}
+  - {at: start, do: {read: c1}}
+  - {at: {event: ReadAck, client: c1}, do: {request: c1}}
+end: quiescent
+bound: {events: 200}

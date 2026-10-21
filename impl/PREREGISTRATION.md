@@ -510,3 +510,21 @@ not a majority clique; a clique excluding the grantor does qualify; independent
 C1.4 reconstruction agrees with these premises; reads are included in quiescence,
 and lost replies do not block later workload; E3 cannot PASS an exceeded bound.
 No outcome has informed these predictions or this plan.
+
+### X2 additive source-review amendment: local reply work and crash
+
+<!-- derives: C1.3, C2.2, F1.1, F2.1, F2.2 -->
+The first complete matrix at checkpoint 94549e3 passed 93/93. No failing schedule
+prompted this amendment. Source review of the new pendingSend stage found that
+storage crash currently leaves unsent local reply work in the harness queue.
+F1.1 requires losing volatile process state. Fix by discarding pendingSend items
+when storage crashes, retaining messages already sent into the external network.
+Expected regression: before the fix an unsent reply survives storage restart;
+after the fix it is absent while an already-sent reply remains deliverable.
+This adds coverage for the preregistered incarnation/availability expectation;
+all original verdicts, mutation placements, durations and scoring are unchanged.
+The already-observed passes informed neither this rule nor its correction, but
+are explicitly disclosed here. Retain the first matrix as initial evidence and
+repeat the required matrix after this production change. Additional focused
+source-review fixtures will verify runtime clique eligibility and that a failed
+grant reply send leaves a requester outstanding; both are expected to pass.

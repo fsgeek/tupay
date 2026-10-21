@@ -324,3 +324,6 @@ Reading: the out-of-brief change `e77dc22` made P30's mutation survive far more 
 
 ## 2026-10-21: correction to the diagnostic entry
 It says the runs went "19:20Z to about 19:45Z". The results file was last written at 19:22:40Z: 240 runs in about two minutes. The time was written without checking the clock, the same slip the first and second stewards logged. The procedure rule exists (`docs/steward-practice.md`); the steward broke it within a minute of relying on it.
+
+## 2026-10-21: flake census of `main`, pre-registered
+`impl/run.sh --all --seeds 3` and `impl/run.sh --mutations --seeds 3`, ten repetitions each, on the scratch worktree of `main` used above (unchanged), sequentially. A (pair, seed) cell is **flaky** if its ten outcomes are not all the same. Predictions (steward, before running): FC-1 (p = 0.6) at least one unmutated pair other than P18 is flaky; FC-2 (p = 0.5) at least one mutation other than P18's and P30's survives or is UNEXPLAINED in some repetition; FC-3 (p = 0.7) every flaky cell involves an F1.3 pause or an F2.x link change. The model side is TLC, deterministic, and is not re-measured.

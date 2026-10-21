@@ -307,3 +307,17 @@ Predictions (steward, before any run):
 - D2 (p = 0.6): on revert, P18 and P30 mutations are killed in all 60 of their runs.
 - D3 (p = 0.5): on revert, P18 unmutated shows at least one UNEXPLAINED (the residue the author was reacting to returns).
 What follows from it: D1 true renames the problem (flaky under real time, not seed-dependent) and makes the shared-schedule PASS counts of the fix round weaker evidence than they looked, since a single run per seed was the procedure. D2 and D3 together would mean the revert trades one defect for the older one, and the parallel comparison Tony suggested (revert versus repair-forward) is worth running; D2 true and D3 false would make the revert sufficient.
+
+## 2026-10-21: seed-dependence diagnostic, scored
+Evidence `experiments/sdiag/` (`results.txt`, the run script, `revert.diff`). Correction to the pre-registration: it says "240 runs per worktree"; the design it states is 120 per worktree (2 schedules × unmutated/mutated × 3 seeds × 10), 240 in all, and that is what ran (19:20Z to about 19:45Z, sequentially, one worktree at a time).
+| cell (10 runs each) | main | revert |
+|---|---|---|
+| P18 unmutated, seeds 1/2/3 | 10/8/9 PASS; 3 UNEXPLAINED workload unavailable | 10/8/9 PASS; 3 UNEXPLAINED pause requires an unexpired holder |
+| P18 mutated, killed, seeds 1/2/3 | 10/8/6; 6 UNEXPLAINED workload unavailable | 10/8/10; 2 UNEXPLAINED pause requires an unexpired holder |
+| P30 unmutated | 30/30 PASS | 30/30 PASS |
+| P30 mutated, killed, seeds 1/2/3 | 8/4/9 (**9 of 30 survive**) | 10/10/9 (1 of 30 survives) |
+- **D1 confirmed** (p = 0.7): eight of twelve main cells are mixed across repetitions of the same seed, and failures occur on seeds 1, 2 and 3. The defect is timing-dependent, not seed-dependent; "seed-dependent" in the fix-round entry is the wrong name.
+- **D2 falsified** (p = 0.6): on revert, 57 of 60 mutated runs kill (P18 two UNEXPLAINED, P30 one survival).
+- **D3 confirmed** (p = 0.5): on revert, P18 unmutated shows the older residue (3 of 30 UNEXPLAINED, "pause requires an unexpired holder").
+Reading: the out-of-brief change `e77dc22` made P30's mutation survive far more often (9/30 against 1/30) and changed P18's failure message, but did not create the flakiness; the implementation's F1.3 pause has depended on wall-clock time before it. Reverting is therefore not sufficient, and the revert-versus-repair comparison is moot: both arms would start from a flaky base. The repair needed is that no outcome depends on wall-clock time (the replay draft already puts that in its implementation briefs).
+**The larger consequence:** every implementation result in tupay so far, from M1 to the fix round, was scored on one run per seed. Flake rates were never measured, so the PASS and kill counts in M1, X1, X2 and the fix round are single samples of a nondeterministic process; this diagnostic shows rates up to 30% on two pairs. No past result is rescored here. Decisions: (1) steward practice gains a rule: an implementation pair is scored on at least ten repetitions per seed, with its rate reported, and a pair whose outcome varies is reported as flaky, not as PASS or kill; (2) before X3 builds on `main`, the implementation's timing dependence is repaired by its author under a brief that says exactly that, with this diagnostic as the evidence and the ten-repetition rule as the acceptance test; (3) a re-measurement of all thirty-five pairs on `main` at ten repetitions is the cheap first step, and is recorded as owed.

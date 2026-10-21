@@ -22,7 +22,7 @@ func checkerFixture() []Event {
 }
 
 // writeFixture deliberately reverses JSONL line order to rule out clock/line ordering.
-// derives: C1.1, C1.2, C1.3, F1.1, F1.2, F1.3
+// derives: C2.1, C2.2, C1.1, C1.2, C1.3, F1.1, F1.2, F1.3
 func writeFixture(t *testing.T, events []Event) string {
 	t.Helper()
 	path := filepath.Join(t.TempDir(), "trace.jsonl")
@@ -49,7 +49,7 @@ func writeFixture(t *testing.T, events []Event) string {
 }
 
 // fixtureSchedule describes identities only; it is not a second service implementation.
-// derives: C1.1, C1.2, C1.3, C1.4
+// derives: C2.1, C2.2, C1.1, C1.2, C1.3, C1.4
 func fixtureSchedule() Schedule {
 	var s Schedule
 	s.Processes.Lease = []string{"n1", "n2", "n3"}

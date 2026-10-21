@@ -1,0 +1,5 @@
+# derives: C2.2, F1.3, P18
+seed	ack	serve	served_value	ack_value	newer_write_causally_before_ack	newer_write_value
+1	('c1', 5)	('s', 2)	v1	v1	('s', 3)	v2
+2	('c1', 5)	('s', 2)	v1	v1	('s', 3)	v2
+3	('c1', 6)	('s', 3)	v1	v1	('s', 4)	v2

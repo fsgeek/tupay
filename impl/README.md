@@ -946,3 +946,23 @@ new interpretation 77's receipt-before-pause behavior; it was not prompted by a
 shared schedule failure. Both first matrices, their traces and the passing first
 audit are retained; everything is rerun after this correction. No prediction,
 mutation placement, liveness horizon, scoring rule or shared schedule changed.
+
+### FixR declared observed limitation: P18's finite pause window
+
+<!-- derives: C2.2, C1.4, F1.3, F2.1, F2.2, T2, T3, E1 -->
+The final rerun at e77dc22 has one prediction miss: P18 seed 2 is UNEXPLAINED
+workload unavailable under T3. After the grant's relayed delivery, the write and
+read round trips consumed the issuance-relative 40 ms lifetime before the pause
+action. The trace has ReadAccept and ReadAck, no pause Fault, and no c2 Request.
+The pause-readiness guard waits for an unexpired held grant that this schedule
+never renews. No clause violation or eligible unanswered-request horizon was
+witnessed. This is retained as an incomplete run; it is not upgraded to PASS.
+No lifetime, pause validity rule, schedule, scoring or prediction is changed.
+
+This declares a concrete remaining shape: a pause scheduled after enough message
+round trips can miss the finite unexpired-holder window and yield UNEXPLAINED.
+The routing relay's extra hops can expose this window. The implementation keeps
+its existing lifetime origin/duration and F1.3 validity rule; the brief allows
+recording an adverse result, and the evidence does not justify weakening F1.3
+or claiming a read safety failure. The complete raw trace and sidecar are retained.
+The first all-PASS matrix and final prediction miss will both appear in results.

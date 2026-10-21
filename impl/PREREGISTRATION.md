@@ -672,3 +672,25 @@ readiness also requires the currently held grant to be unexpired. Existing F1.3
 action validation is retained. No shared schedule, prediction, mutation placement,
 scoring rule or horizon changes. Preserve the first matrices and repeat everything
 after this correction; all original per-seed predictions remain in force.
+
+### FixR outcome note: final baseline P18 seed 2
+
+<!-- derives: C2.2, C1.4, F1.3, F2.1, F2.2, T2, T3, E1 -->
+Outcome-informed. The final baseline matrix at e77dc22 returns 104 PASS and one
+UNEXPLAINED: P18 seed 2, workload unavailable under T3. Its trace contains the
+first issued/delivered grant, accepted write, served read and delivered read ack,
+but no pause Fault and no second Request. The only false readiness condition for
+that next pause is the held grant's expired issuance-relative 40 ms lifetime.
+There is no certified pending-request horizon and no witnessed safety violation.
+This is a prediction miss and retained final result, not a PASS or a C1.4 failure.
+The old and new pause guards both require an unexpired holder under F1.3.
+
+No behavior, lifetime origin/duration, schedule, scoring rule or prediction is
+changed in response. Final mutation execution proceeds once, as registered.
+The declared limitations now include P18-like schedules: multiple round trips
+between grant issuance and a pause trigger can consume the holder's finite
+window; a renewal not requested by the schedule is not fabricated. This is left
+as a bounded-sampling/injection limitation with its trace, rather than treating
+an expired client as F1.3's unexpired holder. The original PASS predictions and
+first 105-pass matrix remain intact. No additional baseline retry will replace
+or obscure this final matrix.

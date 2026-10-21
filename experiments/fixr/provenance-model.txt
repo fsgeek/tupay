@@ -1,0 +1,72 @@
+OK model/observe/H10.jsonl: 4 decisions, 0 untraceable
+OK model/observe/H7.jsonl: 11 decisions, 0 untraceable
+OK model/observe/H8.jsonl: 6 decisions, 0 untraceable
+OK model/observe/H9.jsonl: 0 decisions, 0 untraceable
+OK model/observe/P1-mutation.jsonl: 0 decisions, 0 untraceable
+OK model/observe/P1.jsonl: 0 decisions, 0 untraceable
+OK model/observe/P10-mutation.jsonl: 0 decisions, 0 untraceable
+OK model/observe/P10.jsonl: 0 decisions, 0 untraceable
+OK model/observe/P11-mutation.jsonl: 0 decisions, 0 untraceable
+OK model/observe/P11.jsonl: 0 decisions, 0 untraceable
+OK model/observe/P12-mutation.jsonl: 0 decisions, 0 untraceable
+OK model/observe/P12.jsonl: 0 decisions, 0 untraceable
+OK model/observe/P13-mutation.jsonl: 5 decisions, 0 untraceable
+OK model/observe/P13.jsonl: 8 decisions, 0 untraceable
+OK model/observe/P14-mutation.jsonl: 5 decisions, 0 untraceable
+OK model/observe/P14.jsonl: 8 decisions, 0 untraceable
+OK model/observe/P15-mutation.jsonl: 4 decisions, 0 untraceable
+OK model/observe/P15.jsonl: 6 decisions, 0 untraceable
+FAIL model/observe/P16-mutation.jsonl: 3 decisions, 1 untraceable
+   ReadAck proc=c1 seq=5 token=1: causes chain does not reach answered attempt ('c1', 4)
+OK model/observe/P16.jsonl: 5 decisions, 0 untraceable
+FAIL model/observe/P17-mutation.jsonl: 4 decisions, 1 untraceable
+   ReadAck proc=c1 seq=6 token=1: causes chain does not reach answered attempt ('c1', 5)
+OK model/observe/P17.jsonl: 5 decisions, 0 untraceable
+OK model/observe/P18-mutation.jsonl: 6 decisions, 0 untraceable
+OK model/observe/P18.jsonl: 8 decisions, 0 untraceable
+OK model/observe/P19-mutation.jsonl: 0 decisions, 0 untraceable
+OK model/observe/P19.jsonl: 0 decisions, 0 untraceable
+OK model/observe/P2-mutation.jsonl: 0 decisions, 0 untraceable
+OK model/observe/P2.jsonl: 0 decisions, 0 untraceable
+OK model/observe/P20-mutation.jsonl: 0 decisions, 0 untraceable
+OK model/observe/P20.jsonl: 0 decisions, 0 untraceable
+OK model/observe/P21-mutation.jsonl: 4 decisions, 0 untraceable
+OK model/observe/P21.jsonl: 6 decisions, 0 untraceable
+OK model/observe/P22-mutation.jsonl: 4 decisions, 0 untraceable
+OK model/observe/P22.jsonl: 6 decisions, 0 untraceable
+FAIL model/observe/P23-mutation.jsonl: 2 decisions, 1 untraceable
+   WriteAck proc=c1 seq=4 token=1: causes chain does not reach answered attempt ('c1', 3)
+OK model/observe/P23.jsonl: 1 decisions, 0 untraceable
+FAIL model/observe/P24-mutation.jsonl: 1 decisions, 1 untraceable
+   WriteAck proc=c1 seq=3 token=1: causes chain does not reach answered attempt ('c1', 2)
+OK model/observe/P24.jsonl: 2 decisions, 0 untraceable
+OK model/observe/P25-mutation.jsonl: 0 decisions, 0 untraceable
+OK model/observe/P25.jsonl: 0 decisions, 0 untraceable
+OK model/observe/P26-mutation.jsonl: 0 decisions, 0 untraceable
+OK model/observe/P26.jsonl: 0 decisions, 0 untraceable
+OK model/observe/P27-mutation.jsonl: 5 decisions, 0 untraceable
+OK model/observe/P27.jsonl: 6 decisions, 0 untraceable
+OK model/observe/P28-mutation.jsonl: 5 decisions, 0 untraceable
+OK model/observe/P28.jsonl: 6 decisions, 0 untraceable
+OK model/observe/P29-mutation.jsonl: 4 decisions, 0 untraceable
+OK model/observe/P29.jsonl: 5 decisions, 0 untraceable
+OK model/observe/P3-mutation.jsonl: 0 decisions, 0 untraceable
+OK model/observe/P3.jsonl: 0 decisions, 0 untraceable
+FAIL model/observe/P30-mutation.jsonl: 3 decisions, 1 untraceable
+   ReadAck proc=c1 seq=5 token=1: causes chain does not reach answered attempt ('c1', 4)
+OK model/observe/P30.jsonl: 5 decisions, 0 untraceable
+OK model/observe/P4-mutation.jsonl: 5 decisions, 0 untraceable
+OK model/observe/P4.jsonl: 6 decisions, 0 untraceable
+OK model/observe/P5-mutation.jsonl: 4 decisions, 0 untraceable
+OK model/observe/P5.jsonl: 6 decisions, 0 untraceable
+OK model/observe/P6-mutation.jsonl: 4 decisions, 0 untraceable
+OK model/observe/P6.jsonl: 6 decisions, 0 untraceable
+FAIL model/observe/P7-mutation.jsonl: 1 decisions, 1 untraceable
+   WriteAck proc=c1 seq=3 token=1: causes chain does not reach answered attempt ('c1', 2)
+OK model/observe/P7.jsonl: 3 decisions, 0 untraceable
+FAIL model/observe/P8-mutation.jsonl: 2 decisions, 1 untraceable
+   WriteAck proc=c1 seq=4 token=1: causes chain does not reach answered attempt ('c1', 3)
+OK model/observe/P8.jsonl: 1 decisions, 0 untraceable
+OK model/observe/P9-mutation.jsonl: 5 decisions, 0 untraceable
+OK model/observe/P9.jsonl: 6 decisions, 0 untraceable
+OK model/observe/false-suspicion-v1.jsonl: 8 decisions, 0 untraceable

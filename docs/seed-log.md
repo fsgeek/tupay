@@ -138,3 +138,6 @@ Format v2.2 defines `restart: non-grantor`. Schema v3 adds `answers: {proc, seq}
 
 ## 2026-10-21: model adapted to v2.2 and schema v3 (5 minutes)
 Model author, resumed: predictions `884b282`, adapted `18f3c66` (stamped `b84d177`), about 11k tokens. No verdict changed, as predicted. Interpretation V22.1: `answers` is the client's view of which attempt an ack answers, `causes` is storage's; the P7, P8, P16, P17 mutations break exactly that agreement. One descriptive miss in its own predictions, recorded by the author. Waiting on the implementation side.
+
+## 2026-10-21: implementation adapted to v2.2 and schema v3 (6m54s)
+Codex, resumed: predictions `b3cbaf6`, adaptation `a912afc`, adapted `60e8f6e` (stamped `557aa68`), about 62k tokens, signed. No verdict changes; 297 ack references validated by its own check. Merging both and running with the steward's extended checker.

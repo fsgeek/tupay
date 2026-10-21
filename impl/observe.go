@@ -17,28 +17,32 @@ type Ref struct {
 // Event is the shared observable record. Fault fields are copied from the action.
 // derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, C2.1, C2.2
 type Event struct {
-	Proc          string     `json:"proc"`
-	Seq           uint64     `json:"seq"`
-	Event         string     `json:"event"`
-	Client        string     `json:"client,omitempty"`
-	Key           string     `json:"key,omitempty"`
-	Token         uint64     `json:"token,omitempty"`
-	Lifetime      int64      `json:"lifetime,omitempty"`
-	Term          uint64     `json:"grantor_term,omitempty"`
-	Value         string     `json:"value,omitempty"`
-	ValuePresent  bool       `json:"-"`
-	HighestBefore *uint64    `json:"highest_before,omitempty"`
-	Outcome       string     `json:"outcome,omitempty"`
-	Causes        []Ref      `json:"causes"`
-	Run           string     `json:"run"`
-	Side          string     `json:"side"`
-	Cell          string     `json:"cell,omitempty"`
-	Crash         string     `json:"crash,omitempty"`
-	Restart       string     `json:"restart,omitempty"`
-	Partition     [][]string `json:"partition,omitempty"`
-	Heal          bool       `json:"heal,omitempty"`
-	Pause         string     `json:"pause,omitempty"`
-	Resume        string     `json:"resume,omitempty"`
+	Proc          string  `json:"proc"`
+	Seq           uint64  `json:"seq"`
+	Event         string  `json:"event"`
+	Client        string  `json:"client,omitempty"`
+	Key           string  `json:"key,omitempty"`
+	Token         uint64  `json:"token,omitempty"`
+	Lifetime      int64   `json:"lifetime,omitempty"`
+	Term          uint64  `json:"grantor_term,omitempty"`
+	Value         string  `json:"value,omitempty"`
+	ValuePresent  bool    `json:"-"`
+	HighestBefore *uint64 `json:"highest_before,omitempty"`
+	Outcome       string  `json:"outcome,omitempty"`
+	Causes        []Ref   `json:"causes"`
+
+	Run       string     `json:"run"`
+	Side      string     `json:"side"`
+	Cell      string     `json:"cell,omitempty"`
+	Crash     string     `json:"crash,omitempty"`
+	Restart   string     `json:"restart,omitempty"`
+	Partition [][]string `json:"partition,omitempty"`
+	Heal      bool       `json:"heal,omitempty"`
+	Pause     string     `json:"pause,omitempty"`
+	Resume    string     `json:"resume,omitempty"`
+	// Observe schema v3: explicit attempt identity, independent of ack order.
+	// derives: C1.3, C2.2, F1.1, F1.2, F1.3
+	Answers *Ref `json:"answers,omitempty"`
 }
 
 // Emitter persists events synchronously; only the runner's event loop calls it.

@@ -44,6 +44,9 @@ func (e *Engine) freezeAction(a Action) (FrozenAction, error) {
 			targets = []string{e.holder}
 		case "non-grantor":
 			selected := e.lastNonGrantor
+			// v2.2 A1: restart is bound to the most recent selector crash,
+			// regardless of the current grantor or available fresh candidates.
+			// derives: C1.4, F1.1, A1, A2
 			if a.Restart != "" {
 				if selected == "" {
 					return frozen, fmt.Errorf("A1: restart non-grantor without a preceding crash non-grantor")
@@ -253,6 +256,8 @@ func (e *Engine) drive() RunEvidence {
 				return finish()
 			}
 		}
+		// v2.2 A1: only a successfully applied selector crash updates this binding.
+		// derives: C1.4, F1.1, A1, A2
 		if frozen.NonGrantorCrash != "" {
 			e.lastNonGrantor = frozen.NonGrantorCrash
 		}

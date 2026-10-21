@@ -90,6 +90,8 @@ func validateSequence(s Schedule, ids map[string]string) error {
 			if (id == "holder" || id == "grantor" || id == "non-grantor") && !grantPossible {
 				return fmt.Errorf("step %d: alias %s before any possible Grant", index+1, id)
 			}
+			// v2.2 A1 makes rejection without a prior selector crash normative.
+			// derives: C1.4, F1.1, A1, A2
 			if id == "non-grantor" && step.Do.Restart != "" && !nonCrashPossible {
 				return fmt.Errorf("step %d: restart non-grantor without a preceding selector crash", index+1)
 			}

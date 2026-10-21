@@ -51,7 +51,7 @@ func TestV21A1_LowestUpNode(t *testing.T) {
 	}
 }
 
-// TestV21A1_FrozenCrashAndRememberedRestart distinguishes selection from restart binding.
+// TestV21A1_FrozenCrashAndRememberedRestart checks normative v2.2 A1 restart binding.
 // derives: C1.4, F1.1, A1, A2
 func TestV21A1_FrozenCrashAndRememberedRestart(t *testing.T) {
 	e := nonGrantorFixture()

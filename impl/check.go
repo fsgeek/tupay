@@ -383,7 +383,7 @@ func checkTrace(path string, s Schedule, evidence RunEvidence) Verdict {
 	if err != nil {
 		return Verdict{Reason: err.Error()}
 	}
-	checks := []Verdict{g.checkC11(), g.checkC12(s.Processes.Storage[0]), g.checkC13(), g.checkC14(s, evidence), g.checkC21(s.Processes.Storage[0]), g.checkC22(s.Processes.Storage[0]), g.checkProvenance()}
+	checks := []Verdict{g.checkC11(), g.checkC12(s.Processes.Storage[0]), g.checkC13(), g.checkC14(s, evidence), g.checkC21(s.Processes.Storage[0]), g.checkC22(s.Processes.Storage[0]), g.checkProvenance(), g.checkAckAnswers()}
 	for _, v := range checks {
 		if v.Clause != "" {
 			return v

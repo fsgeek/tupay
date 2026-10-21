@@ -1,4 +1,4 @@
-// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, T1, T2, T3, A1, A2, E1, E2
+// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, T1, T2, T3, A1, A2, E1, E2, C2.1, C2.2
 package main
 
 import (
@@ -7,7 +7,7 @@ import (
 )
 
 // FrozenAction captures selectors when a trigger fires, before delay or waiting.
-// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, T2, T3, A1, A2
+// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, T2, T3, A1, A2, C2.1, C2.2
 type FrozenAction struct {
 	Actions         []Action
 	Rest            []string
@@ -16,7 +16,7 @@ type FrozenAction struct {
 }
 
 // freezeAction resolves aliases everywhere and checks concrete operation roles.
-// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, A1, A2, T2, T3
+// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, A1, A2, T2, T3, C2.1, C2.2
 func (e *Engine) freezeAction(a Action) (FrozenAction, error) {
 	frozen := FrozenAction{}
 	if a.Partition != nil {
@@ -85,7 +85,7 @@ func (e *Engine) freezeAction(a Action) (FrozenAction, error) {
 }
 
 // highestGranted implements the v2 numeric stale-token definition even in mutations.
-// derives: C1.1, C1.2, F1.3, T3
+// derives: C1.1, C1.2, F1.3, T3, C2.1, C2.2
 func (e *Engine) highestGranted() uint64 {
 	var max uint64
 	for _, event := range e.out.events {
@@ -97,12 +97,15 @@ func (e *Engine) highestGranted() uint64 {
 }
 
 // workloadReady waits for client availability, tokens and previous request replies.
-// derives: C1.1, C1.2, C1.4, F1.1, F1.3, T3, A1
+// derives: C1.1, C1.2, C1.4, F1.1, F1.3, T3, A1, C2.1, C2.2
 func (e *Engine) workloadReady(f FrozenAction) bool {
 	for _, a := range f.Actions {
 		id := a.Request
 		if a.Write != "" {
 			id = a.Write
+		}
+		if a.Read != "" {
+			id = a.Read
 		}
 		if id == "" {
 			continue
@@ -139,7 +142,7 @@ func (e *Engine) workloadReady(f FrozenAction) bool {
 }
 
 // quiescent counts active workload only, excluding stopped/paused incarnations.
-// derives: C1.3, C1.4, F1.1, F1.3, E1
+// derives: C1.3, C1.4, F1.1, F1.3, E1, C2.1, C2.2
 func (e *Engine) quiescent() bool {
 	for _, r := range e.requests {
 		c := e.clients[r.client]
@@ -157,7 +160,7 @@ func (e *Engine) quiescent() bool {
 }
 
 // validateTransition compiles state-dependent A2 checks before any side effect.
-// derives: C1.1, C1.4, F1.1, F1.3, A1, A2
+// derives: C1.1, C1.4, F1.1, F1.3, A1, A2, C2.1, C2.2
 func (e *Engine) validateTransition(a Action) error {
 	if a.Crash != "" && !e.alive(a.Crash) {
 		return fmt.Errorf("A2: crash of stopped process %s", a.Crash)
@@ -181,9 +184,9 @@ func (e *Engine) validateTransition(a Action) error {
 }
 
 // drive applies fresh arming, frozen selectors, sampled delay and bounded quiescence.
-// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, T1, T2, T3, A1, A2, E1, E2
+// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, T1, T2, T3, A1, A2, E1, E2, C2.1, C2.2
 func (e *Engine) drive() RunEvidence {
-	result := RunEvidence{Derives: []string{"C1.1", "C1.2", "C1.3", "C1.4", "F1.1", "F1.2", "F1.3", "T1", "T2", "T3", "A1", "A2", "E1", "E2"}}
+	result := RunEvidence{Derives: []string{"C1.1", "C1.2", "C1.3", "C1.4", "C2.1", "C2.2", "F1.1", "F1.2", "F1.3", "T1", "T2", "T3", "A1", "A2", "E1", "E2"}}
 	wait := func(ready func() bool, reason string) bool {
 		deadline := time.Now().Add(progressHorizon + 2*time.Second)
 		for {
@@ -240,9 +243,9 @@ func (e *Engine) drive() RunEvidence {
 				return finish()
 			}
 		}
-		// v2.1 T1: the predecessor's own Request, WriteAttempt and Fault
+		// v2.1 T1: the predecessor's own Request, WriteAttempt, ReadAttempt and Fault
 		// count as after successor arming; this preserves the existing v2 behavior.
-		// derives: C1.1, C1.3, F1.1, T1, E1
+		// derives: C1.1, C1.3, F1.1, T1, E1, C2.1, C2.2
 		armed = len(e.out.events)
 		for _, a := range frozen.Actions {
 			if err := e.act(a, trigger); err != nil {

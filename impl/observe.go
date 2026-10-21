@@ -1,4 +1,4 @@
-// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3
+// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, C2.1, C2.2
 package main
 
 import (
@@ -8,14 +8,14 @@ import (
 )
 
 // Ref identifies an event without a cross-process clock.
-// derives: C1.1, C1.2, C1.3, F1.1, F1.2, F1.3
+// derives: C1.1, C1.2, C1.3, F1.1, F1.2, F1.3, C2.1, C2.2
 type Ref struct {
 	Proc string `json:"proc"`
 	Seq  uint64 `json:"seq"`
 }
 
 // Event is the shared observable record. Fault fields are copied from the action.
-// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3
+// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, C2.1, C2.2
 type Event struct {
 	Proc          string     `json:"proc"`
 	Seq           uint64     `json:"seq"`
@@ -26,6 +26,7 @@ type Event struct {
 	Lifetime      int64      `json:"lifetime,omitempty"`
 	Term          uint64     `json:"grantor_term,omitempty"`
 	Value         string     `json:"value,omitempty"`
+	ValuePresent  bool       `json:"-"`
 	HighestBefore *uint64    `json:"highest_before,omitempty"`
 	Outcome       string     `json:"outcome,omitempty"`
 	Causes        []Ref      `json:"causes"`
@@ -41,7 +42,7 @@ type Event struct {
 }
 
 // Emitter persists events synchronously; only the runner's event loop calls it.
-// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3
+// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, C2.1, C2.2
 type Emitter struct {
 	file   *os.File
 	run    string
@@ -52,7 +53,7 @@ type Emitter struct {
 }
 
 // newEmitter creates one trace per run, without truncating another run's trace.
-// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3
+// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, C2.1, C2.2
 func newEmitter(path, run string) (*Emitter, error) {
 	f, err := os.OpenFile(path, os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0644)
 	if err != nil {
@@ -62,7 +63,7 @@ func newEmitter(path, run string) (*Emitter, error) {
 }
 
 // emit adds local program order and the latest environmental cause.
-// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3
+// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, C2.1, C2.2
 func (e *Emitter) emit(v Event, causes ...Ref) Ref {
 	e.seq[v.Proc]++
 	v.Seq = e.seq[v.Proc]
@@ -99,11 +100,43 @@ func (e *Emitter) emit(v Event, causes ...Ref) Ref {
 }
 
 // close makes emitter failures operational errors rather than checker results.
-// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3
+// derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F1.3, C2.1, C2.2
 func (e *Emitter) close() error {
 	err := e.file.Close()
 	if e.err != nil {
 		return fmt.Errorf("observe: %w", e.err)
 	}
 	return err
+}
+
+// MarshalJSON emits even an empty value exactly when a read serves a value.
+// derives: C2.2
+func (e Event) MarshalJSON() ([]byte, error) {
+	type plain Event
+	var value *string
+	if e.Event == "ReadAccept" || e.Event == "ReadAck" && e.Outcome == "served" || e.Event == "WriteAttempt" && e.Value != "" {
+		value = &e.Value
+	}
+	return json.Marshal(struct {
+		plain
+		Value *string `json:"value,omitempty"`
+	}{plain(e), value})
+}
+
+// UnmarshalJSON retains value presence so empty and absent are distinguishable.
+// derives: C2.2
+func (e *Event) UnmarshalJSON(data []byte) error {
+	type plain Event
+	var v plain
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	var fields map[string]json.RawMessage
+	if err := json.Unmarshal(data, &fields); err != nil {
+		return err
+	}
+	*e = Event(v)
+	raw, ok := fields["value"]
+	e.ValuePresent = ok && string(raw) != "null"
+	return nil
 }

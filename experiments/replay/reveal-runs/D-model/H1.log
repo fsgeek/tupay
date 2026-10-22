@@ -1,0 +1,60 @@
+TLC2 Version 2.19 of 08 August 2024 (rev: 5a47802)
+Running breadth-first search Model-Checking with fp 84 and seed -3749637940804750167 with 16 workers on 128 cores with 7282MB heap and 64MB offheap memory [pid: 1688428] (Linux 6.18.54.1-microsoft-standard-WSL2 amd64, Ubuntu 11.0.32.1 x86_64, MSBDiskFPSet, DiskStateQueue).
+Parsing file /tmp/dmodel-7586e9fi/Run.tla
+Parsing file /tmp/Sequences.tla
+Parsing file /tmp/Integers.tla
+Parsing file /tmp/Naturals.tla
+Parsing file /tmp/claude-1000/-home-tony-projects-tupay/d68436df-bd63-40f6-90c0-d1c0c16e2085/scratchpad/revDm/model/Raft.tla
+Parsing file /tmp/FiniteSets.tla
+Parsing file /tmp/TLC.tla
+Semantic processing of module Naturals
+Semantic processing of module Sequences
+Semantic processing of module Integers
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module Raft
+Semantic processing of module Run
+Starting... (2026-10-22 10:30:10)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-10-22 10:30:10.
+"MODEL_BOUND_MARKER"
+"MODEL_BOUND_MARKER"
+"MODEL_BOUND_MARKER"
+"MODEL_BOUND_MARKER"
+"MODEL_BOUND_MARKER"
+"MODEL_BOUND_MARKER"
+"MODEL_BOUND_MARKER"
+"MODEL_BOUND_MARKER"
+"MODEL_BOUND_MARKER"
+"MODEL_BOUND_MARKER"
+"MODEL_BOUND_MARKER"
+"MODEL_BOUND_MARKER"
+"MODEL_BOUND_MARKER"
+"MODEL_BOUND_MARKER"
+"MODEL_BOUND_MARKER"
+"MODEL_BOUND_MARKER"
+Progress(25) at 2026-10-22 10:30:14: 4,569 states generated (4,569 s/min), 2,366 distinct states found (2,366 ds/min), 554 states left on queue.
+"COMPLETED_MARKER"
+"COMPLETED_MARKER"
+"COMPLETED_MARKER"
+"COMPLETED_MARKER"
+"COMPLETED_MARKER"
+"COMPLETED_MARKER"
+"COMPLETED_MARKER"
+"COMPLETED_MARKER"
+"COMPLETED_MARKER"
+"COMPLETED_MARKER"
+"COMPLETED_MARKER"
+"COMPLETED_MARKER"
+"COMPLETED_MARKER"
+"COMPLETED_MARKER"
+"COMPLETED_MARKER"
+"COMPLETED_MARKER"
+Model checking completed. No error has been found.
+  Estimates of the probability that TLC did not check all reachable states
+  because two distinct states had the same fingerprint:
+  calculated (optimistic):  val = 5.9E-11
+66025 states generated, 32542 distinct states found, 0 states left on queue.
+The depth of the complete state graph search is 51.
+The average outdegree of the complete state graph is 1 (minimum is 0, the maximum 5 and the 95th percentile is 3).
+Finished in 13s at (2026-10-22 10:30:22)

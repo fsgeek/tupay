@@ -1,0 +1,5 @@
+# Arm F model: steward's reading beside Grok's (registration step 6)
+Author: Grok, session `01a16224-76b7-7793-9388-b2743c1513b1`; Concerns `1435384` (committed together with the model; see `isolation-guard.md`, "Ordering"); `first-version` `ed92c12`. Packet `F-model-packet.md` (`Campaigning`/`Elect`, `ActChange` to `ChangeTimeout`); contains no "Raft", "Ongaro" or "LogCabin" (the four regex hits are `MemberAfter`). Grok's rating `F-model-grok.txt`. Written before any steward run.
+- **Classification:** Grok (c); steward (c). `Elect` appends nothing; `ActChange` waits for the previous configuration entry (`waitprev`).
+- **R4-before / R4-after:** Grok no/no; steward no/no. Concern 2: "I do not claim this breaks J1.1 or J1.5"; Concern 3 says the written justification "is thinner than the property" without naming a violation.
+- **For scoring:** `--explore` ended `UNEXPLAINED bound`; its bounds include campaign restrictions (README "Bounds": one campaign at a time; no campaign while a coordinator of equal or higher epoch is reachable both ways). Whether they exclude the defect's precondition is read at the steward's `--explore` run, not here.

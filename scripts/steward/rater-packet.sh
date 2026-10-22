@@ -6,7 +6,7 @@ set -euo pipefail
 C=$1; PRE=$2; shift 2
 MAIN=$(cd "$(dirname "$0")/../.." && pwd)
 sect() { awk -v h="$2" '$0 ~ "^## "{p=($0=="## "h)} p' <<<"$1"; }
-for README in "$C"/model/README.md "$C"/impl/README.md; do [ -f "$README" ] && break; done; R=${README#$C/}
+for README in "$C"/model/README.md "$C"/impl/README.md "$C"/README.md; do [ -f "$README" ] && break; done; R=${README#$C/}
 BEFORE=$(git -C "$C" show "$PRE:$R"); AFTER=$(git -C "$C" show "first-version:$R")
 cat "$MAIN/experiments/replay/rater-instructions.md"
 echo; echo "---"; echo "# Material"

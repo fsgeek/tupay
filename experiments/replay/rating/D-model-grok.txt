@@ -1,0 +1,15 @@
+The coordinator appends nothing on election. A configuration change waits only until the previous configuration entry is committed.
+
+```json
+{
+  "classification": "c",
+  "d_restricts_beyond_wait": null,
+  "r4_before": false,
+  "r4_after": false,
+  "quotes": {
+    "classification": "BecomeLeader sets only role, nextIndex and matchIndex and queues HB, with no log append: \"st2 == [st EXCEPT !.role = \\\"leader\\\", !.nextIndex = [j \\in Servers |-> Len(log) + 1], !.matchIndex = [j \\in Servers |-> IF j = s THEN Len(log) ELSE 0]]\" and \"msgs2 == Queued(msgs, HB(s, st.term, log, st.commitIndex))\". README choice 9: \"Otherwise the leader waits until the previous configuration is committed (the initial configuration counts as committed), appends one new configuration entry, and answers `ok` once that entry's index is at most `commitIndex`.\"",
+    "r4_before": "\"The trace contains `Elected` for `m5`. That is legal under the text above and is not what a membership change is for.\" No claim that this violates J1.1, J1.5, or that committed entries fail to persist.",
+    "r4_after": "\"The S1 mutation was aimed at J1.1: a candidate becomes leader on its own vote... The violation TLC reaches is J1.5. In the trace, `m1` commits command `c1` in term 1, then `m4` becomes leader in term 2 on its own vote with an empty log. That breaks leader completeness.\" This is a mutated run. It does not assert that the design as specified admits the violation."
+  }
+}
+```

@@ -1,8 +1,8 @@
 scenario: S5
-derives: [J1.4, G1.2]
+derives: [J1.5, G1.2]
 initial: [m1, m2, m3, m4]
 steps:
-  # derives: S5 (J1.4, G1.2). Messages are lost one way between the coordinator and one follower during a change; committed entries persist.
+  # derives: S5 (J1.5, G1.2). Messages are lost one way between the coordinator and one follower during a change; committed entries persist.
   - {at: {event: Elected}, do: {add: m5, at: coordinator}}
   - {at: {event: ChangeRequested}, do: {drop: [[coordinator, m4]]}}
   - {at: {event: ChangeReplied}, do: {heal: true}}

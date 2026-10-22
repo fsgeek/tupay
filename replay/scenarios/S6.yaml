@@ -1,8 +1,8 @@
 scenario: S6
-derives: [J1.4, G1.3]
+derives: [J1.5, G1.3]
 initial: [m1, m2, m3, m4]
 steps:
-  # derives: S6 (J1.4, G1.3). After a commit, m1 and m2 are cut from m3 and m4 (whichever is coordinator); heal; committed entries persist.
+  # derives: S6 (J1.5, G1.3). After a commit, m1 and m2 are cut from m3 and m4 (whichever is coordinator); heal; committed entries persist.
   - {at: {event: Elected}, do: {command: c1, at: coordinator}}
   - {at: {event: Committed}, do: {cut: [[m1, m3], [m1, m4], [m2, m3], [m2, m4]]}}
   - {at: {event: Elected}, do: {heal: true}}

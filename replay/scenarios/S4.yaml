@@ -1,8 +1,8 @@
 scenario: S4
-derives: [J1.4, G1.1]
+derives: [J1.5, G1.1]
 initial: [m1, m2, m3, m4]
 steps:
-  # derives: S4 (J1.4, G1.1). A follower crashes during a membership change and restarts after it is answered; committed entries persist.
+  # derives: S4 (J1.5, G1.1). A follower crashes during a membership change and restarts after it is answered; committed entries persist.
   - {at: {event: Elected}, do: {command: c1, at: coordinator}}
   - {at: {event: Appended, kind: command}, do: {add: m5, at: coordinator}}
   - {at: {event: ChangeRequested}, do: {crash: follower}}

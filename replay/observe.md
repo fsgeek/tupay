@@ -12,4 +12,4 @@ Version 1, fixed 2026-10-21. Both sides write one JSON object per line to `<side
 - Fault steps are recorded as `Fault` records from `proc: "env"` with the step's action as fields and, for `cut` and `drop`, the resolved directed links.
 
 ## The question a trace must answer
-For any violation of J1.1 or J1.4: which configuration entries each involved member had in effect at each election and each commitment, and which members' grants or acknowledgements those decisions counted. A trace that cannot answer this has failed the observability layer's own test.
+For any violation of J1.1 or J1.5: which configuration entries each involved member had in effect at each election and each commitment, and which members' grants or acknowledgements those decisions counted. A trace that cannot answer this has failed the observability layer's own test.

@@ -631,7 +631,7 @@ Receiver implementation:
 4. Append new configuration entry to log (old configuration plus newServer), commit it using majority of new configuration (§4.1)
 5. Reply OK
 
-Assembler's note on step 2: if the new server's log already matches the leader's, catch-up is complete at once.
+Assembler's note on step 2: if the new server's log already matches the leader's, catch-up is complete at once. Assembler's note on the wait step of both RPCs: if the log has no configuration entry, the initial configuration counts as committed.
 
 ### RemoveServer RPC
 Invoked by admin to remove a server from the cluster configuration.

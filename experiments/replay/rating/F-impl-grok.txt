@@ -1,0 +1,13 @@
+**Classification: (c).** On election the coordinator appends nothing, and a configuration change is gated only on the latest configuration entry being committed.
+
+`becomeCoordinator` emits `Elected` and broadcasts. It does not append. Choices say "No election no-op." Before `driveChange` appends a configuration entry, the only commit gate is `if n.configIndex() > n.Commit { return }`, matching "Wait for the latest configuration to commit before appending each change."
+
+**R4 before: no.** The pre-run Concerns do not assert that the specified design violates J1.1, J1.5, or persistence of committed entries.
+
+Concern 1 says the single-member argument "does not prove safety" for a sequence of configurations with early activation and stale coordinators, and sketches a campaign. That is an unproven case, not a claimed violation. Concern 2 says a restart can overwrite something previously known committed, then places that under J1.5 as specified: "J1.5(b) is about its current commit index, while J1.5(a) still constrains future elections," and says not to persist `commitIndex` as a fix.
+
+**R4 after: no.** The post-run section reports no contract failure on unmutated runs, calls the successive-configuration concern unresolved, and draws no correctness conclusion. It treats post-restart commit-index reset as permitted.
+
+```json
+{"classification": "c", "d_restricts_beyond_wait": null, "r4_before": false, "r4_after": false, "quotes": {"classification": "Choices: \"No election no-op.\" and \"Wait for the latest configuration to commit before appending each change.\" becomeCoordinator appends no entry. driveChange: \"if n.configIndex() > n.Commit { return }\" immediately before the configuration append.", "r4_before": "\"It does not prove safety for a sequence of configurations combined with early activation and stale coordinators. A scenario could partition a coordinator, change membership elsewhere, then let a stale member campaign against members with newer configurations.\" \"Lost volatile commitIndex on restart allows a member to overwrite something previously known committed; J1.5(b) is about its current commit index, while J1.5(a) still constrains future elections. Do not persist commitIndex as a fix.\"", "r4_after": "\"No unmutated shared run witnessed a contract failure.\" \"The outcome remains UNEXPLAINED steps, without a liveness or correctness conclusion.\" \"The unresolved concern about successive configuration transitions remains; these bounded samples do not discriminate it.\" \"permitted stale-follower truncation and post-restart commit-index reset.\""}}
+```

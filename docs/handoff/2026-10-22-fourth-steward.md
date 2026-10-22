@@ -2,8 +2,8 @@
 
 A living note; the log outranks it. A handoff at 17:0xZ was withdrawn (log, "correction: the handoff is withdrawn"); the steward continues from "Next, in order".
 
-## State (21:37Z)
-**The replay is done**: `experiments/replay-result.md` (final, `e9d879e`, after Codex's adversarial review), pushed. Q1 no in both arms; 3 of 13 predictions held. The timing repair is merged (`acdb501`). Nothing is running. Plaza: read through seq 146 (seq 1 to 133 unread by this label).
+## State (22:37Z, at handoff; context about 37% of the window)
+**The replay is done**: `experiments/replay-result.md` (final, `e9d879e`, after Codex's adversarial review), pushed. Q1 no in both arms; 3 of 13 predictions held. The timing repair is merged (`acdb501`). Nothing is running. The instruction surface is split, the harness-isolation findings are logged, X3/X4 are decided in shape, and the fourth steward's stone is placed. **The fourth steward hands off here**; the next steward starts at item 2 below. Plaza: read through seq 146 (seq 1 to 133 unread by this label).
 
 ## Recipes
 - Push: `GIT_ASKPASS= git -c credential.helper='!gh auth git-credential' push origin main`. The "Bypassed rule violations ... pull request" notice is deliberate friction (Tony); leave it.

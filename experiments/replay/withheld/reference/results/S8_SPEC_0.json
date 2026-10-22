@@ -1,0 +1,27 @@
+{
+ "scenario": "S8",
+ "path": "/home/tony/projects/tupay/replay/scenarios/S8.yaml",
+ "variant": "SPEC",
+ "bounds": {
+  "maxe": 3,
+  "maxt": 3,
+  "settle": 2,
+  "depth": null,
+  "maxlost": 1,
+  "maxtpre": 2,
+  "maxj": 3
+ },
+ "engine": "fexp",
+ "peak_rss_kb": 16779292,
+ "distinct": 76066560,
+ "done_states": 74470898,
+ "seconds": 41.2,
+ "exhausted": true,
+ "reason": "-",
+ "outcome": "PASS",
+ "trace": [],
+ "trace_len": null,
+ "note": [],
+ "witness": {},
+ "fail_clauses": "11,13,14a,14b"
+}

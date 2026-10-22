@@ -1,0 +1,23 @@
+scenario: K1
+derives: [J1.2, J1.1, G1.3, G1.4]
+initial: [m1, m2, m3, m4]
+steps:
+  # derives: the known 2015 counterexample, steered. Written by the steward, who knows the bug; a faithfulness check on the implementation, not a detection route.
+  # 1. Only m1 can gather a majority of {m1..m4}: the other three cannot reach each other.
+  - {at: start, do: {cut: [[m2, m3], [m2, m4], [m3, m4]]}}
+  # 2. m1 elected. Isolate m1 from m2, m3, m4; keep m1 and m5 connected.
+  - {at: {event: Elected, member: m1}, do: {heal: true}}
+  - {at: start, do: {cut: [[m1, m2], [m1, m3], [m1, m4]]}}
+  # 3. m1 adds m5. C1 = {m1..m5} reaches only m5.
+  - {at: start, do: {add: m5, at: m1}}
+  # 4. Once m5 holds C1, only m2 can win among m2, m3, m4 (m3 and m4 cannot reach each other).
+  - {at: {event: Appended, member: m5, kind: config}, do: {cut: [[m3, m4]]}}
+  # 5. m2, still with C0 as its latest (initial) configuration, removes m4. C2 = {m1, m2, m3}; committed by m2 and m3.
+  - {at: {event: Elected, member: m2}, do: {remove: m4, at: m2}}
+  # 6. Once C2 is committed, put m1, m4, m5 together and away from m2, m3.
+  - {at: {event: Committed, member: m2}, do: {heal: true}}
+  - {at: start, do: {cut: [[m2, m1], [m2, m4], [m2, m5], [m3, m1], [m3, m4], [m3, m5]]}}
+  # 7. m1 (config C1, majority 3 of 5) can be elected by m1, m4, m5. Then heal: m1 extends m2 and m3 and removes committed C2.
+  - {at: {event: Elected, member: m1}, do: {heal: true}}
+end: quiescent
+bound: {events: 400}

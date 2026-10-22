@@ -1,0 +1,35 @@
+OUTCOME K1 SPEC: FAIL J1.4(a)  {"distinct": 4989, "done_states": 23, "seconds": 9.2, "exhausted": false, "reason": "-", "peak_rss_kb": 16778248}
+    1. m1 times out | m1: epoch 0->1, candidate, votes for m1, grants {m1} | sends ballot m1->m2 e1 last=(0,e0); ballot m1->m3 e1 last=(0,e0); ballot m1->m4 e1 last=(0,e0)
+    2. deliver ballot m1->m2 e1 last=(0,e0) (reply lost) | m2: epoch 0->1, votes for m1
+    3. m2 times out | m2: epoch 1->2, candidate, votes for m2, grants {m2} | sends ballot m2->m1 e2 last=(0,e0); ballot m2->m3 e2 last=(0,e0); ballot m2->m4 e2 last=(0,e0)
+    4. deliver ballot m1->m3 e1 last=(0,e0) (+reply) | m1: grants {m1,m3} | m3: epoch 0->1, votes for m1
+    5. deliver ballot m1->m4 e1 last=(0,e0) (+reply) | m1: coordinator | m4: epoch 0->1, votes for m1 | sends extend m1->m2 e1 prev=(0,e0) [] ci=0 | => Elected(m1, e1, {m1,m2,m3,m4}) | [step 1 fires: add m5 at m1]
+    6. deliver ballot m2->m3 e2 last=(0,e0) (+reply) | m2: grants {m2,m3} | m3: epoch 1->2, votes for m2
+    7. STEP 1 ACTION: add m5 at m1 | m1: state | sends extend m1->m3 e1 prev=(0,e0) [] ci=0 | => ChangeRequested(m1, add m5) | [step 2 fires: cut m1>m2 m1>m3 m1>m4]
+    8. m1 proceeds with its change | m1: state | sends extend m1->m2 e1 prev=(0,e0) [e1:cfg{m1,m2,m3,m4,m5}] ci=0; extend m1->m3 e1 prev=(0,e0) [e1:cfg{m1,m2,m3,m4,m5}] ci=0; extend m1->m4 e1 prev=(0,e0) [e1:cfg{m1,m2,m3,m4,m5}] ci=0; extend m1->m5 e1 prev=(0,e0) [e1:cfg{m1,m2,m3,m4,m5}] ci=0 | => Appended(m1, 1, e1, config); ConfigInEffect(m1, {m1,m2,m3,m4,m5}, 1)
+    9. deliver ballot m1->m2 e1 last=(0,e0) (+reply) | m1: epoch 1->2, follower
+   10. STEP 2 ACTION: cut m1>m2 m1>m3 m1>m4 | down: m1>m2 m1>m3 m1>m4 m2>m1 m3>m1 m4>m1
+   11. deliver extend m1->m5 e1 prev=(0,e0) [e1:cfg{m1,m2,m3,m4,m5}] ci=0 (+reply) | m5: epoch 0->1 | => Appended(m5, 1, e1, config); ConfigInEffect(m5, {m1,m2,m3,m4,m5}, 1) | [step 3 fires: cut m3>m4]
+   12. STEP 3 ACTION: cut m3>m4 | down: m1>m2 m1>m3 m1>m4 m2>m1 m3>m1 m3>m4 m4>m1 m4>m3
+   13. deliver ballot m2->m4 e2 last=(0,e0) (+reply) | m2: coordinator | m4: epoch 1->2, votes for m2 | => Elected(m2, e2, {m1,m2,m3,m4}) | [step 4 fires: remove m4 at m2]
+   14. STEP 4 ACTION: remove m4 at m2 | m2: state | => ChangeRequested(m2, remove m4)
+   15. m2 proceeds with its change | m2: state | sends extend m2->m3 e2 prev=(0,e0) [e2:cfg{m1,m2,m3}] ci=0 | => Appended(m2, 1, e2, config); ConfigInEffect(m2, {m1,m2,m3}, 1)
+   16. deliver extend m2->m3 e2 prev=(0,e0) [e2:cfg{m1,m2,m3}] ci=0 (+reply) | m2: matchIndex [0, 0, 1, 0, 0] | m3: state | sends extend m2->m3 e2 prev=(1,e2) [] ci=1 | => Appended(m3, 1, e2, config); ConfigInEffect(m3, {m1,m2,m3}, 1); Committed(m2, 1, e2); ChangeReplied(m2, remove m4, ok) | [step 5 fires: heal]
+   17. deliver extend m2->m3 e2 prev=(1,e2) [] ci=1 (+reply) | m3: state | => Committed(m3, 1, e2)
+   18. STEP 5 ACTION: heal | down: none
+   19. m1 times out | m1: epoch 2->3, candidate, votes for m1, grants {m1} | sends ballot m1->m2 e3 last=(1,e1); ballot m1->m3 e3 last=(1,e1); ballot m1->m4 e3 last=(1,e1); ballot m1->m5 e3 last=(1,e1)
+   20. retry extend m2->m1 e2 prev=(0,e0) [e2:cfg{m1,m2,m3}] ci=1 | sends extend m2->m1 e2 prev=(0,e0) [e2:cfg{m1,m2,m3}] ci=1
+   21. deliver ballot m1->m3 e3 last=(1,e1) (+reply) | m3: epoch 2->3
+   22. retry extend m2->m3 e2 prev=(1,e2) [] ci=1 | sends extend m2->m3 e2 prev=(1,e2) [] ci=1
+   23. deliver ballot m1->m4 e3 last=(1,e1) (+reply) | m1: grants {m1,m4} | m4: epoch 2->3, votes for m1
+   24. deliver ballot m1->m5 e3 last=(1,e1) (+reply) | m1: coordinator | m5: epoch 1->3, votes for m1 | sends extend m1->m2 e3 prev=(1,e1) [] ci=0; extend m1->m3 e3 prev=(1,e1) [] ci=0; extend m1->m4 e3 prev=(1,e1) [] ci=0; extend m1->m5 e3 prev=(1,e1) [] ci=0 | => Elected(m1, e3, {m1,m2,m3,m4,m5})
+  final m1 coordinator ep=3 ci=0 cfg={m1,m2,m3,m4,m5} [e1:cfg{m1,m2,m3,m4,m5}]
+  final m2 coordinator ep=2 ci=1 cfg={m1,m2,m3} [e2:cfg{m1,m2,m3}]
+  final m3 follower ep=3 ci=1 cfg={m1,m2,m3} [e2:cfg{m1,m2,m3}]
+  final m4 follower ep=3 ci=0 cfg={m1,m2,m3,m4} []
+  final m5 follower ep=3 ci=0 cfg={m1,m2,m3,m4,m5} [e1:cfg{m1,m2,m3,m4,m5}]
+  elected e1 m1 with []
+  elected e2 m2 with []
+  elected e3 m1 with [e1:cfg{m1,m2,m3,m4,m5}]
+  committed idx 1 e2:cfg{m1,m2,m3} by coordinator of e2
+  NOTE witnessed J1.4(a) in a behaviour that has taken every step

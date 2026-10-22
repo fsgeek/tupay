@@ -1,0 +1,27 @@
+{
+ "scenario": "S5",
+ "path": "/home/tony/projects/tupay/replay/scenarios/S5.yaml",
+ "variant": "GATED",
+ "bounds": {
+  "maxe": 3,
+  "maxt": 3,
+  "settle": 2,
+  "depth": null,
+  "maxlost": 1,
+  "maxtpre": 2,
+  "maxj": 3
+ },
+ "engine": "fexp",
+ "peak_rss_kb": 16779296,
+ "distinct": 443109642,
+ "done_states": 414572917,
+ "seconds": 189.3,
+ "exhausted": false,
+ "reason": "wall-clock limit 180s",
+ "outcome": "UNEXPLAINED bound",
+ "trace": [],
+ "trace_len": null,
+ "note": [],
+ "witness": {},
+ "fail_clauses": "11,13,14a,14b"
+}

@@ -1,0 +1,53 @@
+S1 SPEC attempt 0 {'maxt': 3, 'maxtpre': 2, 'maxlost': 1, 'limit': 300}: PASS [] distinct=32656628 23s
+S1 GATED attempt 0 {'maxt': 3, 'maxtpre': 2, 'maxlost': 1, 'limit': 300}: UNEXPLAINED bound [] distinct=683317319 309s
+S1 GATED attempt 1 {'maxt': 3, 'maxtpre': 2, 'maxlost': 0, 'limit': 300}: UNEXPLAINED bound [] distinct=694175721 309s
+S1 GATED attempt 2 {'maxt': 2, 'maxtpre': 2, 'maxlost': 0, 'limit': 300}: PASS [] distinct=124032049 56s
+S2 SPEC attempt 0 {'maxt': 3, 'maxtpre': 2, 'maxlost': 1, 'limit': 300}: PASS [] distinct=463940 10s
+S2 GATED attempt 0 {'maxt': 3, 'maxtpre': 2, 'maxlost': 1, 'limit': 300}: PASS [] distinct=108429616 54s
+S3 SPEC attempt 0 {'maxt': 3, 'maxtpre': 2, 'maxlost': 1, 'limit': 180}: UNEXPLAINED bound [] distinct=379363758 189s
+S3 SPEC attempt 1 {'maxt': 2, 'maxtpre': 1, 'maxlost': 1, 'limit': 300}: PASS [] distinct=5707089 12s
+S3 GATED attempt 0 {'maxt': 3, 'maxtpre': 2, 'maxlost': 1, 'limit': 180}: UNEXPLAINED bound [] distinct=383483853 189s
+S3 GATED attempt 1 {'maxt': 2, 'maxtpre': 1, 'maxlost': 1, 'limit': 300}: PASS [] distinct=21921380 19s
+S4 SPEC attempt 0 {'maxt': 3, 'maxtpre': 2, 'maxlost': 1, 'limit': 180}: UNEXPLAINED bound [] distinct=436765824 189s
+S4 SPEC attempt 1 {'maxt': 2, 'maxtpre': 1, 'maxlost': 1, 'limit': 300}: UNEXPLAINED bound [] distinct=597551786 309s
+S4 SPEC attempt 2 {'maxt': 2, 'maxtpre': 1, 'maxlost': 0, 'limit': 300}: PASS [] distinct=218225995 100s
+S4 GATED attempt 0 {'maxt': 3, 'maxtpre': 2, 'maxlost': 1, 'limit': 180}: UNEXPLAINED bound [] distinct=401544908 189s
+S4 GATED attempt 1 {'maxt': 2, 'maxtpre': 1, 'maxlost': 1, 'limit': 300}: UNEXPLAINED bound [] distinct=607071576 309s
+S4 GATED attempt 2 {'maxt': 2, 'maxtpre': 1, 'maxlost': 0, 'limit': 300}: UNEXPLAINED bound [] distinct=593073184 309s
+S4 GATED attempt 3 {'maxt': 1, 'maxtpre': 1, 'maxlost': 0, 'limit': 300}: PASS [] distinct=162898529 72s
+S5 SPEC attempt 0 {'maxt': 3, 'maxtpre': 2, 'maxlost': 1, 'limit': 180}: UNEXPLAINED bound [] distinct=380688625 189s
+S5 SPEC attempt 1 {'maxt': 2, 'maxtpre': 1, 'maxlost': 1, 'limit': 300}: PASS [] distinct=5642318 12s
+S5 GATED attempt 0 {'maxt': 3, 'maxtpre': 2, 'maxlost': 1, 'limit': 180}: UNEXPLAINED bound [] distinct=443109642 189s
+S5 GATED attempt 1 {'maxt': 2, 'maxtpre': 1, 'maxlost': 1, 'limit': 300}: PASS [] distinct=26011573 19s
+S6 SPEC attempt 0 {'maxt': 3, 'maxtpre': 2, 'maxlost': 1, 'limit': 300}: PASS [] distinct=29164888 22s
+S6 GATED attempt 0 {'maxt': 3, 'maxtpre': 2, 'maxlost': 1, 'limit': 300}: UNEXPLAINED bound [] distinct=606317739 309s
+S6 GATED attempt 1 {'maxt': 3, 'maxtpre': 2, 'maxlost': 0, 'limit': 300}: PASS [] distinct=356499086 180s
+S7 SPEC attempt 0 {'maxt': 3, 'maxtpre': 2, 'maxlost': 1, 'limit': 180}: PASS [] distinct=11085880 14s
+S7 GATED attempt 0 {'maxt': 3, 'maxtpre': 2, 'maxlost': 1, 'limit': 180}: PASS [] distinct=139561397 78s
+S8 SPEC attempt 0 {'maxt': 3, 'maxtpre': 2, 'maxlost': 1, 'limit': 180}: PASS [] distinct=76066560 41s
+S8 GATED attempt 0 {'maxt': 3, 'maxtpre': 2, 'maxlost': 1, 'limit': 180}: UNEXPLAINED bound [] distinct=429403468 189s
+S8 GATED attempt 1 {'maxt': 2, 'maxtpre': 1, 'maxlost': 1, 'limit': 300}: PASS [] distinct=8605697 13s
+K1v3 SPEC attempt 0 {'maxt': 3, 'maxtpre': 2, 'maxlost': 1, 'limit': 300}: FAIL J1.4(a) ['NOTE witnessed J1.4(a) in a behaviour that has taken every step'] distinct=4989 9s
+K1v3 GATED attempt 0 {'maxt': 3, 'maxtpre': 2, 'maxlost': 1, 'limit': 300}: UNEXPLAINED bound [] distinct=476755973 309s
+K1v3 GATED attempt 1 {'maxt': 3, 'maxtpre': 2, 'maxlost': 0, 'limit': 300}: PASS [] distinct=227532361 145s
+
+| scenario | variant | outcome | bounds E,T,T_pre,J,lost,settle | distinct states | exhausted | s | peak RSS GB |
+|---|---|---|---|---|---|---|---|
+| S1 | SPEC | PASS | 3,3,2,1,1,2 | 32656628 | True | 23 | 16.0 |
+| S1 | GATED | PASS | 3,2,2,4,0,2 | 124032049 | True | 56 | 16.0 |
+| S2 | SPEC | PASS | 3,3,2,0,1,2 | 463940 | True | 10 | 16.0 |
+| S2 | GATED | PASS | 3,3,2,3,1,2 | 108429616 | True | 54 | 16.0 |
+| S3 | SPEC | PASS | 3,2,1,2,1,2 | 5707089 | True | 12 | 16.0 |
+| S3 | GATED | PASS | 3,2,1,4,1,2 | 21921380 | True | 19 | 16.0 |
+| S4 | SPEC | PASS | 3,2,1,2,0,2 | 218225995 | True | 100 | 16.0 |
+| S4 | GATED | PASS | 3,1,1,4,0,2 | 162898529 | True | 72 | 16.0 |
+| S5 | SPEC | PASS | 3,2,1,1,1,2 | 5642318 | True | 12 | 16.0 |
+| S5 | GATED | PASS | 3,2,1,3,1,2 | 26011573 | True | 19 | 16.0 |
+| S6 | SPEC | PASS | 3,3,2,1,1,2 | 29164888 | True | 22 | 16.0 |
+| S6 | GATED | PASS | 3,3,2,4,0,2 | 356499086 | True | 180 | 16.0 |
+| S7 | SPEC | PASS | 3,3,2,2,1,2 | 11085880 | True | 14 | 16.0 |
+| S7 | GATED | PASS | 3,3,2,4,1,2 | 139561397 | True | 78 | 16.0 |
+| S8 | SPEC | PASS | 3,3,2,3,1,2 | 76066560 | True | 41 | 16.0 |
+| S8 | GATED | PASS | 3,2,1,5,1,2 | 8605697 | True | 13 | 16.0 |
+| K1v3 | SPEC | FAIL J1.4(a) | 3,3,2,2,1,2 | 4989 | False | 9 | 16.0 |
+| K1v3 | GATED | PASS | 3,3,2,5,0,2 | 227532361 | True | 145 | 16.0 |

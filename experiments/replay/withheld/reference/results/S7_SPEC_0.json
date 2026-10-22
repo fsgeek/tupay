@@ -1,0 +1,27 @@
+{
+ "scenario": "S7",
+ "path": "/home/tony/projects/tupay/replay/scenarios/S7.yaml",
+ "variant": "SPEC",
+ "bounds": {
+  "maxe": 3,
+  "maxt": 3,
+  "settle": 2,
+  "depth": null,
+  "maxlost": 1,
+  "maxtpre": 2,
+  "maxj": 2
+ },
+ "engine": "fexp",
+ "peak_rss_kb": 16778248,
+ "distinct": 11085880,
+ "done_states": 10887413,
+ "seconds": 13.6,
+ "exhausted": true,
+ "reason": "-",
+ "outcome": "PASS",
+ "trace": [],
+ "trace_len": null,
+ "note": [],
+ "witness": {},
+ "fail_clauses": "11,13,14a,14b"
+}

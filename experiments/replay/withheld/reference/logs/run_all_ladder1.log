@@ -1,0 +1,15 @@
+S1 SPEC attempt 0 {'maxtpre': 2, 'maxlost': 1, 'limit': 300}: PASS [] distinct=32656628 25s
+S1 GATED attempt 0 {'maxtpre': 2, 'maxlost': 1, 'limit': 300}: UNEXPLAINED bound [] distinct=662417861 311s
+S1 GATED attempt 1 {'maxtpre': 2, 'maxlost': 0, 'limit': 300}: UNEXPLAINED bound [] distinct=688713094 310s
+S2 SPEC attempt 0 {'maxtpre': 2, 'maxlost': 1, 'limit': 300}: PASS [] distinct=463940 10s
+S2 GATED attempt 0 {'maxtpre': 2, 'maxlost': 1, 'limit': 300}: PASS [] distinct=108429616 55s
+S3 SPEC attempt 0 {'maxtpre': 2, 'maxlost': 1, 'limit': 180}: UNEXPLAINED bound [] distinct=386899419 190s
+S3 SPEC attempt 1 {'maxtpre': 1, 'maxlost': 1, 'limit': 300}: PASS [] distinct=370617443 193s
+S3 GATED attempt 0 {'maxtpre': 2, 'maxlost': 1, 'limit': 180}: UNEXPLAINED bound [] distinct=382874342 190s
+S3 GATED attempt 1 {'maxtpre': 1, 'maxlost': 1, 'limit': 300}: UNEXPLAINED bound [] distinct=585480862 310s
+S3 GATED attempt 2 {'maxtpre': 1, 'maxlost': 0, 'limit': 300}: PASS [] distinct=172859923 83s
+S4 SPEC attempt 0 {'maxtpre': 2, 'maxlost': 1, 'limit': 180}: UNEXPLAINED bound [] distinct=440317235 190s
+S4 SPEC attempt 1 {'maxtpre': 1, 'maxlost': 1, 'limit': 300}: UNEXPLAINED bound [] distinct=655824294 310s
+S4 SPEC attempt 2 {'maxtpre': 1, 'maxlost': 0, 'limit': 300}: UNEXPLAINED bound [] distinct=665719039 310s
+S4 GATED attempt 0 {'maxtpre': 2, 'maxlost': 1, 'limit': 180}: UNEXPLAINED bound [] distinct=407114750 189s
+S4 GATED attempt 1 {'maxtpre': 1, 'maxlost': 1, 'limit': 300}: UNEXPLAINED bound [] distinct=618823278 309s

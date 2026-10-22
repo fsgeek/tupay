@@ -1,0 +1,1 @@
+OUTCOME S7 GATED: PASS  {"distinct": 139561397, "done_states": 131772191, "seconds": 77.5, "exhausted": true, "reason": "-", "peak_rss_kb": 16779272}

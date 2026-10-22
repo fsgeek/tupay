@@ -1,0 +1,2 @@
+[K1 SPEC safety] {"mode": "safety", "seconds": 593.2, "peak_rss_kb": 4559300, "killed": "wall-clock limit 560s (rc 124)"}
+OUTCOME K1 SPEC: UNEXPLAINED bound

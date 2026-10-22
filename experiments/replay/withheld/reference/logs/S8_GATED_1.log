@@ -1,0 +1,1 @@
+OUTCOME S8 GATED: PASS  {"distinct": 8605697, "done_states": 8427023, "seconds": 12.7, "exhausted": true, "reason": "-", "peak_rss_kb": 16777224}

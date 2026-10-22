@@ -1,0 +1,6 @@
+OUTCOME S1 SPEC: PASS  {"distinct": 151794429, "done_states": 71947104, "seconds": 66.6, "exhausted": true, "reason": "-", "peak_rss_kb": 8390664}
+OUTCOME S1 GATED: UNEXPLAINED bound  {"distinct": 395840138, "done_states": 134705845, "seconds": 154.2, "exhausted": false, "reason": "wall-clock limit 150s", "peak_rss_kb": 8390664}
+OUTCOME S2 SPEC: PASS  {"distinct": 3498269, "done_states": 1087704, "seconds": 5.7, "exhausted": true, "reason": "-", "peak_rss_kb": 8389640}
+OUTCOME S2 GATED: UNEXPLAINED bound  {"distinct": 456406228, "done_states": 279982073, "seconds": 154.2, "exhausted": false, "reason": "wall-clock limit 150s", "peak_rss_kb": 8389640}
+OUTCOME S3 SPEC: UNEXPLAINED bound  {"distinct": 336359518, "done_states": 237323460, "seconds": 154.2, "exhausted": false, "reason": "wall-clock limit 150s", "peak_rss_kb": 8389640}
+OUTCOME S3 GATED: ERROR rc=-15 progress 30s distinct=83602992 done_states=48290897 queue=65

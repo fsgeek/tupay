@@ -1,0 +1,27 @@
+{
+ "scenario": "S4",
+ "path": "/home/tony/projects/tupay/replay/scenarios/S4.yaml",
+ "variant": "GATED",
+ "bounds": {
+  "maxe": 3,
+  "maxt": 1,
+  "settle": 2,
+  "depth": null,
+  "maxlost": 0,
+  "maxtpre": 1,
+  "maxj": 4
+ },
+ "engine": "fexp",
+ "peak_rss_kb": 16776200,
+ "distinct": 162898529,
+ "done_states": 57924568,
+ "seconds": 71.6,
+ "exhausted": true,
+ "reason": "-",
+ "outcome": "PASS",
+ "trace": [],
+ "trace_len": null,
+ "note": [],
+ "witness": {},
+ "fail_clauses": "11,13,14a,14b"
+}

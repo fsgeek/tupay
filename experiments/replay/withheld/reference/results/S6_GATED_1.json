@@ -1,0 +1,27 @@
+{
+ "scenario": "S6",
+ "path": "/home/tony/projects/tupay/replay/scenarios/S6.yaml",
+ "variant": "GATED",
+ "bounds": {
+  "maxe": 3,
+  "maxt": 3,
+  "settle": 2,
+  "depth": null,
+  "maxlost": 0,
+  "maxtpre": 2,
+  "maxj": 4
+ },
+ "engine": "fexp",
+ "peak_rss_kb": 16779280,
+ "distinct": 356499086,
+ "done_states": 348567284,
+ "seconds": 180.3,
+ "exhausted": true,
+ "reason": "-",
+ "outcome": "PASS",
+ "trace": [],
+ "trace_len": null,
+ "note": [],
+ "witness": {},
+ "fail_clauses": "11,13,14a,14b"
+}

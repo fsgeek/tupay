@@ -1,0 +1,1 @@
+OUTCOME S6 GATED: UNEXPLAINED bound  {"distinct": 606317739, "done_states": 588834963, "seconds": 309.1, "exhausted": false, "reason": "wall-clock limit 300s", "peak_rss_kb": 16778248}

@@ -1,0 +1,44 @@
+STATS distinct=674650190 done_states=32302341 seconds=557.5 exhausted=false reason=wall-clock limit 540s
+RESULT UNEXPLAINED bound
+NOTE violation in a behaviour that had not yet taken every step: J1.4(b)
+ANYTRACE_LEN 30 transitions, 17 contract events
+ANYTRACE   1. m5: epoch 0->1, candidate, votes for m5, grants {m5} | sends ballot m5->m1 e1 last=(0,e0); ballot m5->m2 e1 last=(0,e0); ballot m5->m3 e1 last=(0,e0); ballot m5->m4 e1 last=(0,e0)
+ANYTRACE   2. m4: epoch 0->1, votes for m5
+ANYTRACE   3. m1: epoch 0->1, votes for m5 | m5: grants {m1,m5}
+ANYTRACE   4. m1: epoch 1->2, candidate, votes for m1, grants {m1} | sends ballot m1->m2 e2 last=(0,e0); ballot m1->m3 e2 last=(0,e0); ballot m1->m4 e2 last=(0,e0)
+ANYTRACE   5. send | sends ballot m5->m1 e1 last=(0,e0)
+ANYTRACE   6. m2: epoch 0->2, votes for m1
+ANYTRACE   7. m3: epoch 0->1, votes for m5
+ANYTRACE   8. m5: grants {m1,m4,m5}
+ANYTRACE   9. m4: epoch 1->2, votes for m1
+ANYTRACE  10. send | sends ballot m5->m4 e1 last=(0,e0)
+ANYTRACE  11. m1: grants {m1,m2}
+ANYTRACE  12. m5: coordinator | sends extend m5->m1 e1 prev=(0,e0) [e1:noop] ci=0; extend m5->m2 e1 prev=(0,e0) [e1:noop] ci=0; extend m5->m3 e1 prev=(0,e0) [e1:noop] ci=0; extend m5->m4 e1 prev=(0,e0) [e1:noop] ci=0 | => Elected(m5, e1, {m1,m2,m3,m4}); Appended(m5, 1, e1, command)
+ANYTRACE  13. m5: epoch 1->2, follower
+ANYTRACE  14. m3: state | => Appended(m3, 1, e1, command)
+ANYTRACE  15. m3: epoch 1->2
+ANYTRACE  16. m3: epoch 2->3, candidate, votes for m3, grants {m3} | sends ballot m3->m1 e3 last=(1,e1); ballot m3->m2 e3 last=(1,e1); ballot m3->m4 e3 last=(1,e1)
+ANYTRACE  17. m1: coordinator | sends extend m1->m2 e2 prev=(0,e0) [e2:noop] ci=0; extend m1->m3 e2 prev=(0,e0) [e2:noop] ci=0; extend m1->m4 e2 prev=(0,e0) [e2:noop] ci=0 | => Elected(m1, e2, {m1,m2,m3,m4}); Appended(m1, 1, e2, command) | [step 1 fires: add m5 at m1]
+ANYTRACE  18. m2: epoch 2->3, votes for m3
+ANYTRACE  19. m4: epoch 2->3, votes for m3
+ANYTRACE  20. m3: grants {m2,m3}
+ANYTRACE  21. m3: coordinator | sends extend m3->m1 e3 prev=(1,e1) [e3:noop] ci=0; extend m3->m2 e3 prev=(1,e1) [e3:noop] ci=0; extend m3->m4 e3 prev=(1,e1) [e3:noop] ci=0 | => Elected(m3, e3, {m1,m2,m3,m4}); Appended(m3, 2, e3, command)
+ANYTRACE  22. m3: state | sends extend m3->m2 e3 prev=(0,e0) [e1:noop e3:noop] ci=0
+ANYTRACE  23. m2: state | => Appended(m2, 1, e1, command); Appended(m2, 2, e3, command)
+ANYTRACE  24. m3: state | sends extend m3->m4 e3 prev=(0,e0) [e1:noop e3:noop] ci=0
+ANYTRACE  25. m3: matchIndex [0, 2, 0, 0, 0]
+ANYTRACE  26. m4: state | => Appended(m4, 1, e1, command); Appended(m4, 2, e3, command)
+ANYTRACE  27. STEP 1 ACTION: add m5 at m1 | m1: state | sends extend m1->m5 e2 prev=(0,e0) [e2:noop] ci=0 | => ChangeRequested(m1, add m5) | [step 2 fires: cut m1>m2 m1>m3 m1>m4]
+ANYTRACE  28. m1: state | => ChangeReplied(m1, add m5, timeout)
+ANYTRACE  29. m3: matchIndex [0, 2, 0, 2, 0] | sends extend m3->m1 e3 prev=(1,e1) [e3:noop] ci=2; extend m3->m2 e3 prev=(2,e3) [] ci=2; extend m3->m4 e3 prev=(2,e3) [] ci=2 | => Committed(m3, 1, e1); Committed(m3, 2, e3)
+ANYTRACE  30. m5: state | => Truncated(m5, from 1); Appended(m5, 1, e2, command)
+ANYTRACE final m1 coordinator ep=2 ci=0 cfg={m1,m2,m3,m4} [e2:noop]
+ANYTRACE final m2 follower ep=3 ci=0 cfg={m1,m2,m3,m4} [e1:noop e3:noop]
+ANYTRACE final m3 coordinator ep=3 ci=2 cfg={m1,m2,m3,m4} [e1:noop e3:noop]
+ANYTRACE final m4 follower ep=3 ci=0 cfg={m1,m2,m3,m4} [e1:noop e3:noop]
+ANYTRACE final m5 follower ep=2 ci=0 cfg={m1,m2,m3,m4} [e2:noop]
+ANYTRACE elected e1 m5 with []
+ANYTRACE elected e2 m1 with []
+ANYTRACE elected e3 m3 with [e1:noop]
+ANYTRACE committed idx 1 e1:noop by coordinator of e3
+ANYTRACE committed idx 2 e3:noop by coordinator of e3

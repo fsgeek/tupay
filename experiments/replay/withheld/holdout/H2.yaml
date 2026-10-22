@@ -1,0 +1,17 @@
+scenario: H2
+derives: [J1.5, G1.3, G1.4]
+initial: [m1, m2, m3, m4]
+steps:
+  # derives: H2 (J1.5, G1.3, G1.4). A configuration entry is appended, then overwritten at the same index by a command from a later coordinator; the member must fall back to the configuration it had before. A second change then makes the fallen-back configuration and the dead one differ by two members.
+  # Step 1: coordinator appends C1 = initial + m5 at index 1.
+  - {at: {event: Elected}, do: {add: m5, at: coordinator}}
+  # Step 2: isolate the coordinator from the other original members as soon as C1 is in a journal; it keeps its link to m5 and keeps heartbeating it.
+  - {at: {event: Appended, kind: config}, do: {cut: [[coordinator, m1], [coordinator, m2], [coordinator, m3], [coordinator, m4]]}}
+  # Step 3: the three remaining original members elect under the initial configuration; the new coordinator appends command c1 at index 1 and commits it with all three.
+  - {at: {event: Elected}, do: {command: c1, at: coordinator}}
+  # Step 4: after that commit, remove m4; C2 = initial - m4 at index 2, committed by two of {m1,m2,m3} that are reachable. m4 is not sent C2.
+  - {at: {event: Committed}, do: {remove: m4, at: coordinator}}
+  # Step 5: heal once the removal is answered. The old coordinator is deposed, has C1 at index 1 overwritten by c1 (Truncated), and must fall back to the initial configuration; m5 is orphaned with C1 and keeps campaigning.
+  - {at: {event: ChangeReplied, status: ok}, do: {heal: true}}
+end: {settle: 150}
+bound: {events: 600}

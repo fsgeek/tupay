@@ -1,0 +1,19 @@
+scenario: H3
+derives: [J1.5, G1.1, G1.2, G1.4]
+initial: [m1, m2, m3, m4]
+steps:
+  # derives: H3 (J1.5, G1.1, G1.2, G1.4). A member holds an uncommitted entry at an index the new coordinator later commits with a different entry; a heartbeat carrying the higher commit index arrives before the entries that overwrite the stale one. The follower's commit index must be bounded by prevIndex plus the entries carried, not by its own journal length.
+  # Step 1: grow to five members so that an election can exclude the holder of a stale entry.
+  - {at: {event: Elected}, do: {add: m5, at: coordinator}}
+  # Step 2: command c1 at index 2, committed.
+  - {at: {event: ChangeReplied, status: ok}, do: {command: c1, at: coordinator}}
+  # Step 3: command c2 at index 3.
+  - {at: {event: Committed, index: 2}, do: {command: c2, at: coordinator}}
+  # Step 4: crash the coordinator once c2 is in its journal; the interesting points leave c2 on at most one other member.
+  - {at: {event: Appended, index: 3}, do: {crash: coordinator}}
+  # Step 5: the new coordinator (three of the four survivors suffice) appends c3 at index 3 and commits it.
+  - {at: {event: Elected}, do: {command: c3, at: coordinator}}
+  # Step 6: restart the old coordinator; it returns with the stale c2 at index 3 and commitIndex 0, and receives heartbeats and extend requests from the new coordinator in any order.
+  - {at: {event: Committed, index: 3}, do: {restart: crashed}}
+end: {settle: 100}
+bound: {events: 500}

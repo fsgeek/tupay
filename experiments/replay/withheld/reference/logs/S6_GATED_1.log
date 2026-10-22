@@ -1,0 +1,1 @@
+OUTCOME S6 GATED: PASS  {"distinct": 356499086, "done_states": 348567284, "seconds": 180.3, "exhausted": true, "reason": "-", "peak_rss_kb": 16779280}

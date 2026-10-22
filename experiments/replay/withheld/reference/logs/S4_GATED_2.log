@@ -1,0 +1,1 @@
+OUTCOME S4 GATED: UNEXPLAINED bound  {"distinct": 593073184, "done_states": 569324729, "seconds": 309.0, "exhausted": false, "reason": "wall-clock limit 300s", "peak_rss_kb": 16779300}

@@ -1,0 +1,27 @@
+{
+ "scenario": "S8",
+ "path": "/home/tony/projects/tupay/replay/scenarios/S8.yaml",
+ "variant": "GATED",
+ "bounds": {
+  "maxe": 3,
+  "maxt": 2,
+  "settle": 2,
+  "depth": null,
+  "maxlost": 1,
+  "maxtpre": 1,
+  "maxj": 5
+ },
+ "engine": "fexp",
+ "peak_rss_kb": 16777224,
+ "distinct": 8605697,
+ "done_states": 8427023,
+ "seconds": 12.7,
+ "exhausted": true,
+ "reason": "-",
+ "outcome": "PASS",
+ "trace": [],
+ "trace_len": null,
+ "note": [],
+ "witness": {},
+ "fail_clauses": "11,13,14a,14b"
+}

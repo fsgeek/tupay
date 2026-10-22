@@ -1,0 +1,15 @@
+scenario: H1
+derives: [J1.5, G1.1, G1.4]
+initial: [m1, m2, m3, m4]
+steps:
+  # derives: H1 (J1.5, G1.1, G1.4). The coordinator starts an add and crashes with the new configuration entry in its own journal (and possibly m5's) but on no other member; the survivors elect under the old configuration and remove a member; the old coordinator restarts holding the dead configuration entry.
+  # Step 1: coordinator appends C1 = initial + m5 at index 1 (catch-up of m5 is immediate, initial configuration counts as committed).
+  - {at: {event: Elected}, do: {add: m5, at: coordinator}}
+  # Step 2: crash the coordinator at some point after C1 is in its journal; the interesting points are before C1 reaches any of the other original members.
+  - {at: {event: Appended, kind: config}, do: {crash: coordinator}}
+  # Step 3: a new coordinator is elected (under the initial configuration if C1 never reached it) and removes m4; C2 = initial - m4 at index 1 is committed by two of three.
+  - {at: {event: Elected}, do: {remove: m4, at: coordinator}}
+  # Step 4: once something is committed in the new epoch, restart the old coordinator; it comes back with C1 at index 1 and no knowledge of C2. m5 (if it holds C1) and the removed m4 are never told about C2.
+  - {at: {event: Committed}, do: {restart: crashed}}
+end: {settle: 150}
+bound: {events: 600}

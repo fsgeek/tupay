@@ -3,7 +3,7 @@
 Your repository contains only what you need: `AGENTS.md`, this brief, and under `replay/`: `contract.md`, `failure-model.md`, `spec-F.md`, `scenario-format.md`, `observe.md` and `scenarios/`. `AGENTS.md` rules 2 to 7 apply to you; the files rule 1 names are not in this repository and you do not need them. Do not use the web, and do not look for files outside this repository.
 
 ## What you build
-An implementation of the design, in `impl/`, in Go (`/usr/local/go/bin/go`), using the standard library and `gopkg.in/yaml.v3` only. Use no library that implements leader election, log replication or membership change: build the design from the specification.
+An implementation of the design, in `impl/`, in Go (`/usr/local/go/bin/go`), using the standard library and `gopkg.in/yaml.v3` only. Use no library that implements election, journal extension or configuration change: build the design from the specification.
 - Members as concurrent processes exchanging messages through a network layer the runner controls, so that every failure-model cell can be injected.
 - A runner that compiles a scenario file into fault injection and administrator requests against the running system, and records events as `replay/observe.md` describes.
 - Checkers for J1.1, J1.3 and J1.5 over the recorded events.

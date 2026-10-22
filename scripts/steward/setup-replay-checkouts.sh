@@ -14,7 +14,7 @@ cd "$D"; git init -q
 for k in user.name user.email commit.gpgsign user.signingkey gpg.format; do
   v=$(git -C "$MAIN" config --get $k || true); [ -n "$v" ] && git config $k "$v"; done
 printf '#!/bin/bash\nexec "$(git rev-parse --show-toplevel)/scripts/hooks/post-commit" "$@"\n' > .git/hooks/post-commit; chmod +x .git/hooks/post-commit
-ln -s "$MAIN/.venv" .venv
+mkdir -p .venv/bin; printf '#!/bin/bash\nexec %s/.venv/bin/ots "$@"\n' "$MAIN" > .venv/bin/ots; chmod +x .venv/bin/ots  # a wrapper, not a symlink into the main tree (log 2026-10-22, draft 3 reading item 3)
 grep -qx '.venv' .gitignore 2>/dev/null || echo .venv >> .gitignore
 git add -A; git commit -q -m "Replay inputs, arm $ARM, $SIDE side (from tupay $REG)"
 echo "$D"

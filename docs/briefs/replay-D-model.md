@@ -15,7 +15,7 @@ A TLA+ model of the design, in `model/`, with `tla2tools.jar` from `~/projects/t
 3. **The steward may run scenarios you have not seen, under any name.** Your runner must accept a scenario file by path and must not refuse a scenario because of its name.
 4. **Mutations.** For every shared scenario, write a mutation: a deliberately broken copy of your artifact, selected by a flag, that should fail that scenario's clause. Commit, before your first run, your predicted outcome for every shared scenario and every mutation.
 5. **README sections.** Before your first run, commit **Choices** (every place the specification left open, and what you chose) and **Concerns** (anything in the design you believe is wrong, from reading alone, with the shape of a scenario that would show it; "none" is an answer). After your runs, add **Concerns after running** and **Declared limitations** (shapes of scenario your artifact would mishandle, and why you left them).
-6. **Fairness and bounds.** Fairness only on a member's own enabled actions and on delivery over links that are up. A bound that stops a run before its end is `UNEXPLAINED bound`, never PASS.
+6. **Fairness and bounds.** Fairness only on a member's own enabled actions and on delivery over links that are up. A bound that stops a run before its end is `UNEXPLAINED bound`, never PASS. Run every TLC exploration under a memory cap: `systemd-run --user --scope -q -p MemoryMax=24G -p MemorySwapMax=0 <command>`; if the cap stops a run, tighten your bounds rather than raise the cap, and say so in your README.
 
 ## Order
 1. Commit Choices, Concerns and your predictions.

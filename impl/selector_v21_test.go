@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/hashicorp/raft"
+	raft "go.etcd.io/raft/v3"
 )
 
 // nonGrantorFixture uses non-lexical numeric order and controlled process availability.
@@ -15,7 +15,7 @@ func nonGrantorFixture() *Engine {
 	s.Processes.Lease = []string{"n10", "n3", "n2"}
 	e := &Engine{schedule: s, storage: "s", grantor: "n10", nodes: map[string]*LeaseNode{}}
 	for _, id := range s.Processes.Lease {
-		e.nodes[id] = &LeaseNode{id: id, peer: &raft.Raft{}}
+		e.nodes[id] = &LeaseNode{id: id, peer: &raft.RawNode{}}
 	}
 	return e
 }
@@ -45,7 +45,7 @@ func TestV21A1_LowestUpNode(t *testing.T) {
 	}
 	e = nonGrantorFixture()
 	e.schedule.Processes.Lease = []string{"n10", "peer"}
-	e.nodes["peer"] = &LeaseNode{id: "peer", peer: &raft.Raft{}}
+	e.nodes["peer"] = &LeaseNode{id: "peer", peer: &raft.RawNode{}}
 	if _, err = e.nonGrantor(); err == nil {
 		t.Fatal("unnumbered candidate silently ordered")
 	}

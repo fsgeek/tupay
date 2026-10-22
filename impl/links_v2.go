@@ -88,6 +88,6 @@ func (e *Engine) canSend(from, to string) bool {
 // derives: C1.3, C2.2, F1.1, F1.2, F2.1, F2.2
 func (e *Engine) queueReply(m WireMessage) {
 	m.pendingSend = true
-	m.due = time.Now().Add(8 * time.Millisecond)
+	m.due = e.now().Add(8 * time.Millisecond)
 	e.wire = append(e.wire, m)
 }

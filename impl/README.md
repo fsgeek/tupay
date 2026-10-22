@@ -1110,3 +1110,39 @@ Output-label suffixes and external IO/build failures are outside protocol state;
 operational failures remain UNEXPLAINED. Package/executable changes can change
 canonical traces and require fresh replay evidence. None of these limits permits
 changing a failing shared result into a PASS or counting a missing mutation kill.
+
+## Timing repair — final ten-repetition result
+
+<!-- derives: C1.1, C1.2, C1.3, C1.4, C2.1, C2.2, F1.1, F1.2, F1.3, F2.1, F2.2, T2, T3, L3, E1, E2, E3 -->
+At source checkpoint afb4fc2 (OTS stamp 36ec2be), both required commands were
+executed ten times: every command exits 0. All 1,050 baseline runs PASS; all 960
+mutation runs FAIL their declared clauses. Each of the 201 cells has ten identical
+expected outcomes and ten identical canonical event/sidecar hashes (excluding only
+unique run labels). No flaky cell, prediction miss, UNEXPLAINED result or missing
+mutation kill remains in this timing-round matrix. All 32 mutations are killed
+on all three seeds in all ten repetitions. No mutation placement changed.
+
+Specifically P18, P29 and P30 each have 10 PASS and 10 FAIL C2.2 on every seed.
+The original P18 holder pause executes, its late read preserves the served value,
+and each mutation exhibits an actual mismatched served snapshot in the raw log.
+P29/P30's old-holder replies are lost while the later c2 read succeeds after
+healing. H8/H9 routing repair witnesses and R1/R2 sensitivity remain present.
+All 51 top-level Go tests and vet pass. Host delay/thread-count/name perturbations
+cannot change canonical replay in the added fixtures.
+
+[RESULTS-timing.md](RESULTS-timing.md) gives counts for every cell and declared
+limitations. The independent audit covers all 2,010 runs, 4,020 hashed raw files,
+4,170 grant receipts, 4,880 ack references and 42 unchanged shared inputs. No
+shared input or score changed, no failed run was replaced by another sample,
+and no outcome-informed repair amendment was needed after the registered timing
+adaptation. All raw traces, sidecars, command receipts and replay hashes are kept.
+Historical adverse results above remain unchanged. No formal-model artifact or
+steward file was consulted, .venv is untouched, and nothing is pushed.
+
+No valid-schedule shape is knowingly left nondeterministic for this executable
+and seed. The result is bounded deterministic simulation, not real OS timing or
+exhaustive delay exploration; external IO failures remain operational errors.
+Logical crashes, trusted receipt/duration instrumentation and deterministic
+lifetime/trigger/event/progress bounds remain limitations. Code/library changes
+require fresh replay evidence. First workflow clock: 2026-10-22 05:45:33 UTC;
+the final answer reports elapsed time through the adapted commit and OTS hook.

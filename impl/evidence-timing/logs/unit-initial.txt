@@ -1,0 +1,158 @@
+=== RUN   TestC11C12C13_CausalOrder
+--- PASS: TestC11C12C13_CausalOrder (0.00s)
+=== RUN   TestC11_F11_ReusedToken
+--- PASS: TestC11_F11_ReusedToken (0.00s)
+=== RUN   TestC12_F11_LedgerLoss
+--- PASS: TestC12_F11_LedgerLoss (0.00s)
+=== RUN   TestC12_F12_EqualTokenAllowed
+--- PASS: TestC12_F12_EqualTokenAllowed (0.00s)
+=== RUN   TestC13_F12_UnacceptedAttempt
+--- PASS: TestC13_F12_UnacceptedAttempt (0.00s)
+=== RUN   TestC13_F13_MissingLinkUnexplained
+--- PASS: TestC13_F13_MissingLinkUnexplained (0.00s)
+=== RUN   TestC14_F11_ProgressHorizon
+--- PASS: TestC14_F11_ProgressHorizon (0.00s)
+=== RUN   TestCompiler_F12_F13_RejectUnknown
+--- PASS: TestCompiler_F12_F13_RejectUnknown (0.00s)
+=== RUN   TestC14_F11_StartupVotersBeforeFaults
+--- PASS: TestC14_F11_StartupVotersBeforeFaults (0.00s)
+=== RUN   TestX2SharedCompiler
+--- PASS: TestX2SharedCompiler (0.02s)
+=== RUN   TestX2RaftDirectionsAndSendTime
+--- PASS: TestX2RaftDirectionsAndSendTime (0.00s)
+=== RUN   TestX2AccumulationFrozenLinksAndSchema
+--- PASS: TestX2AccumulationFrozenLinksAndSchema (0.00s)
+=== RUN   TestX2ApplicationSendFate
+--- PASS: TestX2ApplicationSendFate (0.00s)
+=== RUN   TestX2C14LiteralClique
+--- PASS: TestX2C14LiteralClique (0.00s)
+=== RUN   TestX2E3BoundCannotPass
+--- PASS: TestX2E3BoundCannotPass (0.00s)
+=== RUN   TestX2StorageCrashLosesOnlyUnsentReplies
+--- PASS: TestX2StorageCrashLosesOnlyUnsentReplies (0.00s)
+=== RUN   TestX2RuntimeCliqueAndLostGrantStanding
+--- PASS: TestX2RuntimeCliqueAndLostGrantStanding (0.00s)
+=== RUN   TestObserveV3Answers
+=== RUN   TestObserveV3Answers/write
+=== RUN   TestObserveV3Answers/write/valid
+=== RUN   TestObserveV3Answers/write/missing
+=== RUN   TestObserveV3Answers/write/zero
+=== RUN   TestObserveV3Answers/write/absent
+=== RUN   TestObserveV3Answers/write/wrong-kind
+=== RUN   TestObserveV3Answers/write/wrong-operation
+=== RUN   TestObserveV3Answers/read
+=== RUN   TestObserveV3Answers/read/valid
+=== RUN   TestObserveV3Answers/read/missing
+=== RUN   TestObserveV3Answers/read/zero
+=== RUN   TestObserveV3Answers/read/absent
+=== RUN   TestObserveV3Answers/read/wrong-kind
+=== RUN   TestObserveV3Answers/read/wrong-operation
+--- PASS: TestObserveV3Answers (0.02s)
+    --- PASS: TestObserveV3Answers/write (0.01s)
+        --- PASS: TestObserveV3Answers/write/valid (0.00s)
+        --- PASS: TestObserveV3Answers/write/missing (0.00s)
+        --- PASS: TestObserveV3Answers/write/zero (0.00s)
+        --- PASS: TestObserveV3Answers/write/absent (0.00s)
+        --- PASS: TestObserveV3Answers/write/wrong-kind (0.00s)
+        --- PASS: TestObserveV3Answers/write/wrong-operation (0.00s)
+    --- PASS: TestObserveV3Answers/read (0.01s)
+        --- PASS: TestObserveV3Answers/read/valid (0.00s)
+        --- PASS: TestObserveV3Answers/read/missing (0.00s)
+        --- PASS: TestObserveV3Answers/read/zero (0.00s)
+        --- PASS: TestObserveV3Answers/read/absent (0.00s)
+        --- PASS: TestObserveV3Answers/read/wrong-kind (0.00s)
+        --- PASS: TestObserveV3Answers/read/wrong-operation (0.00s)
+=== RUN   TestObserveV3SameTokenRetry
+--- PASS: TestObserveV3SameTokenRetry (0.00s)
+=== RUN   TestObserveV3LiveAcks
+--- PASS: TestObserveV3LiveAcks (0.00s)
+=== RUN   TestX1ReadCheckers
+=== RUN   TestX1ReadCheckers/equal-token-valid
+=== RUN   TestX1ReadCheckers/stale-served
+=== RUN   TestX1ReadCheckers/forged-read-ledger
+=== RUN   TestX1ReadCheckers/wrong-storage-snapshot
+=== RUN   TestX1ReadCheckers/wrong-reply-value
+=== RUN   TestX1ReadCheckers/wrong-reply-client
+=== RUN   TestX1ReadCheckers/unserved-attempt
+--- PASS: TestX1ReadCheckers (0.01s)
+    --- PASS: TestX1ReadCheckers/equal-token-valid (0.00s)
+    --- PASS: TestX1ReadCheckers/stale-served (0.00s)
+    --- PASS: TestX1ReadCheckers/forged-read-ledger (0.00s)
+    --- PASS: TestX1ReadCheckers/wrong-storage-snapshot (0.00s)
+    --- PASS: TestX1ReadCheckers/wrong-reply-value (0.00s)
+    --- PASS: TestX1ReadCheckers/wrong-reply-client (0.00s)
+    --- PASS: TestX1ReadCheckers/unserved-attempt (0.00s)
+=== RUN   TestX1ReadValuePresence
+--- PASS: TestX1ReadValuePresence (0.00s)
+=== RUN   TestX1SharedReadCompiler
+--- PASS: TestX1SharedReadCompiler (0.00s)
+=== RUN   TestX1ReadStoragePath
+=== RUN   TestX1ReadStoragePath/6
+=== RUN   TestX1ReadStoragePath/7
+=== RUN   TestX1ReadStoragePath/9
+--- PASS: TestX1ReadStoragePath (0.00s)
+    --- PASS: TestX1ReadStoragePath/6 (0.00s)
+    --- PASS: TestX1ReadStoragePath/7 (0.00s)
+    --- PASS: TestX1ReadStoragePath/9 (0.00s)
+=== RUN   TestFixRIssuanceBeforeReceipt
+--- PASS: TestFixRIssuanceBeforeReceipt (0.00s)
+=== RUN   TestFixRC14IssuedNotDelivered
+--- PASS: TestFixRC14IssuedNotDelivered (0.00s)
+=== RUN   TestFixRRenamedRoutingShapes
+=== RUN   TestFixRRenamedRoutingShapes/H8
+=== RUN   TestFixRRenamedRoutingShapes/H9
+--- PASS: TestFixRRenamedRoutingShapes (0.01s)
+    --- PASS: TestFixRRenamedRoutingShapes/H8 (0.00s)
+    --- PASS: TestFixRRenamedRoutingShapes/H9 (0.00s)
+=== RUN   TestFixRDirectedRoutes
+=== RUN   TestFixRDirectedRoutes/0
+=== RUN   TestFixRDirectedRoutes/1
+=== RUN   TestFixRDirectedRoutes/2
+--- PASS: TestFixRDirectedRoutes (0.01s)
+    --- PASS: TestFixRDirectedRoutes/0 (0.00s)
+    --- PASS: TestFixRDirectedRoutes/1 (0.00s)
+    --- PASS: TestFixRDirectedRoutes/2 (0.00s)
+=== RUN   TestFixRFairStandingRequests
+--- PASS: TestFixRFairStandingRequests (0.00s)
+=== RUN   TestFixRRenewalPauseWaitsForReceipt
+--- PASS: TestFixRRenewalPauseWaitsForReceipt (0.00s)
+=== RUN   TestV2T1_FreshTrigger
+--- PASS: TestV2T1_FreshTrigger (0.00s)
+=== RUN   TestV2A1_FrozenSelectors
+--- PASS: TestV2A1_FrozenSelectors (0.00s)
+=== RUN   TestV2A2_InvalidSchedules
+--- PASS: TestV2A2_InvalidSchedules (0.00s)
+=== RUN   TestV2T3_ExpiredIsNotSuperseded
+--- PASS: TestV2T3_ExpiredIsNotSuperseded (0.00s)
+=== RUN   TestV2E1_ActiveWorkOnly
+--- PASS: TestV2E1_ActiveWorkOnly (0.00s)
+=== RUN   TestV2T1T3_SynchronousEffects
+--- PASS: TestV2T1T3_SynchronousEffects (0.00s)
+=== RUN   TestV2E2_SafetyBeforeUnreachableEnd
+--- PASS: TestV2E2_SafetyBeforeUnreachableEnd (0.00s)
+=== RUN   TestV2SharedSchedules_OnlyRoot
+--- PASS: TestV2SharedSchedules_OnlyRoot (0.00s)
+=== RUN   TestV2T1E1_EndSeesActionEffect
+--- PASS: TestV2T1E1_EndSeesActionEffect (0.00s)
+=== RUN   TestV2A1_AllHolderTargets
+--- PASS: TestV2A1_AllHolderTargets (0.00s)
+=== RUN   TestV21A1_LowestUpNode
+--- PASS: TestV21A1_LowestUpNode (0.00s)
+=== RUN   TestV21A1_FrozenCrashAndRememberedRestart
+--- PASS: TestV21A1_FrozenCrashAndRememberedRestart (0.00s)
+=== RUN   TestV21A1_PartitionAndRoles
+--- PASS: TestV21A1_PartitionAndRoles (0.00s)
+=== RUN   TestV21P10A1_Lifecycle
+--- PASS: TestV21P10A1_Lifecycle (0.00s)
+=== RUN   TestTimingNoHostScheduler
+--- PASS: TestTimingNoHostScheduler (0.01s)
+=== RUN   TestF12_SendAcrossCutLostAfterHeal
+--- PASS: TestF12_SendAcrossCutLostAfterHeal (0.00s)
+=== RUN   TestF12_ReplyAfterCutHeal
+--- PASS: TestF12_ReplyAfterCutHeal (0.00s)
+=== RUN   TestF12_ConnectedSideRetainsReplies
+--- PASS: TestF12_ConnectedSideRetainsReplies (0.00s)
+=== RUN   TestF11_OldReplyCannotReachNewIncarnation
+--- PASS: TestF11_OldReplyCannotReachNewIncarnation (0.00s)
+PASS
+ok  	tupay/impl	0.125s

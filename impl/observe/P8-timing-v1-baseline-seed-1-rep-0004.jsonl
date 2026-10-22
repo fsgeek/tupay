@@ -1,0 +1,10 @@
+{"proc":"c1","seq":1,"event":"Request","client":"c1","key":"k","causes":[],"run":"P8-timing-v1-baseline-seed-1-rep-0004","side":"impl"}
+{"proc":"n1","seq":1,"event":"Grant","client":"c1","key":"k","token":3,"lifetime":40,"grantor_term":2,"causes":[{"proc":"c1","seq":1}],"run":"P8-timing-v1-baseline-seed-1-rep-0004","side":"impl"}
+{"proc":"c1","seq":2,"event":"WriteAttempt","client":"c1","key":"k","token":3,"grantor_term":2,"causes":[{"proc":"c1","seq":1},{"proc":"n1","seq":1}],"run":"P8-timing-v1-baseline-seed-1-rep-0004","side":"impl","value":"v1"}
+{"proc":"s","seq":1,"event":"WriteAccept","key":"k","token":3,"grantor_term":2,"highest_before":0,"causes":[{"proc":"c1","seq":2}],"run":"P8-timing-v1-baseline-seed-1-rep-0004","side":"impl"}
+{"proc":"env","seq":1,"event":"Fault","causes":[{"proc":"s","seq":1}],"run":"P8-timing-v1-baseline-seed-1-rep-0004","side":"impl","cell":"F1.2","partition":[["c1"],["c2","n1","n2","n3","s"]]}
+{"proc":"s","seq":2,"event":"WriteAccept","key":"k","token":3,"grantor_term":2,"highest_before":3,"causes":[{"proc":"s","seq":1},{"proc":"env","seq":1},{"proc":"c1","seq":2}],"run":"P8-timing-v1-baseline-seed-1-rep-0004","side":"impl"}
+{"proc":"c1","seq":3,"event":"WriteAttempt","client":"c1","key":"k","token":3,"grantor_term":2,"causes":[{"proc":"c1","seq":2},{"proc":"env","seq":1},{"proc":"n1","seq":1}],"run":"P8-timing-v1-baseline-seed-1-rep-0004","side":"impl","value":"v2"}
+{"proc":"c2","seq":1,"event":"Request","client":"c2","key":"k","causes":[{"proc":"env","seq":1}],"run":"P8-timing-v1-baseline-seed-1-rep-0004","side":"impl"}
+{"proc":"n1","seq":2,"event":"Grant","client":"c2","key":"k","token":4,"lifetime":40,"grantor_term":2,"causes":[{"proc":"n1","seq":1},{"proc":"env","seq":1},{"proc":"c2","seq":1}],"run":"P8-timing-v1-baseline-seed-1-rep-0004","side":"impl"}
+{"proc":"env","seq":2,"event":"Fault","causes":[{"proc":"env","seq":1},{"proc":"n1","seq":2}],"run":"P8-timing-v1-baseline-seed-1-rep-0004","side":"impl","cell":"F1.2","heal":true,"links":[]}

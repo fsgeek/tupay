@@ -1,0 +1,5 @@
+{"proc":"c1","seq":1,"event":"Request","client":"c1","key":"k","causes":[],"run":"H9-timing-v1-baseline-seed-3-rep-0007","side":"impl"}
+{"proc":"n1","seq":1,"event":"Grant","client":"c1","key":"k","token":3,"lifetime":40,"grantor_term":2,"causes":[{"proc":"c1","seq":1}],"run":"H9-timing-v1-baseline-seed-3-rep-0007","side":"impl"}
+{"proc":"env","seq":1,"event":"Fault","causes":[{"proc":"n1","seq":1}],"run":"H9-timing-v1-baseline-seed-3-rep-0007","side":"impl","cell":"F2.1","links":[["n1","c2"],["c2","n1"]]}
+{"proc":"c2","seq":1,"event":"Request","client":"c2","key":"k","causes":[{"proc":"env","seq":1}],"run":"H9-timing-v1-baseline-seed-3-rep-0007","side":"impl"}
+{"proc":"n1","seq":2,"event":"Grant","client":"c2","key":"k","token":4,"lifetime":40,"grantor_term":2,"causes":[{"proc":"n1","seq":1},{"proc":"env","seq":1},{"proc":"c2","seq":1}],"run":"H9-timing-v1-baseline-seed-3-rep-0007","side":"impl"}

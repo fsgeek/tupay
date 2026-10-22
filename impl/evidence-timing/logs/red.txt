@@ -1,0 +1,43 @@
+go: downloading gopkg.in/yaml.v3 v3.0.1
+go: downloading github.com/hashicorp/raft v1.7.0
+go: downloading github.com/hashicorp/go-hclog v1.6.2
+go: downloading github.com/hashicorp/go-msgpack/v2 v2.1.1
+go: downloading github.com/armon/go-metrics v0.4.1
+go: downloading github.com/mattn/go-isatty v0.0.14
+go: downloading github.com/fatih/color v1.13.0
+go: downloading github.com/hashicorp/go-immutable-radix v1.0.0
+go: downloading github.com/mattn/go-colorable v0.1.12
+go: downloading golang.org/x/sys v0.13.0
+go: downloading github.com/hashicorp/golang-lru v0.5.0
+--- FAIL: TestTimingNoHostScheduler (0.01s)
+    timing_test.go:44: engine.go: real clock time.NewTimer
+    timing_test.go:44: engine.go: real clock time.NewTicker
+    timing_test.go:40: engine.go: select race
+    timing_test.go:44: engine.go: real clock time.Now
+    timing_test.go:40: engine.go: select race
+    timing_test.go:38: engine.go: async protocol execution
+    timing_test.go:44: engine.go: real clock time.Now
+    timing_test.go:44: engine.go: real clock time.Now
+    timing_test.go:44: engine.go: real clock time.Now
+    timing_test.go:44: engine.go: real clock time.Now
+    timing_test.go:44: engine.go: real clock time.Now
+    timing_test.go:44: engine.go: real clock time.Since
+    timing_test.go:44: engine.go: real clock time.Now
+    timing_test.go:44: engine.go: real clock time.Now
+    timing_test.go:44: links_v2.go: real clock time.Now
+    timing_test.go:32: main.go: entropy import
+    timing_test.go:44: routing.go: real clock time.Now
+    timing_test.go:44: runner_v2.go: real clock time.Now
+    timing_test.go:44: runner_v2.go: real clock time.Now
+    timing_test.go:44: runner_v2.go: real clock time.Now
+    timing_test.go:44: runner_v2.go: real clock time.Sleep
+    timing_test.go:44: runner_v2.go: real clock time.Now
+    timing_test.go:44: runner_v2.go: real clock time.Now
+    timing_test.go:40: transport.go: select race
+    timing_test.go:38: transport.go: async protocol execution
+    timing_test.go:40: transport.go: select race
+    timing_test.go:44: transport.go: real clock time.NewTimer
+    timing_test.go:40: transport.go: select race
+FAIL
+FAIL	tupay/impl	0.011s
+FAIL

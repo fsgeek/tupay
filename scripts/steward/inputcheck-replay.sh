@@ -7,7 +7,7 @@ C=$1; ARM=$2; SIDE=$3; shift 3; bad=0; OTHER=D; [ "$ARM" = D ] && OTHER=F
 for f in AGENTS.md "docs/briefs/replay-$ARM-$SIDE.md" replay/contract.md replay/failure-model.md replay/scenario-format.md \
   replay/observe.md "replay/spec-$ARM.md"; do [ -f "$C/$f" ] || { echo "MISSING $f"; bad=1; }; done
 [ "$(ls "$C"/replay/scenarios/*.yaml | wc -l)" = 8 ] || { echo "scenario count is not 8"; bad=1; }
-for f in "replay/spec-$OTHER.md" docs/seed-log.md docs/seed.md experiments tmp model impl; do
+for f in "replay/spec-$OTHER.md" docs/seed-log.md docs/seed.md docs/steward docs/handoff CLAUDE.md experiments tmp model impl; do
   [ -e "$C/$f" ] && { echo "FORBIDDEN present: $f"; bad=1; }; done
 [ "$(git -C "$C" rev-list --all | wc -l)" -le 2 ] || { echo "history has more than the initial commit and its stamp"; bad=1; }
 [ "$(git -C "$C" rev-list --max-parents=0 --all | wc -l)" = 1 ] || { echo "more than one root commit"; bad=1; }

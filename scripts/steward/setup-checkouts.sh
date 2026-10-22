@@ -15,9 +15,9 @@ else git clone -q "$MAIN" "$D"; cd "$D"; git checkout -q -b "$B" "$REG"
   cp "$MAIN"/.git/hooks/post-commit "$MAIN"/.git/hooks/post-merge .git/hooks/
 fi
 if [ "$ARM" = adapt ]; then
-  git sparse-checkout set --no-cone '/*' '!/experiments/' '!/docs/*' '/docs/briefs/' '!/docs/briefs/*' "/docs/briefs/$BRIEF" "!/$other/" '!/model-regen/' '!/impl-regen/'
+  git sparse-checkout set --no-cone '/*' '!/experiments/' '!/docs/*' '/docs/briefs/' '!/docs/briefs/*' "/docs/briefs/$BRIEF" "!/$other/" '!/model-regen/' '!/impl-regen/' '!/CLAUDE.md'
 else
-  git sparse-checkout set --no-cone /AGENTS.md /CLAUDE.md /.gitignore /pyproject.toml /uv.lock /scripts/hooks/ \
+  git sparse-checkout set --no-cone /AGENTS.md /.gitignore /pyproject.toml /uv.lock /scripts/hooks/ \
     /contract/ '!/contract/v1.md' /failure-model/ /tests/ /testbed/schedule-format.md /testbed/schedules/ /observe/schema.md \
     "/docs/briefs/$BRIEF" "/$SIDE-regen/"
 fi

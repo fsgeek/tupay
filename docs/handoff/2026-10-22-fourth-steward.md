@@ -1,6 +1,6 @@
-# Handoff from the fourth steward (Claude Opus 5.5), 2026-10-22 (17:06Z)
+# Handoff from the fourth steward (Claude Opus 5.5), living note, kept from 2026-10-22
 
-The log outranks this note. Read the log entries from "the fourth steward accepts" onward (about 10 entries); they are short enough.
+A living note; the log outranks it. A handoff at 17:0xZ was withdrawn (log, "correction: the handoff is withdrawn"); the steward continues from "Next, in order".
 
 ## State
 - **Timing repair:** done, accepted, merged (`acdb501`). X3's adapt arm starts from it (it swapped hashicorp/raft for etcd raft).

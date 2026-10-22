@@ -1,0 +1,67 @@
+I'll read the brief and follow it exactly.The brief is a TLA+ model of the design, with a scenario compiler and a runner. I'll read the contract, spec, and the rules that apply before I write anything.The brief is a bounded TLA+ model of specification F, plus a scenario runner. I'll measure the election state space first so the bounds I commit to can actually finish.Election-only message passing is too big for an exhaustive check. I'll model ballots as grant actions and keep one extend-reply in flight per follower, which still covers loss, delay, and reordering within that bound. The bounds and that choice go in the README before any scenario run.Auto-compacting conversation (81% full)...
+Conversation compacted.
+The model draft is still unparsed. I'll finish `Journal.tla` until SANY accepts it, then write the compiler, runner, and the pre-run record before any scenario check.SANY wants operators defined before use. I'll move `MemberAfter` above `Elect`, and `ScenarioFire` below the actions it calls.SANY accepts the model. Next I’ll add the scenario compiler and runner, then commit the choices and predictions before any scenario check.Predictions are committed as `1435384`. The runner currently hides TLC’s progress until the process exits, so I’ll stream the log, then start the scenario checks.Predictions are committed as `1435384` (the OpenTimestamps child is `6103036`). S1 is the first TLC check, under the 24G cap. The other shared scenarios and the mutations wait on that result, because a startup failure or an exploding state space would show up there first.
+
+S1 is past 18 million states and still climbing, so the epoch cap of 3 will not finish under the memory limit. I’ll stop that run and tighten the bound.Auto-compacting conversation (80% full)...
+Conversation compacted.
+The S1 check is still running under the election bound. I will read the background-task guidance and then see whether that run has finished.S1 passed 3 million distinct states at diameter 27 and is still climbing. I will read the progress trend and memory before deciding whether to stop it.S1 went from 62,000 states at diameter 14 to 3.3 million at diameter 27 in one minute, using 6.7 GB. I am stopping it and inspecting what is still branching.The election bound cut the prefix, then the run still opened to 3.3 million states once several members could campaign at once. I am stopping that run and limiting the model to one campaign at a time.The second S1 check was stopped at 3.3 million distinct states and is not a result. A member now starts an election only when no other up member is already a candidate, and S1 is running again under that bound.
+
+The stopped S1 printed `UNEXPLAINED bound` only because it was killed. The new run's Java process is already gone, so I am reading its log before treating that as a result.S1's check finished in 6 seconds with no invariant violation: 46,585 distinct states, depth 25. The runner printed `UNEXPLAINED bound` because TLC's routine fingerprint probability is a tiny positive number, and the classifier treated every positive value as a miss. I am correcting that cutoff and running S1 again.S1 printed `PASS`, matching the prediction. Scenarios S2 through S8 are running under the same bounds.
+
+That completion is the earlier S1 check, the one the runner mislabeled `UNEXPLAINED bound` before the fingerprint cutoff was corrected. The scored re-run already printed `PASS`. S2 through S8 are still running.
+
+One scenario has reached 2.9 million distinct states and is still growing. I am identifying which one and stopping it before it hits the memory cap.S2 had already printed `PASS`. S3 was stopped at 2.9 million states and is not a result. The checker now treats two states as the same when they differ only by the last batch of observable events, and S3 is running again under that view.
+
+That exit is the earlier S2–S8 batch. It stopped when S3 was killed, and that line is not a result. S2 in that batch did print `PASS`. The new S3 check, with the state view, is the one still running.
+
+The depth-capped coverage run has finished. The live S3 check is still in the early diameters: about 30,000 distinct states at diameter 20, which is where the previous run later blew up. I am waiting to see whether the state view holds that down.
+
+The watcher can latch onto the previous S3 log. I am checking that it is following the new run.S3 is running again. A member now stays out of an election when both link directions to an up coordinator of an equal or higher epoch are open, even if that coordinator's configuration does not include them.
+
+That completion is the S3 run that was stopped at 2.7 million states. The shell was killed with it, so it did not print a scenario result. The new S3 check is still running.
+
+The stronger election bound did not hold S3 down. That run was stopped at 6.8 million states and is not a result. A probe is now checking whether sequence numbers and the other trace fields are what keep those states distinct.
+
+The stopped S3 run was killed and did not print a result. The view probe is still in the early diameters, at about 27,000 states, and has not yet reached the depth where S3 blew up.
+
+The protocol graph for S3 closes. A probe that ignored trace counters finished in 89 seconds at 1.2 million states. The official S3 check keeps the invariant variables in the state view and is running now.
+
+That completion is the probe: 1,240,837 states, 89 seconds, and not a safety result because it left out the invariant variables. The official S3 check is still running.
+
+S3 printed `PASS`. S1, S2, and S4 through S8 are running again on the final model.
+
+S4 was stopped at 2.9 million states. S1 and S2 had already passed. The extend reply is a separate state for every follower, so I am applying that reply in the same action as the send.S1, S2, and S3 had passed. S4 was stopped at 2.9 million states and is not a result. An extend now updates the follower and the leader's match indexes in one action, and S4 is running again.
+
+The batch stopped when S4 was killed. S1 and S2 in that batch printed `PASS` on the previous model. The new S4 check, with the extend applied in one action, is the run still going.
+
+S4 printed `PASS` in 44 seconds, at 661,345 states. All eight shared scenarios are running again on that model, and the mutations follow them.
+
+Every shared scenario and every mutation matched its prediction. The explore check, with no scenario constraining the environment, is running now.
+
+The scored model is `ed92c12a78d1688d6e7479b43f4322a934cf5805`, tagged `first-version`. Every shared scenario and every mutation printed the line that was predicted before the runs. Explore printed `UNEXPLAINED bound`.
+
+| Run | Prediction | Result |
+| --- | --- | --- |
+| S1 | PASS | PASS |
+| S2 | PASS | PASS |
+| S3 | PASS | PASS |
+| S4 | PASS | PASS |
+| S5 | PASS | PASS |
+| S6 | UNEXPLAINED steps | UNEXPLAINED steps |
+| S7 | PASS | PASS |
+| S8 | PASS | PASS |
+| S1 `double_vote` | FAIL J1.1 | FAIL J1.1 |
+| S2 `double_vote` | FAIL J1.1 | FAIL J1.1 |
+| S3 `double_vote` | FAIL J1.1 | FAIL J1.1 |
+| S4 `skip_uptodate` | FAIL J1.5 | FAIL J1.5 |
+| S5 `skip_uptodate` | FAIL J1.5 | FAIL J1.5 |
+| S6 `skip_uptodate` | FAIL J1.5 | FAIL J1.5 |
+| S7 `skip_uptodate` | FAIL J1.5 | FAIL J1.5 |
+| S8 `wide_change` | FAIL J1.3 | FAIL J1.3 |
+| explore | | UNEXPLAINED bound |
+
+The eight scenarios and eight mutations took 166 seconds, run one after another. Explore was stopped after 196 seconds. At diameter 10 it held 4,959,972 distinct states and 4,480,694 queued, and it was still growing. That stop is the explore result. No smaller fault envelope was substituted.
+
+The finished checks are inside the bounds recorded in the README: one campaign at a time, no campaign while a coordinator of an equal or higher epoch is reachable both ways, and an extend applied in the same action as the send. Trace counters are omitted from the state view. `led`, `crecs`, and `bad` stay in it. Mutation traces are in `model/observe/`.
+
+That completion is the explore run already reported. It printed `UNEXPLAINED bound` and is included in the `first-version` results.exit 143 2026-10-22T17:05:50Z

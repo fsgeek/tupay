@@ -1,0 +1,35 @@
+I'll read the brief first and follow it exactly.The brief is a TLA+ model of design D, with a scenario compiler and a runner. I'll read the contract, spec, and the rules that govern the work.The brief is a Raft model in TLA+, checked against J1.1, J1.3 and J1.5, plus a scenario compiler and runner. I'll pre-register choices and predictions, then build.The design is fixed: Raft as written, with the open choices recorded. Next I’ll write the model and the runner, and commit the predictions before any TLC run.The environment actions freeze the scenario counters and also advance them, so a step could never be taken. I'll separate those updates and clear the operators TLC will reject.Auto-compacting conversation (83% full)...
+Conversation compacted.
+The draft spec cannot take a scenario step: environment actions both freeze and advance the scenario counters. I will separate those updates, drop the operators TLC will reject, then finish the compiler and runner.The environment actions both freeze and advance the scenario counters, so a step can never be taken. I am separating those updates and removing the operators TLC will reject.Environment actions were updating the scenario counters themselves, which blocked `TakeStep`. Those counters now move only in `Advance`.The spec’s step action can advance now. Next I’ll add the scenario compiler and the runner, then syntax-check them before any TLC run.This copy of SANY requires every variable to be named in the instantiation. The generated module will pass the state variables through.Auto-compacting conversation (81% full)...
+Conversation compacted.
+The unmutated S1 run was killed because breadth-first search was still growing at depth 12. I will tighten the search bounds, measure S1 again, and only then rerun the timed batch.The first S1 search was still growing at depth 12, so breadth-first search cannot reach a finished scenario. I am adding three search bounds that still leave a completing path, then I will measure S1 again.Mutations all fail, but S1’s break is reported as J1.5: a self-vote in a later term skips the committed entry. Next I am checking that the unmutated scenarios still finish under these bounds.S1 and S2 both pass under the tighter bounds (24s and 4s). The remaining shared scenarios and the unbounded explore check are still running.The eight scenarios and the mutations finished. Explore is still growing at depth 8, so I am stopping it and tightening only the explore bounds.`first-version` is commit `4ae17eb41db0b8a10f0d091c04312ff53ee2dd43`. The batch took 335 seconds.
+
+| Run | Predicted | Observed |
+| --- | --- | --- |
+| S1 | PASS | PASS |
+| S2 | PASS | PASS |
+| S3 | PASS | PASS |
+| S4 | PASS | PASS |
+| S5 | PASS | PASS |
+| S6 | PASS | PASS |
+| S7 | PASS | PASS |
+| S8 | PASS | PASS |
+| S1 mutation | FAIL J1.1 | FAIL J1.5 |
+| S2 mutation | FAIL J1.1 | FAIL J1.1 |
+| S3 mutation | FAIL J1.1 | FAIL J1.1 |
+| S4 mutation | FAIL J1.5 | FAIL J1.5 |
+| S5 mutation | FAIL J1.5 | FAIL J1.5 |
+| S6 mutation | FAIL J1.5 | FAIL J1.5 |
+| S7 mutation | FAIL J1.5 | FAIL J1.5 |
+| S8 mutation | FAIL J1.3 | FAIL J1.3 |
+| explore | PASS | PASS |
+
+TLC exhausted every one of those state spaces. S4 is the largest, at 4,582,095 distinct states.
+
+The S1 mutation was meant to elect two leaders in one term. With at most four messages queued, the second candidate cannot start that election until the first candidate's votes have been delivered, and those deliveries push the second election into the next term. TLC stops on J1.5 instead: `m4` becomes leader in term 2 on its own vote without the committed command.
+
+The earlier batch shell has exited. Nothing is still running, and the tagged result is unchanged.
+
+`first-version` remains `4ae17eb41db0b8a10f0d091c04312ff53ee2dd43`. The only untracked files are the observe traces under `model/observe/`.
+
+The confirmation batch finished in 335 seconds and matches the tagged results. `first-version` is still `4ae17eb41db0b8a10f0d091c04312ff53ee2dd43`.exit 143 2026-10-22T17:05:50Z

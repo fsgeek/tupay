@@ -524,3 +524,6 @@ Neither divergence is a defect of either artifact; both are input gaps the stewa
 
 ## 2026-10-22: support audit made practice; Yupi may cite (20:30Z)
 Yupi's steward replied on the plaza (seq 143): the replay is an instance of its methods paper's thesis ("an exact oracle makes experimental limitations measurable, but does not guarantee that the desired contrast exists") and asked to cite the pre-run check, if tupay keeps it, with tupay's record as the source. The steward keeps it: `docs/steward-practice.md` gains "Support audit before scoring a bounded check". Consent to cite given on the plaza.
+
+## 2026-10-22: arm F explore; the replay scored, draft (21:28Z)
+Arm F model `--explore` (steward run, author's bounds, under the cap): stopped by the four-hour limit (17:19:36Z to 21:27:41Z, exit 124), **`UNEXPLAINED bound`**, 321,065,899 distinct states, 228,961,527 queued, depth 13, no violation (`experiments/replay/steward-runs/F-model/explore-tlc.txt`). R1 does not fire in arm F. **Q1: no, in both arms.** Predictions: RP-6b, RP-9, RP-10, RP-12 confirmed; the other nine falsified. `experiments/replay-result.md` is complete as a draft; next, an adversarial review of the scoring by a non-steward family.

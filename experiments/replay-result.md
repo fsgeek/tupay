@@ -1,9 +1,9 @@
 # Replay result: does the workflow find a known membership-change defect?
 
-**DRAFT** (fourth steward, Claude Opus 5.5, 2026-10-22). Scored against `experiments/replay-prereg.md` as registered (`b7e15b2`); every departure is listed under "Departures". Pending before this line is removed: arm F's `--explore` outcome (R1, RP-1, RP-2, RP-9) and an adversarial review of this scoring by a non-steward family. Evidence is in `experiments/replay/` and the log entries of 2026-10-22.
+**DRAFT** (fourth steward, Claude Opus 5.5, 2026-10-22). Scored against `experiments/replay-prereg.md` as registered (`b7e15b2`); every departure is listed under "Departures". Pending before this line is removed: an adversarial review of this scoring by a non-steward family. Evidence is in `experiments/replay/` and the log entries of 2026-10-22.
 
 ## Answer
-**Q1 (detection): no** in arm D; arm F pending only on its `--explore`. No artifact, on either side, in either arm, witnessed the defect, by any route. **Recognition: no author named it** (R4 before and after: no, for all four). **Fidelity: every artifact built the specified design on its change path** (classification (c), all four, Grok and steward agreeing). **Wording (Q2): no difference was observable**: the arms fired the same (empty) set of routes, and differed only in arm D's two divergences, which the judges trace to input gaps rather than to wording.
+**Q1 (detection): no**, in both arms. No artifact, on either side, in either arm, witnessed the defect, by any route. **Recognition: no author named it** (R4 before and after: no, for all four). **Fidelity: every artifact built the specified design on its change path** (classification (c), all four, Grok and steward agreeing). **Wording (Q2): no difference was observable**: the arms fired the same (empty) set of routes, and differed only in arm D's two divergences, which the judges trace to input gaps rather than to wording.
 
 The defect was not missed through repair or through misreading. It was missed because every artifact stopped looking before the defect's precondition:
 - **Implementations** (Codex): faithful by reading; K1 on 200 seeds each produced no FAIL. The registration predicted this (K1 reaches the violation only when its final heal lands in a gap; prompt actions make that close to unreachable), and no author wrote a test aimed at its own concern.
@@ -20,19 +20,19 @@ The defect was not missed through repair or through misreading. It was missed be
 | Mutations | 8/8 FAIL their clause | 24/24 cells, 10/10 | 8/8 | 24/24 cells, 10/10 |
 | Hold-outs H1–H4 | all PASS | H1 UNEXPLAINED; H2–H4 PASS; no flaky cell | all PASS | H1 UNEXPLAINED; H2–H4 PASS; no flaky cell |
 
-**2. Routes.** R1: arm D no (steward `--explore` PASS in 9 s within bounds that make no membership change); arm F pending. R2: no (no author test witnessed a violation; the shared scenarios cannot reach the precondition). R3: no (no divergence involves a violation). R4: no, all four, before and after. R5: no (no hold-out violation on any artifact).
+**2. Routes.** R1: no in either arm (arm D: steward `--explore` PASS in 9 s within bounds that make no membership change; arm F: `UNEXPLAINED bound` at the four-hour limit, 321 M distinct states, 229 M queued, depth 13, no violation). R2: no (no author test witnessed a violation; the shared scenarios cannot reach the precondition). R3: no (no divergence involves a violation). R4: no, all four, before and after. R5: no (no hold-out violation on any artifact).
 
 **3. Divergences.** Arm D: S6 and S8 (model PASS, implementation UNEXPLAINED steps). Arm F: none. Judge (Gemini) and Grok, independently: (A) for both — the implementation's behaviour is permitted and the model's PASS rests on a choice the inputs leave open: S6, delivery after a cut of a message sent before it (registered residue); S8, `coordinator` resolution after a self-removal plus the absence of a retry (registered residues).
 
 **4. Cost.** Authors (own reports and harness counts): D impl about 17 min, 94k tokens; F impl about 20 min, 125k tokens; D model first-version 08:09Z, 21.6 M tokens (20.3 M cached reads), 166 model calls; F model first-version 07:55Z, 25.3 M tokens, 193 calls. All started 05:45Z. Steward: one session; the model results sat unnoticed from about 08:10Z to 16:50Z (steward lapse, logged). Tony: one question that surfaced the lapse, one correction of the steward's context reading; no decision was needed from him.
 
-**5. Model bounds.** D: scenario `MaxTerm` 2 (K1 compiled at 2), `MaxLog` 3, `MaxMsgs` 4, at most two candidates or leaders, no election while a configuration entry is uncommitted anywhere, one delivery order; `--explore` without crash, cut, drop or membership change. F: `MaxEpoch` 3, `MaxLogLen` 4, `MaxRounds` 3; a member campaigns only if in its own configuration, no other up member is a candidate, and no up coordinator of equal or higher epoch is reachable both ways; ballots and extends atomic. `--explore`: D PASS; F pending (four-hour limit fixed before launch).
+**5. Model bounds.** D: scenario `MaxTerm` 2 (K1 compiled at 2), `MaxLog` 3, `MaxMsgs` 4, at most two candidates or leaders, no election while a configuration entry is uncommitted anywhere, one delivery order; `--explore` without crash, cut, drop or membership change. F: `MaxEpoch` 3, `MaxLogLen` 4, `MaxRounds` 3; a member campaigns only if in its own configuration, no other up member is a candidate, and no up coordinator of equal or higher epoch is reachable both ways; ballots and extends atomic. `--explore`: D PASS; F `UNEXPLAINED bound` (four-hour limit fixed before launch; 17:19:36Z to 21:27:41Z).
 
 ## Predictions (registered, steward)
 | | p | Outcome |
 |---|---|---|
-| RP-1 Q1 yes in either arm | 0.40 | pending (arm F `--explore`) |
-| RP-2 R1 in arm F model | 0.35 | pending |
+| RP-1 Q1 yes in either arm | 0.40 | falsified |
+| RP-2 R1 in arm F model | 0.35 | falsified |
 | RP-3 R1 in arm D model | 0.35 | falsified |
 | RP-4 R2 in either arm | 0.05 | falsified |
 | RP-5 a Codex implementation (b) or (d) | 0.55 | falsified |
@@ -40,7 +40,7 @@ The defect was not missed through repair or through misreading. It was missed be
 | RP-6b a Grok model's K1 UNEXPLAINED | 0.30 | confirmed (both) |
 | RP-7 R4-before, a Codex author | 0.60 | falsified |
 | RP-8 R4-before, a Grok author | 0.15 | falsified |
-| RP-9 same route triples in both arms | 0.50 | pending (so far both empty) |
+| RP-9 same route triples in both arms | 0.50 | confirmed (both empty) |
 | RP-10 at least one divergence | 0.40 | confirmed |
 | RP-11 R5 on a faithful artifact | 0.45 | falsified |
 | RP-12 every mutation fails every run | 0.60 | confirmed |

@@ -1,0 +1,20 @@
+The configuration path is **(c)**. On election the coordinator appends nothing of its own epoch, and a change waits only until the last configuration entry is committed.
+
+`becomeLeader` sets leader state, emits `Elected`, and broadcasts. It does not append a journal entry. `processRequests` then blocks only on the previous configuration:
+
+```
+if p.Stage == "wait" {
+    if m.ConfigIndex > m.Commit {
+        return
+    }
+```
+
+The README states the same rule: "Every requested change waits for the last configuration entry in the local journal to be committed, including inherited entries. No extra election no-op, joint consensus, commitment barrier from another specification, or special repair of the published membership algorithm is added."
+
+**R4 before: no.** The pre-run Concerns section flags a probe and then withholds the claim: "This is a concern, not an established diagnosis." It does not assert that the specified design violates J1.1, J1.5, or persistence of committed entries.
+
+**R4 after: no.** After running, the text says "No unmutated safety violation was witnessed" and that the reading-only concern "remains unresolved" because "None of the shared executions discriminated that concern."
+
+```json
+{"classification": "c", "d_restricts_beyond_wait": null, "r4_before": false, "r4_after": false, "quotes": {"classification": "Every requested change waits for the last configuration entry in the local journal to be committed, including inherited entries. No extra election no-op, joint consensus, commitment barrier from another specification, or special repair of the published membership algorithm is added.", "classification_code": "becomeLeader emits Elected and calls broadcast without appending an entry. processRequests begins the change only after `if m.ConfigIndex > m.Commit { return }`.", "r4_before": "Different uncommitted configuration suffixes and rollback can leave several configurations in use, and a newly elected leader's volatile commit index is zero. ... This is a concern, not an established diagnosis; the implementation will retain immediate configuration adoption, rollback, and the local previous-configuration wait exactly as written.", "r4_after": "No unmutated safety violation was witnessed in the 24 shared executions, either before or after the documented corrections. ... The reading-only concern about several configurations and leadership changes remains unresolved. None of the shared executions discriminated that concern."}}
+```

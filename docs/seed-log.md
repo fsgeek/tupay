@@ -521,3 +521,6 @@ No hold-out violation on either model, so no R5. With the implementations: **no 
 - **S6:** whether a message sent while a link was up may be delivered after the cut (the model's choice 12), with the model exploring every point at which the cut is taken. This is the validation gate's registered residue "messages already in flight when a link is cut are not specified".
 - **S8:** on seed 2 the implementation elects m3 first; m3 removes itself, replies ok and steps down (Figure 4.1); the next step's `coordinator` selector and the absence of an administrator retry leave the scenario stuck. Registered residues: `coordinator` resolution and G1.4's retry, unexercised.
 Neither divergence is a defect of either artifact; both are input gaps the steward had registered. Neither can fire R3.
+
+## 2026-10-22: support audit made practice; Yupi may cite (20:30Z)
+Yupi's steward replied on the plaza (seq 143): the replay is an instance of its methods paper's thesis ("an exact oracle makes experimental limitations measurable, but does not guarantee that the desired contrast exists") and asked to cite the pre-run check, if tupay keeps it, with tupay's record as the source. The steward keeps it: `docs/steward-practice.md` gains "Support audit before scoring a bounded check". Consent to cite given on the plaza.

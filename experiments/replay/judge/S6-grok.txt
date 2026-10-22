@@ -1,0 +1,16 @@
+The implementation's unfinished runs are allowed, and the model's PASS is one legal schedule the inputs leave open: a RequestVote sent while the links were up may still be delivered after the cut.
+
+S6's third step fires only on a new `Elected` after this cut, and only then does it heal:
+
+```yaml
+- {at: {event: Committed}, do: {cut: [[m1, m3], [m1, m4], [m2, m3], [m2, m4]]}}
+- {at: {event: Elected}, do: {heal: true}}
+```
+
+That cut is a 2–2 split of `{m1, m2, m3, m4}`. Raft elects only with "votes from a majority of the servers in the full cluster," so three votes. The contract has "no liveness clause." On seed 1 the cut is step 2, and after it only `m3` and `m4` grant ballots (epochs 2 through 14 in the excerpt), two votes at most, with no later `Elected` and no heal. Hitting `bound: {events: 400}` before every action is therefore `UNEXPLAINED steps`, as the scenario format states: "If `bound` is reached before every step's action is taken, the outcome is `UNEXPLAINED steps` … never PASS." The same label on seeds 1–3, ten runs each, matches that schedule. "The implementation samples one" time to take the cut; taking it before any new campaign is in flight is one of those times.
+
+The model finishes because it also explores the other time. Its author writes: "A new election can still finish after the 2–2 cut because a RequestVote that was sent while the link was up may be delivered afterwards (choice 12)." And: "the RequestVote reply queued while the link was up is delivered after the cut." That reply is the third vote, so the new `Elected` is after the cut, in a new term. The scenario format tells the model to do this: "Once a trigger fires, the action is taken at some later point: the model explores every such point," and it reports PASS when any behaviour inside its bounds takes every step.
+
+The inputs leave that delivery open. G1.2: "Any message may be lost, delayed for any finite time." G1.3 forces loss only "while a link is down" for "messages sent over it." A reply already sent while the link was up is not covered by that sentence, and G1.2 still allows it to arrive later. Specification D says that where the text is silent, "choose, and record the choice." Choice 12 is that choice. Both labels follow from it: the sampled runs never have that reply queued, and the model checks a run that does.
+
+{"verdict": "A", "choice_or_clause": "A RequestVote sent while the link was up may be delivered after the cut (model choice 12)", "reason": "S6 heals only after a new Elected under the 2-2 cut of {m1,m2} from {m3,m4}. Majority of the four-server configuration is three, and there is no liveness clause, so runs that cut before any RequestVote is in flight correctly spin (seed 1: m3/m4 ballots only, epochs 2–14) and hit bound as UNEXPLAINED steps. The model PASS is the other schedule G1.2 leaves open and the author records as choice 12: a RequestVote reply queued while the link was up is delivered after the cut and supplies the third vote. G1.3 loses only messages sent while the link is down."}

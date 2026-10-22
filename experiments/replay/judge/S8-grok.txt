@@ -1,0 +1,38 @@
+**Verdict: (A)**
+
+The implementation's behaviour is permitted by the specification. The model's PASS depends on a choice the inputs leave open: **whether a removed coordinator (after it steps down per Figure 4.1 step 4) immediately becomes non-coordinator for the purposes of the scenario's `coordinator` selector in later steps, or whether the selector resolves based on the most recent `Elected` event regardless of subsequent self-removal/step-down**.
+
+### Why (A), with quotes
+
+From the scenario (`replay/scenarios/S8.yaml`):
+
+```yaml
+steps:
+  - {at: {event: Elected}, do: {remove: m3, at: coordinator}}
+  - {at: {event: ChangeReplied, status: ok}, do: {add: m5, at: coordinator}}
+  - {at: {event: ChangeReplied, status: ok}, do: {add: m3, at: coordinator}}
+```
+
+From the implementation trace (seed 2):
+
+- `{"...","event":"Elected",...,"member":"m3",...}` (first election, m3 is coordinator).
+- Remove step triggers on that Elected, remove succeeds, m3 appends config entry excluding itself, commits it, replies `ok`, and (per spec) steps down.
+- Next step's trigger `ChangeReplied, status: ok` fires, selector `coordinator` resolves to **m3** (still the most recent Elected), `do: {add: m5, at: m3}`.
+- m3 (now non-leader, post-step-down) replies `not_leader`.
+- The final step's trigger (another `ChangeReplied` with `status: ok`) is never satisfied → bound reached before all steps taken → **UNEXPLAINED steps**.
+
+The contract (`replay/contract.md`) and spec-D.md are silent on exactly when the `coordinator` selector (defined in `replay/scenario-format.md`) updates after a self-removal. `scenario-format.md` says:
+
+> Three selectors may stand for a member name anywhere one is allowed, resolved when the step's trigger fires: `coordinator`, the member most recently `Elected`
+
+It ties the selector to the most recent `Elected` event. The implementation follows this literally (and correctly implements the RemoveServer RPC from Figure 4.1, including step 4: "if this server was removed, step down").
+
+The model author chose a different resolution for the selector (or for when a stepped-down self-removed leader is no longer considered "coordinator" for admin requests), allowing the second and third changes to be sent to a still-active coordinator (m1, who wins the subsequent election). This produces a completing trace within bounds → PASS.
+
+No contract clause is violated in the impl trace (J1.3 holds by construction; J1.1 and J1.5 are not contradicted). The impl follows the spec's membership change rules (single-server changes, config entries in the log, step-down on self-removal, use of latest config in log, etc.). The divergence is in an underspecified detail of scenario execution that the inputs leave open.
+
+This matches (A). It is not (B) or (C) — neither misreads a named clause/sentence/cell. It is not (D) — the trace and READMEs discriminate the exact point of divergence.
+
+```json
+{"verdict": "A", "choice_or_clause": "coordinator selector resolution after self-removal/step-down (most recent Elected vs. current active leader)", "reason": "Impl follows literal 'most recently Elected' and Figure 4.1 step-down; model chooses different timing that lets later steps succeed on a new coordinator. No clause violated; scenario selector underspecified."}
+```

@@ -1,0 +1,29 @@
+{
+  "info": {
+    "id": "01a16224-76b7-7793-9388-b2743c1513b1",
+    "cwd": "/home/tony/projects/tupay-replay-F-model"
+  },
+  "agent_id": "ag1.50c182514083486584ce79f7b0a23218",
+  "attempt_id": "at1.27da2b58c6b7458787bb36e69a9f7259",
+  "session_summary": "Read replay-F-model brief and execute",
+  "created_at": "2026-10-22T05:45:19.300647796Z",
+  "updated_at": "2026-10-22T17:05:49.539184406Z",
+  "num_messages": 1833,
+  "num_chat_messages": 414,
+  "current_model_id": "grok-4.7",
+  "next_trace_turn": 1,
+  "chat_format_version": 1,
+  "session_kind": "headless",
+  "git_root_dir": "/home/tony/projects/tupay-replay-F-model/",
+  "head_commit": "d433c1073d96ed8845d185c8d27cb5f4f863063c",
+  "head_branch": "main",
+  "request_id": "ad601148-9a23-4152-90e1-593d0d504705",
+  "grok_home": "/home/tony/.grok",
+  "last_active_at": "2026-10-22T17:05:49.539184406Z",
+  "generated_title": "Read replay-F-model brief and execute",
+  "agent_name": "grok-build-plan",
+  "sandbox_profile": "off",
+  "reasoning_effort": "high",
+  "last_turn_summary": "Explore run printed `UNEXPLAINED bound`; already in first-version",
+  "last_turn_summary_prompt_id": "task-completed-01a16297-9867-7670-b691-a1971fce91ae"
+}

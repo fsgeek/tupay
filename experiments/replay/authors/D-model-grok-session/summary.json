@@ -1,0 +1,29 @@
+{
+  "info": {
+    "id": "01a16224-723e-7550-8e09-0c398b1348dc",
+    "cwd": "/home/tony/projects/tupay-replay-D-model"
+  },
+  "agent_id": "ag1.6bbb9373134f4d709754de9f240fb543",
+  "attempt_id": "at1.76576ce29e864bde8548075f927d5b87",
+  "session_summary": "Read replay-D-model brief and execute",
+  "created_at": "2026-10-22T05:45:18.150634014Z",
+  "updated_at": "2026-10-22T17:05:49.520950473Z",
+  "num_messages": 1707,
+  "num_chat_messages": 385,
+  "current_model_id": "grok-4.7",
+  "next_trace_turn": 1,
+  "chat_format_version": 1,
+  "session_kind": "headless",
+  "git_root_dir": "/home/tony/projects/tupay-replay-D-model/",
+  "head_commit": "80cdf45d682e8cc85b45f3ee54ba6798f2afc834",
+  "head_branch": "main",
+  "request_id": "714c0ddd-bd3f-47d0-bab6-328f5c0f5b7f",
+  "grok_home": "/home/tony/.grok",
+  "last_active_at": "2026-10-22T17:05:49.520950473Z",
+  "generated_title": "Read replay-D-model brief and execute",
+  "agent_name": "grok-build-plan",
+  "sandbox_profile": "off",
+  "reasoning_effort": "high",
+  "last_turn_summary": "Confirmation batch matches tags; `first-version` still `4ae17eb`",
+  "last_turn_summary_prompt_id": "task-completed-01a162a2-955c-7221-aa75-e8aee79b86a2"
+}

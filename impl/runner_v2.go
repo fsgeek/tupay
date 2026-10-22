@@ -128,7 +128,7 @@ func (e *Engine) workloadReady(f FrozenAction) bool {
 		// derives: C1.4, F1.3, F2.1, F2.2, T3
 		if a.Pause != "" {
 			c := e.clients[a.Pause]
-			if c == nil || !c.up || c.paused || len(c.grants) == 0 || !time.Now().Before(c.grants[len(c.grants)-1].expires) {
+			if c == nil || !c.up || c.paused || len(c.grants) == 0 || !e.now().Before(c.grants[len(c.grants)-1].expires) {
 				return false
 			}
 		}
@@ -226,7 +226,7 @@ func (e *Engine) validateTransition(a Action) error {
 func (e *Engine) drive() RunEvidence {
 	result := RunEvidence{Derives: []string{"C1.1", "C1.2", "C1.3", "C1.4", "C2.1", "C2.2", "F1.1", "F1.2", "F1.3", "F2.1", "F2.2", "L1", "L2", "L3", "E3", "T1", "T2", "T3", "A1", "A2", "E1", "E2"}}
 	wait := func(ready func() bool, reason string) bool {
-		deadline := time.Now().Add(progressHorizon + 2*time.Second)
+		deadline := e.now().Add(progressHorizon + 2*time.Second)
 		for {
 			if len(e.out.events) >= e.schedule.Bound.Events {
 				result.Reason = "event bound reached"
@@ -249,14 +249,18 @@ func (e *Engine) drive() RunEvidence {
 				result.Reason = "progress horizon exhausted"
 				return false
 			}
-			if time.Now().After(deadline) {
+			if e.now().After(deadline) {
 				result.Reason = reason
 				return false
 			}
-			time.Sleep(time.Millisecond)
 		}
 	}
-	finish := func() RunEvidence { result.Witnesses = e.witnesses(); result.Deliveries = e.deliveries; return result }
+	finish := func() RunEvidence {
+		result.Clock = LogicalClockEvidence{"timing-v1", e.seed, e.now().Sub(time.Unix(0, 0).UTC()).Milliseconds()}
+		result.Witnesses = e.witnesses()
+		result.Deliveries = e.deliveries
+		return result
+	}
 	armed := 0
 	for _, step := range e.schedule.Steps {
 		var trigger Ref
@@ -268,8 +272,8 @@ func (e *Engine) drive() RunEvidence {
 			result.Reason = err.Error()
 			return finish()
 		}
-		delayUntil := time.Now().Add(time.Duration(e.rng.Intn(3)) * time.Millisecond)
-		if !wait(func() bool { return !time.Now().Before(delayUntil) }, "action delay unreachable") {
+		delayUntil := e.now().Add(time.Duration(e.rng.Intn(3)) * time.Millisecond)
+		if !wait(func() bool { return !e.now().Before(delayUntil) }, "action delay unreachable") {
 			return finish()
 		}
 		if !wait(func() bool { return e.workloadReady(frozen) }, "workload unavailable under T3") {

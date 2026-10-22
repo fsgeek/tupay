@@ -1,0 +1,10 @@
+impl/.cache/mod/go.etcd.io/raft/v3@v3.6.0/rawnode.go:64:func (rn *RawNode) Tick() {
+impl/.cache/mod/go.etcd.io/raft/v3@v3.6.0/rawnode.go:78:func (rn *RawNode) TickQuiesced() {
+impl/.cache/mod/go.etcd.io/raft/v3@v3.6.0/raft.go:416:	// randomizedElectionTimeout is a random number between
+impl/.cache/mod/go.etcd.io/raft/v3@v3.6.0/raft.go:419:	randomizedElectionTimeout int
+impl/.cache/mod/go.etcd.io/raft/v3@v3.6.0/raft.go:850:func (r *raft) tickElection() {
+impl/.cache/mod/go.etcd.io/raft/v3@v3.6.0/raft.go:853:	if r.promotable() && r.pastElectionTimeout() {
+impl/.cache/mod/go.etcd.io/raft/v3@v3.6.0/raft.go:2042:// pastElectionTimeout returns true if r.electionElapsed is greater
+impl/.cache/mod/go.etcd.io/raft/v3@v3.6.0/raft.go:2045:func (r *raft) pastElectionTimeout() bool {
+impl/.cache/mod/go.etcd.io/raft/v3@v3.6.0/raft.go:2046:	return r.electionElapsed >= r.randomizedElectionTimeout
+impl/.cache/mod/go.etcd.io/raft/v3@v3.6.0/raft.go:2050:	r.randomizedElectionTimeout = r.electionTimeout + globalRand.Intn(r.electionTimeout)

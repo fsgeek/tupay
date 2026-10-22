@@ -707,3 +707,112 @@ every seed. R2 issues 71 c2 Grants on each final seed while delivering none and
 fails C1.4 with a qualified 3000 ms pending-request certificate. Original
 predictions remain unchanged and both P18 prediction misses are explicit. There
 is no rerun, re-placement, duration/lifetime change or scoring amendment.
+
+## Timing repair — registered before adaptation or outcome-bearing runs
+
+<!-- derives: C1.1, C1.2, C1.3, C1.4, C2.1, C2.2, F1.1, F1.2, F1.3, F2.1, F2.2, T1, T2, T3, L1, L2, L3, E1, E2, E3 -->
+First recorded clock: 2026-10-22 05:45:33 UTC. New timing-adapt-impl clone.
+The supplied brief's 2,010-run finding informs this repair: P18 and P29/P30
+mutation outcomes vary with wall-clock timing. No steward files, model artifact,
+other-side directory, other documentation or external skill file is consulted.
+The inherited author brief exempts the absent seed files. No timing-round build,
+fixture or schedule/mutation run precedes this registration. Normal signed
+commits and OTS hook; task outputs only in impl/; no push.
+
+Exact requested predictions, for each seed 1, 2 and 3, on each repetition 1–10:
+
+| Schedule | Seed 1 baseline / mutation | Seed 2 baseline / mutation | Seed 3 baseline / mutation |
+|---|---|---|---|
+| P18 | PASS ×10 / FAIL C2.2 ×10 | PASS ×10 / FAIL C2.2 ×10 | PASS ×10 / FAIL C2.2 ×10 |
+| P29 | PASS ×10 / FAIL C2.2 ×10 | PASS ×10 / FAIL C2.2 ×10 | PASS ×10 / FAIL C2.2 ×10 |
+| P30 | PASS ×10 / FAIL C2.2 ×10 | PASS ×10 / FAIL C2.2 ×10 | PASS ×10 / FAIL C2.2 ×10 |
+
+All other 32 shared schedules are predicted PASS on seeds 1–3 in every repetition.
+All other P1–P30 mutations and R1/R2 are predicted FAIL of their existing declared
+clause on seeds 1–3 in every repetition. R1/R2 retain unchanged shared H9.
+Thus ten --all executions contain 1,050 baseline results; ten --mutations
+executions contain 960 results, with 201 cells each appearing exactly ten times.
+Any cell with more than one outcome fails determinism acceptance. A consistently
+wrong/UNEXPLAINED outcome fails functional acceptance. A mutation counts as killed
+only by its declared clause, never a timeout, compiler failure or missing evidence.
+A prior failed run is preserved and reported; a later correction must name the
+misread clause/cell and is additively registered as outcome-informed if applicable.
+
+Design choice: move the entire artifact execution into one deterministic event
+loop with an integer logical-time clock. Seeded RNG supplies delivery order,
+latencies, T2 delay, election deadlines and retransmission choices. All outcome-
+bearing uses of real time, goroutines, select races and wall-time protocol timers
+are removed. Node iteration and library-generated outbound messages have stable
+ordering before seeded sampling. No protocol decision depends on a schedule name.
+Shared JSONL keeps its clock-free schema; logical timing/certificates and replay
+hashes belong in sidecars. Wall time is workflow metadata only.
+
+HashiCorp's autonomous goroutines/timers cannot be made scheduler-owned by replacing
+just the runner clock. Use an existing explicit-state Raft engine (etcd RawNode,
+pinned in go.mod) for the same committed-log-index token allocator. Its Ready/Step
+boundary is driven synchronously; log/hard-state persistence precedes sends,
+committed entries precede allocation replies, and retained storage survives
+simulated crash. This is a protocol-library integration change, not a new central
+quorum allocator or a home-written consensus protocol. Elections/heartbeats use
+scheduler ticks and seeded explicit campaign deadlines. Library randomized
+follower timeouts are not allowed to select execution: use quiesced follower
+ticks and explicit campaigns, or a narrowly documented deterministic random
+source if source inspection shows that required. No wall-time input may affect
+the state machine. A dependency-source inspection is preparation, not a scored run.
+
+The new clock's nominal unit is one simulated millisecond. Existing 40-unit grant
+lifetime, 8-unit local reply preparation, 20-unit request retry, qualified 3,000-unit
+C1.4 opportunity and 5,000-unit operational bound remain. T2 samples 0–2 logical
+units. Packet latency is sampled 1–3 logical units, uniformly for Raft, lease and
+storage traffic, before any timing-round outcomes: this is an explicit bounded
+scheduler distribution, not real elapsed runtime. Zero-duration synchronous work
+and serialization/IO consume no logical time. The smaller delivery distribution
+and removal of host overhead keep the shared P18 pre-pause workload within its
+40-unit holder window. No pause is allowed for an expired holder, no grant is
+invented, and no shared schedule or lifetime is changed. F1.3 freezes client
+execution/receipt while scheduler-owned grant time advances; its resume remains
+strictly later than the lifetime, with a later grant as the existing witness.
+F2.x still fixes message fate at directed send time; a cut never retracts a sent
+packet, and healing never resurrects a send lost on a down link. Equal-time
+fault/message action order is now seeded and explicit, not a host scheduling race.
+The fix round's unexpired-renewal guard is not repurposed as a timing fix: any
+remaining guard is evaluated only against logical time with the same validity rule.
+
+P29/P30 enforcing-path sensitivity: preregister a deterministic mutation placement
+if the old loss-only wall-time branch can be skipped. The same C2.2 break (wrong
+served snapshot/value) is armed by the respective link fault and applied on the
+original served read's reply path, including a reply delivered after healing.
+It must not depend on whether a host poll happens before the local send deadline.
+P1–P28 and R1/R2 retain their enforcing paths. Any actual re-placement is recorded
+explicitly; a counterfactual survives unless its actual reply path is broken.
+
+Expected interpretation changes: contradict 5/21/60/66's wall-clock execution and
+unseeded Raft election sampling; extend 67–70's link-fate/direct-clique semantics
+with explicit seeded event ordering; extend 76/78's routing and receipt evidence
+with scheduler-owned deadlines; supersede the host-overhead part of the declared
+P18 pause-window limitation without weakening F1.3. P29/P30's old gate on the
+loss branch was not a stable enforcing-path placement; make its activation and
+break point explicit if needed. Preserve historical text and v1 clause/cell IDs.
+
+Focused predicted regressions: perturbing host delay or GOMAXPROCS cannot change
+canonical traces/sidecars, same-process and fresh-process replays agree, labels
+aside; different seeds may choose different schedules of events. Renamed fixtures
+follow identical seeded protocol rules. Pre-cut packets survive later cuts,
+down-link sends remain lost, logical expiry/pause and stable progress horizons
+are exact, crashed clients cannot inherit old receipts, issuer crash preserves
+committed tokens, and R2-issued-undelivered Grants still fail C1.4. A static audit
+must find no outcome-bearing wall clock, unseeded RNG, async protocol loop or
+unordered-map decision in the execution path. Keep all 2,010 final raw traces,
+sidecars, receipts and per-cell outcome counts, plus canonical replay hashes.
+
+Declared expected limitations: this is a deterministic bounded simulation using
+an existing Raft state machine, not OS/process/network timing verification or
+exhaustive exploration of all permitted message timings. For a fixed executable,
+accepted schedule and seed there is no intentionally nondeterministic schedule
+shape. Operational IO/build failures are outside protocol replay and remain
+UNEXPLAINED; corrupt/unsupported inputs reject deterministically. Long workflows
+can still deterministically exceed a lifetime/trigger/event bound, and arbitrary
+permanent election disruption is not an unbounded liveness proof. These are not
+licenses for repeat-varying outcomes. Library/code/version changes can change a
+seed's canonical trace and are bound to evidence hashes. Distinct unique file
+labels may differ between repetitions but never feed scheduler state or scoring.

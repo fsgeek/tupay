@@ -1007,3 +1007,142 @@ counterexample was seen here and no further stable-leader routing shape is known
 to be intentionally unfixed. No lifetime, validity rule, input or score was tuned
 after the adverse result. Wall time begins 2026-10-21 14:59:31 UTC and is reported
 through the adapted commit and hook in the final answer.
+
+## Timing repair — scheduler design and interpretations
+
+<!-- derives: C1.1, C1.2, C1.3, C1.4, C2.1, C2.2, F1.1, F1.2, F1.3, F2.1, F2.2, T1, T2, T3, L1, L2, L3, E1, E2, E3 -->
+The supplied brief reports 2,010 steward runs and seven unstable cells. Those
+reported outcomes inform the repair; none of the steward's files or other-side
+artifacts was read. Registration `b7867c5`, OTS stamp `674db60`, preceded all
+adaptation and timing-round tests. First clock: 2026-10-22 05:45:33 UTC. The
+absent seed documents are exempt under the inherited author brief. All source,
+cache, dependency inspection and output remain under the permitted directory;
+no external skill, model, experiment or steward file was accessed this round.
+Prior results, adverse traces and interpretations remain unchanged history.
+
+80. **New scheduler:** one event loop owns integer logical time. A nominal
+    millisecond is one simulated unit; synchronous work and IO consume no units.
+    Seeded sampling chooses packet latency (1–3 units), T2 delay (0–2), delivery
+    order and campaign deadlines. Stable node/message ordering precedes sampling.
+    Grant lifetime 40, local reply preparation 8, request retry 20, qualified
+    progress window 3,000 and operational wait 5,000 remain the existing nominal
+    values. The delivery range is the preregistered bounded simulation choice,
+    replacing 1–5 real milliseconds and host overhead. No schedule name chooses
+    protocol behavior. Logical time is recorded only in a sidecar, never used
+    to order independent-process JSONL events in the checker.
+    <!-- derives: C1.1, C1.4, C2.2, F1.3, F2.1, F2.2, T2, T3, E1 -->
+81. **Contradicted execution assumptions:** interpretations 5/21/60/66's real
+    elapsed execution and unseeded Raft election sampling no longer apply.
+    HashiCorp's autonomous timer/goroutine engine is replaced by pinned etcd
+    Raft v3.6.0 RawNode, driven synchronously through Ready/Step/Advance. The
+    scheduler persists entries/hard state before sends, and only actually
+    committed entries supply index/term tokens. All three nodes have the fixed
+    voter configuration in retained storage before workload start. Process
+    crashes retain that storage/applied state and discard volatile nodes/inboxes.
+    No central quorum allocator or new consensus algorithm was introduced.
+    The Go toolchain is pinned to 1.23.12.
+    <!-- derives: C1.1, C1.4, F1.1, F1.2, F2.1, F2.2 -->
+82. **Explicit election clock:** leaders receive a protocol tick every 10
+    logical units. Other roles receive TickQuiesced to advance only lease age;
+    only scheduler-seeded Campaign deadlines can start their elections. A
+    delivered current-leader heartbeat/append resets that deadline. Source
+    inspection of the pinned library confirms its internally computed random
+    follower timeout is consulted by tickElection, which this driver never calls
+    for a follower/candidate. That unused internal random value cannot select
+    an event. Outbound Ready messages are sorted by serialized bytes before
+    seeded delivery, removing map iteration from protocol input order. The
+    canonical replay tests exercise independent library instances and host
+    thread counts. Quiesced ticking is a pinned-library integration choice;
+    a future library upgrade needs a new source audit and replay registration.
+    <!-- derives: C1.1, C1.4, F1.1, F2.1, F2.2 -->
+83. **Extended F1.3 semantics:** expiry and pause duration now belong to the
+    scheduler. Pausing freezes client execution/receipt while logical grant
+    time advances; resume is still strictly later than the lifetime, witnessed
+    by the existing later-grant workload barrier. The existing unexpired-holder
+    action check and renewal-readiness condition use that clock. No validity
+    check is weakened, no duration/origin is changed, no hidden renewal is added.
+    The host-overhead part of the P18 pause-window limitation is superseded;
+    longer logical workflows may still deterministically miss a holder window.
+    <!-- derives: C1.4, C2.2, F1.3, T3, E1 -->
+84. **Extended F2.x scheduling:** each directed send fixes fate at its logical
+    event. A later cut cannot retract a sent packet; healing cannot resurrect
+    a down-link send. An already-sent packet may survive its sender crashing,
+    while a receiver's replaced inbox cannot inherit old deliveries. Equal-time
+    processing is now explicit and reproducible. The direct bidirectional L3
+    premise remains unchanged, as does lease-node routing around a stable leader.
+    <!-- derives: C1.1, C1.4, F1.1, F1.2, F2.1, F2.2, L1, L2, L3 -->
+85. **Mutation placement and replay evidence:** P1–P30 and R1/R2 retain their
+    actual enforcing-path placements, including P29/P30's wrong-value break on
+    a lost read-reply path. Registration allowed a deterministic re-placement if
+    needed; the focused logical-time executions kill both existing mutations,
+    so that contingency was not used. Canonical replay includes all event
+    fields except the unique run label, plus the entire sidecar/verdict. Labels
+    use collision-free sequential output suffixes rather than OS randomness and
+    never enter scheduler state. Changing a schedule's display name or host
+    thread count cannot alter canonical execution for the same schedule/seed.
+    <!-- derives: C1.1, C1.4, C2.2, F1.3, F2.1, F2.2 -->
+
+### Timing verification before the full repetition matrix
+
+<!-- derives: C1.1, C1.4, C2.2, F1.1, F1.3, F2.1, F2.2, T2, T3, E1 -->
+The red source audit identified the old real clocks, timers, goroutines, select
+races and OS-random labels. The adapted source passes that audit, all existing
+fixtures and the added timing fixtures. P18/P29/P30 baseline/mutation executions
+on seeds 1–3 match canonical traces/sidecars after schedule renaming, host thread
+count changes and host delays. The whole fixture suite and vet pass. No shared
+matrix was executed before this checkpoint; no prediction/scoring amendment
+has been needed. Protocol-specific fixtures now inspect retained voter storage
+and explicit message admission instead of HashiCorp's asynchronous interfaces.
+The fixed three-voter authority and all old clause/cell derivations remain live.
+
+### Declared timing limitations
+
+<!-- derives: C1.1, C1.4, C2.2, F1.1, F1.3, F2.1, F2.2, E1, E3 -->
+For a fixed executable, valid schedule and seed, no schedule shape is knowingly
+left nondeterministic. This is a deterministic bounded simulation, not OS/process
+or network-timing verification, and 1–3-unit delivery samples do not explore all
+permitted delay patterns. Unsupported/corrupt input rejects deterministically.
+Long workloads or disrupted elections may deterministically exceed a lifetime,
+trigger, event or finite progress bound; repeat-varying outcomes are not excused
+by those limits. Arbitrary permanent topology changes are not an unbounded Raft
+liveness proof. Logical receipt and duration remain trusted sidecar instrumentation.
+Output-label suffixes and external IO/build failures are outside protocol state;
+operational failures remain UNEXPLAINED. Package/executable changes can change
+canonical traces and require fresh replay evidence. None of these limits permits
+changing a failing shared result into a PASS or counting a missing mutation kill.
+
+## Timing repair — final ten-repetition result
+
+<!-- derives: C1.1, C1.2, C1.3, C1.4, C2.1, C2.2, F1.1, F1.2, F1.3, F2.1, F2.2, T2, T3, L3, E1, E2, E3 -->
+At source checkpoint afb4fc2 (OTS stamp 36ec2be), both required commands were
+executed ten times: every command exits 0. All 1,050 baseline runs PASS; all 960
+mutation runs FAIL their declared clauses. Each of the 201 cells has ten identical
+expected outcomes and ten identical canonical event/sidecar hashes (excluding only
+unique run labels). No flaky cell, prediction miss, UNEXPLAINED result or missing
+mutation kill remains in this timing-round matrix. All 32 mutations are killed
+on all three seeds in all ten repetitions. No mutation placement changed.
+
+Specifically P18, P29 and P30 each have 10 PASS and 10 FAIL C2.2 on every seed.
+The original P18 holder pause executes, its late read preserves the served value,
+and each mutation exhibits an actual mismatched served snapshot in the raw log.
+P29/P30's old-holder replies are lost while the later c2 read succeeds after
+healing. H8/H9 routing repair witnesses and R1/R2 sensitivity remain present.
+All 51 top-level Go tests and vet pass. Host delay/thread-count/name perturbations
+cannot change canonical replay in the added fixtures.
+
+[RESULTS-timing.md](RESULTS-timing.md) gives counts for every cell and declared
+limitations. The independent audit covers all 2,010 runs, 4,020 hashed raw files,
+4,170 grant receipts, 4,880 ack references and 42 unchanged shared inputs. No
+shared input or score changed, no failed run was replaced by another sample,
+and no outcome-informed repair amendment was needed after the registered timing
+adaptation. All raw traces, sidecars, command receipts and replay hashes are kept.
+Historical adverse results above remain unchanged. No formal-model artifact or
+steward file was consulted, .venv is untouched, and nothing is pushed.
+
+No valid-schedule shape is knowingly left nondeterministic for this executable
+and seed. The result is bounded deterministic simulation, not real OS timing or
+exhaustive delay exploration; external IO failures remain operational errors.
+Logical crashes, trusted receipt/duration instrumentation and deterministic
+lifetime/trigger/event/progress bounds remain limitations. Code/library changes
+require fresh replay evidence. First workflow clock: 2026-10-22 05:45:33 UTC;
+the final answer reports elapsed time through the adapted commit and OTS hook.

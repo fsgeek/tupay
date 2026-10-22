@@ -2,8 +2,6 @@
 package main
 
 import (
-	"crypto/rand"
-	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -106,22 +104,27 @@ func expectedClause(pair string) string {
 // runOne writes a fresh trace and scores only its decoded observable evidence.
 // derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F2.1, F2.2, F1.3, T1, T2, T3, A1, A2, E1, E2, C2.1, C2.2
 func runOne(s Schedule, seed int64, mutation string) (Verdict, string) {
-	var nonce [8]byte
-	if _, err := rand.Read(nonce[:]); err != nil {
-		return Verdict{Reason: err.Error()}, ""
-	}
 	mode := "baseline"
 	if mutation != "" {
 		mode = mutation
 	}
-	run := fmt.Sprintf("%s-fixr-routing-v1-%s-seed-%d-%s", s.Name, mode, seed, hex.EncodeToString(nonce[:]))
 	if err := os.MkdirAll("observe", 0755); err != nil {
 		return Verdict{Reason: err.Error()}, ""
 	}
-	path := filepath.Join("observe", run+".jsonl")
-	emitter, err := newEmitter(path, run)
-	if err != nil {
-		return Verdict{Reason: err.Error()}, path
+	var run, path string
+	var emitter *Emitter
+	var err error
+	for label := 1; ; label++ {
+		run = fmt.Sprintf("%s-timing-v1-%s-seed-%d-rep-%04d", s.Name, mode, seed, label)
+		path = filepath.Join("observe", run+".jsonl")
+		emitter, err = newEmitter(path, run)
+		if os.IsExist(err) {
+			continue
+		}
+		if err != nil {
+			return Verdict{Reason: err.Error()}, path
+		}
+		break
 	}
 	engine, err := newEngine(s, emitter, seed, mutation)
 	if err != nil {

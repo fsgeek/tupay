@@ -1,0 +1,22 @@
+# derives: C1.1, C1.2, C1.3, C1.4, C2.1, C2.2, F1.1, F1.2, F1.3, F2.1, F2.2
+mode	repetition	exit_code
+all	01	0
+all	02	0
+all	03	0
+all	04	0
+all	05	0
+all	06	0
+all	07	0
+all	08	0
+all	09	0
+all	10	0
+mutations	01	0
+mutations	02	0
+mutations	03	0
+mutations	04	0
+mutations	05	0
+mutations	06	0
+mutations	07	0
+mutations	08	0
+mutations	09	0
+mutations	10	0

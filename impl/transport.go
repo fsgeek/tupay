@@ -3,79 +3,71 @@ package main
 
 import (
 	"fmt"
-	"io"
-	"sync"
+	pb "go.etcd.io/raft/v3/raftpb"
 	"time"
-
-	"github.com/hashicorp/raft"
 )
 
-// link identifies one ordered process pair; its reverse is independent.
-// derives: F1.2, F2.1, F2.2, C1.1, C1.4
+// link names one directed connection; its reverse has independent fate.
+// derives: C1.1, C1.4, F1.2, F2.1, F2.2
 type link struct{ from, to string }
 
-// rpcTicket binds request/reply endpoints to their process incarnations.
-// derives: F1.1, F1.2, F2.1, F2.2, C1.1
+// rpcTicket records endpoint incarnations at an admitted send.
+// derives: C1.1, C1.4, F1.1, F2.1, F2.2
 type rpcTicket struct {
 	path                         link
 	fromGeneration, toGeneration uint64
 }
 
-// RaftNetwork routes the library's RPCs; it contains no election/allocation logic.
+// RaftPacket is an already-sent library message with a logical delivery deadline.
+// derives: C1.1, C1.4, F1.1, F1.2, F2.1, F2.2
+type RaftPacket struct {
+	message pb.Message
+	ticket  rpcTicket
+	due     time.Time
+}
+
+// RaftNetwork is synchronous; only the event loop mutates routing and wire state.
+// The fixture inboxes test admission independently of protocol processing.
 // derives: C1.1, C1.4, F1.1, F1.2, F2.1, F2.2
 type RaftNetwork struct {
-	mu         sync.Mutex
-	boxes      map[string]chan raft.RPC
+	owner      *Engine
+	ids        map[string]uint64
+	names      map[uint64]string
+	boxes      map[string][]pb.Message
 	generation map[string]uint64
 	down       map[link]bool
+	wire       []RaftPacket
 	problem    error
 }
 
-// newRaftNetwork starts a single connected network, with no live endpoints yet.
-// derives: F1.1, F1.2, F2.1, F2.2, C1.4
+// derives: C1.4, F1.1, F1.2, F2.1, F2.2
 func newRaftNetwork() *RaftNetwork {
-	return &RaftNetwork{boxes: map[string]chan raft.RPC{}, generation: map[string]uint64{}, down: map[link]bool{}}
+	return &RaftNetwork{ids: map[string]uint64{}, names: map[uint64]string{}, boxes: map[string][]pb.Message{}, generation: map[string]uint64{}, down: map[link]bool{}}
 }
 
-// register creates a new incarnation; no prior inbox is carried into it.
-// derives: F1.1, C1.1
-func (n *RaftNetwork) register(id string) chan raft.RPC {
-	n.mu.Lock()
-	defer n.mu.Unlock()
+// derives: C1.1, F1.1
+func (n *RaftNetwork) register(id string) []pb.Message {
 	n.generation[id]++
-	box := make(chan raft.RPC, 1024)
-	n.boxes[id] = box
-	return box
+	n.boxes[id] = []pb.Message{}
+	return n.boxes[id]
 }
 
-// remove discards a crashed process's inbox without closing channels Raft may use.
-// derives: F1.1, C1.1
-func (n *RaftNetwork) remove(id string) {
-	n.mu.Lock()
-	defer n.mu.Unlock()
-	delete(n.boxes, id)
-	n.generation[id]++
-}
+// derives: C1.1, F1.1
+func (n *RaftNetwork) remove(id string) { delete(n.boxes, id); n.generation[id]++ }
 
-// setDown atomically copies the complete directed fault matrix.
-// It never changes a message's already-fixed send fate.
-// derives: F1.2, F2.1, F2.2, C1.1, C1.4, L2
+// derives: C1.1, C1.4, F1.2, F2.1, F2.2, L2
 func (n *RaftNetwork) setDown(down map[link]bool) {
-	n.mu.Lock()
-	defer n.mu.Unlock()
 	n.down = map[link]bool{}
-	for path, lost := range down {
-		if lost {
-			n.down[path] = true
+	for p, v := range down {
+		if v {
+			n.down[p] = true
 		}
 	}
 }
 
-// partition is the legacy fixture adapter; nil denotes a full heal.
-// derives: F1.2, F2.1, F2.2, C1.1, C1.4, L2
+// partition is the legacy fixture adapter; all failures accumulate until heal.
+// derives: C1.1, C1.4, F1.2, F2.1, F2.2, L2
 func (n *RaftNetwork) partition(sides map[string]int) {
-	n.mu.Lock()
-	defer n.mu.Unlock()
 	if sides == nil {
 		n.down = map[link]bool{}
 		return
@@ -89,190 +81,38 @@ func (n *RaftNetwork) partition(sides map[string]int) {
 	}
 }
 
-// route performs the send-time connectivity check and inbox delivery atomically.
-// derives: F1.1, F1.2, F2.1, F2.2, C1.1, C1.4
-func (n *RaftNetwork) route(from, to string, rpc raft.RPC) (rpcTicket, error) {
-	n.mu.Lock()
-	defer n.mu.Unlock()
-	path := link{from, to}
-	ticket := rpcTicket{path, n.generation[from], n.generation[to]}
-	if n.boxes[from] == nil || n.boxes[to] == nil || n.down[path] {
-		return ticket, fmt.Errorf("RPC dropped on disconnected link %s -> %s", from, to)
+// admit fixes fate at send and never rechecks a down link at delivery.
+// derives: C1.1, C1.4, F1.1, F1.2, F2.1, F2.2
+func (n *RaftNetwork) admit(from, to string) (rpcTicket, error) {
+	p := link{from, to}
+	ticket := rpcTicket{p, n.generation[from], n.generation[to]}
+	_, a := n.boxes[from]
+	_, b := n.boxes[to]
+	if !a || !b || n.down[p] {
+		return ticket, fmt.Errorf("Raft send lost: %s -> %s", from, to)
 	}
-	select {
-	case n.boxes[to] <- rpc:
-		return ticket, nil
-	default:
-		n.problem = fmt.Errorf("RPC inbox exhausted for %s", to)
-		return ticket, n.problem
-	}
+	return ticket, nil
 }
 
-// issue distinguishes an operational resource limit from an admitted fault.
-// derives: F1.2, F2.1, F2.2, C1.1, C1.4
-func (n *RaftNetwork) issue() error {
-	n.mu.Lock()
-	defer n.mu.Unlock()
-	return n.problem
+// route exposes admission/inbox delivery for protocol-independent injector fixtures.
+// derives: C1.1, C1.4, F1.1, F1.2, F2.1, F2.2
+func (n *RaftNetwork) route(from, to string, m pb.Message) (rpcTicket, error) {
+	ticket, err := n.admit(from, to)
+	if err == nil {
+		n.boxes[to] = append(n.boxes[to], m)
+	}
+	return ticket, err
 }
 
-// response admits the reverse reply at send time; request-link history is irrelevant.
-// derives: F1.1, F1.2, F2.1, F2.2, C1.1
+// response is a distinct reverse send, used by the directional injector fixtures.
+// derives: C1.1, C1.4, F1.1, F2.1, F2.2
 func (n *RaftNetwork) response(t rpcTicket) error {
-	n.mu.Lock()
-	defer n.mu.Unlock()
-	if n.boxes[t.path.from] == nil || n.boxes[t.path.to] == nil || n.generation[t.path.from] != t.fromGeneration || n.generation[t.path.to] != t.toGeneration || n.down[link{t.path.to, t.path.from}] {
-		return fmt.Errorf("RPC reply lost on down reverse link or process replacement")
+	if n.generation[t.path.from] != t.fromGeneration || n.generation[t.path.to] != t.toGeneration {
+		return fmt.Errorf("process replaced")
 	}
-	return nil
-}
-
-// RaftTransport implements the existing library's transport, never its protocol.
-// derives: C1.1, C1.4, F1.1, F1.2, F2.1, F2.2
-type RaftTransport struct {
-	id      string
-	network *RaftNetwork
-	inbox   chan raft.RPC
-	timeout time.Duration
-}
-
-// newRaftTransport registers an empty inbox for a new lease-node incarnation.
-// derives: F1.1, F1.2, F2.1, F2.2, C1.4
-func newRaftTransport(id string, n *RaftNetwork, timeout time.Duration) *RaftTransport {
-	return &RaftTransport{id: id, network: n, inbox: n.register(id), timeout: timeout}
-}
-
-// rpc sends one existing Raft RPC and gates the response independently.
-// derives: C1.1, C1.4, F1.1, F1.2, F2.1, F2.2
-func (t *RaftTransport) rpc(target raft.ServerAddress, command interface{}, reader io.Reader) (raft.RPCResponse, error) {
-	serverReplies := make(chan raft.RPCResponse, 1)
-	replies := make(chan raft.RPCResponse, 1)
-	ticket, err := t.network.route(t.id, string(target), raft.RPC{Command: command, Reader: reader, RespChan: serverReplies})
-	if err != nil {
-		return raft.RPCResponse{}, err
-	}
-	cancelled := make(chan struct{})
-	defer close(cancelled)
-	go func() {
-		select {
-		case reply := <-serverReplies:
-			if t.network.response(ticket) == nil {
-				replies <- reply
-			}
-		case <-cancelled:
-		}
-	}()
-	timer := time.NewTimer(t.timeout)
-	defer timer.Stop()
-	select {
-	case reply := <-replies:
-		return reply, reply.Error
-	case <-timer.C:
-		return raft.RPCResponse{}, fmt.Errorf("Raft RPC timeout")
-	}
-}
-
-// Consumer is an inbox: messages already delivered before a cut may be processed.
-// derives: C1.1, F1.1, F1.2, F2.1, F2.2
-func (t *RaftTransport) Consumer() <-chan raft.RPC { return t.inbox }
-
-// LocalAddr is stable across replacement; network tickets distinguish incarnations.
-// derives: C1.1, F1.1
-func (t *RaftTransport) LocalAddr() raft.ServerAddress { return raft.ServerAddress(t.id) }
-
-// AppendEntriesPipeline uses the library's supported non-pipelined fallback.
-// derives: C1.1, F1.2, F2.1, F2.2
-func (t *RaftTransport) AppendEntriesPipeline(raft.ServerID, raft.ServerAddress) (raft.AppendPipeline, error) {
-	return nil, raft.ErrPipelineReplicationNotSupported
-}
-
-// AppendEntries transports the existing replication RPC.
-// derives: C1.1, C1.4, F1.1, F1.2, F2.1, F2.2
-func (t *RaftTransport) AppendEntries(_ raft.ServerID, target raft.ServerAddress, args *raft.AppendEntriesRequest, resp *raft.AppendEntriesResponse) error {
-	r, err := t.rpc(target, args, nil)
-	if err == nil {
-		v, ok := r.Response.(*raft.AppendEntriesResponse)
-		if !ok {
-			return fmt.Errorf("bad append reply")
-		}
-		*resp = *v
-	}
+	_, err := n.admit(t.path.to, t.path.from)
 	return err
 }
 
-// RequestVote transports the existing election RPC.
-// derives: C1.1, C1.4, F1.1, F1.2, F2.1, F2.2
-func (t *RaftTransport) RequestVote(_ raft.ServerID, target raft.ServerAddress, args *raft.RequestVoteRequest, resp *raft.RequestVoteResponse) error {
-	r, err := t.rpc(target, args, nil)
-	if err == nil {
-		v, ok := r.Response.(*raft.RequestVoteResponse)
-		if !ok {
-			return fmt.Errorf("bad vote reply")
-		}
-		*resp = *v
-	}
-	return err
-}
-
-// RequestPreVote supports the library's optional pre-vote interface.
-// derives: C1.1, C1.4, F1.1, F1.2, F2.1, F2.2
-func (t *RaftTransport) RequestPreVote(_ raft.ServerID, target raft.ServerAddress, args *raft.RequestPreVoteRequest, resp *raft.RequestPreVoteResponse) error {
-	r, err := t.rpc(target, args, nil)
-	if err == nil {
-		v, ok := r.Response.(*raft.RequestPreVoteResponse)
-		if !ok {
-			return fmt.Errorf("bad pre-vote reply")
-		}
-		*resp = *v
-	}
-	return err
-}
-
-// InstallSnapshot transports durable state using the library's snapshot RPC.
-// derives: C1.1, F1.1, F1.2, F2.1, F2.2
-func (t *RaftTransport) InstallSnapshot(_ raft.ServerID, target raft.ServerAddress, args *raft.InstallSnapshotRequest, resp *raft.InstallSnapshotResponse, data io.Reader) error {
-	r, err := t.rpc(target, args, data)
-	if err == nil {
-		v, ok := r.Response.(*raft.InstallSnapshotResponse)
-		if !ok {
-			return fmt.Errorf("bad snapshot reply")
-		}
-		*resp = *v
-	}
-	return err
-}
-
-// TimeoutNow transports leadership transfer using the library's existing RPC.
-// derives: C1.1, C1.4, F1.2, F2.1, F2.2
-func (t *RaftTransport) TimeoutNow(_ raft.ServerID, target raft.ServerAddress, args *raft.TimeoutNowRequest, resp *raft.TimeoutNowResponse) error {
-	r, err := t.rpc(target, args, nil)
-	if err == nil {
-		v, ok := r.Response.(*raft.TimeoutNowResponse)
-		if !ok {
-			return fmt.Errorf("bad transfer reply")
-		}
-		*resp = *v
-	}
-	return err
-}
-
-// EncodePeer preserves the library's address representation.
-// derives: C1.1, F1.2, F2.1, F2.2
-func (t *RaftTransport) EncodePeer(_ raft.ServerID, addr raft.ServerAddress) []byte {
-	return []byte(addr)
-}
-
-// DecodePeer reverses address encoding without changing protocol identities.
-// derives: C1.1, F1.2, F2.1, F2.2
-func (t *RaftTransport) DecodePeer(data []byte) raft.ServerAddress { return raft.ServerAddress(data) }
-
-// SetHeartbeatHandler leaves heartbeats on the same gated inbox as all RPCs.
-// derives: C1.1, F1.2, F2.1, F2.2
-func (t *RaftTransport) SetHeartbeatHandler(func(raft.RPC)) {}
-
-// Compile-time interface checks keep the adapter on the existing Raft protocol.
-// derives: C1.1, C1.4, F1.1, F1.2, F2.1, F2.2
-var _ raft.Transport = (*RaftTransport)(nil)
-
-// derives: C1.1, C1.4, F1.1, F1.2, F2.1, F2.2
-var _ raft.WithPreVote = (*RaftTransport)(nil)
+// derives: C1.1, C1.4, F1.1, F2.1, F2.2
+func (n *RaftNetwork) issue() error { return n.problem }

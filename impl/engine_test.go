@@ -4,8 +4,6 @@ package main
 import (
 	"path/filepath"
 	"testing"
-
-	"github.com/hashicorp/raft"
 )
 
 // TestC14_F11_StartupVotersBeforeFaults probes the setup boundary before start faults.
@@ -24,15 +22,13 @@ func TestC14_F11_StartupVotersBeforeFaults(t *testing.T) {
 	}
 	defer e.close()
 	for _, id := range s.Processes.Lease {
-		configuration := e.nodes[id].peer.GetConfiguration()
-		if err := configuration.Error(); err != nil {
-			t.Fatalf("%s: %v", id, err)
+		_, configuration, err := e.nodes[id].durable.InitialState()
+		if err != nil {
+			t.Fatal(err)
 		}
 		voters := map[string]bool{}
-		for _, server := range configuration.Configuration().Servers {
-			if server.Suffrage == raft.Voter {
-				voters[string(server.ID)] = true
-			}
+		for _, number := range configuration.Voters {
+			voters[e.network.names[number]] = true
 		}
 		if len(voters) != 3 {
 			t.Errorf("%s exposes start before fixed cluster is ready: voters=%v", id, voters)

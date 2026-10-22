@@ -4,7 +4,7 @@ package main
 import (
 	"testing"
 
-	"github.com/hashicorp/raft"
+	raft "go.etcd.io/raft/v3/raftpb"
 )
 
 // TestF12_SendAcrossCutLostAfterHeal checks the injector, not the token allocator.
@@ -14,7 +14,7 @@ func TestF12_SendAcrossCutLostAfterHeal(t *testing.T) {
 	n.register("n1")
 	n.register("n2")
 	n.partition(map[string]int{"n1": 0, "n2": 1})
-	if _, err := n.route("n1", "n2", raft.RPC{}); err == nil {
+	if _, err := n.route("n1", "n2", raft.Message{}); err == nil {
 		t.Fatal("send crossed cut")
 	}
 	n.partition(nil)
@@ -29,7 +29,7 @@ func TestF12_ReplyAfterCutHeal(t *testing.T) {
 	n := newRaftNetwork()
 	n.register("n1")
 	n.register("n2")
-	ticket, err := n.route("n1", "n2", raft.RPC{})
+	ticket, err := n.route("n1", "n2", raft.Message{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -47,7 +47,7 @@ func TestF12_ConnectedSideRetainsReplies(t *testing.T) {
 	n.register("n1")
 	n.register("n2")
 	n.register("n3")
-	ticket, err := n.route("n2", "n3", raft.RPC{})
+	ticket, err := n.route("n2", "n3", raft.Message{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -63,7 +63,7 @@ func TestF11_OldReplyCannotReachNewIncarnation(t *testing.T) {
 	n := newRaftNetwork()
 	n.register("n1")
 	n.register("n2")
-	ticket, err := n.route("n1", "n2", raft.RPC{})
+	ticket, err := n.route("n1", "n2", raft.Message{})
 	if err != nil {
 		t.Fatal(err)
 	}

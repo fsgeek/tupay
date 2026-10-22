@@ -9,8 +9,8 @@ if ! git cat-file -e HEAD:impl/PREREGISTRATION.md 2>/dev/null; then
   exit 2
 fi
 # derives: C1.1, C1.2, C1.3, C1.4, F2.1, F2.2, T1, A1, E1, C2.1, C2.2
-if ! git show HEAD:impl/PREREGISTRATION.md | rg '^## FixR routing repair' >/dev/null; then
-  echo 'UNEXPLAINED FixR routing predictions are not committed'
+if ! git show HEAD:impl/PREREGISTRATION.md | rg '^## Timing repair' >/dev/null; then
+  echo 'UNEXPLAINED Timing-repair predictions are not committed'
   exit 2
 fi
 export GOMODCACHE="$PWD/.cache/mod"

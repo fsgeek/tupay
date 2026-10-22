@@ -1,0 +1,44 @@
+=== RUN   TestTimingNoHostScheduler
+--- PASS: TestTimingNoHostScheduler (0.01s)
+=== RUN   TestTimingCanonicalReplay
+=== RUN   TestTimingCanonicalReplay/P18/1/
+=== RUN   TestTimingCanonicalReplay/P18/1/P18
+=== RUN   TestTimingCanonicalReplay/P18/2/
+=== RUN   TestTimingCanonicalReplay/P18/2/P18
+=== RUN   TestTimingCanonicalReplay/P18/3/
+=== RUN   TestTimingCanonicalReplay/P18/3/P18
+=== RUN   TestTimingCanonicalReplay/P29/1/
+=== RUN   TestTimingCanonicalReplay/P29/1/P29
+=== RUN   TestTimingCanonicalReplay/P29/2/
+=== RUN   TestTimingCanonicalReplay/P29/2/P29
+=== RUN   TestTimingCanonicalReplay/P29/3/
+=== RUN   TestTimingCanonicalReplay/P29/3/P29
+=== RUN   TestTimingCanonicalReplay/P30/1/
+=== RUN   TestTimingCanonicalReplay/P30/1/P30
+=== RUN   TestTimingCanonicalReplay/P30/2/
+=== RUN   TestTimingCanonicalReplay/P30/2/P30
+=== RUN   TestTimingCanonicalReplay/P30/3/
+=== RUN   TestTimingCanonicalReplay/P30/3/P30
+--- PASS: TestTimingCanonicalReplay (0.11s)
+    --- PASS: TestTimingCanonicalReplay/P18/1/ (0.01s)
+    --- PASS: TestTimingCanonicalReplay/P18/1/P18 (0.01s)
+    --- PASS: TestTimingCanonicalReplay/P18/2/ (0.01s)
+    --- PASS: TestTimingCanonicalReplay/P18/2/P18 (0.01s)
+    --- PASS: TestTimingCanonicalReplay/P18/3/ (0.01s)
+    --- PASS: TestTimingCanonicalReplay/P18/3/P18 (0.01s)
+    --- PASS: TestTimingCanonicalReplay/P29/1/ (0.01s)
+    --- PASS: TestTimingCanonicalReplay/P29/1/P29 (0.00s)
+    --- PASS: TestTimingCanonicalReplay/P29/2/ (0.01s)
+    --- PASS: TestTimingCanonicalReplay/P29/2/P29 (0.01s)
+    --- PASS: TestTimingCanonicalReplay/P29/3/ (0.01s)
+    --- PASS: TestTimingCanonicalReplay/P29/3/P29 (0.01s)
+    --- PASS: TestTimingCanonicalReplay/P30/1/ (0.01s)
+    --- PASS: TestTimingCanonicalReplay/P30/1/P30 (0.00s)
+    --- PASS: TestTimingCanonicalReplay/P30/2/ (0.01s)
+    --- PASS: TestTimingCanonicalReplay/P30/2/P30 (0.01s)
+    --- PASS: TestTimingCanonicalReplay/P30/3/ (0.00s)
+    --- PASS: TestTimingCanonicalReplay/P30/3/P30 (0.01s)
+=== RUN   TestTimingClockIsSchedulerOwned
+--- PASS: TestTimingClockIsSchedulerOwned (0.01s)
+PASS
+ok  	tupay/impl	0.128s

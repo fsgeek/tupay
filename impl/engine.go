@@ -7,10 +7,10 @@ import (
 	"sort"
 	"time"
 
-	"github.com/hashicorp/raft"
+	raft "go.etcd.io/raft/v3"
 )
 
-// grantLifetime is execution time only; observe lifetimes are milliseconds.
+// grantLifetime is scheduler time; observe lifetimes use logical milliseconds.
 // derives: C1.1, C1.4, F1.3, C2.1, C2.2
 const grantLifetime = 40 * time.Millisecond
 
@@ -61,7 +61,7 @@ type WireMessage struct {
 	pendingSend       bool // derives: F2.1, F2.2 — local reply work before network send
 }
 
-// completedAllocation never communicates on an unbuffered runner channel.
+// completedAllocation preserves exact committed-proposal/request correspondence.
 // derives: C1.1, C1.4, F1.1, F1.2, F2.1, F2.2, C2.1, C2.2
 type completedAllocation struct {
 	request    *RequestState
@@ -82,19 +82,30 @@ type ProgressWitness struct {
 
 // RunEvidence contains operational horizon certificates, never event ordering.
 // derives: C1.4, F1.1, F1.2, F2.1, F2.2, F1.3, E1, E2, C2.1, C2.2
-type RunEvidence struct {
-	Derives     []string          `json:"derives"`
-	Operational string            `json:"operational_error,omitempty"`
-	Witnesses   []ProgressWitness `json:"progress_horizons"`
-	Completed   bool              `json:"schedule_completed"`
-	Reason      string            `json:"reason,omitempty"`
-	Deliveries  []GrantDelivery   `json:"grant_deliveries,omitempty"` // derives: C1.4, F1.1, F2.1, F2.2
+// LogicalClockEvidence identifies scheduler time without adding a clock to JSONL.
+// derives: C1.4, F1.3, F2.1, F2.2, E1
+type LogicalClockEvidence struct {
+	Version string `json:"version"`
+	Seed    int64  `json:"seed"`
+	Millis  int64  `json:"logical_ms"`
 }
 
-// Engine serializes workload actions while Raft runs its existing goroutines.
+// derives: C1.1, C1.4, F1.1, F1.3, F2.1, F2.2, E1
+type RunEvidence struct {
+	Clock       LogicalClockEvidence `json:"clock"` // derives: C1.4, F1.3, F2.1, F2.2
+	Derives     []string             `json:"derives"`
+	Operational string               `json:"operational_error,omitempty"`
+	Witnesses   []ProgressWitness    `json:"progress_horizons"`
+	Completed   bool                 `json:"schedule_completed"`
+	Reason      string               `json:"reason,omitempty"`
+	Deliveries  []GrantDelivery      `json:"grant_deliveries,omitempty"` // derives: C1.4, F1.1, F2.1, F2.2
+}
+
+// Engine owns every workload, network and Raft transition on one logical clock.
 // derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F2.1, F2.2, F1.3, A1, T1, T2, T3, E1, C2.1, C2.2
 type Engine struct {
 	schedule                                        Schedule
+	seed                                            int64 // derives: C1.1, C1.4, F1.3, F2.1, F2.2
 	out                                             *Emitter
 	rng                                             *rand.Rand
 	nodes                                           map[string]*LeaseNode
@@ -111,7 +122,9 @@ type Engine struct {
 	leaseWire                                       []LeasePacket   // derives: C1.4, F2.1, F2.2
 	deliveries                                      []GrantDelivery // derives: C1.4, F2.1, F2.2
 	nextRequest                                     int             // derives: C1.4 — fair allocation among standing requests
-	results                                         chan completedAllocation
+	logicalNow                                      time.Time       // derives: C1.1, C1.4, F1.3, F2.1, F2.2
+	proposalID                                      uint64          // derives: C1.1, C1.4
+	flight                                          *proposalFlight // derives: C1.1, C1.4, F1.1
 	inflight                                        bool
 	lastGrant                                       Ref
 	grantor, holder                                 string
@@ -125,24 +138,26 @@ type Engine struct {
 // newEngine bootstraps exactly one fixed three-voter configuration.
 // derives: C1.1, C1.4, F1.1, F1.2, F2.1, F2.2, C2.1, C2.2
 func newEngine(s Schedule, out *Emitter, seed int64, mutation string) (*Engine, error) {
-	e := &Engine{schedule: s, out: out, rng: rand.New(rand.NewSource(seed)), nodes: map[string]*LeaseNode{}, network: newRaftNetwork(), clients: map[string]*Client{}, down: map[link]bool{}, storage: s.Processes.Storage[0], storageUp: true, results: make(chan completedAllocation, 1), mutation: mutation}
+	e := &Engine{seed: seed, schedule: s, out: out, rng: rand.New(rand.NewSource(seed)), nodes: map[string]*LeaseNode{}, network: newRaftNetwork(), clients: map[string]*Client{}, down: map[link]bool{}, storage: s.Processes.Storage[0], storageUp: true, mutation: mutation}
+	e.network.owner = e
+	e.now()
+	for index, id := range s.Processes.Lease {
+		e.network.ids[id] = uint64(index + 1)
+		e.network.names[uint64(index+1)] = id
+	}
 	for _, id := range s.Processes.Clients {
 		e.clients[id] = &Client{id: id, up: true, generation: 1}
 	}
 	for _, id := range s.Processes.Lease {
 		n := newLeaseNode(id, e.network)
 		e.nodes[id] = n
-		if err := n.start(e.rpcTimeout()); err != nil {
+		if err := n.start(); err != nil {
 			e.close()
 			return nil, err
 		}
 	}
 	e.connect()
-	conf := raft.Configuration{}
-	for _, id := range s.Processes.Lease {
-		conf.Servers = append(conf.Servers, raft.Server{ID: raft.ServerID(id), Address: raft.ServerAddress(id), Suffrage: raft.Voter})
-	}
-	if err := e.nodes[s.Processes.Lease[0]].peer.BootstrapCluster(conf).Error(); err != nil {
+	if err := e.nodes[s.Processes.Lease[0]].peer.Campaign(); err != nil {
 		e.close()
 		return nil, err
 	}
@@ -156,32 +171,15 @@ func newEngine(s Schedule, out *Emitter, seed int64, mutation string) (*Engine, 
 // awaitBootstrap establishes the fixed grantor before start-triggered faults.
 // derives: C1.1, C1.4, F1.1, F1.2, F2.1, F2.2, C2.1, C2.2
 func (e *Engine) awaitBootstrap() error {
-	deadline := time.NewTimer(progressHorizon)
-	defer deadline.Stop()
-	ticker := time.NewTicker(time.Millisecond)
-	defer ticker.Stop()
-	for {
-		ready := true
+	deadline := e.now().Add(progressHorizon)
+	for e.now().Before(deadline) {
+		e.logicalNow = e.now().Add(time.Millisecond)
+		e.stepConsensus()
+		ready := false
 		for _, id := range e.schedule.Processes.Lease {
-			configuration := e.nodes[id].peer.GetConfiguration()
-			if err := configuration.Error(); err != nil {
-				return fmt.Errorf("bootstrap configuration %s: %w", id, err)
-			}
-			servers := configuration.Configuration().Servers
-			if len(servers) != len(e.schedule.Processes.Lease) {
-				ready = false
-				continue
-			}
-			for _, want := range e.schedule.Processes.Lease {
-				found := false
-				for _, server := range servers {
-					if string(server.ID) == want && string(server.Address) == want && server.Suffrage == raft.Voter {
-						found = true
-					}
-				}
-				if !found {
-					ready = false
-				}
+			n := e.nodes[id]
+			if n.peer.BasicStatus().RaftState == raft.StateLeader && n.applied >= 2 {
+				ready = true
 			}
 		}
 		if err := e.network.issue(); err != nil {
@@ -190,23 +188,13 @@ func (e *Engine) awaitBootstrap() error {
 		if ready {
 			return nil
 		}
-		select {
-		case <-deadline.C:
-			return fmt.Errorf("initial fixed grantor configuration did not replicate")
-		case <-ticker.C:
-		}
 	}
+	return fmt.Errorf("initial fixed configuration did not elect/commit")
 }
 
-// rpcTimeout samples the Raft RPC timeout (not an observation timestamp).
-// derives: C1.4, F1.2, F2.1, F2.2, C2.1, C2.2
-func (e *Engine) rpcTimeout() time.Duration {
-	return time.Duration(25+e.rng.Intn(15)) * time.Millisecond
-}
-
-// jitter samples within-side workload delivery order.
+// jitter samples a directed packet delay from 1–3 logical milliseconds.
 // derives: C1.2, C1.3, F1.2, F2.1, F2.2, C2.1, C2.2
-func (e *Engine) jitter() time.Duration { return time.Duration(1+e.rng.Intn(5)) * time.Millisecond }
+func (e *Engine) jitter() time.Duration { return time.Duration(1+e.rng.Intn(3)) * time.Millisecond }
 
 // close shuts down nodes even if execution failed partway through setup.
 // derives: F1.1, C1.1, C2.1, C2.2
@@ -290,13 +278,9 @@ func (e *Engine) suppressGrant() bool {
 // pump advances sampled messages and retries requests without blocking faults.
 // derives: C1.1, C1.2, C1.3, C1.4, F1.1, F1.2, F2.1, F2.2, F1.3, C2.1, C2.2
 func (e *Engine) pump() {
-	now := time.Now()
-	select {
-	case result := <-e.results:
-		e.inflight = false
-		e.finishAllocation(result)
-	default:
-	}
+	e.logicalNow = e.now().Add(time.Millisecond)
+	now := e.now()
+	e.stepConsensus()
 	e.deliver(now)
 	e.deliverLease(now)
 	for _, r := range e.requests {
@@ -324,26 +308,21 @@ func (e *Engine) pump() {
 		}
 		for _, id := range e.schedule.Processes.Lease {
 			n := e.nodes[id]
-			if n.peer == nil || n.peer.State() != raft.Leader || r.ingress[id] != n.generation {
+			if n.peer == nil || n.peer.BasicStatus().RaftState != raft.StateLeader || r.ingress[id] != n.generation {
 				continue
 			}
-			// Majority authority remains Raft's responsibility; the runner never allocates a token itself.
-			future := n.peer.Apply([]byte("allocate"), 100*time.Millisecond)
+			// Only the library's committed entry supplies the index/term token.
+			// derives: C1.1, C1.4, F1.1, F2.1, F2.2
+			e.proposalID++
+			result := completedAllocation{request: r, node: id, generation: n.generation, route: append([]RouteHop{}, r.paths[id]...)}
+			e.flight = &proposalFlight{e.proposalID, result, now.Add(100 * time.Millisecond)}
 			e.inflight = true
 			e.nextRequest = (index + 1) % len(e.requests)
-			route := append([]RouteHop{}, r.paths[id]...)
-			go func(req *RequestState, node string, generation uint64, f raft.ApplyFuture) {
-				v := completedAllocation{request: req, node: node, generation: generation, route: route, err: f.Error()}
-				if v.err == nil {
-					allocation, ok := f.Response().(Allocation)
-					if !ok {
-						v.err = fmt.Errorf("unexpected FSM reply %T", f.Response())
-					} else {
-						v.allocation = allocation
-					}
-				}
-				e.results <- v
-			}(r, id, n.generation, future)
+			if err := n.peer.Propose(raftCommand(e.proposalID)); err != nil {
+				e.inflight = false
+				e.flight = nil
+			}
+
 			return
 		}
 	}
@@ -377,7 +356,7 @@ func (e *Engine) finishAllocation(v completedAllocation) {
 		}
 	}
 	ref := e.out.emit(Event{Proc: v.node, Event: "Grant", Client: r.client, Key: "k", Token: token, Lifetime: grantLifetime.Milliseconds(), Term: v.allocation.Term}, r.ref, e.lastGrant)
-	now := time.Now()
+	now := e.now()
 	grant := HeldGrant{token: token, term: v.allocation.Term, ref: ref, expires: now.Add(grantLifetime)}
 	e.leaseWire = append(e.leaseWire, LeasePacket{kind: "grant-send", from: v.node, to: v.node, targetGeneration: v.generation, request: r, grant: grant, requestHops: v.route, due: now.Add(8 * time.Millisecond)})
 	e.lastGrant = ref
@@ -415,7 +394,7 @@ func (e *Engine) write(id, value, selection string) error {
 		return nil
 	}
 
-	m := WireMessage{kind: "write", client: id, generation: c.generation, attempt: ref, grant: g, value: value, due: time.Now().Add(e.jitter())}
+	m := WireMessage{kind: "write", client: id, generation: c.generation, attempt: ref, grant: g, value: value, due: e.now().Add(e.jitter())}
 	e.wire = append(e.wire, m)
 	if e.rng.Intn(3) == 0 {
 		duplicate := m
@@ -454,7 +433,7 @@ func (e *Engine) read(id, selection string) error {
 		return nil
 	}
 
-	m := WireMessage{kind: "read", client: id, generation: c.generation, attempt: ref, grant: g, due: time.Now().Add(e.jitter())}
+	m := WireMessage{kind: "read", client: id, generation: c.generation, attempt: ref, grant: g, due: e.now().Add(e.jitter())}
 	e.wire = append(e.wire, m)
 	if e.rng.Intn(3) == 0 {
 		duplicate := m
@@ -570,7 +549,7 @@ func (e *Engine) deliver(now time.Time) {
 				continue
 			}
 			m.pendingSend = false
-			m.due = time.Now().Add(e.jitter())
+			m.due = e.now().Add(e.jitter())
 			e.wire = append(e.wire, m)
 			continue
 		}
@@ -689,13 +668,13 @@ func (e *Engine) act(a Action, trigger Ref) error {
 	}
 	if a.Pause != "" {
 		c := e.clients[a.Pause]
-		if !c.up || c.paused || len(c.grants) == 0 || !time.Now().Before(c.grants[len(c.grants)-1].expires) {
+		if !c.up || c.paused || len(c.grants) == 0 || !e.now().Before(c.grants[len(c.grants)-1].expires) {
 			return fmt.Errorf("pause requires an unexpired holder")
 		}
 	}
 	if a.Resume != "" {
 		c := e.clients[a.Resume]
-		if !c.up || !c.paused || time.Since(c.pauseTime) <= grantLifetime {
+		if !c.up || !c.paused || e.now().Sub(c.pauseTime) <= grantLifetime {
 			return fmt.Errorf("resume must follow pause longer than lifetime")
 		}
 	}
@@ -732,7 +711,7 @@ func (e *Engine) act(a Action, trigger Ref) error {
 	// derives: F1.1 — restarted clients have no grant; Raft nodes replay durable logs., C2.1, C2.2
 	if id := a.Restart; id != "" {
 		if n := e.nodes[id]; n != nil {
-			if err := n.start(e.rpcTimeout()); err != nil {
+			if err := n.start(); err != nil {
 				return err
 			}
 		} else if c := e.clients[id]; c != nil {
@@ -771,7 +750,7 @@ func (e *Engine) act(a Action, trigger Ref) error {
 		e.pauseSeen = true
 		c := e.clients[a.Pause]
 		c.paused = true
-		c.pauseTime = time.Now()
+		c.pauseTime = e.now()
 		// A later Grant is the schedule's witness of a complete holder pause.
 		if horizon := c.pauseTime.Add(grantLifetime + time.Millisecond); horizon.After(e.nextGrant) {
 			e.nextGrant = horizon
@@ -788,7 +767,7 @@ func (e *Engine) act(a Action, trigger Ref) error {
 // derives: C1.4, F1.1, F1.2, F2.1, F2.2, F1.3, C2.1, C2.2
 func (e *Engine) witnesses() []ProgressWitness {
 	var result []ProgressWitness
-	now := time.Now()
+	now := e.now()
 	for _, r := range e.requests {
 		if !r.done && !r.eligibleSince.IsZero() && e.eligible(r) && now.Sub(r.eligibleSince) >= progressHorizon {
 			result = append(result, ProgressWitness{r.ref, e.out.fault, progressHorizon.Milliseconds()})

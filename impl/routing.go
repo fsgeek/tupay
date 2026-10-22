@@ -58,7 +58,7 @@ func (e *Engine) sendLease(m LeasePacket, from, to string) {
 	m.targetGeneration = e.processGeneration(to)
 	hop := RouteHop{from, to, e.processGeneration(from), m.targetGeneration, e.out.fault}
 	m.hops = append(append([]RouteHop{}, m.hops...), hop)
-	m.due = time.Now().Add(e.jitter())
+	m.due = e.now().Add(e.jitter())
 	e.leaseWire = append(e.leaseWire, m)
 }
 

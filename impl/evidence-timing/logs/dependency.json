@@ -1,0 +1,16 @@
+{
+	"Path": "go.etcd.io/raft/v3",
+	"Version": "v3.6.0",
+	"Info": "/home/tony/projects/tupay-timing-adapt-impl/impl/.cache/mod/cache/download/go.etcd.io/raft/v3/@v/v3.6.0.info",
+	"GoMod": "/home/tony/projects/tupay-timing-adapt-impl/impl/.cache/mod/cache/download/go.etcd.io/raft/v3/@v/v3.6.0.mod",
+	"Zip": "/home/tony/projects/tupay-timing-adapt-impl/impl/.cache/mod/cache/download/go.etcd.io/raft/v3/@v/v3.6.0.zip",
+	"Dir": "/home/tony/projects/tupay-timing-adapt-impl/impl/.cache/mod/go.etcd.io/raft/v3@v3.6.0",
+	"Sum": "h1:5NtvbDVYpnfZWcIHgGRk9DyzkBIXOi8j+DDp1IcnUWQ=",
+	"GoModSum": "h1:nLvLevg6+xrVtHUmVaTcTz603gQPHfh7kUAwV6YpfGo=",
+	"Origin": {
+		"VCS": "git",
+		"URL": "https://github.com/etcd-io/raft",
+		"Hash": "f35a02212416d045c574e30aa59d4b07c4b8d732",
+		"Ref": "refs/tags/v3.6.0"
+	}
+}

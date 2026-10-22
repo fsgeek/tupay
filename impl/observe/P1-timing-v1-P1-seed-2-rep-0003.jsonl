@@ -1,0 +1,16 @@
+{"proc":"c1","seq":1,"event":"Request","client":"c1","key":"k","causes":[],"run":"P1-timing-v1-P1-seed-2-rep-0003","side":"impl"}
+{"proc":"n1","seq":1,"event":"Grant","client":"c1","key":"k","token":3,"lifetime":40,"grantor_term":2,"causes":[{"proc":"c1","seq":1}],"run":"P1-timing-v1-P1-seed-2-rep-0003","side":"impl"}
+{"proc":"env","seq":1,"event":"Fault","causes":[{"proc":"n1","seq":1}],"run":"P1-timing-v1-P1-seed-2-rep-0003","side":"impl","cell":"F1.1","crash":"n1"}
+{"proc":"env","seq":2,"event":"Fault","causes":[{"proc":"env","seq":1}],"run":"P1-timing-v1-P1-seed-2-rep-0003","side":"impl","cell":"F1.1","restart":"n1"}
+{"proc":"c2","seq":1,"event":"Request","client":"c2","key":"k","causes":[{"proc":"env","seq":2}],"run":"P1-timing-v1-P1-seed-2-rep-0003","side":"impl"}
+{"proc":"n2","seq":1,"event":"Grant","client":"c1","key":"k","token":1,"lifetime":40,"grantor_term":3,"causes":[{"proc":"env","seq":2},{"proc":"c1","seq":1},{"proc":"n1","seq":1}],"run":"P1-timing-v1-P1-seed-2-rep-0003","side":"impl"}
+{"proc":"n2","seq":2,"event":"Grant","client":"c2","key":"k","token":1,"lifetime":40,"grantor_term":3,"causes":[{"proc":"n2","seq":1},{"proc":"env","seq":2},{"proc":"c2","seq":1}],"run":"P1-timing-v1-P1-seed-2-rep-0003","side":"impl"}
+{"proc":"env","seq":3,"event":"Fault","causes":[{"proc":"env","seq":2},{"proc":"n2","seq":2}],"run":"P1-timing-v1-P1-seed-2-rep-0003","side":"impl","cell":"F1.1","crash":"n1"}
+{"proc":"env","seq":4,"event":"Fault","causes":[{"proc":"env","seq":3}],"run":"P1-timing-v1-P1-seed-2-rep-0003","side":"impl","cell":"F1.1","crash":"n2"}
+{"proc":"env","seq":5,"event":"Fault","causes":[{"proc":"env","seq":4}],"run":"P1-timing-v1-P1-seed-2-rep-0003","side":"impl","cell":"F1.1","crash":"n3"}
+{"proc":"env","seq":6,"event":"Fault","causes":[{"proc":"env","seq":5}],"run":"P1-timing-v1-P1-seed-2-rep-0003","side":"impl","cell":"F1.1","restart":"n1"}
+{"proc":"env","seq":7,"event":"Fault","causes":[{"proc":"env","seq":6}],"run":"P1-timing-v1-P1-seed-2-rep-0003","side":"impl","cell":"F1.1","restart":"n2"}
+{"proc":"env","seq":8,"event":"Fault","causes":[{"proc":"env","seq":7}],"run":"P1-timing-v1-P1-seed-2-rep-0003","side":"impl","cell":"F1.1","restart":"n3"}
+{"proc":"c1","seq":2,"event":"Request","client":"c1","key":"k","causes":[{"proc":"c1","seq":1},{"proc":"env","seq":8}],"run":"P1-timing-v1-P1-seed-2-rep-0003","side":"impl"}
+{"proc":"n2","seq":3,"event":"Grant","client":"c2","key":"k","token":1,"lifetime":40,"grantor_term":4,"causes":[{"proc":"n2","seq":2},{"proc":"env","seq":8},{"proc":"c2","seq":1}],"run":"P1-timing-v1-P1-seed-2-rep-0003","side":"impl"}
+{"proc":"n2","seq":4,"event":"Grant","client":"c1","key":"k","token":1,"lifetime":40,"grantor_term":4,"causes":[{"proc":"n2","seq":3},{"proc":"env","seq":8},{"proc":"c1","seq":2}],"run":"P1-timing-v1-P1-seed-2-rep-0003","side":"impl"}

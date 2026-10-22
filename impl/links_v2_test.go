@@ -4,7 +4,8 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/hashicorp/raft"
+	raft "go.etcd.io/raft/v3"
+	pb "go.etcd.io/raft/v3/raftpb"
 	"math/rand"
 	"path/filepath"
 	"testing"
@@ -42,7 +43,7 @@ func TestX2RaftDirectionsAndSendTime(t *testing.T) {
 	n := newRaftNetwork()
 	n.register("n1")
 	n.register("n2")
-	ticket, err := n.route("n1", "n2", raft.RPC{})
+	ticket, err := n.route("n1", "n2", pb.Message{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -50,10 +51,10 @@ func TestX2RaftDirectionsAndSendTime(t *testing.T) {
 	if n.response(ticket) != nil {
 		t.Fatal("request direction incorrectly gates reverse reply")
 	}
-	if _, err = n.route("n1", "n2", raft.RPC{}); err == nil {
+	if _, err = n.route("n1", "n2", pb.Message{}); err == nil {
 		t.Fatal("down send admitted")
 	}
-	if _, err = n.route("n2", "n1", raft.RPC{}); err != nil {
+	if _, err = n.route("n2", "n1", pb.Message{}); err != nil {
 		t.Fatal("up reverse send lost")
 	}
 	n.setDown(map[link]bool{{"n2", "n1"}: true})
@@ -283,7 +284,7 @@ func TestX2RuntimeCliqueAndLostGrantStanding(t *testing.T) {
 	defer out.close()
 	e := &Engine{rng: rand.New(rand.NewSource(1)), schedule: fixtureSchedule(), storage: "s", storageUp: true, clients: map[string]*Client{"c2": {id: "c2", up: true, generation: 1}}, nodes: map[string]*LeaseNode{}, down: map[link]bool{}, out: out}
 	for _, id := range e.schedule.Processes.Lease {
-		e.nodes[id] = &LeaseNode{peer: &raft.Raft{}, generation: 1}
+		e.nodes[id] = &LeaseNode{peer: &raft.RawNode{}, generation: 1}
 	}
 	r := &RequestState{client: "c2", generation: 1, ref: Ref{"c2", 1}}
 	if !e.eligible(r) {

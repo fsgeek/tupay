@@ -1,0 +1,10 @@
+J1.5(a) configuration: index 1 committed by m2@4 in epoch 2 under ('m1', 'm2', 'm3'); m1@4 elected in epoch 3 under ('m1', 'm2', 'm3', 'm4', 'm5') without it
+SUMMARY experiments/replay/attribution-tests/config.jsonl: 1 violations, 1 configuration-attributed, 0 mechanics-attributed
+J1.5(a) mechanics: index 1 committed by m2@3 in epoch 1 under ('m1', 'm2', 'm3', 'm4'); m3@1 elected in epoch 2 under ('m1', 'm2', 'm3', 'm4') without it
+SUMMARY experiments/replay/attribution-tests/mech.jsonl: 1 violations, 0 configuration-attributed, 1 mechanics-attributed
+J1.1 mechanics: epoch 1: m1@1 ('m1', 'm2', 'm3', 'm4') and m2@1 ('m1', 'm2', 'm3', 'm4')
+SUMMARY experiments/replay/attribution-tests/j11.jsonl: 1 violations, 0 configuration-attributed, 1 mechanics-attributed
+SUMMARY experiments/replay/attribution-tests/clean.jsonl: 0 violations, 0 configuration-attributed, 0 mechanics-attributed
+J1.5(a) configuration: index 1 committed by m2@4 in epoch 2 under ('m1', 'm2', 'm3'); m1@1 elected in epoch 3 under ('m1', 'm2', 'm3', 'm4') without it
+J1.5(b) configuration: m3@3 truncated from 1 at commit index 1; truncating coordinator config ('m1', 'm2', 'm3', 'm4', 'm5'); commit configs [('m1', 'm2', 'm3')]
+SUMMARY experiments/replay/attribution-tests/trunc.jsonl: 2 violations, 2 configuration-attributed, 0 mechanics-attributed

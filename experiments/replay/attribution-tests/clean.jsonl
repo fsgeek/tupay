@@ -1,0 +1,5 @@
+{"proc": "m2", "seq": 1, "event": "Elected", "causes": [], "epoch": 1, "config": ["m1", "m2", "m3", "m4"]}
+{"proc": "m2", "seq": 2, "event": "Appended", "causes": [], "index": 1, "epoch": 1, "kind": "command", "payload": "c1"}
+{"proc": "m2", "seq": 3, "event": "Committed", "causes": [], "index": 1, "epoch": 1}
+{"proc": "m3", "seq": 1, "event": "Appended", "causes": [{"proc": "m2", "seq": 2}], "index": 1, "epoch": 1, "kind": "command", "payload": "c1"}
+{"proc": "m3", "seq": 2, "event": "Elected", "causes": [], "epoch": 2, "config": ["m1", "m2", "m3", "m4"]}

@@ -1,0 +1,9 @@
+{"proc": "m1", "seq": 1, "event": "Elected", "causes": [], "epoch": 1, "config": ["m1", "m2", "m3", "m4"]}
+{"proc": "m1", "seq": 2, "event": "Appended", "causes": [], "index": 1, "epoch": 1, "kind": "config", "payload": ["m1", "m2", "m3", "m4", "m5"]}
+{"proc": "m1", "seq": 3, "event": "ConfigInEffect", "causes": [], "config": ["m1", "m2", "m3", "m4", "m5"], "index": 1}
+{"proc": "m2", "seq": 1, "event": "Elected", "causes": [], "epoch": 2, "config": ["m1", "m2", "m3", "m4"]}
+{"proc": "m2", "seq": 2, "event": "Appended", "causes": [], "index": 1, "epoch": 2, "kind": "config", "payload": ["m1", "m2", "m3"]}
+{"proc": "m2", "seq": 3, "event": "ConfigInEffect", "causes": [], "config": ["m1", "m2", "m3"], "index": 1}
+{"proc": "m3", "seq": 1, "event": "Appended", "causes": [{"proc": "m2", "seq": 2}], "index": 1, "epoch": 2, "kind": "config", "payload": ["m1", "m2", "m3"]}
+{"proc": "m2", "seq": 4, "event": "Committed", "causes": [], "index": 1, "epoch": 2}
+{"proc": "m1", "seq": 4, "event": "Elected", "causes": [], "epoch": 3, "config": ["m1", "m2", "m3", "m4", "m5"]}

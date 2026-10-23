@@ -3,12 +3,13 @@
 A living note; the log outranks it. Accepted 2026-10-23T18:47Z (log, "the sixth steward accepts").
 
 ## State
-X3 inputs at **draft 4** (`fa85b40`): no prescribed agreement protocol (each side cites a published one); C3.2, C3.3, C3.6 retired; C3.7, C3.8 new; C1.1 made precise without a global order; re-admission a recorded fact; pairs P34 to P39 and P55 to P57 retired, P58 to P63 added. `observe/decision_replay.py` rewritten and validated (18 invocations as expected, plus a ref-resolution control). Fourth input review (fresh Grok, sandbox, `~/projects/tupay-x3-inputreview4`) launched after `fa85b40`.
+X3 inputs at **draft 5** (reviews stopped after four; residue logged). Shared schedules for the 24 new pairs written and linted (`scripts/steward/schedule-lint.py`, with its mutation pair). Four briefs written (`docs/briefs/x3-*.md`). Prereg at draft 4. Launch gap 1 (Python packages offline) closed. Fable's adversarial review of the prereg launched; its dispositions follow in the log.
 
 ## Owed, in order
-1. Fourth review's dispositions, in the log, before anything depends on the inputs. If it finds only wording, fix and record the rest as residues (practice: stop when another round costs more than it finds).
-2. The fifth steward's 2b to 2e: schedules for the 24 new pairs in format v5; four briefs (template `docs/briefs/x2-*.md`, plus: cite a published protocol, reach statement, sandboxed run, bundle export); Fable's adversarial prereg review; Grok's blind hold-outs; planted-defect and out-of-model protocol; register; launch.
-   Arm A's implementation is on etcd raft, which has joint consensus (ConfChangeV2), so its adaptation path exists; arm A's model is its own TLA+ and must now model a published protocol.
-3. Outside X3: `docs/steward/candidates-2026-10-23.md` (12 hypothesized-unproven failures; sources unverified by the steward). The agent's top pick is etcd-io/raft#166 (lease reads stale with no clock fault). Tony's counsel: a concrete demonstration may convince a skeptical steward first.
-4. X4 as the fifth steward left it.
-For Tony to remove when he likes: `~/projects/tupay-x3-inputreview{3,4}` and their homes under `~/projects/tupay-homes/`.
+1. Fable's review dispositions, if not yet in the log.
+2. **Launch gap 2: a `claude` case in `author-sandbox.sh`.** Facts gathered, nothing built: the binary is `~/.local/share/claude/versions/<ver>` (`readlink -f $(command -v claude)`); the OAuth credential is `~/.claude/.credentials.json` (bind-mount it, as the others are: a copy that refreshed could invalidate Tony's login); `~/.claude.json` holds Tony's MCP servers and must not be visible (the isolated HOME handles that). `--bare` is **not** the route: it reads only `ANTHROPIC_API_KEY`, never OAuth, and skips CLAUDE.md discovery. Use the isolated HOME plus `--strict-mcp-config` with no `--mcp-config`, and check with a probe that no plugin, hook, skill or MCP server loads (the isolated HOME should already ensure it). Learn the egress allowlist with `EGRESS=--learn` (expect the API host and telemetry; deny telemetry as the others do). Then run `sandbox-check.sh` and its mutation pair with `HARNESS=claude`, which needs a `claude` branch too.
+3. Grok's blind hold-outs (inline packet of the frozen inputs), validated, hashes committed; the planted-defect and out-of-model protocol (measures 9 and 10) made concrete.
+4. Register; X3 checkouts (write an X3 version of `setup-replay-checkouts.sh`: history-free, include-lists per brief, `docs/steward/` and `CLAUDE.md` excluded); `author-signing-key.sh`; fill each author home's Go module and uv caches; `inputcheck.sh` with `HARNESS`; launch the four through `author-sandbox.sh`.
+5. Outside X3: `docs/steward/candidates-2026-10-23.md` (12 hypothesized-unproven failures; sources unverified). The agent's top pick is etcd-io/raft#166 (lease reads stale with no clock fault); arm A's implementation sits on etcd raft, so check whether it uses `ReadOnlyLeaseBased`.
+6. X4 as the fifth steward left it.
+For Tony to remove when he likes: `~/projects/tupay-x3-inputreview{3,4}`, `~/projects/tupay-uvprobe`, and their homes under `~/projects/tupay-homes/`.

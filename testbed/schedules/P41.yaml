@@ -1,0 +1,17 @@
+schedule: P41
+derives: [C3.4, F3.2]
+processes:
+  lease: [n1, n2, n3, n4]
+  config: [n1, n2, n3]
+  clients: [c1, c2]
+  storage: [s]
+steps:
+  # derives: P41 (C3.4, F3.2). Every lease node's clock jumps back once while r1 is in flight. After the last jump everything stays connected and every member is eligible, so C3.4(b) requires r1 to be committed or refused as superseded, and op told which.
+  - {at: start, do: {request: c1}}
+  - {at: {event: Grant, client: c1}, do: {cell: F3.1, reconfigure: [n1, n2, n3, n4], to: n1, id: r1}}
+  - {at: {event: ReconfigSend, request_id: r1}, do: {cell: F3.2, clock: n1, step: -2}}
+  - {at: start, do: {cell: F3.2, clock: n2, step: -2}}
+  - {at: start, do: {cell: F3.2, clock: n3, step: -1}}
+  - {at: start, do: {cell: F3.2, clock: n4, step: -3}}
+end: quiescent
+bound: {events: 400}

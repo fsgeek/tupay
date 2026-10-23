@@ -1,0 +1,16 @@
+schedule: P45
+derives: [C3.5, F3.3]
+processes:
+  lease: [n1, n2, n3]
+  clients: [c1, c2]
+  storage: [s]
+steps:
+  # derives: P45 (C3.5, F3.3). n2 crashes and restarts amnesic and is re-admitted by a request naming the same members; then c2 is granted and writes. Every decision, the re-admitting commit included, must be a function of its recorded inputs. The run ends on c2's write ack (an event end).
+  - {at: start, do: {request: c1}}
+  - {at: {event: Grant, client: c1}, do: {cell: F1.1, crash: n2}}
+  - {at: start, do: {cell: F3.3, restart: n2, amnesia: true}}
+  - {at: start, do: {cell: F3.1, reconfigure: [n1, n2, n3], to: n1, id: r1}}
+  - {at: {event: ConfigCommitted, request_id: r1, decided: true}, do: {request: c2}}
+  - {at: {event: Grant, client: c2}, do: {write: c2, value: v2}}
+end: {event: WriteAck, client: c2}
+bound: {events: 400}

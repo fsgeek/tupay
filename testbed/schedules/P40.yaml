@@ -1,0 +1,14 @@
+schedule: P40
+derives: [C3.4, F3.1]
+processes:
+  lease: [n1, n2, n3, n4, n5]
+  config: [n1, n2, n3]
+  clients: [c1, c2]
+  storage: [s]
+steps:
+  # derives: P40 (C3.4, F3.1). r1 adds n4 and n5 and removes n3, while n3 is partitioned away for the rest of the run (n3 may have been the grantor; the model explores both). After the partition, the receiver n1, n1 and n2 (a majority of epoch 0, both eligible) and n1, n2, n4 (a majority of the requested set) stay connected, and no further fault follows, so C3.4(b) requires r1 to be committed or refused as superseded, and the operator told which (op stays connected to n1).
+  - {at: start, do: {request: c1}}
+  - {at: {event: Grant, client: c1}, do: {cell: F1.2, partition: [[n3], [rest]]}}
+  - {at: start, do: {cell: F3.1, reconfigure: [n1, n2, n4, n5], to: n1, id: r1}}
+end: quiescent
+bound: {events: 400}

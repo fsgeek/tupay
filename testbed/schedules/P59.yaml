@@ -1,0 +1,16 @@
+schedule: P59
+derives: [C3.7, F3.2]
+processes:
+  lease: [n1, n2, n3, n4]
+  config: [n1, n2, n3]
+  clients: [c1, c2]
+  storage: [s]
+steps:
+  # derives: P59 (C3.7, F3.2). n3 is removed by r1 and stays up; its clock then jumps forward ten lifetimes; every grant is counted by eligible agreements from a majority of the configuration it names, and grants after the commit carry tokens above every earlier one.
+  - {at: start, do: {request: c1}}
+  - {at: {event: Grant, client: c1}, do: {cell: F3.1, reconfigure: [n1, n2, n4], to: n1, id: r1}}
+  - {at: {event: ConfigCommitted, request_id: r1, decided: true}, do: {cell: F3.2, clock: n3, step: 10}}
+  - {at: start, do: {request: c2}}
+  - {at: {event: Grant, client: c2}, do: {request: c1}}
+end: quiescent
+bound: {events: 400}

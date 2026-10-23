@@ -1,0 +1,15 @@
+schedule: P48
+derives: [C1.1, F3.3]
+processes:
+  lease: [n1, n2, n3, n4, n5]
+  clients: [c1, c2]
+  storage: [s]
+steps:
+  # derives: P48 (C1.1, F3.3). In a five-node configuration a follower restarts amnesic and then the grantor crashes; three eligible members remain, c2 is granted, and its token exceeds every earlier token.
+  - {at: start, do: {request: c1}}
+  - {at: {event: Grant, client: c1}, do: {cell: F1.1, crash: non-grantor}}
+  - {at: start, do: {cell: F3.3, restart: non-grantor, amnesia: true}}
+  - {at: start, do: {cell: F1.1, crash: grantor}}
+  - {at: start, do: {request: c2}}
+end: quiescent
+bound: {events: 400}

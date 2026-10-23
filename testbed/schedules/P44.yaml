@@ -1,0 +1,17 @@
+schedule: P44
+derives: [C3.5, F3.2]
+processes:
+  lease: [n1, n2, n3]
+  clients: [c1, c2]
+  storage: [s]
+lifetime: 2
+steps:
+  # derives: P44 (C3.5, F3.2). With a lifetime of two ticks, the grantor's clock jumps back half a lifetime and then forward a lifetime and a half around c1's grant while c2 requests and c1 writes and reads; every decision is a function of its recorded inputs, clock readings included.
+  - {at: start, do: {request: c1}}
+  - {at: {event: Grant, client: c1}, do: {request: c2}}
+  - {at: start, do: {cell: F3.2, clock: grantor, step: -0.5}}
+  - {at: start, do: {write: c1, value: v1}}
+  - {at: start, do: {cell: F3.2, clock: grantor, step: 1.5}}
+  - {at: start, do: {read: c1}}
+end: quiescent
+bound: {events: 400}

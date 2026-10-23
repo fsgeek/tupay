@@ -1,0 +1,16 @@
+schedule: P51
+derives: [C1.2, F3.3]
+processes:
+  lease: [n1, n2, n3]
+  clients: [c1, c2]
+  storage: [s]
+steps:
+  # derives: P51 (C1.2, F3.3). A follower restarts amnesic (two of three members stay eligible); c2 is granted and its write accepted; then c1's write is rejected.
+  - {at: start, do: {request: c1}}
+  - {at: {event: Grant, client: c1}, do: {cell: F1.1, crash: non-grantor}}
+  - {at: start, do: {cell: F3.3, restart: non-grantor, amnesia: true}}
+  - {at: start, do: {request: c2}}
+  - {at: {event: Grant, client: c2}, do: {write: c2, value: v2}}
+  - {at: {event: WriteAck, client: c2, outcome: accepted}, do: {write: c1, value: v1}}
+end: quiescent
+bound: {events: 400}

@@ -1,0 +1,13 @@
+schedule: P47
+derives: [C1.1, F3.2]
+processes:
+  lease: [n1, n2, n3]
+  clients: [c1, c2]
+  storage: [s]
+steps:
+  # derives: P47 (C1.1, F3.2). The grantor's clock jumps back by three lifetimes between two grants; tokens still strictly increase.
+  - {at: start, do: {request: c1}}
+  - {at: {event: Grant, client: c1}, do: {cell: F3.2, clock: grantor, step: -3}}
+  - {at: start, do: {request: c2}}
+end: quiescent
+bound: {events: 400}

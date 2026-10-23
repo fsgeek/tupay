@@ -1,0 +1,15 @@
+schedule: P53
+derives: [C1.4, F3.2]
+processes:
+  lease: [n1, n2, n3]
+  clients: [c1, c2]
+  storage: [s]
+steps:
+  # derives: P53 (C1.4, F3.2). Every lease node's clock jumps, forward or back, from the first agreement to c1's grant (owed by C3.7) on; after the last jump all processes stay connected, every member is eligible and no request is pending, so c2 must eventually be granted.
+  - {at: start, do: {request: c1}}
+  - {at: {event: Agree}, do: {cell: F3.2, clock: n1, step: 3}}
+  - {at: start, do: {cell: F3.2, clock: n2, step: -3}}
+  - {at: start, do: {cell: F3.2, clock: n3, step: 5}}
+  - {at: start, do: {request: c2}}
+end: quiescent
+bound: {events: 400}

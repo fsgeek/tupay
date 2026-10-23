@@ -1,0 +1,14 @@
+schedule: P62
+derives: [C3.8, F3.2]
+processes:
+  lease: [n1, n2, n3, n4]
+  config: [n1, n2, n3]
+  clients: [c1, c2]
+  storage: [s]
+steps:
+  # derives: P62 (C3.8, F3.2). The receiver n2's clock jumps forward five lifetimes after it records r1 and before the commit; op is not told success before the commit, which is counted by majorities of both configurations.
+  - {at: start, do: {request: c1}}
+  - {at: {event: Grant, client: c1}, do: {cell: F3.1, reconfigure: [n1, n2, n3, n4], to: n2, id: r1}}
+  - {at: {event: ReconfigRequest, request_id: r1}, do: {cell: F3.2, clock: n2, step: 5}}
+end: quiescent
+bound: {events: 400}

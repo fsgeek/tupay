@@ -1,0 +1,15 @@
+schedule: P50
+derives: [C1.2, F3.2]
+processes:
+  lease: [n1, n2, n3]
+  clients: [c1, c2]
+  storage: [s]
+steps:
+  # derives: P50 (C1.2, F3.2). c1's own clock jumps back by three lifetimes; after c2's write is accepted, c1 writes with its token and is rejected (what c1 believes about expiry decides nothing).
+  - {at: start, do: {request: c1}}
+  - {at: {event: Grant, client: c1}, do: {cell: F3.2, clock: c1, step: -3}}
+  - {at: start, do: {request: c2}}
+  - {at: {event: Grant, client: c2}, do: {write: c2, value: v2}}
+  - {at: {event: WriteAck, client: c2, outcome: accepted}, do: {write: c1, value: v1}}
+end: quiescent
+bound: {events: 400}

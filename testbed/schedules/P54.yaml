@@ -1,0 +1,14 @@
+schedule: P54
+derives: [C1.4, F3.3]
+processes:
+  lease: [n1, n2, n3]
+  clients: [c1, c2]
+  storage: [s]
+steps:
+  # derives: P54 (C1.4, F3.3). A follower restarts amnesic; the other two members are eligible, and with storage and c2 stay connected after it; no request is pending, so c2 must eventually be granted.
+  - {at: start, do: {request: c1}}
+  - {at: {event: Grant, client: c1}, do: {cell: F1.1, crash: non-grantor}}
+  - {at: start, do: {cell: F3.3, restart: non-grantor, amnesia: true}}
+  - {at: {event: Fault, amnesia: true}, do: {request: c2}}
+end: quiescent
+bound: {events: 400}

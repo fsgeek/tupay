@@ -1,0 +1,18 @@
+schedule: P43
+derives: [C3.5, F3.1]
+processes:
+  lease: [n1, n2, n3, n4]
+  config: [n1, n2, n3]
+  clients: [c1, c2]
+  storage: [s]
+steps:
+  # derives: P43 (C3.5, F3.1). A reconfiguration is sent to n2 while the n1-n3 link is cut both ways (not a bipartition); grants, storage decisions and the commit must each be a function of their recorded inputs. n2 reaches everyone, so r1 is committed (C3.4(b)) and the later steps are reached.
+  - {at: start, do: {request: c1}}
+  - {at: {event: Grant, client: c1}, do: {write: c1, value: v1}}
+  - {at: {event: WriteAck, client: c1}, do: {cell: F2.1, cut: [[n1, n3]]}}
+  - {at: start, do: {cell: F3.1, reconfigure: [n1, n2, n4], to: n2, id: r1}}
+  - {at: {event: ConfigCommitted, request_id: r1, decided: true}, do: {request: c2}}
+  - {at: {event: Grant, client: c2}, do: {write: c2, value: v2}}
+  - {at: {event: WriteAck, client: c2}, do: {cell: F2.1, heal: true}}
+end: quiescent
+bound: {events: 400}

@@ -1,0 +1,15 @@
+schedule: P52
+derives: [C1.4, F3.1]
+processes:
+  lease: [n1, n2, n3, n4, n5, n6]
+  config: [n1, n2, n3]
+  clients: [c1, c2]
+  storage: [s]
+steps:
+  # derives: P52 (C1.4, F3.1). Every old member, the grantor among them, is removed; once op is told r1 committed, n4 crashes (the last fault) and c2 requests. n5 and n6 (an eligible majority of the new configuration), storage and c2 stay connected, no request is pending, so c2 must eventually be granted.
+  - {at: start, do: {request: c1}}
+  - {at: {event: Grant, client: c1}, do: {cell: F3.1, reconfigure: [n4, n5, n6], to: grantor, id: r1}}
+  - {at: {event: ReconfigAck, request_id: r1, outcome: committed}, do: {cell: F1.1, crash: n4}}
+  - {at: start, do: {request: c2}}
+end: quiescent
+bound: {events: 400}

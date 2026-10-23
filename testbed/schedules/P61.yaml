@@ -1,0 +1,16 @@
+schedule: P61
+derives: [C3.8, F3.1]
+processes:
+  lease: [n1, n2, n3, n4]
+  config: [n1, n2, n3]
+  clients: [c1, c2]
+  storage: [s]
+  operators: [op]
+steps:
+  # derives: P61 (C3.8, F3.1). r1 is sent to the non-member n4, whose link to n1 is then cut; r2 follows to `non-member`, resolved against the globally committed configuration when the step fires (n4, with r1 still pending there, if r1 has not committed; n3 if it has). Any commit is counted by eligible majorities of the old and new configurations, its members are its request's, and op is told success only for the request a commit names.
+  - {at: start, do: {request: c1}}
+  - {at: {event: Grant, client: c1}, do: {cell: F3.1, reconfigure: [n1, n2, n4], to: n4, id: r1}}
+  - {at: {event: ReconfigRequest, request_id: r1}, do: {cell: F2.1, cut: [[n4, n1]]}}
+  - {at: start, do: {cell: F3.1, reconfigure: [n1, n3, n4], to: non-member, id: r2}}
+end: quiescent
+bound: {events: 400}

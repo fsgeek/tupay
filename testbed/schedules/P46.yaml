@@ -1,0 +1,16 @@
+schedule: P46
+derives: [C1.1, F3.1]
+processes:
+  lease: [n1, n2, n3, n4, n5, n6]
+  config: [n1, n2, n3]
+  clients: [c1, c2]
+  storage: [s]
+steps:
+  # derives: P46 (C1.1, F3.1). Every old member, the grantor among them, is replaced by nodes that were never members; the first grant under the new configuration carries a token greater than every token granted under the old one.
+  - {at: start, do: {request: c1}}
+  - {at: {event: Grant, client: c1}, do: {write: c1, value: v1}}
+  - {at: {event: WriteAck, client: c1}, do: {cell: F3.1, reconfigure: [n4, n5, n6], to: grantor, id: r1}}
+  - {at: {event: ConfigCommitted, request_id: r1, decided: true}, do: {request: c2}}
+  - {at: {event: Grant, client: c2}, do: {write: c2, value: v2}}
+end: quiescent
+bound: {events: 400}

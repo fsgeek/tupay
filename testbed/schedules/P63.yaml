@@ -1,0 +1,16 @@
+schedule: P63
+derives: [C3.8, F3.3]
+processes:
+  lease: [n1, n2, n3, n4]
+  config: [n1, n2, n3]
+  clients: [c1, c2]
+  storage: [s]
+steps:
+  # derives: P63 (C3.8, F3.3). The receiver n2 crashes after recording r1 and before answering, and restarts amnesic (r1's copy is gone, so C3.4 owes nothing for it); r2, listing n2, is sent to n1. op is told success only for a committed configuration; a commit of r2 names [n2, 1] in readmits exactly when its decider recorded that incarnation's agreement to r2.
+  - {at: start, do: {request: c1}}
+  - {at: {event: Grant, client: c1}, do: {cell: F3.1, reconfigure: [n1, n2, n3, n4], to: n2, id: r1}}
+  - {at: {event: ReconfigRequest, request_id: r1}, do: {cell: F1.1, crash: n2}}
+  - {at: start, do: {cell: F3.3, restart: n2, amnesia: true}}
+  - {at: start, do: {cell: F3.1, reconfigure: [n1, n2, n3, n4], to: n1, id: r2}}
+end: quiescent
+bound: {events: 400}

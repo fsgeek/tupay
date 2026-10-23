@@ -1,17 +1,21 @@
-# derives: observe/schema.md v5 addendum (draft 3), "Mutation pair". Written before the check (draft 3) was run on these traces.
+# derives: observe/schema.md v5 addendum (draft 4), "Mutation pair". Written before the check (draft 4) was run on these traces.
+# Draft 3's expectations and results are in git history (f85eb03..70b474e); draft 4 retires the C3.6 and seal cases.
 # traces given to one invocation -> expected exit status; what the report must contain
-pass-a pass-b               -> 0
-pass-a nondet               -> 1  UNEXPLAINED inputs Grant                    (a) equal inputs, different tokens
-pass-a refs-differ          -> 0  (different votes counted: inputs differ once refs are resolved; the reviewer's false positive)
-minority                    -> 1  INVALID ... not a majority                  (b)
-storage-bad                 -> 1  INVALID ... outcome contradicts token 1 vs ledger 2
-c36-violation               -> 1  INVALID ... voted for a grant under epoch 0 after voting for epoch 1 (C3.6)   (c)
-pass-c36-order              -> 0  (grant vote first, then the configuration vote)
-c36-two-configs             -> 1  INVALID ... two configurations of epoch 1 (C3.6)
-amnesic-voter               -> 1  INVALID ... not a majority (n2's incarnation 1 not re-added)
-pass-amnesic-readded        -> 0
-commit-new-only             -> 1  INVALID ... not counted by majorities of epoch 0 and epoch 1   (d)
-pass-commit-both            -> 0
-seal-low                    -> 1  INVALID ... highest_token 0 below a reported token 3
-double-decided              -> 1  INVALID ... epoch 1 decided 2 times (C3.1)
-grant-below-seal            -> 1  INVALID ... token 3 does not exceed sealed_token 5
+pass-a pass-b                 -> 0
+pass-a nondet                 -> 1  UNEXPLAINED inputs Grant                    (a) equal inputs, different tokens
+pass-a refs-differ            -> 0  (different agreements counted: inputs differ once refs are resolved)
+minority                      -> 1  INVALID ... not a majority                  (b)
+storage-bad                   -> 1  INVALID ... outcome contradicts token 1 vs ledger 2
+commit-new-only               -> 1  INVALID ... not counted by majorities of epoch 0 and epoch 1   (c)
+pass-commit-both              -> 0
+double-decided                -> 1  INVALID ... epoch 1 decided 2 times (C3.1)
+amnesic-voter                 -> 1  INVALID ... not a majority (n2's incarnation 1 not re-admitted)   (d)
+pass-amnesic-readmitted       -> 0  (commit of epoch 1 re-admits n2#1, whose agreement it recorded; a later grant under 1 counts n2#1)
+readmit-self-count            -> 1  INVALID ... not counted by majorities (the re-admitting commit counts n2#1 toward itself)
+readmits-without-agreed       -> 1  INVALID ... readmits n2#1 without an Agreed from it for this proposal
+dup-token                     -> 1  INVALID ... token 1 granted 2 times (C1.1)   (e)
+agree-decreasing              -> 1  INVALID ... n2#0 agreed to token 1 after token 2 (C1.1)   (f)
+pass-agree-order              -> 0  (n2 agrees to token 1, then token 2; both counted)
+epoch-lower-token             -> 1  INVALID ... grant under epoch 1 with token 1 not above epoch 0's token 2 (C1.1)
+unknown-input                 -> 1  INVALID ... input name nonce outside the fixed list
+unknown-input --extra-inputs nonce -> 0  (an artifact's README-declared name)

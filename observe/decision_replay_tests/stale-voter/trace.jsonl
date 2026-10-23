@@ -1,7 +1,0 @@
-{"proc": "n1", "seq": 1, "event": "ConfigCommitted", "node": "n1", "epoch": 0, "members": ["n1", "n2", "n3"], "request_id": null}
-{"proc": "n2", "seq": 1, "event": "ConfigCommitted", "node": "n2", "epoch": 0, "members": ["n1", "n2", "n3"], "request_id": null}
-{"proc": "n3", "seq": 1, "event": "ConfigCommitted", "node": "n3", "epoch": 0, "members": ["n1", "n2", "n3"], "request_id": null}
-{"proc": "n2", "seq": 2, "event": "ConfigCommitted", "node": "n2", "epoch": 1, "members": ["n1", "n2", "n4"], "request_id": "r1"}
-{"proc": "n1", "seq": 2, "event": "Agreed", "decider": "n1", "voter": "n1", "proposal": {"client": "c1", "token": 1}, "config_epoch": 0, "voter_highest_epoch": 0}
-{"proc": "n1", "seq": 3, "event": "Agreed", "decider": "n1", "voter": "n2", "proposal": {"client": "c1", "token": 1}, "config_epoch": 0, "voter_highest_epoch": 0}
-{"proc": "n1", "seq": 4, "event": "Grant", "client": "c1", "key": "k", "token": 1, "lifetime": 1, "grantor_term": 1, "config_epoch": 0, "inputs": [{"name": "members", "value": ["n1", "n2", "n3"]}, {"name": "config_epoch", "value": 0}, {"name": "prev_max_token", "value": 0}, {"name": "agreed", "value": "n1", "ref": {"proc": "n1", "seq": 2}}, {"name": "agreed", "value": "n2", "ref": {"proc": "n1", "seq": 3}}]}

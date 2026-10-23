@@ -97,3 +97,25 @@ do: {cell: F2.1, heal: true}                          # restores every link (als
 **Rule T3, unchanged and restated.** A `write` or `read` does not wait for an earlier unanswered `write` or `read` by the same client; only `request` waits for its own answer. A client that serialises its operations must not wait for ever on a reply that was lost.
 
 Triggers may name `Fault` records for the new actions as for the old. Changelog: v4 (2026-10-21): `cut`, `drop`, L1 to L3, E1 extended to reads, E3, T3 restated. Reason: X2, failure model v2; the E1 gap, the readings in L3, E3 and T3 came from review of the inputs before any author started.
+
+## v5 addendum (DRAFT 2, 2026-10-23, for contract v3 and failure model v3; additive; not an input until X3 registers)
+**Processes.** `processes` gains two optional keys. `config` lists the initial configuration (epoch 0) and must be a subset of `lease`; if absent it is all of `lease`. Lease nodes in `lease` and not in `config` exist, up and connected, as non-members. `operators` lists operator processes (default `[op]`); operators are not lease nodes, clients or storage, and links to and from them obey F1.2, F2.1 and F2.2 like any process's. **Lifetime.** `lifetime: <n>` (optional, default 1) sets `L` in run-time units; clock steps and pauses are written in units of `L`.
+```yaml
+processes:
+  lease: [n1, n2, n3, n4, n5]
+  config: [n1, n2, n3]
+  clients: [c1, c2]
+  storage: [s]
+  operators: [op]
+```
+Three actions are added, one per new cell:
+```yaml
+do: {cell: F3.1, reconfigure: [n1, n2, n4], to: n2, id: r1}   # op sends request r1 naming these members to n2
+do: {cell: F3.2, clock: n1, step: -2}                          # n1's clock jumps back by 2 L (signed; any real number)
+do: {cell: F3.3, restart: n2, amnesia: true}                   # n2, which must be crashed, restarts with no durable state
+```
+**Rule R1, reconfiguration requests.** `to` names the receiver: any lease node, member or not, or a selector (`grantor`, `non-grantor`, and the new `non-member`, a lease node not in the current configuration; resolved as Rule A1 says). `id` is the request id the operator uses, unique within the schedule. The members listed are process names, not selectors. The operator is `op` unless the step says `operator: <name>`. A `reconfigure` does not wait for an earlier one to be answered (F3.1). The request is a message from the operator: it is lost if the link from the operator to the receiver is down when it is sent. A request whose set is empty or names a non-lease process is allowed (C3.4's `invalid`).
+**Rule R2, clocks.** A clock step changes only the named process's clock, by `step × L`. A `pause` (F1.3) must still outlast `L` in run time, as v1 says; the paused process's clock keeps advancing.
+**Rule R3, amnesia.** `restart` with `amnesia: true` is allowed only for a crashed lease node. There is no bound on how many nodes may be amnesic: an amnesic node counts toward no majority until re-added (`failure-model/v3.md`, F3.3), so a schedule may make C1.4's or C3.4's premise unsatisfiable, and then those clauses promise nothing.
+**Rule L3, extended (C1.4 and C3.4 premises).** Under contract v3 both premises are read only **after the last fault** (`failure-model/v3.md`). C1.4's majority is a majority of the current configuration, not counting amnesic members not re-added, and the premise holds only while no request is pending at any member of that majority. C3.4's premise for a request holds if, for the rest of the run after the later of its arrival and the last fault, its receiver, a majority of the current configuration and a majority of the requested set stay up and connected to each other; its duty to tell the operator holds if the operator also stays connected to the receiver. A schedule comment that claims progress must leave such a set connected.
+Triggers may name `ReconfigSend`, `ReconfigRequest`, `ConfigCommitted` (with `epoch`, `members` or `request_id` filters), `ReconfigRefused` (with `reason`), `ReconfigAck` (with `outcome`), `Agreed`, and `Fault` records for the new actions. Changelog: v5 (2026-10-23, draft 2): `config`, `operators`, `lifetime`, `reconfigure`, `clock`, `restart ... amnesia`, R1 to R3, L3 extended. Reason: X3; draft 2 after the input review.

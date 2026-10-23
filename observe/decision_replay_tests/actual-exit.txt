@@ -1,0 +1,15 @@
+pass-a pass-b -> 0
+pass-a nondet -> 1
+pass-a refs-differ -> 0
+minority -> 1
+storage-bad -> 1
+c36-violation -> 1
+pass-c36-order -> 0
+c36-two-configs -> 1
+amnesic-voter -> 1
+pass-amnesic-readded -> 0
+commit-new-only -> 1
+pass-commit-both -> 0
+seal-low -> 1
+double-decided -> 1
+grant-below-seal -> 1

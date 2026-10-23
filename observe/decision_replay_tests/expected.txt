@@ -1,11 +1,17 @@
-# derives: observe/schema.md v5 addendum, "Mutation pair". Written before the check was run on these traces.
-# group of traces given to one invocation -> expected exit status and the report it must contain
-pass-a pass-b          -> 0   decision-replay: 2 traces, 0 invalid, 0 UNEXPLAINED inputs
-pass-a nondet          -> 1   UNEXPLAINED inputs Grant  (mutation (a): equal inputs, different tokens)
-minority               -> 1   INVALID ... not a majority  (mutation (b))
-storage-bad            -> 1   INVALID ... outcome contradicts token 1 vs ledger 2
-stale-voter            -> 1   INVALID ... voter n2 had recorded a configuration above epoch 0
-amnesic-voter          -> 1   INVALID ... not a majority (n2's agreement does not count)
-commit-new-only        -> 1   INVALID ... not agreed by majorities of epoch 0 and epoch 1
-pass-commit-both       -> 0   (the legitimate counterpart of commit-new-only)
-pass-amnesic-readded   -> 0   (the legitimate counterpart of amnesic-voter: n2 re-added before it votes)
+# derives: observe/schema.md v5 addendum (draft 3), "Mutation pair". Written before the check (draft 3) was run on these traces.
+# traces given to one invocation -> expected exit status; what the report must contain
+pass-a pass-b               -> 0
+pass-a nondet               -> 1  UNEXPLAINED inputs Grant                    (a) equal inputs, different tokens
+pass-a refs-differ          -> 0  (different votes counted: inputs differ once refs are resolved; the reviewer's false positive)
+minority                    -> 1  INVALID ... not a majority                  (b)
+storage-bad                 -> 1  INVALID ... outcome contradicts token 1 vs ledger 2
+c36-violation               -> 1  INVALID ... voted for a grant under epoch 0 after voting for epoch 1 (C3.6)   (c)
+pass-c36-order              -> 0  (grant vote first, then the configuration vote)
+c36-two-configs             -> 1  INVALID ... two configurations of epoch 1 (C3.6)
+amnesic-voter               -> 1  INVALID ... not a majority (n2's incarnation 1 not re-added)
+pass-amnesic-readded        -> 0
+commit-new-only             -> 1  INVALID ... not counted by majorities of epoch 0 and epoch 1   (d)
+pass-commit-both            -> 0
+seal-low                    -> 1  INVALID ... highest_token 0 below a reported token 3
+double-decided              -> 1  INVALID ... epoch 1 decided 2 times (C3.1)
+grant-below-seal            -> 1  INVALID ... token 3 does not exceed sealed_token 5

@@ -1,0 +1,5 @@
+{"proc": "n1", "inc": 0, "seq": 0, "event": "ConfigCommitted", "node": "n1", "epoch": 0, "members": ["n1", "n2", "n3"], "request_id": null, "highest_token": 0, "highest_term": 1, "decided": false}
+{"proc": "n2", "inc": 0, "seq": 0, "event": "ConfigCommitted", "node": "n2", "epoch": 0, "members": ["n1", "n2", "n3"], "request_id": null, "highest_token": 0, "highest_term": 1, "decided": false}
+{"proc": "n3", "inc": 0, "seq": 0, "event": "ConfigCommitted", "node": "n3", "epoch": 0, "members": ["n1", "n2", "n3"], "request_id": null, "highest_token": 0, "highest_term": 1, "decided": false}
+{"proc": "n2", "inc": 0, "seq": 1, "event": "Vote", "voter": "n2", "incarnation": 0, "proposal": {"epoch": 1, "members": ["n1", "n2", "n4"], "request_id": "r1"}, "config_epoch": 0, "reported_token": 0}
+{"proc": "n2", "inc": 0, "seq": 2, "event": "Vote", "voter": "n2", "incarnation": 0, "proposal": {"client": "c1", "token": 1, "lifetime": 1, "config_epoch": 0}, "config_epoch": 0}

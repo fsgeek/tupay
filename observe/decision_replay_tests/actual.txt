@@ -2,32 +2,54 @@
 decision-replay: 2 traces, 0 invalid, 0 UNEXPLAINED inputs
 exit 0
 == pass-a nondet
-UNEXPLAINED inputs Grant: equal inputs, 2 outcomes: (1, 'c1') at pass-a/trace.jsonl:n1#4; (2, 'c1') at nondet/trace.jsonl:n1#4
+UNEXPLAINED inputs Grant: equal inputs, 2 outcomes: (1, 'c1', 0, 1) at pass-a/trace.jsonl:n1#0.4; (2, 'c1', 0, 1) at nondet/trace.jsonl:n1#0.4
 decision-replay: 2 traces, 0 invalid, 1 UNEXPLAINED inputs
 exit 1
+== pass-a refs-differ
+decision-replay: 2 traces, 0 invalid, 0 UNEXPLAINED inputs
+exit 0
 == minority
-INVALID minority/trace.jsonl: n1#3 Grant: counted voters ['n1'] are not a majority of ['n1', 'n2', 'n3']
+INVALID minority/trace.jsonl: n1#0.3 Grant: counted eligible voters ['n1'] are not a majority of ['n1', 'n2', 'n3']
 decision-replay: 1 traces, 1 invalid, 0 UNEXPLAINED inputs
 exit 1
 == storage-bad
-INVALID storage-bad/trace.jsonl: s#1 WriteAccept: outcome contradicts token 1 vs ledger 2
+INVALID storage-bad/trace.jsonl: s#0.1 WriteAccept: outcome contradicts token 1 vs ledger 2
 decision-replay: 1 traces, 1 invalid, 0 UNEXPLAINED inputs
 exit 1
-== stale-voter
-INVALID stale-voter/trace.jsonl: n1#4 Grant: voter n2 had recorded a configuration above epoch 0
+== c36-violation
+INVALID c36-violation/trace.jsonl: n2#0.2 voted for a grant under epoch 0 after voting for epoch 1 (C3.6)
+decision-replay: 1 traces, 1 invalid, 0 UNEXPLAINED inputs
+exit 1
+== pass-c36-order
+decision-replay: 1 traces, 0 invalid, 0 UNEXPLAINED inputs
+exit 0
+== c36-two-configs
+INVALID c36-two-configs/trace.jsonl: n2#0 voted for two configurations of epoch 1 (C3.6)
 decision-replay: 1 traces, 1 invalid, 0 UNEXPLAINED inputs
 exit 1
 == amnesic-voter
-INVALID amnesic-voter/trace.jsonl: n1#4 Grant: counted voters ['n1'] are not a majority of ['n1', 'n2', 'n3']
+INVALID amnesic-voter/trace.jsonl: n1#0.4 Grant: counted eligible voters ['n1'] are not a majority of ['n1', 'n2', 'n3']
 decision-replay: 1 traces, 1 invalid, 0 UNEXPLAINED inputs
 exit 1
+== pass-amnesic-readded
+decision-replay: 1 traces, 0 invalid, 0 UNEXPLAINED inputs
+exit 0
 == commit-new-only
-INVALID commit-new-only/trace.jsonl: n1#4 ConfigCommitted: not agreed by majorities of epoch 0 and epoch 1
+INVALID commit-new-only/trace.jsonl: n1#0.19 ConfigCommitted: not counted by majorities of epoch 0 and epoch 1
 decision-replay: 1 traces, 1 invalid, 0 UNEXPLAINED inputs
 exit 1
 == pass-commit-both
 decision-replay: 1 traces, 0 invalid, 0 UNEXPLAINED inputs
 exit 0
-== pass-amnesic-readded
-decision-replay: 1 traces, 0 invalid, 0 UNEXPLAINED inputs
-exit 0
+== seal-low
+INVALID seal-low/trace.jsonl: n1#0.19 ConfigCommitted: highest_token 0 below a reported token 3
+decision-replay: 1 traces, 1 invalid, 0 UNEXPLAINED inputs
+exit 1
+== double-decided
+INVALID double-decided/trace.jsonl: epoch 1 decided 2 times (C3.1)
+decision-replay: 1 traces, 1 invalid, 0 UNEXPLAINED inputs
+exit 1
+== grant-below-seal
+INVALID grant-below-seal/trace.jsonl: n4#0.3 Grant: token 3 does not exceed sealed_token 5
+decision-replay: 1 traces, 1 invalid, 0 UNEXPLAINED inputs
+exit 1

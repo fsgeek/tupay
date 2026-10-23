@@ -1,9 +1,9 @@
 # X3 pre-registration: a new authority locus (configuration); tupay's amend-or-rebuild
 
-**DRAFT 1, not registered.** Drafted 2026-10-23 by the fifth steward (Claude Opus 5.5). Template: `experiments/X2-prereg.md`, whose scoring rule is kept; departures are listed with reasons. Before registration: an input review by the hold-out family (Grok), an adversarial review of this file by a Fable 5.1 instance, hold-outs written blind, and the steward-built checks validated with their mutation pairs. Amendments after registration are additive and say whether an outcome informed them.
+**DRAFT 2, not registered.** Drafted 2026-10-23 by the fifth steward (Claude Opus 5.5). Template: `experiments/X2-prereg.md`, whose scoring rule is kept; departures are listed with reasons. Before registration: an input review by the hold-out family (Grok), an adversarial review of this file by a Fable 5.1 instance, hold-outs written blind, and the steward-built checks validated with their mutation pairs. Amendments after registration are additive and say whether an outcome informed them.
 
 ## The change
-Contract v2 → `contract/v3.md`: a new locus, **configuration** (the grantor's membership and its epoch), clauses **C3.1** (epochs), **C3.2** (a grant is agreed by a majority of one configuration, none of whose counted members had learned of a newer one), **C3.3** (reconfiguration acks), **C3.4** (reconfiguration liveness), **C3.5** (reconstructibility: every recorded decision re-derivable from its recorded inputs). Failure model v2 → `failure-model/v3.md`: **F3.1** reconfiguration under faults, **F3.2** clock steps, **F3.3** amnesia (bounded). Interfaces: schedule format v5 addendum, observe schema v5 addendum (decision inputs). Pairs: `tests/pairs-v4.md`, P31 to P54, with the cut stated there.
+Contract v2 → `contract/v3.md`: a new locus, **configuration** (the grantor's membership and its epoch), clauses **C3.1** (epochs), **C3.2** (a grant is agreed by a majority of one configuration, none of whose counted members had learned of a newer one), **C3.3** (reconfiguration acks), **C3.4** (reconfiguration liveness), **C3.5** (reconstructibility: every recorded decision a function of its recorded inputs), **C3.6** (voting promises, which carry C1.1 across a change). Failure model v2 → `failure-model/v3.md`: **F3.1** reconfiguration under faults, **F3.2** clock steps, **F3.3** amnesia (bounded). Interfaces: schedule format v5 addendum, observe schema v5 addendum (decision inputs). Pairs: `tests/pairs-v4.md`, P31 to P57, with the cut stated there.
 
 Under the hereditary fence the change invalidates: every element that represents the set of lease nodes as fixed (it derived from v1's "three processes"); every element that decides a grant (C3.2 now constrains who may agree); every element that consults a clock without recording it (C3.5); every element that assumes a restart keeps durable state (F3.3). It invalidates nothing tagged only with a storage clause, unless that element consults a clock.
 
@@ -19,14 +19,14 @@ Under the hereditary fence the change invalidates: every element that represents
 1. **Sandboxed authors.** The replay's guard against reading the log, the other arm or the public repository was an instruction and a transcript search; the 2026-10-23 probes showed a sandboxed shell could still reach the public repository, and Codex had account connectors. Prevention replaces detection.
 2. **Three measures added** (8 to 10): the decision-replay check (C3.5), a planted defect per arm, and reconstruction of an out-of-model failure.
 3. **The support audit is registered** (practice since the replay): every model PASS is scored only after the steward has run a probe showing the checked space contains the schedule's needed reach.
-4. **Not every crossing is a pair** (`tests/pairs-v4.md`): 24 of 58, with the reason stated there.
+4. **Not every crossing is a pair** (`tests/pairs-v4.md`): 27 of 66, with the reason stated there.
 
 ## Liveness rules
 As X2 (fairness legitimacy; Rule E3 bound; one mechanism scored once; unit of failure), with C3.4 added beside C1.4 and their premises read by format Rule L3 as extended in v5. An implementation pair is scored on at least ten repetitions per seed; a pair whose outcome varies is **flaky**, never PASS or kill.
 
 ## Measures (fixed here)
 Per arm, per side, at the first steward run after the arm's export, before any fix:
-1. **Correctness.** (a) Shared schedules: PASS count of 54 per side (implementation: a schedule passes only if all ten repetitions of all three seeds pass; per-seed rates reported); unreached reported separately. (b) Mutations: count that fail on their pair's schedule. (c) Hold-outs H11 onward, hashes in `experiments/X3/holdout/SHA256SUMS`. (d) Provenance: untraceable decisions under `observe/provenance_check.py`. (e) Distinct C1.4 and C3.4 stall mechanisms, named by the judge.
+1. **Correctness.** (a) Shared schedules: PASS count of 57 per side (implementation: a schedule passes only if all ten repetitions of all three seeds pass; per-seed rates reported); unreached reported separately. (b) Mutations: count that fail on their pair's schedule. (c) Hold-outs H11 onward, hashes in `experiments/X3/holdout/SHA256SUMS`. (d) Provenance: untraceable decisions under `observe/provenance_check.py`. (e) Distinct C1.4 and C3.4 stall mechanisms, named by the judge.
 2. **Divergence count** between an arm's sides, shared and hold-out separately; Gemini judge, packet inlined.
 3. **Cost.** Tokens and wall-clock per author (harness-reported); arm A split at its first commit after predictions; steward time; advisor tokens; decisions asked of Tony.
 4. **Residue** by X2's fixed procedure, with the F3.x and C3.x terms (`reconfig`, `config`, `epoch`, `clock`, `amnesia`).
@@ -42,7 +42,7 @@ Per arm, per side, at the first steward run after the arm's export, before any f
 
 ## Predictions (steward's probabilities)
 - **X3-1.** The seed's standing prediction for X3: regeneration wins a new locus, i.e. adaptation does **not** win under the rule. p = 0.75.
-- **X3-2.** At least one unmutated side, at first run, violates C1.1 or C3.2 on P36 or P48 (amnesia). p = 0.45.
+- **X3-2.** At least one unmutated side, at first run, violates C1.1, C3.2 or C3.6 on P36, P48 or P57 (amnesia). p = 0.45.
 - **X3-3.** At least one implementation side has at least one `UNEXPLAINED inputs` decision under measure 8 on a shared schedule. p = 0.65. Arm A's implementation more than arm R's: p = 0.5.
 - **X3-4.** At least one model side fails its support audit on at least one shared schedule (its bounds exclude what the schedule needs). p = 0.5.
 - **X3-5.** At least one hold-out produces a FAIL or a divergence in at least one arm. p = 0.75.

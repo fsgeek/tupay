@@ -18,7 +18,7 @@ Under the hereditary fence the change invalidates: every element that represents
 ## Departures from X2, with reasons
 1. **Sandboxed authors.** The replay's guard against reading the log, the other arm or the public repository was an instruction and a transcript search; the 2026-10-23 probes showed a sandboxed shell could still reach the public repository, and Codex had account connectors. Prevention replaces detection.
 2. **Three measures added** (8 to 10): the decision-replay check (C3.5), a planted defect per arm, and reconstruction of an out-of-model failure.
-3. **The support audit is registered** (practice since the replay): every model PASS is scored only after the steward has run a probe showing the checked space contains the schedule's needed reach.
+3. **The support audit is registered** (practice since the replay): every model PASS is scored only after the steward has run a probe showing the checked space contains the schedule's needed reach. A passed audit is permission to score, one necessary condition met; it does not make the PASS evidence that the property holds beyond the checked space (Yupi, plaza seq 149).
 4. **Not every crossing is a pair** (`tests/pairs-v4.md`): 27 of 66, with the reason stated there.
 
 ## Liveness rules

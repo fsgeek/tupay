@@ -28,7 +28,7 @@ Adapt `model/`: configurations and epochs, the operator, clocks and amnesic rest
 - The steward may run schedules you have not seen, under any name, from `testbed/schedules/`; `run.sh <name>` must accept any schedule in the format, not only the ones listed here.
 - In your report, list your **declared limitations**: shapes of schedule you believe your artifact would fail or could not check, and why you left them.
 - **Reach.** For every bounded check you run, state in your README **what it must be able to reach** for each shared schedule (how many configurations and epochs, restarts and amnesic restarts, clock steps and their sizes, grants and tokens, terms) and the bounds you ran it at. A PASS from a space that cannot contain what the schedule needs is not a PASS; if your bounds cannot reach it, say so for that schedule.
-- Tools: Java and `/home/tony/projects/tlaplus/tla2tools.jar`; Python via `uv`. Keep explorations within memory you can name in your README; the machine is shared.
+- Tools: Java and `/home/tony/projects/tlaplus/tla2tools.jar`; Python via `uv`, offline: packages come from a local cache filled beforehand, holding `pyyaml==6.0.3` (use `uv run --no-project --with pyyaml==6.0.3`); if you need another, say so in your report and do without it. Keep explorations within memory you can name in your README; the machine is shared.
 
 **Where you run.** Your session runs in a sandbox that shows you only your checkout and the toolchains. There is no network except your harness's own service. Commit normally: signing is configured with a key of your own. Your work is collected from your commits, so commit everything you want counted.
 

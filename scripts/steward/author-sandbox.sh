@@ -5,6 +5,8 @@
 # Two separate guards. Configuration: HOME is a per-author directory, so none of Tony's Claude, Codex or Grok
 # configuration (MCP servers, plugins, hooks, memories, history) loads. Access: only the paths bound below exist
 # inside, so the log, other checkouts, khipumaq and ~/.ssh cannot be read by absolute path either.
+# Python packages: uv runs offline from the author home's own cache, which the steward fills on the host before launch
+# (UV_CACHE_DIR=<author home>/.cache/uv uv run --with <pin> ...); probe 2026-10-23: empty cache fails, filled one works.
 # Network: the sandbox has none of its own (--unshare-net). Its only way out is an HTTPS CONNECT proxy on a unix
 # socket (egress-proxy.py, outside), reached through a relay inside (sandbox-relay.py), which allows the hosts in
 # scripts/steward/egress-<harness>.allow and logs every attempt to <author home>/egress.log. Without it, a plain
@@ -40,7 +42,7 @@ args=(--unshare-net --unshare-pid --unshare-ipc --unshare-uts --die-with-parent 
   --setenv ALL_PROXY http://127.0.0.1:3128 --setenv NO_PROXY localhost,127.0.0.1 --setenv no_proxy localhost,127.0.0.1
   --setenv HOME "$U" --setenv USER tony --setenv TERM "${TERM:-xterm}" --setenv LANG C.UTF-8
   --setenv PATH "$NODE/bin:/usr/local/go/bin:$U/.local/bin:/usr/bin"
-  --setenv GOMODCACHE "$U/go/pkg/mod" --setenv GOPROXY file:///opt/gomodcache --setenv GOSUMDB off --setenv GOFLAGS -modcacherw)   # go.sum still verifies
+  --setenv UV_OFFLINE 1 --setenv GOMODCACHE "$U/go/pkg/mod" --setenv GOPROXY file:///opt/gomodcache --setenv GOSUMDB off --setenv GOFLAGS -modcacherw)   # go.sum still verifies
 case $H in
   codex) args+=(--bind "$U/.codex/auth.json" "$U/.codex/auth.json" --ro-bind "$U/node_modules/@openai" "$U/node_modules/@openai")
          # account-side tools reach past the file sandbox (codex_apps: GitHub, mail, SharePoint; web; browsers), so off

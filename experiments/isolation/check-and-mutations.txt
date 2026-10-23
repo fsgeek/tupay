@@ -1,0 +1,10 @@
+== codex: PASS 
+== grok: PASS 
+== mutation EXTRA_RO=~/.ssh: FAIL visible: /home/tony/.ssh 
+== mutation EGRESS=--learn: FAIL github through proxy: 200 
+== mutation Tony's codex config planted in author home: FAIL Tony's file present: /home/tony/.codex/tonys-config-planted.toml 
+== signatures:
+9a1182b G probe: grok
+a0d20c4 G probe: codex
+9dd7c12 N ots: stamp 13e75d232c34e148d072ff0ffbbb802fc99a0151
+13e75d2 N probe inputs (unsigned, steward)

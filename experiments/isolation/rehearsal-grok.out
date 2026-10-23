@@ -1,0 +1,9 @@
+warning: --disallowed-tools "x_user_search", "x_semantic_search", "x_keyword_search", "x_thread_fetch" name no tool, so they remove nothing
+I'll run the rehearsal: confirm the AGENTS.md line, build `impl/`, commit the probe file, and inventory what's available.The first build ran from the repo root. I'll rebuild inside `impl/` and commit the probe file.AGENTS.md (given as project instructions): `# For every instance working here (Claude, Codex, or other)`
+`impl/` `go build ./...`: exit 1, download of toolchain go1.23.12 was Forbidden.
+Commit `9a1182b8ee8cba0770dfc72d09b98a126a85836a` (`probe: grok`) succeeded. Hook error: OpenTimestamps failed, 0 of 2 attestations within timeout.
+Tools: x_user_search, x_semantic_search, x_keyword_search, x_thread_fetch, run_terminal_command, read_file, write, search_replace, list_dir, grep, kill_command_or_subagent, todo_write, get_command_or_subagent_output, spawn_subagent, scheduler_create, scheduler_delete, scheduler_list, monitor, search_tool, use_tool, workflow, enter_plan_mode, exit_plan_mode, ask_user_question.
+MCP servers: none. Connectors: none. Plugins: none installed.
+Skills: build-with-ai, create-skill, create-workflow, design, docx, execute-plan, game-assets, imagine, learn, long-running-background-tasks, pdf, pptx, resume-claude, resume-codex, resume-cursor, review, skill-design-principles, statusline, threejs-frame-conventions. Workflow: deep-research.
+Also on disk: skills code-review, implement, pr-babysit, shared; workflow learn-traces.
+Web search and web fetch: no. X post search and thread fetch only.

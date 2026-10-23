@@ -1,0 +1,553 @@
+[
+  {
+    "type": "function",
+    "function": {
+      "name": "run_terminal_command",
+      "description": "Run a bash command and return its output.\n\n- A command that is still running when block_until_ms ends moves to the background and keeps running. You get a task id.\n- If you cannot continue without the result, set block_until_ms longer than the command takes. Otherwise set it to 0 and do independent work while the command runs. You get a notification when it finishes, in a later tool result or in a new turn after your turn ends. To wait for it sooner, use get_command_or_subagent_output. You do not need `&` with block_until_ms.\n- A background command runs until it exits or until you stop it with kill_command_or_subagent. It is killed after 10 hours. When you stop it, the command gets SIGTERM, sent to its process group, then SIGKILL after about 1 second. Child processes that did not detach with `setsid` or `nohup` are also stopped.\n- If the output is longer than 20000 characters, the middle is cut. The result keeps the start and the end and gives the path of a log file with the full output.",
+      "parameters": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "required": [
+          "command",
+          "description"
+        ],
+        "properties": {
+          "command": {
+            "description": "The bash command to run.",
+            "type": "string"
+          },
+          "block_until_ms": {
+            "description": "How long to wait for the command, in milliseconds, before moving it to the background. The default is 30000 (30 seconds). The maximum is 36000000. 0 starts the command in the background immediately. The wait includes shell startup.",
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "uint64",
+            "minimum": 0
+          },
+          "description": {
+            "description": "One short sentence that says what this command does and why you run it.",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "read_file",
+      "description": "Read a file.\n\n- The tool reads up to 1000 lines, starting at offset. A read that is too large fails, so use offset and limit to read a large file in parts. A SKILL.md, AGENTS.md, or CLAUDE.md file is always read whole if it fits in one read, and offset and limit are ignored for it.\n- The first line and every 10th line start with the line number and →, for example `10→`. The other lines show only their content. Count from the nearest number to find a line.\n- The tool can read PDF, PPTX, and image files. You see image files as images. A Jupyter notebook is shown as its JSON.",
+      "parameters": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "required": [
+          "target_file"
+        ],
+        "type": "object",
+        "properties": {
+          "target_file": {
+            "description": "Path of the file to read. Use a path relative to the workspace or an absolute path.",
+            "type": "string"
+          },
+          "offset": {
+            "description": "Line number to start from.",
+            "type": "integer",
+            "default": 1
+          },
+          "limit": {
+            "description": "Number of lines to read.",
+            "type": "integer"
+          },
+          "pages": {
+            "description": "Page range to read from a PDF file, for example '1-5', '3', or '10-'. Required for a PDF with more than 10 pages. The maximum is 20 pages for each call.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "format": {
+            "description": "How to read a PDF file. 'image' shows the pages as images and is the default. 'text' extracts the text.",
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "search_replace",
+      "description": "Replace an exact string in a file.\n\n- The line numbers and → that `read_file` shows are not part of the file. Match the file text exactly, with its indentation.\n- `old_string` must match exactly one place in the file. If it matches more than one place, add nearby lines to make it unique. To change every match, set `replace_all` to true.\n- To create a new file, set `old_string` to an empty string.",
+      "parameters": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "required": [
+          "file_path",
+          "old_string",
+          "new_string"
+        ],
+        "properties": {
+          "file_path": {
+            "description": "Path of the file to change. Use a path relative to the workspace or an absolute path.",
+            "type": "string"
+          },
+          "old_string": {
+            "description": "The text to replace.",
+            "type": "string"
+          },
+          "new_string": {
+            "description": "The new text. It must differ from old_string.",
+            "type": "string"
+          },
+          "replace_all": {
+            "description": "Replace every match of old_string. The default is false.",
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "type": "object"
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "list_dir",
+      "description": "List the files and directories in 'target_directory'. The path can be relative to the workspace root or absolute. The list leaves out dot-files and files that .gitignore ignores. For a large directory, the list shows file counts by extension.",
+      "parameters": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "required": [
+          "target_directory"
+        ],
+        "type": "object",
+        "properties": {
+          "target_directory": {
+            "description": "Directory to list.",
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "grep",
+      "description": "Search file contents with a regular expression. This tool uses ripgrep.\n\n- To match a regex special character literally, escape it. For example, use `functionCall\\(` or `interface\\{\\}`.\n- Pass pattern as a raw regex with no quotes around it.\n- The search skips files that .gitignore ignores. To search those files too, pass a 'glob' that matches them, for example `*`.\n- Use 'type' or 'glob' only when you are sure of the file type. An import path can use a different extension than the source file, for example .js and .ts.\n- Results are grouped by file. A `:` marks a matching line and a `-` marks a context line. Large results are cut off and show \"at least\" counts.",
+      "parameters": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "required": [
+          "pattern"
+        ],
+        "type": "object",
+        "properties": {
+          "pattern": {
+            "description": "The regular expression pattern to search for in file contents (rg --regexp)",
+            "type": "string"
+          },
+          "path": {
+            "description": "File or directory to search in (rg pattern -- PATH). Defaults to workspace path.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "glob": {
+            "description": "Glob pattern (rg --glob GLOB -- PATH) to filter files (e.g. \"*.js\", \"*.{ts,tsx}\").",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "-B": {
+            "description": "Number of lines to show before each match (rg -B).",
+            "type": "integer"
+          },
+          "-A": {
+            "description": "Number of lines to show after each match (rg -A).",
+            "type": "integer"
+          },
+          "-C": {
+            "description": "Number of lines to show before and after each match (rg -C).",
+            "type": "integer"
+          },
+          "-i": {
+            "description": "Case insensitive search (rg -i).",
+            "type": "boolean",
+            "default": false
+          },
+          "type": {
+            "description": "File type to search (rg --type). Common types: js, py, rust, go, java, etc. More efficient than glob for standard file types.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "head_limit": {
+            "description": "Limit output to the first N matching lines in content mode, or the first N entries in the other modes. Defaults to 200 lines or 500 entries.",
+            "type": "integer"
+          },
+          "multiline": {
+            "description": "Enable multiline mode where . matches newlines and patterns can span lines (rg -U --multiline-dotall).",
+            "type": "boolean",
+            "default": false
+          }
+        }
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "kill_command_or_subagent",
+      "description": "Stop a running background command or subagent.\n\n- Pass the task_id from background commands or background subagents.\n- A command gets SIGTERM, sent to its process group, then SIGKILL after about 1 second.\n- For a subagent, the tool starts the cancellation.\n- The tool succeeds if the task stopped or had already exited.",
+      "parameters": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "required": [
+          "task_id"
+        ],
+        "properties": {
+          "task_id": {
+            "description": "ID of the task to stop.",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "todo_write",
+      "description": "Create or update the task list. The user sees this list live while you work. Use it for work with three or more steps. Skip it for a single-step task.",
+      "parameters": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "required": [
+          "todos"
+        ],
+        "type": "object",
+        "properties": {
+          "merge": {
+            "description": "If true, update only the items you pass, matched by id. To change only a status, pass id and status. If false, replace the whole list. The default is true.",
+            "type": "boolean",
+            "default": true
+          },
+          "todos": {
+            "description": "Items to add or update. If merge is false, this is the full new list.",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "description": "ID of the item. Keep it the same across updates.",
+                  "type": "string"
+                },
+                "content": {
+                  "description": "Text of the item. Required for a new item.",
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "status": {
+                  "description": "Status of the item. The default for a new item is pending.",
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "enum": [
+                    "pending",
+                    "in_progress",
+                    "completed",
+                    "cancelled",
+                    null
+                  ]
+                }
+              },
+              "required": [
+                "id"
+              ]
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "get_command_or_subagent_output",
+      "description": "Get the output and status of a background command or subagent.\n\n- Pass the task_ids from background commands or background subagents.\n- Set timeout_ms to wait up to that long for all the tasks to finish. Leave it out to get the current status immediately.\n- The result has the output, the status, and the exit code if the task is done. If the output is long, read the output_file path with read_file.",
+      "parameters": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "properties": {
+          "task_ids": {
+            "description": "One or more task IDs.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "default": []
+          },
+          "timeout_ms": {
+            "description": "How long to wait in milliseconds. The maximum is 3600000, which is about 1 hour. Leave it out or pass 0 to return at once.",
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "uint64",
+            "minimum": 0,
+            "default": null,
+            "maximum": 3600000
+          }
+        },
+        "type": "object",
+        "required": []
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "spawn_subagent",
+      "description": "Start a subagent that works on a task independently and reports back.\n\n## Usage notes\n- background is true by default. The call then returns a subagent_id immediately. You get a notification when it finishes, in a later tool result or in a new turn after your turn ends. To wait for it now, use get_command_or_subagent_output.\n- With background false, the call waits for the subagent to finish and returns its final message and subagent_id. Several such calls made together run at the same time, and you wait for all of them.\n- A subagent has no time limit. A call with background false stops waiting after 10 minutes. The subagent then keeps running in the background, and the call returns its subagent_id.\n- A subagent starts with a new conversation and does not see yours, so put everything it needs in the prompt. By default it uses your working directory and model. It always uses your MCP servers, skills, and permissions. It cannot ask the user questions, and by default it cannot start its own subagents.\n- This tool has no parameter for an agent type or role. To use a role that project files describe, put the instructions for that role in the prompt.\n- To start a new subagent from the transcript of a finished one, pass the subagent_id from an earlier spawn_subagent call in resume_from. The new subagent gets a new ID. It keeps the full transcript and tool state, so describe only what changed since the last run.\n- Set isolation to \"worktree\" to run the subagent in its own git worktree. Its edits do not change your workspace. The worktree is kept after the subagent finishes, and the result gives its path.\n- When you start several independent subagents, use all their results before you finish.",
+      "parameters": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "required": [
+          "prompt",
+          "description"
+        ],
+        "properties": {
+          "prompt": {
+            "description": "The full task prompt for the subagent to execute.",
+            "type": "string"
+          },
+          "description": {
+            "description": "Short description of the task (3-5 words).",
+            "type": "string"
+          },
+          "background": {
+            "description": "Returns immediately with a subagent_id. Use the task output tool to retrieve results. This is set to true by default.",
+            "type": "boolean",
+            "default": true
+          },
+          "isolation": {
+            "description": "Isolation mode: \"none\" (default, shared workspace) or \"worktree\" (isolated git worktree). Worktree mode prevents the child's edits from affecting the parent workspace until explicitly merged.",
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "none",
+              "worktree",
+              null
+            ]
+          },
+          "resume_from": {
+            "description": "Resume from a previously completed subagent's conversation. Pass the subagent_id returned by a prior task call. The new subagent continues the previous one's raw transcript with the new task prompt appended. The source must be completed (not running) and belong to the current session.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "cwd": {
+            "description": "Explicit working directory for the subagent. The path must exist and be a directory. Mutually exclusive with isolation=\"worktree\". Ignored when resume_from is set (the resumed child inherits its source's cwd/worktree).",
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "type": "object"
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "search_tool",
+      "description": "Find MCP tools by keyword and get their input schemas.\n\nIf the result status is \"partial\", some servers are still connecting.",
+      "parameters": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "required": [
+          "query"
+        ],
+        "properties": {
+          "query": {
+            "description": "Keywords to match against tool names, server names, and descriptions. Include the server name and the action, for example \"linear create issue\".",
+            "type": "string"
+          },
+          "limit": {
+            "description": "Maximum number of results. The default is 5.",
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "uint8",
+            "minimum": 0,
+            "maximum": 255,
+            "default": 5
+          }
+        },
+        "type": "object"
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "use_tool",
+      "description": "Call an MCP tool that you found with `search_tool`. Use exactly one of these forms.\n\n- `tool_name` with `tool_input`, which holds the arguments.\n- `tool_name` with `tool_input_file`, a UTF-8 JSON file that holds only the arguments object.\n- `file`, a UTF-8 JSON file with `tool_name` and a `tool_input` object.\n\nA file must be a complete regular file of at most 8 MiB. A file needs Read permission and then the normal MCP approval. The arguments are passed to the MCP tool unchanged. They must match the input schema of the tool.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "tool_name": {
+            "description": "Name of the MCP tool.",
+            "type": "string"
+          },
+          "tool_input": {
+            "description": "Arguments for the MCP tool. They must match its input schema.",
+            "type": "object",
+            "additionalProperties": true
+          },
+          "tool_input_file": {
+            "description": "UTF-8 JSON file that holds only the complete arguments object.",
+            "type": "string",
+            "minLength": 1
+          },
+          "file": {
+            "description": "UTF-8 JSON file with tool_name and a tool_input object.",
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "tool_name": {
+                "description": "Name of the MCP tool.",
+                "type": "string"
+              },
+              "tool_input": {
+                "description": "Arguments for the MCP tool. They must match its input schema.",
+                "type": "object",
+                "additionalProperties": true
+              }
+            },
+            "required": [
+              "tool_name",
+              "tool_input"
+            ],
+            "not": {
+              "anyOf": [
+                {
+                  "required": [
+                    "tool_input_file"
+                  ]
+                },
+                {
+                  "required": [
+                    "file"
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "type": "object",
+            "properties": {
+              "tool_name": {
+                "description": "Name of the MCP tool.",
+                "type": "string"
+              },
+              "tool_input_file": {
+                "description": "UTF-8 JSON file that holds only the complete arguments object.",
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "tool_name",
+              "tool_input_file"
+            ],
+            "not": {
+              "anyOf": [
+                {
+                  "required": [
+                    "tool_input"
+                  ]
+                },
+                {
+                  "required": [
+                    "file"
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "type": "object",
+            "properties": {
+              "file": {
+                "description": "UTF-8 JSON file with tool_name and a tool_input object.",
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "file"
+            ],
+            "not": {
+              "anyOf": [
+                {
+                  "required": [
+                    "tool_name"
+                  ]
+                },
+                {
+                  "required": [
+                    "tool_input"
+                  ]
+                },
+                {
+                  "required": [
+                    "tool_input_file"
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "write",
+      "description": "Create a file or replace all of its content.\n\n- If the file exists, this tool replaces it. Read the file with read_file before you replace it.\n- The tool creates missing parent directories.",
+      "parameters": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "required": [
+          "file_path",
+          "content"
+        ],
+        "properties": {
+          "file_path": {
+            "description": "Absolute path of the file.",
+            "type": "string"
+          },
+          "content": {
+            "description": "The full content of the file.",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      }
+    }
+  }
+]

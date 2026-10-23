@@ -1,7 +1,8 @@
 #!/bin/bash
 # Standalone input check for one author checkout, run before the author starts.
 # usage: inputcheck.sh <checkout> <brief-path> <holdout-SHA256SUMS>... -- <forbidden-path>...
-# derives: docs/steward-practice.md "Before an author starts" (X1 Amendments B and C; X2 errors 3 and 4)
+# derives: docs/steward-practice.md "Before an author starts" (X1 Amendments B and C; X2 errors 3 and 4); log 2026-10-23 "author isolation"
+# HARNESS=<codex|grok> also requires the author's own signing key (author-signing-key.sh) and a passing sandbox check.
 set -uo pipefail
 C=$1; BRIEF=$2; shift 2; SUMS=(); while [ $# -gt 0 ] && [ "$1" != -- ]; do SUMS+=("$1"); shift; done; shift || true
 bad=0
@@ -14,5 +15,10 @@ for h in $(sha256sum "$C"/testbed/schedules/* | awk '{print $1}'); do
   for s in "${SUMS[@]}"; do grep -q "$h" "$s" && { echo "HOLD-OUT hash present: $h"; bad=1; }; done; done
 [ -x "$C/scripts/hooks/post-commit" ] || { echo "MISSING scripts/hooks/post-commit (no timestamps)"; bad=1; }
 [ "$(git -C "$C" config commit.gpgsign)" = true ] || { echo "signing not configured"; bad=1; }
+if [ -n "${HARNESS:-}" ]; then
+  [ "$(git -C "$C" config gpg.format)" = ssh ] && [ "$(git -C "$C" config user.signingkey)" = /home/tony/.tupay-sign/key ] \
+    || { echo "signing is not the author's own key"; bad=1; }
+  "$(dirname "$(realpath "$0")")/sandbox-check.sh" "$C" "$HARNESS" || { echo "SANDBOX CHECK FAILED"; bad=1; }
+fi
 echo "schedules: $(ls "$C"/testbed/schedules | wc -l)"
 [ $bad = 0 ] && echo OK || echo "CHECK FAILED"

@@ -1,0 +1,176 @@
+2026-10-23T03:56:15Z START allowlist /home/tony/projects/tupay/scripts/steward/egress-codex.allow
+2026-10-23T03:56:16Z DENY github.com:443
+2026-10-23T03:56:16Z START allowlist /home/tony/projects/tupay/scripts/steward/egress-grok.allow
+2026-10-23T03:56:16Z DENY github.com:443
+2026-10-23T03:56:16Z START allowlist /home/tony/projects/tupay/scripts/steward/egress-codex.allow
+2026-10-23T03:56:17Z ALLOW chatgpt.com:443
+2026-10-23T03:56:17Z ALLOW chatgpt.com:443
+2026-10-23T03:56:17Z ALLOW chatgpt.com:443
+2026-10-23T03:56:17Z ALLOW chatgpt.com:443
+2026-10-23T03:56:17Z ALLOW chatgpt.com:443
+2026-10-23T03:56:18Z ALLOW chatgpt.com:443
+2026-10-23T03:56:22Z ALLOW proxy.golang.org:443
+2026-10-23T03:56:22Z DENY storage.googleapis.com:443
+2026-10-23T03:56:26Z ALLOW chatgpt.com:443
+2026-10-23T03:56:27Z DENY b.pool.opentimestamps.org:443
+2026-10-23T03:56:27Z DENY a.pool.eternitywall.com:443
+2026-10-23T03:56:27Z DENY ots.btc.catallaxy.com:443
+2026-10-23T03:56:27Z DENY a.pool.opentimestamps.org:443
+2026-10-23T03:56:35Z ALLOW chatgpt.com:443
+2026-10-23T03:56:35Z ALLOW chatgpt.com:443
+2026-10-23T03:56:35Z ALLOW chatgpt.com:443
+2026-10-23T03:56:35Z ALLOW ab.chatgpt.com:443
+2026-10-23T03:56:35Z START allowlist /home/tony/projects/tupay/scripts/steward/egress-grok.allow
+2026-10-23T03:56:36Z ALLOW cli-chat-proxy.grok.com:443
+2026-10-23T03:56:36Z ALLOW cli-chat-proxy.grok.com:443
+2026-10-23T03:56:36Z DENY api.mixpanel.com:443
+2026-10-23T03:56:36Z ALLOW grok.com:443
+2026-10-23T03:56:36Z ALLOW cli-chat-proxy.grok.com:443
+2026-10-23T03:56:36Z ALLOW grok.com:443
+2026-10-23T03:56:36Z ALLOW grok.com:443
+2026-10-23T03:56:36Z ALLOW cli-chat-proxy.grok.com:443
+2026-10-23T03:56:36Z DENY api.mixpanel.com:443
+2026-10-23T03:56:36Z DENY api.mixpanel.com:443
+2026-10-23T03:56:36Z DENY api.mixpanel.com:443
+2026-10-23T03:56:36Z ALLOW cli-chat-proxy.grok.com:443
+2026-10-23T03:56:36Z DENY api.mixpanel.com:443
+2026-10-23T03:56:36Z ALLOW api.x.ai:443
+2026-10-23T03:56:36Z ALLOW api.x.ai:443
+2026-10-23T03:56:36Z ALLOW api.x.ai:443
+2026-10-23T03:56:36Z ALLOW api.x.ai:443
+2026-10-23T03:56:36Z DENY api.mixpanel.com:443
+2026-10-23T03:56:36Z DENY api.mixpanel.com:443
+2026-10-23T03:56:36Z DENY api.mixpanel.com:443
+2026-10-23T03:56:36Z DENY api.mixpanel.com:443
+2026-10-23T03:56:36Z DENY api.mixpanel.com:443
+2026-10-23T03:56:36Z DENY api.mixpanel.com:443
+2026-10-23T03:56:36Z DENY api.mixpanel.com:443
+2026-10-23T03:56:36Z DENY api.mixpanel.com:443
+2026-10-23T03:56:36Z DENY api.mixpanel.com:443
+2026-10-23T03:56:36Z DENY api.mixpanel.com:443
+2026-10-23T03:56:36Z DENY api.mixpanel.com:443
+2026-10-23T03:56:47Z DENY api.mixpanel.com:443
+2026-10-23T03:56:47Z DENY api.mixpanel.com:443
+2026-10-23T03:56:47Z DENY api.mixpanel.com:443
+2026-10-23T03:56:47Z DENY api.mixpanel.com:443
+2026-10-23T03:56:47Z DENY api.mixpanel.com:443
+2026-10-23T03:56:47Z DENY api.mixpanel.com:443
+2026-10-23T03:56:47Z DENY api.mixpanel.com:443
+2026-10-23T03:56:47Z DENY api.mixpanel.com:443
+2026-10-23T03:56:47Z DENY api.mixpanel.com:443
+2026-10-23T03:56:47Z DENY api.mixpanel.com:443
+2026-10-23T03:56:47Z DENY api.mixpanel.com:443
+2026-10-23T03:56:47Z DENY api.mixpanel.com:443
+2026-10-23T03:56:47Z DENY api.mixpanel.com:443
+2026-10-23T03:56:57Z DENY api.mixpanel.com:443
+2026-10-23T03:56:57Z DENY api.mixpanel.com:443
+2026-10-23T03:56:57Z DENY api.mixpanel.com:443
+2026-10-23T03:56:57Z DENY api.mixpanel.com:443
+2026-10-23T03:56:57Z DENY api.mixpanel.com:443
+2026-10-23T03:56:57Z DENY api.mixpanel.com:443
+2026-10-23T03:56:57Z DENY api.mixpanel.com:443
+2026-10-23T03:56:57Z DENY api.mixpanel.com:443
+2026-10-23T03:56:57Z DENY api.mixpanel.com:443
+2026-10-23T03:56:57Z DENY api.mixpanel.com:443
+2026-10-23T03:57:04Z ALLOW proxy.golang.org:443
+2026-10-23T03:57:04Z DENY api.mixpanel.com:443
+2026-10-23T03:57:04Z DENY api.mixpanel.com:443
+2026-10-23T03:57:04Z DENY api.mixpanel.com:443
+2026-10-23T03:57:04Z DENY api.mixpanel.com:443
+2026-10-23T03:57:04Z DENY api.mixpanel.com:443
+2026-10-23T03:57:04Z DENY storage.googleapis.com:443
+2026-10-23T03:57:04Z DENY api.mixpanel.com:443
+2026-10-23T03:57:04Z DENY api.mixpanel.com:443
+2026-10-23T03:57:09Z DENY api.mixpanel.com:443
+2026-10-23T03:57:19Z DENY api.mixpanel.com:443
+2026-10-23T03:57:19Z DENY api.mixpanel.com:443
+2026-10-23T03:57:19Z DENY api.mixpanel.com:443
+2026-10-23T03:57:19Z DENY api.mixpanel.com:443
+2026-10-23T03:57:19Z DENY api.mixpanel.com:443
+2026-10-23T03:57:19Z DENY api.mixpanel.com:443
+2026-10-23T03:57:19Z DENY api.mixpanel.com:443
+2026-10-23T03:57:27Z DENY api.mixpanel.com:443
+2026-10-23T03:57:27Z DENY api.mixpanel.com:443
+2026-10-23T03:57:27Z DENY api.mixpanel.com:443
+2026-10-23T03:57:27Z DENY a.pool.opentimestamps.org:443
+2026-10-23T03:57:27Z DENY ots.btc.catallaxy.com:443
+2026-10-23T03:57:27Z DENY b.pool.opentimestamps.org:443
+2026-10-23T03:57:27Z DENY a.pool.eternitywall.com:443
+2026-10-23T03:57:27Z DENY api.mixpanel.com:443
+2026-10-23T03:57:42Z ALLOW cli-chat-proxy.grok.com:443
+2026-10-23T03:57:42Z DENY api.mixpanel.com:443
+2026-10-23T03:57:42Z DENY api.mixpanel.com:443
+2026-10-23T03:57:42Z DENY api.mixpanel.com:443
+2026-10-23T03:57:42Z DENY api.mixpanel.com:443
+2026-10-23T03:57:42Z DENY api.mixpanel.com:443
+2026-10-23T03:57:43Z DENY api.mixpanel.com:443
+2026-10-23T03:57:43Z DENY api.mixpanel.com:443
+2026-10-23T03:57:43Z DENY api.mixpanel.com:443
+2026-10-23T03:58:27Z START allowlist /home/tony/projects/tupay/scripts/steward/egress-grok.allow
+2026-10-23T03:58:28Z DENY api.mixpanel.com:443
+2026-10-23T03:58:28Z ALLOW grok.com:443
+2026-10-23T03:58:28Z ALLOW grok.com:443
+2026-10-23T03:58:28Z ALLOW grok.com:443
+2026-10-23T03:58:28Z ALLOW cli-chat-proxy.grok.com:443
+2026-10-23T03:58:28Z ALLOW cli-chat-proxy.grok.com:443
+2026-10-23T03:58:28Z DENY api.mixpanel.com:443
+2026-10-23T03:58:28Z DENY api.mixpanel.com:443
+2026-10-23T03:58:28Z DENY api.mixpanel.com:443
+2026-10-23T03:58:28Z ALLOW cli-chat-proxy.grok.com:443
+2026-10-23T03:58:28Z DENY api.mixpanel.com:443
+2026-10-23T03:58:28Z ALLOW cli-chat-proxy.grok.com:443
+2026-10-23T03:58:28Z ALLOW api.x.ai:443
+2026-10-23T03:58:28Z ALLOW api.x.ai:443
+2026-10-23T03:58:28Z ALLOW api.x.ai:443
+2026-10-23T03:58:28Z ALLOW api.x.ai:443
+2026-10-23T03:58:28Z DENY api.mixpanel.com:443
+2026-10-23T03:58:28Z DENY api.mixpanel.com:443
+2026-10-23T03:58:28Z DENY api.mixpanel.com:443
+2026-10-23T03:58:28Z DENY api.mixpanel.com:443
+2026-10-23T03:58:28Z DENY api.mixpanel.com:443
+2026-10-23T03:58:28Z DENY api.mixpanel.com:443
+2026-10-23T03:58:28Z DENY api.mixpanel.com:443
+2026-10-23T03:58:28Z DENY api.mixpanel.com:443
+2026-10-23T03:58:28Z DENY api.mixpanel.com:443
+2026-10-23T03:58:28Z DENY api.mixpanel.com:443
+2026-10-23T03:58:28Z DENY api.mixpanel.com:443
+2026-10-23T03:58:33Z DENY api.mixpanel.com:443
+2026-10-23T03:58:33Z DENY api.mixpanel.com:443
+2026-10-23T03:58:33Z DENY api.mixpanel.com:443
+2026-10-23T03:58:33Z DENY api.mixpanel.com:443
+2026-10-23T03:58:33Z DENY api.mixpanel.com:443
+2026-10-23T03:58:33Z DENY api.mixpanel.com:443
+2026-10-23T03:58:33Z DENY api.mixpanel.com:443
+2026-10-23T03:58:33Z DENY api.mixpanel.com:443
+2026-10-23T03:58:45Z START allowlist /home/tony/projects/tupay/scripts/steward/egress-codex.allow
+2026-10-23T03:58:45Z DENY github.com:443
+2026-10-23T03:58:45Z START allowlist /home/tony/projects/tupay/scripts/steward/egress-grok.allow
+2026-10-23T03:58:45Z DENY github.com:443
+2026-10-23T03:58:45Z START allowlist /home/tony/projects/tupay/scripts/steward/egress-grok.allow
+2026-10-23T03:58:46Z DENY github.com:443
+2026-10-23T03:58:46Z START learn
+2026-10-23T03:58:46Z ALLOW github.com:443
+2026-10-23T03:59:15Z START allowlist /home/tony/projects/tupay/scripts/steward/egress-codex.allow
+2026-10-23T04:00:14Z DENY github.com:443
+2026-10-23T04:00:14Z START allowlist /home/tony/projects/tupay/scripts/steward/egress-grok.allow
+2026-10-23T04:00:28Z DENY github.com:443
+2026-10-23T04:00:29Z START allowlist /home/tony/projects/tupay/scripts/steward/egress-grok.allow
+2026-10-23T04:00:45Z DENY github.com:443
+2026-10-23T04:00:46Z START learn
+2026-10-23T04:01:00Z ALLOW github.com:443
+2026-10-23T04:01:00Z START allowlist /home/tony/projects/tupay/scripts/steward/egress-codex.allow
+2026-10-23T04:01:17Z DENY github.com:443
+2026-10-23T04:01:18Z START allowlist /home/tony/projects/tupay/scripts/steward/egress-codex.allow
+2026-10-23T04:01:31Z DENY github.com:443
+2026-10-23T04:01:47Z START allowlist /home/tony/projects/tupay/scripts/steward/egress-codex.allow
+2026-10-23T04:01:47Z DENY github.com:443
+2026-10-23T04:01:48Z START allowlist /home/tony/projects/tupay/scripts/steward/egress-grok.allow
+2026-10-23T04:01:48Z DENY github.com:443
+2026-10-23T04:01:48Z START allowlist /home/tony/projects/tupay/scripts/steward/egress-grok.allow
+2026-10-23T04:01:48Z DENY github.com:443
+2026-10-23T04:01:48Z START learn
+2026-10-23T04:01:49Z ALLOW github.com:443
+2026-10-23T04:01:50Z START allowlist /home/tony/projects/tupay/scripts/steward/egress-codex.allow
+2026-10-23T04:01:50Z DENY github.com:443
+2026-10-23T04:01:50Z START allowlist /home/tony/projects/tupay/scripts/steward/egress-codex.allow
+2026-10-23T04:01:50Z DENY github.com:443

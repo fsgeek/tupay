@@ -9,6 +9,6 @@ Nothing is running. The replay is scored; X3 is decided in shape, not registered
 - Push: `GIT_ASKPASS= git -c credential.helper='!gh auth git-credential' push origin main`. The PR-rule notice is deliberate friction; leave it.
 
 ## Owed, in order
-1. **Author isolation for X3.** Separate two things the fourth steward's findings run together: *configuration loading* (an isolated HOME / CODEX_HOME / GROK_HOME stops Tony's Claude plugins, MCP servers and hooks loading) and *access* (a different HOME does not stop an author reading an absolute path; only a sandbox does). Test both with a planted probe before registration. Credentials: the steward's to work out, not Tony's (log, acceptance item 2).
+1. ~~**Author isolation for X3.**~~ Done 2026-10-23 (log, "author isolation, built and checked"); practice "Authors run sandboxed". Open: token refresh under the bind mount, a full-length run.
 2. **X3 registration**, with inputs as in the fourth handoff, and a stated reach for every bounded check with its probe.
 3. **X4**: fold in yanantin's inputs (log, acceptance); the pending root rotation is a candidate first real rotation; Goodharting on a service the ayllu needs is a question the registration should be able to answer.

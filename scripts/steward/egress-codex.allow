@@ -1,0 +1,11 @@
+# Hosts a sandboxed Codex author may reach (learned 2026-10-23 by egress-proxy.py --learn; auth for token refresh)
+chatgpt.com
+ab.chatgpt.com
+auth.openai.com
+# OpenTimestamps calendars, for the post-commit hook
+a.pool.opentimestamps.org
+b.pool.opentimestamps.org
+a.pool.eternitywall.com
+ots.btc.catallaxy.com
+# Not allowed, deliberately: proxy.golang.org and sum.golang.org (the module proxy fetches any public repository on
+# request, this one included); storage.googleapis.com. Go reads only the steward's pre-filled module cache.

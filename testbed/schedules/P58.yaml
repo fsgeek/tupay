@@ -6,10 +6,10 @@ processes:
   clients: [c1, c2]
   storage: [s]
 steps:
-  # derives: P58 (C3.7, F3.1). As soon as the grantor counts an agreement to c1's grant, a request replacing every old member is sent to it, and c2 requests while the change is in progress; every grant is issued under its decider's current configuration and counted by eligible agreements from a majority of the configuration it names.
+  # derives: P58 (C3.7, F3.1). After c1's grant, c2 requests; as soon as an agreement to c2's grant is counted (owed by C3.7), a request replacing every old member, the grantor among them, is sent to the grantor itself (the node that issued c1's grant), so the change and c2's grant are in progress together; c1 requests again after the commit; every grant is issued under its decider's current configuration and counted by eligible agreements from a majority of the configuration it names.
   - {at: start, do: {request: c1}}
-  - {at: {event: Agreed}, do: {cell: F3.1, reconfigure: [n4, n5, n6], to: n1, id: r1}}
-  - {at: start, do: {request: c2}}
+  - {at: {event: Grant, client: c1}, do: {request: c2}}
+  - {at: {event: Agreed}, do: {cell: F3.1, reconfigure: [n4, n5, n6], to: grantor, id: r1}}
   - {at: {event: ConfigCommitted, request_id: r1, decided: true}, do: {request: c1}}
 end: quiescent
 bound: {events: 400}

@@ -8,7 +8,9 @@ A lint, not a compiler: it checks what can be decided from the text (shape, deri
 cells matching actions, A2's crash and restart order for named processes, R1's request ids, names and operators,
 R2's whole ticks, R3's amnesia after a crash, selectors only after a request, known trigger events, the end).
 It cannot check that a liveness schedule leaves its premise's set connected (L3); that is read by hand, and every
-C1.4 or C3.4 schedule's comment must say which set stays connected. Exit status 1 if anything is reported.
+C1.4 or C3.4 schedule's comment must say which set stays connected. Its selector rule asks only for an earlier
+`request`, weaker than A1's "after a Grant can have occurred" (P58's first version passed with a grantor selector
+meant before any grant); read selectors by hand too. Exit status 1 if anything is reported.
 """
 import re, sys
 from fractions import Fraction

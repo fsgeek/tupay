@@ -31,6 +31,6 @@ Schedules already exist in `testbed/schedules/`; do not write your own. `run.sh 
 - The steward may run schedules you have not seen, under any name, from `testbed/schedules/`; `run.sh <name>` must accept any schedule in the format, not only the ones listed here.
 - In your report, list your **declared limitations**: shapes of schedule you believe your artifact would fail or could not check, and why you left them.
 - The steward will run every shared schedule at three seeds and ten repetitions per seed; a schedule whose outcome varies across repetitions of one seed is reported as **flaky**. `run.sh` should accept `--seeds N --reps M`.
-- Tools: Go at `/usr/local/go/bin/go`; modules come from a local cache filled beforehand (it holds what `main`’s `go.mod` lists), so if one you need is missing, say so in your report and do without it.
+- Tools: Go at `/usr/local/go/bin/go`; modules come from a local cache filled beforehand, so if one you need is missing, say so in your report and do without it.
 
 **Where you run.** Your session runs in a sandbox that shows you only your checkout and the toolchains. There is no network except your harness's own service. Commit normally: signing is configured with a key of your own. Your work is collected from your commits, so commit everything you want counted.

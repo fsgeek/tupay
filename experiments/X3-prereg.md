@@ -26,7 +26,7 @@ As X2 (fairness legitimacy; Rule E3 bound; one mechanism scored once; unit of fa
 
 ## Measures (fixed here)
 Per arm, per side, at the first steward run after the arm's export, before any fix:
-1. **Correctness.** (a) Shared schedules: PASS count of 57 per side (implementation: a schedule passes only if all ten repetitions of all three seeds pass; per-seed rates reported); unreached reported separately. (b) Mutations: count that fail on their pair's schedule. (c) Hold-outs H11 onward, hashes in `experiments/X3/holdout/SHA256SUMS`. (d) Provenance: untraceable decisions under `observe/provenance_check.py`. (e) Distinct C1.4 and C3.4 stall mechanisms, named by the judge.
+1. **Correctness.** (a) Shared schedules: PASS count of 59 per side (P1 to P33, P40 to P54, P58 to P63, false-suspicion-v1, H7 to H10; draft 4 of this file corrected 57, written for 27 new pairs, to the shared set as it stands) (implementation: a schedule passes only if all ten repetitions of all three seeds pass; per-seed rates reported); unreached reported separately. (b) Mutations: count that fail on their pair's schedule. (c) Hold-outs H11 onward, hashes in `experiments/X3/holdout/SHA256SUMS`. (d) Provenance: untraceable decisions under `observe/provenance_check.py`. (e) Distinct C1.4 and C3.4 stall mechanisms, named by the judge.
 2. **Divergence count** between an arm's sides, shared and hold-out separately; Gemini judge, packet inlined.
 3. **Cost.** Tokens and wall-clock per author (harness-reported); arm A split at its first commit after predictions; steward time; advisor tokens; decisions asked of Tony.
 4. **Residue** by X2's fixed procedure, with the F3.x and C3.x terms (`reconfig`, `config`, `epoch`, `clock`, `amnesia`).

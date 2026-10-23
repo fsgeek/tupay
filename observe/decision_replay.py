@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Steward's decision-replay check (observe/schema.md v5 addendum, draft 4).
+"""Steward's decision-replay check (observe/schema.md v5 addendum, draft 5).
 derives: C1.1, C3.1, C3.5, C3.7, C3.8, F3.2, F3.3 (decision inputs; evidence for each decision from its inputs;
 C1.1 without a global order; decisions a function of their recorded inputs across runs)
 
@@ -9,16 +9,17 @@ repetitions; --extra-inputs names the input names the artifact's README declares
 Part 1, evidence, per trace.
   storage    accept/serve iff token >= ledger; a served read returns stored_value; the record matches its inputs.
   Grant      its counted Agreed records name distinct nodes whose agreements are eligible for its configuration and
-             form a majority of `members` (denominator the whole membership) (C3.7).
-  ConfigCommitted (decided) of epoch e+1: counted by eligible majorities of e and of its members (C3.8); every
-             [node, inc] in `readmits` has an Agreed from that incarnation among its counted records. C3.1: one
-             decided commit per epoch, each after a record of its predecessor.
+             form a majority of `members` (denominator the whole membership), and `members` is the committed
+             configuration of its epoch, not only what the decider wrote (C3.7).
+  ConfigCommitted (decided) of epoch e+1: counted by eligible majorities of e and of its members (C3.8); its
+             members are its request's set; `readmits` is exactly the [node, inc > 0] in its members with an Agreed
+             among its inputs. C3.1: one decided commit per epoch, each after a record of its predecessor.
   Eligibility: incarnation 0, or re-admitted by a decided commit of an epoch at most the configuration's, other than
              the commit being checked (contract/v3.md, "Eligible agreement").
   Input names outside the schema's fixed list (and --extra-inputs) are reported.
 Part 2, C1.1 without a global order, per trace: no token granted twice; a grant under a higher config_epoch carries a
 higher token than every grant under a lower one; each node's Agree records for counted grant proposals, in its own
-(inc, seq) order, carry strictly increasing tokens.
+(inc, seq) order, carry strictly increasing tokens; two grants with one grantor_term come from one (proc, inc).
 Part 3, function of inputs (C3.5), across all traces: decisions of one kind with equal inputs (each ref replaced by
 the content of the record it names, recursively; member lists as sets) must have equal outcomes.
 
@@ -101,12 +102,14 @@ def prop_key(p):
 def evidence(path, recs, allowed):
     bad = []
     by = {key(r): r for r in recs}
-    members_of, readmitted = {}, []   # readmitted: (epoch, node, inc, record key of the commit)
+    members_of, readmitted, requested = {}, [], {}   # readmitted: (epoch, node, inc, record key of the commit)
     for r in recs:
-        if r['event'] == 'ConfigCommitted':
+        if r['event'] == 'ConfigCommitted' and (r.get('decided') or r['epoch'] == 0):
             members_of.setdefault(r['epoch'], set(r.get('members', [])))
             if r.get('decided'):
                 readmitted += [(r['epoch'], n, i, key(r)) for n, i in r.get('readmits', [])]
+        if r['event'] in ('ReconfigRequest', 'ReconfigSend'):
+            requested.setdefault(r.get('request_id'), set(r.get('members', [])))
 
     def eligible(node, inc, epoch, deciding):
         return inc == 0 or any(n == node and i == inc and ep <= epoch and k != deciding for ep, n, i, k in readmitted)
@@ -149,6 +152,9 @@ def evidence(path, recs, allowed):
             mem, ep = m.get('members'), m.get('config_epoch')
             if mem is None or ep is None or ep != r.get('config_epoch'):
                 bad.append(f"{tag}: grant inputs lack members/config_epoch or disagree with the record"); continue
+            if set(mem) != members_of.get(ep):
+                bad.append(f"{tag}: members {sorted(mem)} are not the committed configuration of epoch {ep} (C3.7)")
+                mem = sorted(members_of.get(ep, set()))
             ok, got = majority(counted(r), set(mem), ep, key(r))
             if not ok:
                 bad.append(f"{tag}: counted eligible nodes {sorted(got)} are not a majority of {sorted(mem)} (C3.7)")
@@ -163,9 +169,18 @@ def evidence(path, recs, allowed):
             ok_new, _ = majority(ags, set(r.get('members', [])), ep, key(r))
             if not (ok_old and ok_new):
                 bad.append(f"{tag}: not counted by majorities of epoch {ep - 1} and epoch {ep} (C3.8)")
+            if r.get('request_id') not in requested:
+                bad.append(f"{tag}: no request record for {r.get('request_id')}")
+            elif set(r.get('members', [])) != requested[r.get('request_id')]:
+                bad.append(f"{tag}: members differ from request {r.get('request_id')}'s (C3.8)")
             for n, inc in r.get('readmits', []):
                 if not any(a['node'] == n and a.get('node_incarnation', 0) == inc for a in ags):
                     bad.append(f"{tag}: readmits {n}#{inc} without an Agreed from it for this proposal")
+            want = sorted({(a['node'], a.get('node_incarnation', 0)) for a in ags
+                           if a.get('node_incarnation', 0) > 0 and a['node'] in r.get('members', [])})
+            have = sorted({tuple(x) for x in r.get('readmits', [])})
+            if want != have and set(have) <= set(want):
+                bad.append(f"{tag}: readmits is not exactly {[list(x) for x in want]}")
     for ep, idx in decided_epochs.items():
         if len(idx) > 1:
             bad.append(f"{path}: epoch {ep} decided {len(idx)} times (C3.1)")
@@ -182,6 +197,12 @@ def evidence(path, recs, allowed):
             if g.get('config_epoch', 0) < h.get('config_epoch', 0) and not h.get('token', 0) > g.get('token', 0):
                 bad.append(f"{path}: grant under epoch {h.get('config_epoch')} with token {h.get('token')} "
                            f"not above epoch {g.get('config_epoch')}'s token {g.get('token')} (C1.1)")
+    deciders = defaultdict(set)
+    for g in grants:
+        deciders[g.get('grantor_term')].add((g['proc'], g.get('inc', 0)))
+    for term, ds in deciders.items():
+        if len(ds) > 1:
+            bad.append(f"{path}: grantor_term {term} decided by {len(ds)} node incarnations")
     counted_props = set()
     for g in grants:
         for a in counted(g):

@@ -46,3 +46,16 @@ INVALID unknown-input/trace.jsonl: n1#0.4 Grant: input name nonce outside the fi
 decision-replay: 1 traces, 1 invalid, 0 UNEXPLAINED inputs
 == unknown-input --extra-inputs nonce
 decision-replay: 1 traces, 0 invalid, 0 UNEXPLAINED inputs
+== self-members
+INVALID self-members/trace.jsonl: n1#0.3 Grant: members ['n1'] are not the committed configuration of epoch 0 (C3.7)
+INVALID self-members/trace.jsonl: n1#0.3 Grant: counted eligible nodes ['n1'] are not a majority of ['n1', 'n2', 'n3'] (C3.7)
+decision-replay: 1 traces, 2 invalid, 0 UNEXPLAINED inputs
+== commit-members-differ
+INVALID commit-members-differ/trace.jsonl: n1#0.19 ConfigCommitted: members differ from request r1's (C3.8)
+decision-replay: 1 traces, 1 invalid, 0 UNEXPLAINED inputs
+== readmits-omitted
+INVALID readmits-omitted/trace.jsonl: n1#0.19 ConfigCommitted: readmits is not exactly [['n2', 1]]
+decision-replay: 1 traces, 1 invalid, 0 UNEXPLAINED inputs
+== term-shared
+INVALID term-shared/trace.jsonl: grantor_term 1 decided by 2 node incarnations
+decision-replay: 1 traces, 1 invalid, 0 UNEXPLAINED inputs

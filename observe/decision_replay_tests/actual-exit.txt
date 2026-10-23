@@ -16,3 +16,7 @@ pass-agree-order -> 0
 epoch-lower-token -> 1
 unknown-input -> 1
 unknown-input --extra-inputs nonce -> 0
+self-members -> 1
+commit-members-differ -> 1
+readmits-omitted -> 1
+term-shared -> 1

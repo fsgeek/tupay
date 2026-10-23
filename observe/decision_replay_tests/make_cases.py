@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Synthetic traces for observe/decision_replay.py (schema v5 draft 4). derives: observe/schema.md v5 "Mutation pair".
+"""Synthetic traces for observe/decision_replay.py (schema v5 draft 5). derives: observe/schema.md v5 "Mutation pair".
 Writes <case>/trace.jsonl for every case below; expected.txt says what each must produce."""
 import json, os
 D = os.path.dirname(os.path.abspath(__file__))
@@ -16,24 +16,26 @@ def agree(p, s, prop, inc=0):
 def ag(p, s, node, prop, toward, ninc=0):
     return {"proc": p, "inc": 0, "seq": s, "event": "Agreed", "decider": p, "node": node, "node_incarnation": ninc,
             "proposal": prop, "counted_toward": toward}
-def grant(p, s, tok, cl, ep, mem, agreed, extra=()):
-    inp = [{"name": "members", "value": mem}, {"name": "config_epoch", "value": ep}, {"name": "grantor_term", "value": 1},
+def grant(p, s, tok, cl, ep, mem, agreed, extra=(), term=None):
+    term = term or {"n1": 1, "n3": 3, "n4": 4}.get(p, 9)   # each decider its own leadership period
+    inp = [{"name": "members", "value": mem}, {"name": "config_epoch", "value": ep}, {"name": "grantor_term", "value": term},
            {"name": "last_token", "value": tok - 1}]
     inp += [{"name": "agreed", "value": v, "ref": ref(p, q)} for v, q in agreed] + list(extra)
     return {"proc": p, "inc": 0, "seq": s, "event": "Grant", "client": cl, "key": "k", "token": tok, "lifetime": 1,
-            "grantor_term": 1, "config_epoch": ep, "inputs": inp}
+            "grantor_term": term, "config_epoch": ep, "inputs": inp}
 def wacc(s, tok, led, ev="WriteAccept"):
     return {"proc": "s", "inc": 0, "seq": s, "event": ev, "key": "k", "token": tok, "highest_before": led, "grantor_term": 1,
             "inputs": [{"name": "token", "value": tok}, {"name": "ledger", "value": led}, {"name": "value", "value": "v"}]}
 amn = lambda node: {"proc": "env", "inc": 0, "seq": 50, "event": "Fault", "restart": node, "amnesia": True}
-def commit(p, s, ep, mem, rid, old, agreed, readmits=()):
+send = lambda rid, mem, s: {"proc": "op", "inc": 0, "seq": s, "event": "ReconfigSend", "operator": "op", "request_id": rid, "to": "n1", "members": mem}
+def commit(p, s, ep, mem, rid, old, agreed, readmits=(), req=None):
     """agreed: (node, node_incarnation, counted_toward); old: members of ep-1."""
     prop = {"epoch": ep, "members": mem, "request_id": rid}
     ags = [ag(p, s + k, n, prop, tw, ninc=i) for k, (n, i, tw) in enumerate(agreed)]
     inp = [{"name": "old_members", "value": old}, {"name": "old_epoch", "value": ep - 1},
            {"name": "request_id", "value": rid}, {"name": "requested_members", "value": mem}]
     inp += [{"name": "agreed", "value": a["node"], "ref": ref(p, a["seq"])} for a in ags]
-    return ags + [cc(p, s + 9, ep, mem, rid=rid, dec=True, inputs=inp, readmits=readmits)]
+    return [send(rid, req or mem, s)] + ags + [cc(p, s + 9, ep, mem, rid=rid, dec=True, inputs=inp, readmits=readmits)]
 
 base = [cc(n, 0, 0, M) for n in M]
 P = {"client": "c1", "token": 1, "lifetime": 1, "config_epoch": 0}
@@ -81,6 +83,11 @@ cases["epoch-lower-token"] = base + [ag("n3", 1, "n3", P2, [0]), ag("n3", 2, "n2
     [ag("n1", 30, "n1", P1lo, [1]), ag("n1", 31, "n3", P1lo, [1]), grant("n1", 32, 1, "c1", 1, M, [("n1", 30), ("n1", 31)])]
 cases["unknown-input"] = base + g_ok[:4] + [grant("n1", 4, 1, "c1", 0, M, [("n1", 2), ("n2", 3)],
                                                    extra=[{"name": "nonce", "value": 7}])]
+cases["self-members"] = base + [ag("n1", 2, "n1", P, [0]), grant("n1", 3, 1, "c1", 0, ["n1"], [("n1", 2)])]
+cases["commit-members-differ"] = base + commit("n1", 10, 1, NEW, "r1", M, both, req=["n4", "n5"])
+cases["readmits-omitted"] = base + [amn("n2")] + commit("n1", 10, 1, M, "r2", M, [("n1", 0, [0, 1]), ("n3", 0, [0, 1]), ("n2", 1, [])])
+cases["term-shared"] = base + g_ok[:5] + [ag("n3", 1, "n3", P2, [0]), ag("n3", 2, "n2", P2, [0]),
+                                          grant("n3", 3, 2, "c2", 0, M, [("n3", 1), ("n3", 2)], term=1)]
 for name, recs in cases.items():
     os.makedirs(f"{D}/{name}", exist_ok=True)
     with open(f"{D}/{name}/trace.jsonl", "w") as f:

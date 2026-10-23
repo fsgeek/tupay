@@ -1,0 +1,5 @@
+{"proc": "n1", "inc": 0, "seq": 0, "event": "ConfigCommitted", "node": "n1", "epoch": 0, "members": ["n1", "n2", "n3"], "request_id": null, "readmits": [], "decided": false}
+{"proc": "n2", "inc": 0, "seq": 0, "event": "ConfigCommitted", "node": "n2", "epoch": 0, "members": ["n1", "n2", "n3"], "request_id": null, "readmits": [], "decided": false}
+{"proc": "n3", "inc": 0, "seq": 0, "event": "ConfigCommitted", "node": "n3", "epoch": 0, "members": ["n1", "n2", "n3"], "request_id": null, "readmits": [], "decided": false}
+{"proc": "n1", "inc": 0, "seq": 2, "event": "Agreed", "decider": "n1", "node": "n1", "node_incarnation": 0, "proposal": {"client": "c1", "token": 1, "lifetime": 1, "config_epoch": 0}, "counted_toward": [0]}
+{"proc": "n1", "inc": 0, "seq": 3, "event": "Grant", "client": "c1", "key": "k", "token": 1, "lifetime": 1, "grantor_term": 1, "config_epoch": 0, "inputs": [{"name": "members", "value": ["n1"]}, {"name": "config_epoch", "value": 0}, {"name": "grantor_term", "value": 1}, {"name": "last_token", "value": 0}, {"name": "agreed", "value": "n1", "ref": {"proc": "n1", "inc": 0, "seq": 2}}]}

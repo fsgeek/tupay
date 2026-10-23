@@ -1,4 +1,5 @@
-# derives: observe/schema.md v5 addendum (draft 4), "Mutation pair". Written before the check (draft 4) was run on these traces.
+# derives: observe/schema.md v5 addendum (draft 5), "Mutation pair". Draft 4's lines were written before the draft 4 check was run;
+# the four lines marked (draft 5) were added before the draft 5 check was written. Helpers now give each decider its own term.
 # Draft 3's expectations and results are in git history (f85eb03..70b474e); draft 4 retires the C3.6 and seal cases.
 # traces given to one invocation -> expected exit status; what the report must contain
 pass-a pass-b                 -> 0
@@ -19,3 +20,7 @@ pass-agree-order              -> 0  (n2 agrees to token 1, then token 2; both co
 epoch-lower-token             -> 1  INVALID ... grant under epoch 1 with token 1 not above epoch 0's token 2 (C1.1)
 unknown-input                 -> 1  INVALID ... input name nonce outside the fixed list
 unknown-input --extra-inputs nonce -> 0  (an artifact's README-declared name)
+self-members                  -> 1  INVALID ... members ['n1'] are not the committed configuration of epoch 0   (h) (draft 5)
+commit-members-differ         -> 1  INVALID ... members differ from request r1's   (i) (draft 5)
+readmits-omitted              -> 1  INVALID ... readmits is not exactly [['n2', 1]]   (j) (draft 5)
+term-shared                   -> 1  INVALID ... grantor_term 1 decided by 2 node incarnations   (g) (draft 5)

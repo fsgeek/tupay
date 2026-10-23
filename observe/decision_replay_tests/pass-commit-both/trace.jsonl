@@ -1,0 +1,9 @@
+{"proc": "n1", "seq": 1, "event": "ConfigCommitted", "node": "n1", "epoch": 0, "members": ["n1", "n2", "n3"], "request_id": null}
+{"proc": "n2", "seq": 1, "event": "ConfigCommitted", "node": "n2", "epoch": 0, "members": ["n1", "n2", "n3"], "request_id": null}
+{"proc": "n3", "seq": 1, "event": "ConfigCommitted", "node": "n3", "epoch": 0, "members": ["n1", "n2", "n3"], "request_id": null}
+{"proc": "op", "seq": 1, "event": "ReconfigSend", "operator": "op", "request_id": "r1", "to": "n1", "members": ["n4", "n5", "n6"]}
+{"proc": "n1", "seq": 2, "event": "Agreed", "decider": "n1", "voter": "n4", "proposal": {"epoch": 1, "members": ["n4", "n5", "n6"], "request_id": "r1"}, "config_epoch": 0, "voter_highest_epoch": 0}
+{"proc": "n1", "seq": 3, "event": "Agreed", "decider": "n1", "voter": "n5", "proposal": {"epoch": 1, "members": ["n4", "n5", "n6"], "request_id": "r1"}, "config_epoch": 0, "voter_highest_epoch": 0}
+{"proc": "n1", "seq": 5, "event": "Agreed", "decider": "n1", "voter": "n2", "proposal": {"epoch": 1, "members": ["n4", "n5", "n6"], "request_id": "r1"}, "config_epoch": 0, "voter_highest_epoch": 0}
+{"proc": "n1", "seq": 6, "event": "Agreed", "decider": "n1", "voter": "n3", "proposal": {"epoch": 1, "members": ["n4", "n5", "n6"], "request_id": "r1"}, "config_epoch": 0, "voter_highest_epoch": 0}
+{"proc": "n1", "seq": 7, "event": "ConfigCommitted", "node": "n1", "epoch": 1, "members": ["n4", "n5", "n6"], "request_id": "r1", "decided": true, "inputs": [{"name": "agreed", "value": "n4", "ref": {"proc": "n1", "seq": 2}}, {"name": "agreed", "value": "n5", "ref": {"proc": "n1", "seq": 3}}, {"name": "agreed", "value": "n2", "ref": {"proc": "n1", "seq": 5}}, {"name": "agreed", "value": "n3", "ref": {"proc": "n1", "seq": 6}}]}

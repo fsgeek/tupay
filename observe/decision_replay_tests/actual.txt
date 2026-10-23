@@ -1,0 +1,33 @@
+== pass-a pass-b
+decision-replay: 2 traces, 0 invalid, 0 UNEXPLAINED inputs
+exit 0
+== pass-a nondet
+UNEXPLAINED inputs Grant: equal inputs, 2 outcomes: (1, 'c1') at pass-a/trace.jsonl:n1#4; (2, 'c1') at nondet/trace.jsonl:n1#4
+decision-replay: 2 traces, 0 invalid, 1 UNEXPLAINED inputs
+exit 1
+== minority
+INVALID minority/trace.jsonl: n1#3 Grant: counted voters ['n1'] are not a majority of ['n1', 'n2', 'n3']
+decision-replay: 1 traces, 1 invalid, 0 UNEXPLAINED inputs
+exit 1
+== storage-bad
+INVALID storage-bad/trace.jsonl: s#1 WriteAccept: outcome contradicts token 1 vs ledger 2
+decision-replay: 1 traces, 1 invalid, 0 UNEXPLAINED inputs
+exit 1
+== stale-voter
+INVALID stale-voter/trace.jsonl: n1#4 Grant: voter n2 had recorded a configuration above epoch 0
+decision-replay: 1 traces, 1 invalid, 0 UNEXPLAINED inputs
+exit 1
+== amnesic-voter
+INVALID amnesic-voter/trace.jsonl: n1#4 Grant: counted voters ['n1'] are not a majority of ['n1', 'n2', 'n3']
+decision-replay: 1 traces, 1 invalid, 0 UNEXPLAINED inputs
+exit 1
+== commit-new-only
+INVALID commit-new-only/trace.jsonl: n1#4 ConfigCommitted: not agreed by majorities of epoch 0 and epoch 1
+decision-replay: 1 traces, 1 invalid, 0 UNEXPLAINED inputs
+exit 1
+== pass-commit-both
+decision-replay: 1 traces, 0 invalid, 0 UNEXPLAINED inputs
+exit 0
+== pass-amnesic-readded
+decision-replay: 1 traces, 0 invalid, 0 UNEXPLAINED inputs
+exit 0

@@ -1,0 +1,4 @@
+{"proc": "n1", "seq": 1, "event": "ConfigCommitted", "node": "n1", "epoch": 0, "members": ["n1", "n2", "n3"], "request_id": null}
+{"proc": "n2", "seq": 1, "event": "ConfigCommitted", "node": "n2", "epoch": 0, "members": ["n1", "n2", "n3"], "request_id": null}
+{"proc": "n3", "seq": 1, "event": "ConfigCommitted", "node": "n3", "epoch": 0, "members": ["n1", "n2", "n3"], "request_id": null}
+{"proc": "s", "seq": 1, "event": "WriteAccept", "key": "k", "token": 1, "highest_before": 2, "inputs": [{"name": "token", "value": 1}, {"name": "ledger", "value": 2}, {"name": "value", "value": "v"}]}

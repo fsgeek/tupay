@@ -1,0 +1,11 @@
+# derives: observe/schema.md v5 addendum, "Mutation pair". Written before the check was run on these traces.
+# group of traces given to one invocation -> expected exit status and the report it must contain
+pass-a pass-b          -> 0   decision-replay: 2 traces, 0 invalid, 0 UNEXPLAINED inputs
+pass-a nondet          -> 1   UNEXPLAINED inputs Grant  (mutation (a): equal inputs, different tokens)
+minority               -> 1   INVALID ... not a majority  (mutation (b))
+storage-bad            -> 1   INVALID ... outcome contradicts token 1 vs ledger 2
+stale-voter            -> 1   INVALID ... voter n2 had recorded a configuration above epoch 0
+amnesic-voter          -> 1   INVALID ... not a majority (n2's agreement does not count)
+commit-new-only        -> 1   INVALID ... not agreed by majorities of epoch 0 and epoch 1
+pass-commit-both       -> 0   (the legitimate counterpart of commit-new-only)
+pass-amnesic-readded   -> 0   (the legitimate counterpart of amnesic-voter: n2 re-added before it votes)

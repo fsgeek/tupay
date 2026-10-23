@@ -13,6 +13,8 @@ How the steward runs a round, as of 2026-10-21 after X2. Each rule names the err
 - **Run `scripts/steward/inputcheck.sh` on every checkout** before its author starts: brief and named inputs present, nothing excluded present, no hold-out hash among the shared schedules, timestamp hook present, signing configured. (X1 Amendment C; X2 errors 3 and 4.)
 - **Hold-outs** are written by a family that is neither the steward's nor an author's, from the inputs alone, inlined, unsteered by the steward's hypotheses. Only their hashes are committed until every arm's first version is in. (X1 Amendment C; X2 Departure 2.)
 - **Shared schedules exercise every form the format allows**, including an event `end:`. (X2 error 6.)
+- **Every event trigger in a shared schedule is owed by a clause**: an event an artifact may legitimately never emit can stall the run into "end unreachable" and test nothing. Say in the comment which clause owes it. Read selectors against A1 by hand; the lint's rule is weaker. (2026-10-23: P33 waited on one node's `Agree`; P58's first version used a fixed node where its pair needed the grantor, which the lint passed.)
+- **Needed reach is generated from the schedule text** (`scripts/steward/reach-table.py`), never written after reading an author's bounds, and a check that a non-empty request must commit has a floor of one epoch, or C3.1 and C3.8 hold vacuously. (2026-10-23: Fable's prereg review, finding 5; the table's first version had that floor at zero.)
 - **The steward does not hand its own hypotheses to authors, hold-out authors or judges.**
 
 ## While authors work

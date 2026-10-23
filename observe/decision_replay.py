@@ -13,7 +13,8 @@ Part 1, evidence, per trace.
              configuration of its epoch, not only what the decider wrote (C3.7).
   ConfigCommitted (decided) of epoch e+1: counted by eligible majorities of e and of its members (C3.8); its
              members are its request's set; `readmits` is exactly the [node, inc > 0] in its members with an Agreed
-             among its inputs. C3.1: one decided commit per epoch, each after a record of its predecessor.
+             among its inputs. C3.1: one decided commit per epoch, and the committed configuration of its
+             predecessor exists in the trace (not its order: see the stated limits).
   Eligibility: incarnation 0, or re-admitted by a decided commit of an epoch at most the configuration's, other than
              the commit being checked (contract/v3.md, "Eligible agreement").
   Input names outside the schema's fixed list (and --extra-inputs) are reported.
@@ -24,8 +25,10 @@ Part 3, function of inputs (C3.5), across all traces: decisions of one kind with
 the content of the record it names, recursively; member lists as sets) must have equal outcomes.
 
 Stated limits. An Agree is matched to the Agreed that counted it by (node, incarnation, proposal), not by causes.
-Part 1's "after a record of its predecessor" uses file order, which on an implementation side is collection order;
-everything else that needs an order uses one process's own (inc, seq).
+C3.1's "e+1 only after e" is checked as existence, not order: file order on an implementation side is collection
+order, which says nothing about when a commit happened (Fable's prereg review, finding 3); an e+1 commit counted by a
+majority of e's committed members can only be evidenced after e exists, which part 1 checks. Everything else that
+needs an order uses one process's own (inc, seq).
 Exit status 1 if anything is reported.
 """
 import json, sys
@@ -162,8 +165,8 @@ def evidence(path, recs, allowed):
             ep = r['epoch']
             decided_epochs[ep].append(i)
             old = members_of.get(ep - 1)
-            if old is None or not any(x['event'] == 'ConfigCommitted' and x['epoch'] == ep - 1 for x in recs[:i]):
-                bad.append(f"{tag}: no record of epoch {ep - 1} before this commit (C3.1)"); continue
+            if old is None:
+                bad.append(f"{tag}: no committed configuration of epoch {ep - 1} in the trace (C3.1)"); continue
             ags = counted(r)
             ok_old, _ = majority(ags, old, ep - 1, key(r))
             ok_new, _ = majority(ags, set(r.get('members', [])), ep, key(r))

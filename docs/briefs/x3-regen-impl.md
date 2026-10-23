@@ -3,7 +3,7 @@
 You are building the Go implementation side of tupay from nothing. You are not the steward and you have no predecessor to consult. Your directory is `impl-regen/`. Everything below is your complete brief.
 
 ## What you may read
-- `contract/v3.md` (the contract; there is no other version for you), `failure-model/v3.md` (there is no other version for you), `tests/pairs-v4.md`, `testbed/schedule-format.md` (all of it, including the v5 addendum), `observe/schema.md` (all of it, including the v5 addendum), `testbed/schedules/` (fifty-nine shared schedules: P1 to P33, P40 to P54, P58 to P63, false-suspicion-v1 and H7 to H10; these are the only schedules that count)
+- `contract/v3.md` (the contract; there is no other version for you), `failure-model/v3.md` (there is no other version for you), `tests/pairs-v4.md`, `testbed/schedule-format.md` (all of it, including the v5 addendum), `observe/schema.md` (all of it, including the v5 addendum), `observe/decision_replay.py` and `observe/decision_replay_tests/` (the steward's check of decision evidence and of C3.5, with its test traces; you may run it on your own traces: it is how C3.5 and parts of C1.1, C3.1, C3.7 and C3.8 will be checked), `testbed/schedules/` (fifty-nine shared schedules: P1 to P33, P40 to P54, P58 to P63, false-suspicion-v1 and H7 to H10; these are the only schedules that count)
 - `AGENTS.md`, this brief, and `impl-regen/`
 Nothing else in this repository. Other directories are absent from your checkout on purpose; do not look for them.
 

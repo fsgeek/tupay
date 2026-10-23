@@ -1,0 +1,10 @@
+# derives: log 2026-10-23 "launch gap 2"; the allowlisting proxy for the author, run as tupay-egress (not uid 1001)
+[Unit]
+Description=tupay author egress proxy (allowlist, logs every attempt)
+[Service]
+User=tupay-egress
+RuntimeDirectory=tupay-egress
+ExecStart=/usr/bin/python3 /opt/tupay-egress/egress-proxy.py /run/tupay-egress/egress.sock /var/log/tupay-egress/egress.log /opt/tupay-egress/allow
+Restart=on-failure
+[Install]
+WantedBy=multi-user.target

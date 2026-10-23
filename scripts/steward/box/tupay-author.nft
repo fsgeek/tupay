@@ -1,0 +1,11 @@
+# derives: AGENTS.md rule 4; log 2026-10-23 "launch gap 2: route chosen" (model authors on ubuntu26-test)
+# The author (uid 1001) may send only to the egress relay on 127.0.0.1:3128; everything else, loopback included,
+# is logged and dropped. DNS too: the proxy resolves names. Other users are untouched.
+table inet tupay_author {
+  chain output {
+    type filter hook output priority 0; policy accept;
+    meta skuid 1001 ip daddr 127.0.0.1 tcp dport 3128 accept
+    meta skuid 1001 ct state established,related accept
+    meta skuid 1001 log prefix "tupay-author-deny " drop
+  }
+}

@@ -1,0 +1,11 @@
+# derives: log 2026-10-23 "launch gap 2"; 127.0.0.1:3128 to the proxy's socket, the author's only route out
+[Unit]
+Description=tupay author egress relay
+After=tupay-egress-proxy.service
+Requires=tupay-egress-proxy.service
+[Service]
+User=tupay-egress
+ExecStart=/usr/bin/python3 /opt/tupay-egress/sandbox-relay.py /run/tupay-egress/egress.sock
+Restart=on-failure
+[Install]
+WantedBy=multi-user.target

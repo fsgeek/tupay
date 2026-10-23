@@ -1,0 +1,12 @@
+# Hosts a Claude model author on ubuntu26-test may reach (learned 2026-10-23 by egress-proxy.py --learn, a claude -p probe
+# as tupay-author; the token-refresh host read from the binary's strings, since a short run does not refresh).
+api.anthropic.com
+platform.claude.com
+# OpenTimestamps calendars, for the post-commit hook
+a.pool.opentimestamps.org
+b.pool.opentimestamps.org
+a.pool.eternitywall.com
+ots.btc.catallaxy.com
+# Not allowed, deliberately: http-intake.logs.us5.datadoghq.com (telemetry, seen in the probe). WebSearch and WebFetch
+# would travel inside api.anthropic.com's traffic, so the proxy cannot stop them; they are denied in the author's
+# settings and on the launcher's command line instead.

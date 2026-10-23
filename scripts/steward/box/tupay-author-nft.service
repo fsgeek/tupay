@@ -1,0 +1,12 @@
+# derives: log 2026-10-23 "launch gap 2"; loads the author's egress rule at boot (it was runtime-only)
+[Unit]
+Description=tupay author egress rule (nftables, uid 1001)
+Before=tupay-egress-proxy.service
+After=network-pre.target
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/sbin/nft -f /etc/tupay-author.nft
+ExecStop=/usr/sbin/nft delete table inet tupay_author
+[Install]
+WantedBy=multi-user.target

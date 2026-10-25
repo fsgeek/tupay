@@ -58,7 +58,7 @@ def lint(path, known):
     def target(x, what, allow=SEL - {'rest', 'non-member'}):
         if x not in procs and x not in allow:
             say(f"{what}: {x} is neither a process nor an allowed selector")
-        if x in SEL and not requested:
+        if x in SEL - {'rest'} and not requested:   # rest is static (Rule A1): fixed by the other side, not by a grant
             say(f"{what}: selector {x} before any request")
 
     for i, st in enumerate(d.get('steps', []), 1):

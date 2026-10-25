@@ -1,0 +1,14 @@
+schedule: H14
+derives: [C3.4, C3.8, C3.1, F2.2, F3.1]
+processes:
+  lease: [n1, n2, n3]
+  clients: [c1]
+  storage: [s]
+  operators: [op]
+steps:
+  # derives: C3.4, C3.8, C3.1, F2.2, F3.1. After c1's grant, every lease node stops being heard by the grantor, while the grantor's own sends still arrive. A same-membership reconfiguration is then sent to a non-grantor. The two nodes that are not the grantor stay connected to each other and to the operator for the rest of the run. The drop is the last fault and is never healed.
+  - {at: start, do: {request: c1}}
+  - {at: {event: Grant, client: c1}, do: {cell: F2.2, drop: [[n1, grantor], [n2, grantor], [n3, grantor]]}}
+  - {at: {event: Fault}, do: {cell: F3.1, reconfigure: [n1, n2, n3], to: non-grantor, id: r1}}
+end: {event: ReconfigAck, outcome: committed}
+bound: {events: 400}

@@ -1,0 +1,24 @@
+schedule: H12
+derives: [C1.2, C2.1, C2.2, F3.1, F3.2]
+processes:
+  lease: [n1, n2, n3, n4]
+  config: [n1, n2, n3]
+  clients: [c1, c2]
+  storage: [s]
+  operators: [op]
+lifetime: 1
+steps:
+  # derives: C1.2, C2.1, C2.2, F3.1, F3.2. Storage's clock jumps forward by five lifetimes after c1's write is accepted; the same token must still read and write. A reconfiguration then adds n4 and removes n3. c2's later read and write are judged only by token against the ledger, so the schedule accepts either ack outcome.
+  - {at: start, do: {request: c1}}
+  - {at: {event: Grant, client: c1}, do: {write: c1, value: v1}}
+  - {at: {event: WriteAck, client: c1, outcome: accepted}, do: {cell: F3.2, clock: s, step: 5}}
+  - {at: {event: Fault}, do: {read: c1}}
+  - {at: {event: ReadAck, client: c1, outcome: served}, do: {write: c1, value: v2}}
+  - {at: {event: WriteAck, client: c1, outcome: accepted}, do: {cell: F3.1, reconfigure: [n1, n2, n4], to: grantor, id: r1}}
+  - {at: {event: ConfigCommitted, request_id: r1, decided: true}, do: {request: c2}}
+  - {at: {event: Grant, client: c2}, do: {read: c2}}
+  - {at: {event: ReadAck, client: c2}, do: {write: c2, value: v3}}
+  - {at: {event: WriteAck, client: c2}, do: {read: c1}}
+  - {at: {event: ReadAck, client: c1}, do: {read: c2}}
+end: quiescent
+bound: {events: 500}

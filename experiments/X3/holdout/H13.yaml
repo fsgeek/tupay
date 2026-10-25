@@ -1,0 +1,22 @@
+schedule: H13
+derives: [C3.7, C1.4, C1.2, F1.1, F1.2, F3.2, F3.3]
+processes:
+  lease: [n1, n2, n3, n4, n5]
+  clients: [c1, c2]
+  storage: [s]
+  operators: [op]
+lifetime: 1
+steps:
+  # derives: C3.7, C1.4, C1.2, F1.1, F1.2, F3.2, F3.3. Two of five members restart amnesic and stay in the denominator. They are then partitioned with exactly two eligible members and with c2. Two eligible agreements are not a majority of five. c1, storage, and the last eligible member stay on the other side so c1 can write. After the heal, a one-lifetime clock step on storage is the last fault, and c2 has to obtain a grant.
+  - {at: start, do: {request: c1}}
+  - {at: {event: Grant, client: c1}, do: {cell: F1.1, crash: n1}}
+  - {at: {event: Fault}, do: {cell: F3.3, restart: n1, amnesia: true}}
+  - {at: {event: Fault}, do: {cell: F1.1, crash: n2}}
+  - {at: {event: Fault}, do: {cell: F3.3, restart: n2, amnesia: true}}
+  - {at: {event: Fault}, do: {cell: F1.2, partition: [[n1, n2, n3, n4, c2], [rest]]}}
+  - {at: {event: Fault}, do: {request: c2}}
+  - {at: {event: Request, client: c2}, do: {write: c1, value: v1}}
+  - {at: {event: WriteAck, client: c1, outcome: accepted}, do: {cell: F1.2, heal: true}}
+  - {at: {event: Fault}, do: {cell: F3.2, clock: s, step: 1}}
+end: quiescent
+bound: {events: 600}

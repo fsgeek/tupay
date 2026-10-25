@@ -1,0 +1,17 @@
+schedule: H11
+derives: [C3.4, F1.2, F3.1, F3.2]
+processes:
+  lease: [n1, n2, n3]
+  clients: [c1]
+  storage: [s]
+  operators: [op]
+lifetime: 1
+steps:
+  # derives: C3.4, F1.2, F3.1, F3.2. The receiver is cut off from every other lease node. A valid request is recorded there, and only then a request that names storage. The invalid refusal has to happen while the valid request is still pending. After the links are restored, a one-lifetime clock step is the last fault, and the valid request has to commit.
+  - {at: start, do: {cell: F1.2, partition: [[n1, op], [rest]]}}
+  - {at: {event: Fault}, do: {cell: F3.1, reconfigure: [n1, n2, n3], to: n1, id: r1}}
+  - {at: {event: ReconfigRequest}, do: {cell: F3.1, reconfigure: [n1, s], to: n1, id: r2}}
+  - {at: {event: ReconfigRefused, reason: invalid}, do: {cell: F1.2, heal: true}}
+  - {at: {event: Fault}, do: {cell: F3.2, clock: n1, step: 1}}
+end: quiescent
+bound: {events: 400}

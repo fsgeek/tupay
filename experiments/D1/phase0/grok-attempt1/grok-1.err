@@ -1,0 +1,1 @@
+permission required: Execute `pdftotext -layout "/home/tony/projects/tupay-d1-enum-grok-1/source/OngaroPhD.pdf" - | rg -n "Persistent state on all servers|Updated on stable stora… was not run, as a headless run cannot ask for approval

@@ -1,0 +1,2 @@
+codex: run1 top3 ['codex-1:E12', 'codex-1:E27', 'codex-1:E20']; run2 top3 ['codex-2:E23', 'codex-2:E17', 'codex-2:E9']; agreeing 1 of 3 ['codex-1:E12']; P0-3 (at most one agrees) confirmed
+grok: run1 top3 ['grok-1:E32', 'grok-1:E27', 'grok-1:E26']; run2 top3 ['grok-2:E38', 'grok-2:E11', 'grok-2:E22']; agreeing 1 of 3 ['grok-1:E32']; P0-3 (at most one agrees) confirmed

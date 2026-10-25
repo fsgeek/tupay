@@ -10,7 +10,8 @@ A living note; the log outranks it. Accepted 2026-10-25T18:15Z (log, "the sevent
 ## Owed, in order
 1. D1: Grok half of phase 0 (needs Tony's login), then phase 1 per design.
 2. X3: Grok's blind hold-outs (needs Grok) and 1(c)'s count from them; fill each implementation author's Go and uv caches; `inputcheck.sh` with `HARNESS=codex`; `box-check.sh`; commit the registration; launch (implementation authors here in parallel, model authors in sequence on the box, arm A first: `setup-x3-checkouts.sh`, `box-push.sh`, `box-launch.sh`, `box-export.sh`).
-3. A known gap, for the next schema version: no check compares storage's ledger across its own records (`experiments/X3/measure10-expectations.md`).
-4. Every error entry records Tony's context figure.
+3. **T1** (Tessera's V1 service contract, client slice; accepted 2026-10-25, log "Tessera's request, accepted as a slice"): after X3 launches. Its own prereg; authors get `docs/requests/2026-10-25-from-tessera-V1-SERVICE-CONTRACT.md` unchanged; briefs require a list of every *Undecided* item resolved; shared schedules written by a fresh instance, not the steward; ids written `TS-…`. Waiting on Tessera: which family builds its Phase 1a.
+4. A known gap, for the next schema version: no check compares storage's ledger across its own records (`experiments/X3/measure10-expectations.md`).
+5. Every error entry records Tony's context figure.
 
 For Tony to remove when he likes: the sixth handoff's list, plus `~/projects/tupay-box-rehearsal`.

@@ -1,0 +1,5 @@
+accepted_groups 1
+cells 4
+order D1 D4 D2 D3
+packet has no Recognised line, no silent, no basis
+merge naming an unknown entry: refused, exit 1

@@ -1,0 +1,74 @@
+{
+ "accepted_groups": 1,
+ "cells": 4,
+ "order": [
+  {
+   "id": "D1",
+   "members": [
+    "codex-1:E1",
+    "codex-2:E1"
+   ],
+   "verified": true,
+   "silent": 0.625,
+   "silent_max": 5,
+   "det": 0,
+   "sec": [
+    3,
+    4
+   ],
+   "tie": "c4143f21c4933f2178e9f37b56e7a9a809df30eac5b7b93f5e2ffacb1d3adfac"
+  },
+  {
+   "id": "D4",
+   "members": [
+    "grok-2:E1"
+   ],
+   "verified": true,
+   "silent": 0.5,
+   "silent_max": 2,
+   "det": 0,
+   "sec": [
+    2,
+    1
+   ],
+   "tie": "fb7e09b969c00cb6cdbee91d04366cfb096bafec4d6975d811869c3fad6b2f5a"
+  },
+  {
+   "id": "D2",
+   "members": [
+    "codex-1:E2"
+   ],
+   "verified": true,
+   "silent": 0.25,
+   "silent_max": 1,
+   "det": 2,
+   "sec": [
+    5,
+    1
+   ],
+   "tie": "8063dada7862215d7f30bdc50871592cedb714c5c7bb55043440fa3548224c21"
+  },
+  {
+   "id": "D3",
+   "members": [
+    "grok-1:E1"
+   ],
+   "verified": false,
+   "silent": 0.5,
+   "silent_max": 5,
+   "det": 0,
+   "sec": [
+    6,
+    4,
+    1
+   ],
+   "tie": "73f0666d6d2c3c1c76c7e0c70e7cdcbd26bdb847253d86d34ed695103ecce360"
+  }
+ ],
+ "sensitivity_order": [
+  "D1",
+  "D4",
+  "D2",
+  "D3"
+ ]
+}

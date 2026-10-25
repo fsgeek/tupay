@@ -1,5 +1,5 @@
 {
   "permissions": {
-    "deny": ["WebSearch", "WebFetch"]
+    "deny": ["WebSearch", "WebFetch", "RemoteTrigger"]
   }
 }

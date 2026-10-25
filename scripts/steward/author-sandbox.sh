@@ -11,8 +11,13 @@
 # socket (egress-proxy.py, outside), reached through a relay inside (sandbox-relay.py), which allows the hosts in
 # scripts/steward/egress-<harness>.allow and logs every attempt to <author home>/egress.log. Without it, a plain
 # curl from the author's shell reached the public repository and its log (probe, 2026-10-23).
-# The credential is bind-mounted, not copied: both harnesses keep a refresh token, and a copy that refreshed
-# could invalidate Tony's own login. The author can read its own harness credential; nothing else of Tony's.
+# The credential is copied in and, if the harness rotated it, written back after the run. Until 2026-10-25 it was
+# bind-mounted, to keep a refreshing copy from invalidating Tony's login; that did the harm it meant to prevent: a
+# refresh rotates the token at the provider, and the harness saves by renaming over auth.json, which a bind-mounted
+# file refuses (EBUSY), so the new token was lost and Tony's Grok login died (log 2026-10-25, "the sandbox killed
+# Tony's Grok login"). Write-back happens only if Tony's file is unchanged since the copy (else a concurrent run
+# already rotated it, and this run's copy is stale) and the new file is JSON with the same top-level keys. The author
+# can read its own copy of its harness credential; nothing else of Tony's.
 set -euo pipefail
 CO=$(realpath "$1"); H=$2; shift 2
 U=/home/tony; MAIN=$U/projects/tupay
@@ -44,12 +49,12 @@ args=(--unshare-net --unshare-pid --unshare-ipc --unshare-uts --die-with-parent 
   --setenv PATH "$NODE/bin:/usr/local/go/bin:$U/.local/bin:/usr/bin"
   --setenv UV_OFFLINE 1 --setenv GOMODCACHE "$U/go/pkg/mod" --setenv GOPROXY file:///opt/gomodcache --setenv GOSUMDB off --setenv GOFLAGS -modcacherw)   # go.sum still verifies
 case $H in
-  codex) args+=(--bind "$U/.codex/auth.json" "$U/.codex/auth.json" --ro-bind "$U/node_modules/@openai" "$U/node_modules/@openai")
+  codex) args+=(--ro-bind "$U/node_modules/@openai" "$U/node_modules/@openai")
          # account-side tools reach past the file sandbox (codex_apps: GitHub, mail, SharePoint; web; browsers), so off
          cmd=("$NODE/bin/node" "$U/node_modules/@openai/codex/bin/codex.js" -c 'web_search="disabled"')
          for f in apps plugins remote_plugin browser_use browser_use_external in_app_browser computer_use image_generation \
                   skill_mcp_dependency_install tool_suggest; do cmd+=(-c "features.$f=false"); done ;;
-  grok)  args+=(--bind "$U/.grok/auth.json" "$U/.grok/auth.json" --ro-bind "$GROKBIN" /opt/grok
+  grok)  args+=(--ro-bind "$GROKBIN" /opt/grok
                 --setenv GROK_CLAUDE_AGENTS_ENABLED 0 --setenv GROK_CLAUDE_HOOKS_ENABLED 0 --setenv GROK_CLAUDE_MCPS_ENABLED 0
                 --setenv GROK_CLAUDE_RULES_ENABLED 0 --setenv GROK_CLAUDE_SKILLS_ENABLED 0 --setenv GROK_WORKFLOWS 0)
          # --trust loads AGENTS.md (author checkouts hold no .grok/). An allowlist of internal tool IDs: X search, media
@@ -58,8 +63,16 @@ case $H in
            run_terminal_cmd,read_file,write,search_replace,list_dir,grep,todo_write,task,get_task_output,wait_tasks,kill_task) ;;
   *) echo "harness: codex|grok" >&2; exit 2 ;;
 esac
-touch "$AH/.codex/auth.json" "$AH/.grok/auth.json"   # bind targets
+CRED=$U/.$H/auth.json; ACRED=$AH/.$H/auth.json
+[ -s "$CRED" ] || { echo "no credential at $CRED (log in on the host first)" >&2; exit 2; }
+mkdir -p "$(dirname "$ACRED")"; install -m 600 "$CRED" "$ACRED"; ORIG=$(sha256sum < "$CRED")
 [ -n "${PROBE:-}" ] && cmd=(bash)   # PROBE=1: a shell in the same sandbox, for the steward's access probes
 # the relay starts first; the harness waits for its port
 bwrap "${args[@]}" bash -c '/usr/bin/python3 /opt/sandbox-relay.py /run/egress/egress.sock & for _ in $(seq 50); do
-  (exec 3<>/dev/tcp/127.0.0.1/3128) 2>/dev/null && break; sleep 0.1; done; exec "$@"' relay "${cmd[@]}" "$@"
+  (exec 3<>/dev/tcp/127.0.0.1/3128) 2>/dev/null && break; sleep 0.1; done; exec "$@"' relay "${cmd[@]}" "$@" && rc=0 || rc=$?
+if [ -s "$ACRED" ] && [ "$(sha256sum < "$ACRED")" != "$ORIG" ]; then
+  if [ "$(sha256sum < "$CRED")" = "$ORIG" ] && python3 -c 'import json,sys; a,b=(json.load(open(f)) for f in sys.argv[1:]); sys.exit(0 if isinstance(a,dict) and a.keys()==b.keys() else 1)' "$ACRED" "$CRED"; then
+    install -m 600 "$ACRED" "$CRED.tupay-new" && mv "$CRED.tupay-new" "$CRED" && echo "author-sandbox: rotated $H credential written back" >&2
+  else echo "author-sandbox: $H credential rotated in the sandbox but not written back (Tony's changed meanwhile, or shape differs); copy kept at $ACRED" >&2; fi
+fi
+exit $rc

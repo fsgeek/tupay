@@ -17,7 +17,11 @@ How the steward runs a round, as of 2026-10-21 after X2. Each rule names the err
 - **Needed reach is generated from the schedule text** (`scripts/steward/reach-table.py`), never written after reading an author's bounds, and a check that a non-empty request must commit has a floor of one epoch, or C3.1 and C3.8 hold vacuously. (2026-10-23: Fable's prereg review, finding 5; the table's first version had that floor at zero.)
 - **The steward does not hand its own hypotheses to authors, hold-out authors or judges.**
 
+- **Credentials are copied in, never bind-mounted.** A harness that refreshes its token rotates it at the provider and saves by renaming over its credential file; a bind-mounted file refuses the rename, the new token is lost and Tony's login dies (2026-10-25: Grok's, since 2026-10-23). `author-sandbox.sh` copies the credential in and writes a rotated one back only if Tony's file is unchanged since the copy.
+- **Model authors run on the box** (`scripts/steward/box/`): `box-check.sh` before each launch (it fails on any earlier session in the author's home), `box-push.sh`, `box-launch.sh` (pinned model; no web tools, no `RemoteTrigger`, which starts a cloud agent past the proxy; no MCP), `box-export.sh`, which runs `model-id-check.py` over the transcript.
+
 ## While authors work
+- **Never edit a script a run is executing.** Bash reads a script as it runs; an edit lands in the running process (2026-10-25: both D1 Codex runs exited 127 executing a fragment of the edited `author-sandbox.sh` after their harness finished). Edit a copy, or wait.
 - Do not touch a running author's checkout. If the steward's setup broke something (a missing hook), repair the consequence from the main checkout, before any steward run, and log it.
 - Hooks in linked worktrees are shared with the main checkout: install nothing in `.git/hooks` while model authors are working.
 

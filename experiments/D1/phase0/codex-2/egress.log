@@ -1,0 +1,23 @@
+2026-10-25T18:48:36Z START allowlist /home/tony/projects/tupay/scripts/steward/egress-codex.allow
+2026-10-25T18:48:36Z DENY github.com:443
+2026-10-25T18:49:24Z START allowlist /home/tony/projects/tupay/scripts/steward/egress-codex.allow
+2026-10-25T18:49:25Z ALLOW chatgpt.com:443
+2026-10-25T18:49:25Z ALLOW chatgpt.com:443
+2026-10-25T18:49:25Z ALLOW chatgpt.com:443
+2026-10-25T18:49:26Z ALLOW chatgpt.com:443
+2026-10-25T18:49:26Z ALLOW chatgpt.com:443
+2026-10-25T18:49:27Z ALLOW chatgpt.com:443
+2026-10-25T18:49:33Z ALLOW chatgpt.com:443
+2026-10-25T18:49:37Z ALLOW chatgpt.com:443
+2026-10-25T18:49:42Z ALLOW chatgpt.com:443
+2026-10-25T18:49:48Z ALLOW chatgpt.com:443
+2026-10-25T18:49:51Z ALLOW chatgpt.com:443
+2026-10-25T18:50:27Z ALLOW ab.chatgpt.com:443
+2026-10-25T18:53:03Z ALLOW chatgpt.com:443
+2026-10-25T18:53:05Z ALLOW chatgpt.com:443
+2026-10-25T18:53:15Z ALLOW chatgpt.com:443
+2026-10-25T18:53:18Z ALLOW chatgpt.com:443
+2026-10-25T18:53:21Z ALLOW chatgpt.com:443
+2026-10-25T18:53:29Z ALLOW chatgpt.com:443
+2026-10-25T18:53:34Z ALLOW chatgpt.com:443
+2026-10-25T18:53:34Z ALLOW chatgpt.com:443

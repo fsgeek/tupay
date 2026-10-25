@@ -5,7 +5,8 @@ derives: experiments/D1/design.md draft 3, phase 0 "Quotation check"; Fable revi
 Normalisation: lower case; curly quotes and dashes to plain; line-break hyphenation joined; every run of whitespace one
 space. VERIFIED: the quotation is a substring. SPLIT: it splits at a word boundary into two pieces of at least three
 words, each a substring, the second starting within 600 characters after the first ends (a page header or figure
-residue between them). UNVERIFIED otherwise, or MISSING when the entry has no quotation."""
+residue between them). UNVERIFIED otherwise, or MISSING when the entry has no quotation. A quotation may wrap onto
+following lines (added 2026-10-25 after codex-2's output, whose wrapped quotations the first parser read as MISSING)."""
 import re, sys
 ENUM = sys.argv[1]
 SRC = sys.argv[2] if len(sys.argv) > 2 else __file__.rsplit('/', 3)[0] + '/experiments/D1/source/OngaroPhD.txt'
@@ -18,7 +19,7 @@ text = norm(open(SRC, encoding='utf-8').read())
 entries = re.split(r'^### (E\d+)\s*$', open(ENUM, encoding='utf-8').read(), flags=re.M)
 counts = {}
 for eid, body in zip(entries[1::2], entries[2::2]):
-    m = re.search(r'^- source:.*?"(.+)"\s*$', body, flags=re.M)
+    m = re.search(r'^- source:[^"\n]*"(.+?)"\s*$', body, flags=re.M | re.S)   # a quotation may wrap onto later lines
     if not m: status = 'MISSING'
     else:
         q = norm(m.group(1).replace('…', ' ').replace('...', ' '))

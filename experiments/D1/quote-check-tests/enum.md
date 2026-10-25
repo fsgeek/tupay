@@ -7,3 +7,7 @@
 ### E4
 - source: §3.4 no quotation here
 ## Recognised
+### E5
+- source: §3.4 "While waiting for votes, a candidate may receive an AppendEntries RPC
+  from another server claiming to be leader."
+- stated: stated

@@ -1,0 +1,6 @@
+     20 ALLOW api.anthropic.com:443
+      7 ALLOW a.pool.eternitywall.com:443
+      7 ALLOW a.pool.opentimestamps.org:443
+      7 ALLOW b.pool.opentimestamps.org:443
+      7 ALLOW ots.btc.catallaxy.com:443
+      4 DENY github.com:443

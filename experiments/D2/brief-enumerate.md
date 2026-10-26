@@ -1,24 +1,24 @@
-# Brief: the service contracts Episode's log and recovery rely on (v1)
+# Brief: the service contracts Episode's log and recovery rely on (v2)
 
-You have two sources: `source/episode-1992.txt` (Sailesh Chutani, Owen T. Anderson, Michael L. Kazar, Bruce W. Leverett, W. Anthony Mason, Robert N. Sidebotham, *The Episode File System*, USENIX Winter 1992; the PDF beside it is the same text), and `source/episode/`, the Episode file system's source as released in OSF DCE 1.2.2. The component this brief is about is the log and recovery, `source/episode/logbuf/`; read the rest of the tree as you need. This checkout holds only this brief, `AGENTS.md` and the sources. You have no web access and need none.
+You have two sources: `source/episode-1992.txt` (Sailesh Chutani, Owen T. Anderson, Michael L. Kazar, Bruce W. Leverett, W. Anthony Mason, Robert N. Sidebotham, *The Episode File System*, USENIX Winter 1992; the PDF beside it is the same text), and `source/episode/`, the Episode file system's source as released in OSF DCE 1.2.2. The component this brief is about is the log and recovery, `source/episode/logbuf/`; read the rest of the tree as you need. This checkout holds only this brief, `AGENTS.md`, `GUARANTEES.md` and the sources. You have no web access and need none.
 
 ## Task
-The text and the source state what the log and recovery guarantee to the rest of the file system and to operators. Find those guarantees.
+The guarantees the text and the source make for the log and recovery are listed in `GUARANTEES.md` (extracted from these sources by two other readers, and kept where both found the same guarantee), and any other guarantee the text or the source makes to the rest of the file system, its users or operators.
 
 Those guarantees rest on things the log and recovery assume of their **environment**: the services and conditions outside `logbuf` that it depends on. An environment contract is an obligation on something `logbuf` depends on (anything outside `logbuf` that it calls, that calls it, or that it runs on, including an operator), stated so that a deployment either meets it or violates it. It is **not** a rule of `logbuf` itself (what its own code does); if you find a defect in `logbuf`'s own rules, note it in your report, not in the list. Some environment contracts the text or the source states; some it only implies. List every one you can find.
 
 ## Format (exact; a script reads it)
-For each contract, a level-3 heading and seven lines:
+For each contract, a level-3 heading and eight lines:
 
 ```
 ### E<n>
 - contract: <one sentence, an obligation on the depended-on service>
-- source: <§<section number> or <path>:<line>> "<a quotation of at most two lines, copied exactly from the text or the source file>"
+- source: <§<section number> or §"<heading>" or <path>:<line>> "<a quotation of at most two lines, copied exactly from the text or the source file>"
 - stated: <stated | implicit>
 - violation: <what violating it looks like in a deployment, concretely>
-- at-risk: <which guarantee fails if it is violated, and why, in one or two sentences; say if you are unsure>
+- at-risk: <which guarantee fails if it is violated (a `G` id from `GUARANTEES.md` where one fits), and why, in one or two sentences; say if you are unsure>
 - detectable: <yes | partly | no> — <could the log and recovery, in principle, notice the violation at run time, and how>
-- silent: <1 to 5> — <how often ordinary production deployments, over a year of operation, violate it without an error that the operator or the file system sees: 1 rare, 3 occasional, 5 routine; one line of reason>
+- silent: <1 to 5> — <how often systems of the kind the paper describes, run as it describes, over a year of operation, violate it without an error that the operator or the file system sees: 1 rare, 3 occasional, 5 routine; one line of reason>
 - basis: <text | source | general systems experience | a specific report I recall>
 ```
 

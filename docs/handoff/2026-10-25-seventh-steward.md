@@ -9,7 +9,7 @@ A living note; the log outranks it. Accepted 2026-10-25T18:15Z (log, "the sevent
 ## Owed, in order
 1. D1 phase 2 prereg (above).
 2. X3: collect, export and verify each author as it ends; launch arm R's model author after arm A's; then the registered runs, the judge, scoring.
-3. **T1** (Tessera's V1 service contract, client slice; accepted 2026-10-25, log "Tessera's request, accepted as a slice"): after X3 launches. Its own prereg; authors get `docs/requests/2026-10-25-from-tessera-V1-SERVICE-CONTRACT.md` unchanged; briefs require a list of every *Undecided* item resolved; shared schedules written by a fresh instance, not the steward; ids written `TS-…`. Waiting on Tessera: which family builds its Phase 1a.
+3. **T1** (Tessera's V1 service contract, client slice; accepted 2026-10-25, log "Tessera's request, accepted as a slice"): after X3 launches. Its own prereg; authors get `docs/requests/2026-10-25-from-tessera-V1-SERVICE-CONTRACT.md` unchanged; briefs require a list of every *Undecided* item resolved; shared schedules written by a fresh instance, not the steward; ids written `TS-…`. Families decided (log 2026-10-26, "Tessera acknowledges T1"): implementation Grok, model Claude (overlap with Phase 1a's Claude builder stated). Embargo: tell Tessera when both sides have first versions; it stamps its own resolutions first.
 4. A known gap, for the next schema version: no check compares storage's ledger across its own records (`experiments/X3/measure10-expectations.md`).
 5. Every error entry records Tony's context figure.
 

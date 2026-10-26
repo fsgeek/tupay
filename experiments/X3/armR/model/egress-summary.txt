@@ -1,0 +1,7 @@
+     26 ALLOW api.anthropic.com:443
+      6 ALLOW a.pool.eternitywall.com:443
+      6 ALLOW a.pool.opentimestamps.org:443
+      6 ALLOW b.pool.opentimestamps.org:443
+      6 ALLOW ots.btc.catallaxy.com:443
+      1 ALLOW platform.claude.com:443
+      3 DENY github.com:443

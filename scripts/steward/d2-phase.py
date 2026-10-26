@@ -145,8 +145,10 @@ if __name__ == '__main__':
     if a[0] == 'packet-g': print(packet(load(a[1], G_RUNS, 'guarantees.md', 'G'), ['guarantee', 'source', 'stated']))
     elif a[0] == 'guarantees': print(guarantees(*a[1:4]))
     elif a[0] == 'packet-e':
-        print(packet(load(a[1], E_RUNS, 'enumeration.md', 'E'),
-                     ['contract', 'source', 'stated', 'violation', 'at-risk', 'detectable']))
+        # contract, source and violation only: the packet with D1's six fields was 153,782 characters, over the
+        # ~120k agy limit (practice); the merge criterion (same obligation, same depended-on service) needs only
+        # these. Fixed 2026-10-26 before either merge ran (log, "D2 phase 1 merge packet reduced by rule").
+        print(packet(load(a[1], E_RUNS, 'enumeration.md', 'E'), ['contract', 'source', 'violation']))
     elif a[0] == 'order': print(json.dumps(order(*a[1:5]), indent=1))
     elif a[0] == 'cells': print(cells_md(a[1], a[2]))
     else: sys.exit(__doc__)

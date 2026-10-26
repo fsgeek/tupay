@@ -19,3 +19,11 @@
 - source: §"Introduction" "keeps a record of every change"
 ### E10
 - source: §"Introduction" "not in the paper"
+### E11
+- source: sub/a.c:121 "the caller must hold the lock before calling this"
+### E12
+- source: sub/b.c:1 "the caller must hold the lock before calling this"
+### E13
+- source: sub/a.c:200 "printf("hello %d", x);"
+### E14
+- source: sub/crlf.c:2 "the crlf comment continues here"

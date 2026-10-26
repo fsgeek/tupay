@@ -197,7 +197,7 @@
 /* filler line 197 */
 /* filler line 198 */
 /* filler line 199 */
-/* filler line 200 */
+    printf("hello %d", x);
 /* filler line 201 */
 /* filler line 202 */
 /* filler line 203 */

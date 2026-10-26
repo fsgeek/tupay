@@ -1,0 +1,16 @@
+1c1
+< # Brief: merge four lists of environment contracts (D1 phase 1)
+---
+> # Brief: merge two lists of guarantees (D2 phase 0a)
+3c3
+< Below are four lists, written independently from one source (Ongaro, *Consensus: Bridging Theory and Practice*, 2014), of the **environment contracts** Raft relies on: obligations on things outside the algorithm (storage, network, clocks, processes, identity, operators, the state machine, the host). Each entry has an id `<list>:E<n>`. Different lists often state the same obligation in different words, or split one obligation into several finer ones.
+---
+> Below are two lists, written independently from two sources (the paper *The Episode File System*, USENIX Winter 1992, and Episode's source in OSF DCE 1.2.2), of the **guarantees** Episode's log and recovery (`logbuf`) make to the rest of the file system, its users or operators. Each entry has an id `<list>:G<n>`. Different lists often state the same guarantee in different words, or split one guarantee into several finer ones.
+5c5
+< Your task: group entries that state **the same obligation on the same depended-on service**. Two entries belong in one group only if a deployment that violates one necessarily violates the other. An entry that is broader than another may appear in more than one group (once with each finer entry it covers). An entry that matches nothing need not be listed.
+---
+> Your task: group entries that state **the same guarantee**. Two entries belong in one group only if a run that violates one necessarily violates the other. An entry that is broader than another may appear in more than one group (once with each finer entry it covers). An entry that matches nothing need not be listed.
+9c9
+< {"groups": [["codex-1:E3", "grok-2:E7"], ["codex-2:E1", "grok-1:E4", "grok-2:E2"]]}
+---
+> {"groups": [["codex:G3", "grok:G7"], ["codex:G1", "grok:G4", "grok:G2"]]}

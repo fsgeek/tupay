@@ -1,0 +1,8 @@
+1c1
+< # Brief: merge four lists of environment contracts (D1 phase 1)
+---
+> # Brief: merge four lists of environment contracts (D2 phase 1)
+3c3
+< Below are four lists, written independently from one source (Ongaro, *Consensus: Bridging Theory and Practice*, 2014), of the **environment contracts** Raft relies on: obligations on things outside the algorithm (storage, network, clocks, processes, identity, operators, the state machine, the host). Each entry has an id `<list>:E<n>`. Different lists often state the same obligation in different words, or split one obligation into several finer ones.
+---
+> Below are four lists, written independently from two sources (the paper *The Episode File System*, USENIX Winter 1992, and Episode's source in OSF DCE 1.2.2), of the **environment contracts** Episode's log and recovery (`logbuf`) rely on: obligations on things outside `logbuf` (anything it calls, that calls it, or that it runs on, including an operator). Each entry has an id `<list>:E<n>`. Different lists often state the same obligation in different words, or split one obligation into several finer ones.

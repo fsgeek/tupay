@@ -1,0 +1,12 @@
+{
+ "groups": [
+  [
+   "codex:G1",
+   "grok:G2"
+  ],
+  [
+   "codex:G3",
+   "grok:G1"
+  ]
+ ]
+}

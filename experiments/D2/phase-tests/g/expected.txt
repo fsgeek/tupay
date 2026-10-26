@@ -1,0 +1,3 @@
+kept: G1 = codex:G1 + grok:G2 (alpha); G2 = codex:G3 + grok:G1 (gamma); codex:G2/codex:G3 group not kept (one run, and only in merge A)
+packet: no "secret report text"; ids codex:G1..G3, grok:G1..G2
+bad merge: exits naming codex:G9

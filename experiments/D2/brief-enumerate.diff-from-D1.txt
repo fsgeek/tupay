@@ -1,0 +1,49 @@
+1c1
+< # Brief: the service contracts Raft relies on (v2)
+---
+> # Brief: the service contracts Episode's log and recovery rely on (v1)
+3c3
+< You have one source: `source/OngaroPhD.txt` (Diego Ongaro, *Consensus: Bridging Theory and Practice*, Stanford, August 2014; the PDF beside it is the same text). This checkout holds only this brief, `AGENTS.md` and the source. You have no web access and need none.
+---
+> You have two sources: `source/episode-1992.txt` (Sailesh Chutani, Owen T. Anderson, Michael L. Kazar, Bruce W. Leverett, W. Anthony Mason, Robert N. Sidebotham, *The Episode File System*, USENIX Winter 1992; the PDF beside it is the same text), and `source/episode/`, the Episode file system's source as released in OSF DCE 1.2.2. The component this brief is about is the log and recovery, `source/episode/logbuf/`; read the rest of the tree as you need. This checkout holds only this brief, `AGENTS.md` and the sources. You have no web access and need none.
+6,11c6
+< The text states the properties Raft guarantees in its Figure 3.2:
+< - **Election Safety:** at most one leader can be elected in a given term.
+< - **Leader Append-Only:** a leader never overwrites or deletes entries in its log; it only appends new entries.
+< - **Log Matching:** if two logs contain an entry with the same index and term, then the logs are identical in all entries up through the given index.
+< - **Leader Completeness:** if a log entry is committed in a given term, then that entry will be present in the logs of the leaders for all higher-numbered terms.
+< - **State Machine Safety:** if a server has applied a log entry at a given index to its state machine, no other server will ever apply a different log entry for the same index.
+---
+> The text and the source state what the log and recovery guarantee to the rest of the file system and to operators. Find those guarantees.
+13,15c8
+< and any other guarantee the text makes to clients or operators.
+< 
+< Those guarantees rest on things Raft assumes of its **environment**: the services and conditions outside the algorithm that it depends on. An environment contract is an obligation on something Raft depends on (a disk, a network, a clock, a process manager, an operator, the state machine, the host), stated so that a deployment either meets it or violates it. It is **not** a rule of the algorithm itself (what a server sends, when it votes, how it changes membership); if you find a defect in the algorithm's own rules, note it in your report, not in the list. Some environment contracts the text states; some it only implies. List every one you can find.
+---
+> Those guarantees rest on things the log and recovery assume of their **environment**: the services and conditions outside `logbuf` that it depends on. An environment contract is an obligation on something `logbuf` depends on (anything outside `logbuf` that it calls, that calls it, or that it runs on, including an operator), stated so that a deployment either meets it or violates it. It is **not** a rule of `logbuf` itself (what its own code does); if you find a defect in `logbuf`'s own rules, note it in your report, not in the list. Some environment contracts the text or the source states; some it only implies. List every one you can find.
+23c16
+< - source: §<section number> "<a quotation of at most two lines, copied exactly from the text>"
+---
+> - source: <§<section number> or <path>:<line>> "<a quotation of at most two lines, copied exactly from the text or the source file>"
+27,29c20,22
+< - detectable: <yes | partly | no> — <could a Raft implementation, in principle, notice the violation at run time, and how>
+< - silent: <1 to 5> — <how often ordinary production deployments, over a year of operation, violate it without an error that the operator or the implementation sees: 1 rare, 3 occasional, 5 routine; one line of reason>
+< - basis: <text | general systems experience | a specific report I recall>
+---
+> - detectable: <yes | partly | no> — <could the log and recovery, in principle, notice the violation at run time, and how>
+> - silent: <1 to 5> — <how often ordinary production deployments, over a year of operation, violate it without an error that the operator or the file system sees: 1 rare, 3 occasional, 5 routine; one line of reason>
+> - basis: <text | source | general systems experience | a specific report I recall>
+32c25
+< Number entries `E1`, `E2`, … in the order you write them. `§` takes the section number as the text prints it (e.g. `§3.6.3`); for a figure, the section that contains it.
+---
+> Number entries `E1`, `E2`, … in the order you write them. For the paper, `§` takes the section heading's number as the text prints it, or, if a section is unnumbered, its heading in quotation marks; for a figure, the section that contains it. For the source, give the path below `source/episode/` and the first line of the quotation (e.g. `logbuf/log.c:120`).
+35c28
+< - Be exhaustive within the source. Several fine-grained contracts are better than one broad one.
+---
+> - Be exhaustive within the sources. Several fine-grained contracts are better than one broad one.
+37,38c30,31
+< - If you recognise a contract as one behind a bug you know was reported in some Raft implementation, do not leave it out and do not shape your list around it: list it like the others, mark its `basis` honestly, and name what you recognise in a final section, `## Recognised`, one line each. Saying you recognise nothing is also an answer.
+< - Write the list to `enumeration.md` in the checkout root; do not commit (the steward collects and stamps it). At the end of your report: how many contracts; the output of `ls -R` and `git status` in the checkout; anything you could not decide.
+---
+> - If you recognise a contract as one behind a bug you know was reported in Episode, DFS, or another file system, do not leave it out and do not shape your list around it: list it like the others, mark its `basis` honestly, and name what you recognise in a final section, `## Recognised`, one line each. Saying you recognise nothing is also an answer.
+> - Write the list to `enumeration.md` in the checkout root; do not commit (the steward collects and stamps it). At the end of your report: how many contracts; the output of `ls -R` on the checkout root excluding `source/episode/`, and `git status`; anything you could not decide.

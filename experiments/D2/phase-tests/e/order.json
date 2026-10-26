@@ -1,0 +1,93 @@
+{
+ "accepted_groups": 1,
+ "cells": 7,
+ "order": [
+  {
+   "id": "D1",
+   "members": [
+    "codex-1:E1",
+    "grok-1:E1"
+   ],
+   "verified": true,
+   "silent": 0.75,
+   "silent_max": 5,
+   "det": 0,
+   "tie": "bbabc64b579d8760a9d3e090c6f7e6f0bff3b86245cedff4c79f492dea125d90"
+  },
+  {
+   "id": "D4",
+   "members": [
+    "codex-2:E2"
+   ],
+   "verified": true,
+   "silent": 0.5,
+   "silent_max": 3,
+   "det": 0,
+   "tie": "069de342fa1b2cdaf20912f6553a35897111da577ba414c85bab392bf7b96814"
+  },
+  {
+   "id": "D6",
+   "members": [
+    "grok-2:E1"
+   ],
+   "verified": true,
+   "silent": 0.5,
+   "silent_max": 2,
+   "det": 0,
+   "tie": "1451a0e80cab1ef459e45ef52ded5569dae4bf9a8ecea24672862015b4c6152a"
+  },
+  {
+   "id": "D3",
+   "members": [
+    "codex-2:E1"
+   ],
+   "verified": true,
+   "silent": 0.5,
+   "silent_max": 3,
+   "det": 1,
+   "tie": "565f2ffa9b60dfa9a0fcc91f9955103f3a144d5a481d259e76a8ddf985a9dc4c"
+  },
+  {
+   "id": "D5",
+   "members": [
+    "grok-1:E2"
+   ],
+   "verified": true,
+   "silent": 0.25,
+   "silent_max": 2,
+   "det": 0,
+   "tie": "a076c9726fcb6d1f72a21a9b5d3d224d18c23323bfaae017656bfb0b675d01d8"
+  },
+  {
+   "id": "D2",
+   "members": [
+    "codex-1:E2"
+   ],
+   "verified": true,
+   "silent": 0.25,
+   "silent_max": 1,
+   "det": 2,
+   "tie": "21d35673b06d955e4da8119451a970caaf528456991f562176a3d10e12cd580a"
+  },
+  {
+   "id": "D7",
+   "members": [
+    "grok-2:E2"
+   ],
+   "verified": false,
+   "silent": 0.5,
+   "silent_max": 2,
+   "det": 0,
+   "tie": "1c5c2074e0f952065acc6df7775f171bda1911679d6398e7d4d5efc7dfc1b53b"
+  }
+ ],
+ "sensitivity_order": [
+  "D1",
+  "D4",
+  "D3",
+  "D6",
+  "D5",
+  "D2",
+  "D7"
+ ]
+}

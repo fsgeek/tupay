@@ -1,0 +1,1 @@
+actual: order D1 D4 D6 D3 D5 D2 D7 (as expected); packet-e: 0 lines with secret|basis|silent; CELLS.md: 8 silent fields, no basis field, no stated field (one match of the word 'stated' is the header's prose, 'stated by several readers', not a field), no Recognised text

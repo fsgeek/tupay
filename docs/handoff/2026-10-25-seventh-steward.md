@@ -12,7 +12,7 @@ The log outranks this note. Accepted 2026-10-25T18:15Z; handed off 2026-10-26 at
 
 ## Owed, in order
 1. X3: the registered runs, judge and scoring; adversarial review of the result.
-2. D1 phase 2 prereg.
+2. D1 phase 2 prereg; before it, add the residue and the "explains an open report" category, and cite cloudflare's blind predictions (log 2026-10-26, "Cloudflare's hashicorp/raft pipeline deadlock").
 3. T1 prereg and launch.
 4. For the next schema version: no check compares storage's ledger across its own records (`experiments/X3/measure10-expectations.md`).
 5. Every error entry records Tony's context figure; the steward's own estimates ran a third high.

@@ -14,6 +14,10 @@ NAME=$1; PROMPT=$2; H=${3:-ubuntu26-test}; SD=$(dirname "$(realpath "$0")")
 "$SD/box-check.sh" "$H" >/dev/null || { echo "box-check failed; not launching"; "$SD/box-check.sh" "$H"; exit 1; }
 CO=/home/tupay-author/projects/$NAME; RUN=/home/tupay-author/runs/$NAME
 ssh -o BatchMode=yes "$H" "sudo -n test -d $CO && ! sudo -n test -e $RUN" || { echo "no checkout $CO, or $RUN exists"; exit 1; }
+# one author's material at a time: another arm's checkout or run in the same home is readable by this author
+# (2026-10-26: arm R launched with arm A's checkout and run still present, for 13 s; log)
+others=$(ssh -o BatchMode=yes "$H" "sudo -n ls -A /home/tupay-author/projects /home/tupay-author/runs 2>/dev/null | grep -v -x -e '' -e '/home/tupay-author/projects:' -e '/home/tupay-author/runs:' -e '$NAME' || true")
+[ -z "$others" ] || { echo "other material in the author home, remove it first: $others"; exit 1; }
 ssh -o BatchMode=yes "$H" "sudo -n -u tupay-author mkdir -p $RUN && sudo -n -u tupay-author tee $RUN/prompt.txt >/dev/null" < "$PROMPT"
 P=http://127.0.0.1:3128
 ssh -o BatchMode=yes "$H" "sudo -n systemd-run --unit=tupay-author-$NAME --uid=tupay-author --gid=tupay-author \

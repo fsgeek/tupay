@@ -1,0 +1,2 @@
+decision-replay: 1890 traces, 0 invalid, 0 UNEXPLAINED inputs
+EXIT 0

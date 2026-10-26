@@ -1,1 +1,3 @@
 tupay-author@ubuntu26-test namespaces="git" ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKtN/nv3tk3hO2JGsRMSL4U50Dt++JpmCSzzV+toGNbM tupay-author-box
+x3-adapt-impl@tupay.author namespaces="git" ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPPJ4+t/swgDXaiktikWckeF1WwnlXLUc1IF8iN4C5ab tupay-author-tupay-x3-adapt-impl
+x3-regen-impl@tupay.author namespaces="git" ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPZNJE99mqCOvjDbjqpFXFjUnI8L11qlqP0Csfb7fl2Q tupay-author-tupay-x3-regen-impl

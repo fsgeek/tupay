@@ -1,0 +1,7 @@
+{
+  "d1-deny-all": {
+    "PreToolUse": [
+      { "matcher": ".*", "hooks": [ { "command": "/home/tony/projects/tupay/experiments/D2/phase0a/merge-b/.agents/deny-all.sh" } ] }
+    ]
+  }
+}

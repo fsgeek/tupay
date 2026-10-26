@@ -33,7 +33,7 @@ def in_file(path, line, q):
     lines = open(full, encoding='utf-8', errors='replace').read().split('\n')
     lo, hi = max(0, line - 1 - WINDOW), min(len(lines), line + WINDOW)
     return 'VERIFIED' if q in norm('\n'.join(lines[lo:hi])) else 'UNVERIFIED'
-entries = re.split(r'^### (E\d+)\s*$', open(ENUM, encoding='utf-8').read(), flags=re.M)
+entries = re.split(r'^### ([EG]\d+)\s*$', open(ENUM, encoding='utf-8').read(), flags=re.M)
 counts = {}
 for eid, body in zip(entries[1::2], entries[2::2]):
     # a quotation may wrap; an unnumbered section is cited by its heading in quotation marks, §"Heading"

@@ -14,7 +14,7 @@ The log outranks this note. Accepted 2026-10-25T18:15Z; handed off 2026-10-26 at
 1. X3: the registered runs, judge and scoring; adversarial review of the result.
 2. D1 phase 2 prereg; before it, add the residue and the "explains an open report" category, and cite cloudflare's blind predictions (log 2026-10-26, "Cloudflare's hashicorp/raft pipeline deadlock").
 3. T1 prereg and launch.
-3a. **Consider D2, Episode as a sealed-answer test of dependency contracts** (log 2026-10-26, "two notes from Tony"), possibly before D1 phase 2 as its known-answer calibration. First ask Tony the two facts; do not read khipumaq's Episode analysis before the seal.
+3a. **Consider D2, Episode as a sealed-answer test of dependency contracts** (log 2026-10-26, "two notes from Tony"), possibly before D1 phase 2 as its known-answer calibration. First ask Tony the two facts; do not read khipumaq's Episode analysis or the episode project's record before the seal. The code (DCE 1.2.2) is public and may be in training; only bugs found by the recent analysis (past month) score as blind (log, correction).
 4. For the next schema version: no check compares storage's ledger across its own records (`experiments/X3/measure10-expectations.md`).
 5. Every error entry records Tony's context figure; the steward's own estimates ran a third high.
 

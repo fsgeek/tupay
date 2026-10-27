@@ -1,0 +1,18 @@
+```json
+{
+  "verdict": "explained",
+  "genuine_violation": "not applicable",
+  "locus": "implementation",
+  "mechanism": "In H13, steps 2 through 8 chain synchronously on each predecessor's emitted event (`Grant(c1)` -> four `Fault`s -> `Fault` partition -> `Request(c2)` -> `write: c1`), so step 8 (`write: c1`) is reached before `c1` has received the grant reply emitted by `n1` at step 1, and the implementation fails to complete the T3 wait for `c1`'s token (either by not advancing the network to deliver the already-sent `Grant` across the subsequent crash/partition or by dropping the in-flight reply).",
+  "evidence": [
+    "schedule H13.yaml lines 11-18: step 2 triggers on `{event: Grant, client: c1}` to crash `n1`, steps 3-6 trigger on `{event: Fault}` to amnesic-restart `n1`, crash/amnesic-restart `n2`, and partition `[[n1, n2, n3, n4, c2], [rest]]`, step 7 triggers on `{event: Fault}` to run `{request: c2}`, and step 8 triggers on `{event: Request, client: c2}` to run `{write: c1, value: v1}`.",
+    "arm A implementation trace (H13 seed 1 rep 1): `n1` records `Grant` for `c1` (`proc: n1, seq: 6`), after which `env` immediately records `Fault` seq 1 (`crash: n1`), seq 2 (`restart: n1`), seq 3 (`crash: n2`), seq 4 (`restart: n2`), seq 5 (`partition: [[c2, n1, n2, n3, n4], [c1, n5, op, s]]`), and `c2` records `Request` (`proc: c2, seq: 1`), at which point the trace ends with `UNEXPLAINED workload unavailable under T3` on all 30 runs.",
+    "arm A impl/README.md ('X3 adaptation — initial outcomes and semantic corrections'): 'all replies take at least eight substeps' in the internal scheduler.",
+    "inputs/schedule-format.md Rule T1 (v2.1) and Rule T3: synchronous `Fault` and `Request` events trigger the next step immediately, and under T3 'A `write` by a client that holds no token waits until it holds one.'",
+    "inputs/failure-model-v3.md ('Links'): 'A message's fate is fixed when it is sent: a message sent while p->q is up is delivered (it may arrive late, reordered, after p->q has gone down).'",
+    "arm A model verdict and trace: PASS (101,502 distinct states); `c1` executes `WriteAttempt` (`proc: c1, seq: 1`, caused by `n1` `seq: 5` `Grant`), receives `WriteAck`, triggers the heal, and `c2` receives `Grant` (`proc: n3, seq: 6`) from eligible quorum `{n3, n4, n5}`."
+  ],
+  "reasoning": "Under schedule-format v2.1 Rule T1, steps 2 through 7 fire in a chain on each preceding step's synchronously emitted `Fault` or `Request` event right after `n1` emits `Grant(c1)`. In the implementation, replies take multiple internal scheduler substeps to arrive (`impl/README.md`), so when step 8 (`write: c1`) is armed and triggered by `Request(c2)`, `c1` has not yet received the grant message that `n1` emitted while `n1 -> c1` was up. Under failure-model v3 ('Links'), a message sent while `p->q` is up has its fate fixed at send time and must be delivered even if the sender later crashes or the link goes down in a partition; and under schedule-format Rule T3, `write: c1` must wait until `c1` holds a token. Once `c1` receives that in-flight grant, `c1` can write to `s` (which is on `c1`'s side of the partition `[c1, n5, op, s]`), get `WriteAck`, trigger step 9's heal, and allow the three eligible nodes `{n3, n4, n5}` to grant `c2` after the last fault (step 10), as the model's PASS witness shows.",
+  "what_would_settle_it": "Inspecting the implementation's schedule runner and network transport around `Grant` emission and T3 waiting to see whether (a) the T3 wait loop for `write: c1` aborts or times out before the 8-substep reply latency elapses, or (b) `crash: n1` or `partition` discards already-sent in-flight messages in the simulated network contrary to the failure model's link rule."
+}
+```

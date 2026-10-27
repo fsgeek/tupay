@@ -29,6 +29,7 @@ How the steward runs a round, as of 2026-10-21 after X2. Each rule names the err
 Before hold-outs run, the steward answers each declared limitation in the log: a schedule is written for it (as a shared schedule in the next round, never retroactively in this one), or the steward says why not. A declared limitation that a hold-out then exposes is reported as declared, not as a blind spot. (X2.)
 
 ## Running and judging
+- **Before a steward check's report goes to a judge, search every author's README for the check's name.** An author may already have declared why it misfires. (X3, 2026-10-27: arm A's model README explained `provenance_check.py`'s restart defect; no steward read it, and the defect went to both judges as arm R's 80 untraceable decisions.)
 - Steward runs are the first runs after each arm's merge, from scratch worktrees, never from the main checkout; hold-out files enter scratch copies only. (X1 Amendment C.)
 - Divergences, shared failures and bound hits go to the judge, a third family, packet inlined, never the steward's hypothesis. `agy` reads a long prompt from stdin only as `agy -p= --input-format stream-json --output-format stream-json` with one line `{"event":"user","message":{"content":...}}`; keep a packet under about 120k characters (a 207k packet was spilled to a file and produced no verdict). Split per item if needed, with any excerpting done by a rule stated in the packet. (X2 error 5.)
 - Check the registered fairness rule against every model-side liveness PASS, and say so in the result. (X2 result review.)

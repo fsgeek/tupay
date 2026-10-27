@@ -1,0 +1,9 @@
+{
+  "verdict": "explained",
+  "genuine_violation": "not applicable",
+  "locus": "implementation",
+  "mechanism": "The implementation runner applies an extra exactly-two-clients admission rule and exits before executing H11. The difference is therefore at schedule admission, not in the model's and implementation's reconfiguration behaviour.",
+  "evidence": "H11.yaml declares `lease: [n1, n2, n3]`, `clients: [c1]`, one storage process and `operators: [op]`; no input requires two clients, and format v5 supplies all the actions and triggers used. The implementation reports `UNEXPLAINED need 1..6 lease nodes, 2 clients, 1 storage` and `RUNNER-EXIT 1 SECONDS 1`, showing rejection rather than execution. The model instead reports `schedule=H11 PASS` over 2674 distinct states.",
+  "reasoning": "The schedule is valid under the inputs: omitting `config` defaults it to all lease nodes, and the partition, reconfiguration, heal and clock actions are defined. Its intended C3.4 sequence is also determinate: r1 names only lease nodes and becomes pending at n1; r2 names storage `s`, so C3.4(a) requires `invalid`, checked before `busy`, despite r1 remaining pending. After the heal, the clock step is the last fault and the restored connectivity permits r1's required progress and eventual quiescence. The implementation's refusal adds a client-count premise absent from the interface and is therefore incorrect. It produced no execution or clause-violation claim; the model's PASS is consistent with the schedule but does not establish how the implementation would have behaved.",
+  "what_would_settle_it": "The format text and runner message already settle the validity and refusal questions. An actual implementation execution of unchanged H11, showing r2's invalid refusal while r1 is pending followed by r1's commit, operator acknowledgement and quiescence, would settle whether any behavioural difference remains beyond admission."
+}

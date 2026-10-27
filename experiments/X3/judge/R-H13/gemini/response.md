@@ -1,0 +1,14 @@
+```json
+{
+  "verdict": "explained",
+  "genuine_violation": "not applicable",
+  "locus": "none",
+  "mechanism": "TLC aborted with a disk write I/O error (StatePoolWriter.run) immediately after generating the single initial state, before exploring any transitions of H13.",
+  "evidence": [
+    "arm R model result.json for H13 (`tlc_tail`) and TLC output excerpt: `Finished computing initial states: 1 distinct state generated at 2026-10-26 20:58:19.` followed immediately by `Error: when writing the disk (StatePoolWriter.run):\\n%1%` and `replay: \"decision-replay: 0 traces, 0 invalid, 0 UNEXPLAINED inputs\"`.",
+    "arm R implementation steward run and trace (`H13 seed 1 repetition 1`): all 30 repetitions report `PASS`; in the trace, after `n1` and `n2` restart with amnesia (`env` seq 2, 4) and are partitioned with `n3`, `n4`, and `c2` (`env` seq 5), `c2` is not granted while only 2 of 5 eligible members are reachable, `c1` completes its write on the other side (`s` seq 1, `c1` seq 3), and after the heal (`env` seq 6) and clock step (`env` seq 7), `n3` issues `Grant` (`n3` seq 9, `token: 2`) counting eligible agreements (`counted_toward: [0]`) from `n3`, `n4`, and `n5` while leaving amnesic `n1` and `n2` uncounted (`counted_toward: []`)."
+  ],
+  "reasoning": "The model's `UNEXPLAINED model-error` verdict is an infrastructure I/O failure in TLC's disk state queue (`StatePoolWriter.run`) after generating only the initial state; because no state space exploration or trace generation occurred, the model run says nothing about H13 under the inputs. The implementation's `PASS` verdict shows that valid executions of H13 exist in which the partitioned minority of two eligible nodes plus two amnesic nodeswithholds a grant under C3.7, `c1`'s write succeeds under C1.2, and `c2` obtains a valid grant with `token: 2` after the partition heals and the last fault (`clock: s, step: 1`) occurs, satisfying C1.4, C1.1, and C3.5, though as a sampled testbed with atomic agreement steps (`impl-regen/README.md`, 'Replica protocol revision and remaining limits') it does not exhaustively verify all interleavings.",
+  "what_would_settle_it": "Re-running `model-regen/run.sh H13` on a host with sufficient free disk space and working I/O for `tmp/model-regen/H13/` so that TLC completes its breadth-first check, reachability probes, and trace replay."
+}
+```

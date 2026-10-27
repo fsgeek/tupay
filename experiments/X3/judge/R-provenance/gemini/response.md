@@ -1,0 +1,16 @@
+```json
+{
+  "verdict": "explained",
+  "genuine_violation": "no",
+  "locus": "none",
+  "mechanism": "The steward's checker `observe/provenance_check.py` indexes trace records by `(proc, seq)` instead of the v5 schema's `(proc, inc, seq)` identity. When client `c1` crashes and restarts in P7 and P16, its incarnation increments to `inc: 1` and its sequence counter resets, so its post-restart `WriteAck` or `ReadAck` at `(c1, inc=1, seq=2)` overwrites the pre-crash `WriteAttempt` at `(c1, inc=0, seq=2)` in the checker's lookup table.",
+  "evidence": [
+    "inputs/observe-schema.md (v5 addendum, Identity): specifies that a record is identified by `(proc, inc, seq)`, where for a non-lease process `inc` is the number of times it has restarted and `seq` restarts at 0 in each incarnation.",
+    "observe/provenance_check.py (lines 17, 25, 40, 46): derives from schema v2/v3 and keys `recs` by `(r['proc'], r['seq'])`, ignoring `inc` when storing and resolving `causes` and `answers`.",
+    "impl-regen/observe/P7-seed1-rep1-attempt4.jsonl: `c1` at `inc: 0` emits `WriteAttempt` at `seq: 2` (referencing `Grant` `(n1, 0, 6)`), then crashes (`env` `seq: 3`) and restarts (`env` `seq: 4`). Because `impl-regen` retains queued messages across crashes (declared in `impl-regen/README.md`, Interpretations), `c1` at `inc: 1` emits `WriteAck` at `seq: 2` (`answers: {inc: 0, proc: c1, seq: 2}`, `causes: [{inc: 0, proc: s, seq: 2}]`). In `provenance_check.py`, `recs[('c1', 2)]` is overwritten by this `WriteAck`, causing both `WriteAccept` `(s, 0, 2)` (whose `causes` points to `(c1, 0, 2)`) to cycle back to `(s, 0, 2)` without reaching the `Grant` and `WriteAck` `(c1, 1, 2)` to find itself instead of a `WriteAttempt`.",
+    "impl-regen/observe/P16-seed1-rep1-attempt5.jsonl: `c1` at `inc: 0` emits `WriteAttempt` at `seq: 2` and `WriteAck` at `seq: 3` (`answers: {inc: 0, proc: c1, seq: 2}`). After crashing and restarting, `c1` at `inc: 1` emits `ReadAck` at `seq: 2` (`answers: {inc: 0, proc: c1, seq: 4}`), which overwrites `recs[('c1', 2)]` in `provenance_check.py` and makes the earlier `WriteAck` `(c1, 0, 3)` fail with `answers ('c1', 2) is not an attempt in the trace`."
+  ],
+  "reasoning": "Under `inputs/observe-schema.md` v5, every storage decision and client ack in the P7 and P16 implementation traces carries complete and valid provenance via `(proc, inc, seq)`. Specifically, in P7, `WriteAccept` `(s, 0, 2)` causes `WriteAttempt` `(c1, 0, 2)`, which causes `Grant` `(n1, 0, 6)` with `token: 1` and `grantor_term: 5`; `WriteAck` `(c1, 1, 2)` answers `WriteAttempt` `(c1, 0, 2)` and its `causes` chain reaches it via `(s, 0, 2)`. In P16, `WriteAck` `(c1, 0, 3)` answers `WriteAttempt` `(c1, 0, 2)` and reaches it via `WriteAccept` `(s, 0, 1)`. The untraceable reports are purely an artefact of `observe/provenance_check.py` omitting `inc` from record keys when `c1` restarts (`inc: 1`) and reuses `seq: 2` upon draining queued acks.",
+  "what_would_settle_it": "Keying records and resolving `causes` and `answers` references by `(proc, r.get('inc', 0), seq)` in `observe/provenance_check.py` (matching the v5 schema's identity rule) and re-running the check on the P7 and P16 traces."
+}
+```

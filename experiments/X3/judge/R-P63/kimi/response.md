@@ -1,0 +1,13 @@
+{
+  "verdict": "explained",
+  "genuine_violation": "yes",
+  "locus": "model",
+  "mechanism": "The model lets n1 append r1 before n2 crashes, then makes n2 incarnation 0 r1's sole decider; F3.3 eliminates that incarnation and its pending copy. The undecided joint entry blocks r2 at n1, leaving r2 permanently without a commit, a superseded refusal, or an operator ack.",
+  "evidence": [
+    "Model trace: n1 seq 5 agrees to r1 before env seq 0 crashes n2 and env seq 1 restarts it amnesic; n1 seq 6 subsequently records r2. Later r1 agreements from n2 inc 1, n3 and n4 yield no decided ConfigCommitted, and no r2 outcome follows. TLC reports \"Error: Deadlock reached\", and result.json reports \"terminal state with an unmet obligation\".",
+    "After the last fault, the highest decided configuration remains epoch 0, [n1,n2,n3]. Incarnation-0 n1 and n3 form an eligible majority; with no later faults or link cuts, receiver n1, old majority {n1,n3}, requested-set majority {n1,n3,n4}, and op remain up and connected.",
+    "The implementation trace contains no r1 Agree before the crash. It instead commits r2 at n1 seq 13, counting n1/n3 toward epoch 0 and n1/n3/n4 toward epoch 1, recording n2 inc 1's agreement uncounted and in readmits, followed by ReconfigAck at op seq 3."
+  ],
+  "reasoning": "Rule L3 as extended in v5 makes C3.4(b)'s premise hold for r2: amnesia erased r1's pending duty, not r2's. The deadlock is therefore a genuine F3.3-related liveness violation, not a premise, quiescence, or bound misclassification. Its locus is the model's receiver-only-decider and non-abandonable-Raft-entry adaptation; the model's own Findings acknowledge that in TLC's actual world r1 was not committed before the restart and an abandon-capable protocol could progress. The implementation passes a different, legal interleaving, so its thirty sampled passes neither cover nor refute the model counterexample.",
+  "what_would_settle_it": "The shown model deadlock settles this violation. To settle its cross-side scope, export the full terminal state and drive the implementation through the same r1-appended-before-crash interleaving, checking whether r2 reaches a contract outcome there."
+}

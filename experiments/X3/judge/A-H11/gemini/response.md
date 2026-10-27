@@ -1,0 +1,16 @@
+```json
+{
+  "verdict": "explained",
+  "genuine_violation": "not applicable",
+  "locus": "implementation",
+  "mechanism": "Schedule H11 declares a single client (`clients: [c1]`), which is valid under the schedule format, but Arm A's implementation schedule compiler rejects any schedule that does not declare exactly two clients.",
+  "evidence": [
+    "schedule H11.yaml lines 3-7: `processes:` declares `lease: [n1, n2, n3]`, `clients: [c1]`, `storage: [s]`, `operators: [op]`.",
+    "arm A implementation verdict line: `schedule=H11 UNEXPLAINED need 1..6 lease nodes, 2 clients, 1 storage schedule=H11` (RUNNER-EXIT 1).",
+    "inputs/schedule-format.md ('Shape' and 'v5 addendum'): specifies `clients:` as a list of client process names and places no rule requiring exactly two clients.",
+    "arm A model/README.md ('Compiler, exporter, runner' and 'Contradicted' item 12): notes that the earlier fixed-topology check ('exactly 3 lease nodes, 2 clients and 1 storage') was replaced so `processes` accepts 'at least one client', allowing H11 to compile and PASS (2674 distinct states)."
+  ],
+  "reasoning": "Schedule H11 is valid under contract v3, failure model v3, and schedule-format v2.2/v5: nothing in the inputs requires a schedule to have two clients, and H11 exercises only operator reconfiguration, partition, and clock-step actions (`F1.2`, `F3.1`, `F3.2`, `C3.4`) without any client workload steps. Arm A's model relaxed its earlier M1/X1/X2 fixed-topology compiler check to accept at least one client and passed H11. Arm A's implementation updated its lease-node count check to `1..6` for X3 (README interpretation 86) but retained the legacy hard-coded requirement of `2 clients`, causing its runner/compiler to refuse H11 before execution. The implementation's refusal is therefore not justified by the inputs.",
+  "what_would_settle_it": "Relaxing the implementation's schedule compiler validation to accept one or more clients (instead of requiring `len(clients) == 2`) and re-running H11 on the implementation."
+}
+```

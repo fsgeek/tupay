@@ -1,0 +1,9 @@
+{
+ "verdict": "explained",
+ "genuine_violation": "no",
+ "locus": "interface",
+ "mechanism": "The steward's checker uses pre-v5 identity: `recs` and its traversals key records by `(proc,seq)`, ignoring `inc`. After c1 restarts, its inc-1 acks reuse sequence numbers and overwrite its inc-0 attempts in that table, although the traces' full `(proc,inc,seq)` references retain valid provenance chains.",
+ "evidence": "Schema v5 defines identity as `(proc,inc,seq)`, whereas `provenance_check.py` uses `recs[(r['proc'],r['seq'])]` and similarly reduces `causes` and `answers` to pairs. In P7, WriteAccept `s seq=2` causes WriteAttempt `c1 inc=0 seq=2`, which causes Grant `n1 inc=0 seq=6`, token 1, term 5; the later WriteAck `c1 inc=1 seq=2` creates the checker's `(c1,2)` collision. That ack also validly answers `c1 inc=0 seq=2` through `s seq=2`. In P16, WriteAck `c1 inc=0 seq=3` answers attempt `c1 inc=0 seq=2` and reaches it through WriteAccept `s seq=1`; the later ReadAck `c1 inc=1 seq=2` overwrites the checker's attempt entry.",
+ "reasoning": "With the recorded identities resolved, the flagged sample decisions have `highest_before`, reach same-token Grants with matching `grantor_term`, and the flagged acks name existing attempts reached by their `causes` chains. The reports are therefore false positives from the steward-side observe checker, not missing or wrong provenance under the v5 schema; the schema itself is explicit about incarnation-aware identity.",
+ "what_would_settle_it": "Resolve every record and reference in all sixty traces by its full recorded `(proc,inc,seq)` identity and enumerate the resulting Grant and answered-attempt chains; this would confirm whether the collision mechanism accounts for every reported line, as it does for the supplied P7 and P16 traces."
+}

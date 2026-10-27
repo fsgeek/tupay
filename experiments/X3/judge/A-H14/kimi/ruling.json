@@ -1,0 +1,9 @@
+{
+ "verdict": "explained",
+ "genuine_violation": "not applicable",
+ "locus": "implementation",
+ "mechanism": "The implementation runner applies a stale exactly-two-clients validation rule and rejects H14 before executing it. The written schedule interface imposes no such requirement, so this refusal does not contradict the model's behavioural PASS.",
+ "evidence": "H14.yaml declares `lease: [n1, n2, n3]`, `clients: [c1]`, `storage: [s]`, and `operators: [op]`. The schedule format gives no two-client cardinality rule; its v5 addendum adds optional `config` and `operators`, and arm A's model README describes its v5 compiler as accepting at least one client. The implementation reports `UNEXPLAINED need 1..6 lease nodes, 2 clients, 1 storage` and `RUNNER-EXIT 1 SECONDS 0`, whereas the model actually explored 746 distinct states and reported PASS.",
+ "reasoning": "H14 is valid under the inputs. Its F2.2 drop is permitted after the Grant, with the grantor self-pair ignored under L1; the drop's synchronous Fault can satisfy the next step's trigger under T1; R1 permits the same-membership request to an up non-grantor; and the ReconfigAck end trigger is allowed. The implementation sampled no protocol behaviour and claimed no clause violation. The difference is therefore localized to its schedule validator, not to the inputs, interface, or any demonstrated model behaviour.",
+ "what_would_settle_it": "A validation receipt or validator path for H14's one-client process block would confirm the refusal mechanism. An actual implementation run, showing whether the committed ReconfigAck is reached before the 400-event bound, would settle the separate behavioural question."
+}

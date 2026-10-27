@@ -1,0 +1,7 @@
+{
+  "d1-deny-all": {
+    "PreToolUse": [
+      { "matcher": ".*", "hooks": [ { "command": "/home/tony/projects/tupay/experiments/X3/judge/A-H11/gemini/.agents/deny-all.sh" } ] }
+    ]
+  }
+}

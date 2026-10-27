@@ -1,0 +1,37 @@
+{
+ "codex": {
+  "run1": [
+   "codex-1:E64",
+   "codex-1:E65",
+   "codex-1:E1"
+  ],
+  "run2": [
+   "codex-2:E2",
+   "codex-2:E23",
+   "codex-2:E3"
+  ],
+  "agree": [
+   "codex-1:E1"
+  ],
+  "confirmed": true
+ },
+ "grok": {
+  "run1": [
+   "grok-1:E38",
+   "grok-1:E36",
+   "grok-1:E2"
+  ],
+  "run2": [
+   "grok-2:E37",
+   "grok-2:E2",
+   "grok-2:E5"
+  ],
+  "agree": [
+   "grok-1:E38",
+   "grok-1:E36",
+   "grok-1:E2"
+  ],
+  "confirmed": false
+ },
+ "procedure": "D1's (log 2026-10-25): each run's top three by the order's tiers on its own list (verified, silent percentile, detectability), ties by entry number; agrees iff it shares an accepted group with any of the other run's top three; confirmed iff at most one agrees. A first computation broke ties by the beacon hash instead; the same verdicts but different counts (codex 0 agreeing there, 1 here; grok 3 both times); superseded by this computation, which is the registered procedure."
+}

@@ -995,3 +995,6 @@ A fresh Claude Opus 5.5 instance accepted at 18:30Z (clock), after START.md's or
 
 ## 2026-10-27: X3 measure 8 design fact registered before scoring (18:37Z)
 Owed item (3). From README and traces, per side: does the grant path consult a clock? **A model no, R model no, A impl yes, R impl no** (`experiments/X3/measure8-design-fact.md`, with line citations and Grant input counts). Consequences fixed by the registration, applied at scoring: three sides vacuous by design on F3.2 and P44 as to clocks; X3-3 second part unscorable.
+
+## 2026-10-27: host git run in a running author checkout (steward lapse; 18:37Z)
+Checking progress, the steward ran host `git -C ~/projects/tupay-d2-model-c-grok log` while the Grok author was working in it, against the practice ("Host git never runs in an author checkout"). **Cost: none found.** The checkout's `.git/config`, read afterwards as data, is the steward's own (mtime 18:32:12Z, before launch at 18:33:40Z; identity, signing and allowed signers only), and `.git/hooks` holds only the steward's `post-commit`. The same command on the box failed on git's ownership check before reading anything. **From here:** progress is read from transcript sizes and, for commits, from `.git/logs/HEAD` as a file, never by running git there.

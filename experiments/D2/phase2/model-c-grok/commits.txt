@@ -1,0 +1,11 @@
+2c1887d G 2026-10-27T12:16:57-07:00 ots: stamp 46d3f4372bd28077bcd21b955d40f6b78e986617
+46d3f43 G 2026-10-27T12:16:55-07:00 Report the log and recovery checks and append the prediction note.
+8d95fb7 G 2026-10-27T12:15:54-07:00 ots: stamp 56e1a7fe2477183e255586a3e65b0864c2df0b66
+56e1a7f G 2026-10-27T12:15:53-07:00 Record five log and recovery findings, most serious first.
+cad7b49 G 2026-10-27T12:15:08-07:00 ots: stamp cab1acdf1e255fff9f4cdb3f4165cd31b0b88806
+cab1acd G 2026-10-27T12:15:07-07:00 Record the TLC checks for every log and recovery cell.
+b85d587 G 2026-10-27T12:03:03-07:00 ots: stamp b05bccd06619dce3568df55c19bbfabce8c6c8f8
+b05bccd G 2026-10-27T12:03:02-07:00 Add the bounded TLA+ model of Episode log and recovery.
+3f1b5f4 G 2026-10-27T11:48:04-07:00 ots: stamp 5ab8ff7872e0c8d9b4fe3426f534a6ebb6fd8ebe
+5ab8ff7 G 2026-10-27T11:48:03-07:00 Pre-register log and recovery check predictions.
+fcd6e0d N 2026-10-27T11:31:34-07:00 D2 model-c inputs

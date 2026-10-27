@@ -8,7 +8,8 @@
 # --strict-mcp-config), telemetry off, every route out through the proxy, which the nft rule makes the only one.
 # bypassPermissions lets the author run commands unattended; the network layer, not the permission prompt, is what
 # holds (box-check.sh proves it before each launch). A 24 GB memory cap, no swap, so a runaway check cannot take
-# the host's dynamic memory. The transcript is stream-json, read afterwards by model-id-check.py (Tony's $500 lesson).
+# the host's dynamic memory. Six hours' wall clock at most (D2 design draft 2, phase 2, review 13); TLA2TOOLS names
+# the box's TLC jar, which the D2 model briefs refer to by that variable. The transcript is stream-json, read afterwards by model-id-check.py (Tony's $500 lesson).
 set -euo pipefail
 NAME=$1; PROMPT=$2; H=${3:-ubuntu26-test}; SD=$(dirname "$(realpath "$0")")
 "$SD/box-check.sh" "$H" >/dev/null || { echo "box-check failed; not launching"; "$SD/box-check.sh" "$H"; exit 1; }
@@ -21,12 +22,13 @@ others=$(ssh -o BatchMode=yes "$H" "sudo -n ls -A /home/tupay-author/projects /h
 ssh -o BatchMode=yes "$H" "sudo -n -u tupay-author mkdir -p $RUN && sudo -n -u tupay-author tee $RUN/prompt.txt >/dev/null" < "$PROMPT"
 P=http://127.0.0.1:3128
 ssh -o BatchMode=yes "$H" "sudo -n systemd-run --unit=tupay-author-$NAME --uid=tupay-author --gid=tupay-author \
-  --working-directory=$CO -p MemoryMax=24G -p MemorySwapMax=0 \
+  --working-directory=$CO -p MemoryMax=24G -p MemorySwapMax=0 -p RuntimeMaxSec=6h \
   -p StandardInput=file:$RUN/prompt.txt -p StandardOutput=file:$RUN/transcript.jsonl -p StandardError=file:$RUN/stderr.txt \
   --setenv=HOME=/home/tupay-author --setenv=USER=tupay-author --setenv=PATH=/usr/local/bin:/usr/bin:/bin \
   --setenv=HTTPS_PROXY=$P --setenv=https_proxy=$P --setenv=HTTP_PROXY=$P --setenv=http_proxy=$P \
   --setenv=NO_PROXY=localhost,127.0.0.1 --setenv=DISABLE_TELEMETRY=1 --setenv=DISABLE_ERROR_REPORTING=1 \
   --setenv=CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1 --setenv=ENABLE_CLAUDEAI_MCP_SERVERS=false --setenv=UV_OFFLINE=1 \
+  --setenv=TLA2TOOLS=/opt/tlaplus/tla2tools.jar \
   /usr/local/bin/claude -p --model claude-opus-5-5 --disallowedTools WebSearch WebFetch RemoteTrigger --strict-mcp-config \
   --permission-mode bypassPermissions --output-format stream-json --verbose"
 date -u +%Y-%m-%dT%H:%M:%SZ | sed "s/^/launched tupay-author-$NAME at /"

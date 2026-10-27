@@ -47,6 +47,7 @@ args=(--unshare-net --unshare-pid --unshare-ipc --unshare-uts --die-with-parent 
   --setenv ALL_PROXY http://127.0.0.1:3128 --setenv NO_PROXY localhost,127.0.0.1 --setenv no_proxy localhost,127.0.0.1
   --setenv HOME "$U" --setenv USER tony --setenv TERM "${TERM:-xterm}" --setenv LANG C.UTF-8
   --setenv PATH "$NODE/bin:/usr/local/go/bin:$U/.local/bin:/usr/bin"
+  --setenv TLA2TOOLS "$U/projects/tlaplus/tla2tools.jar"
   --setenv UV_OFFLINE 1 --setenv GOMODCACHE "$U/go/pkg/mod" --setenv GOPROXY file:///opt/gomodcache --setenv GOSUMDB off --setenv GOFLAGS -modcacherw)   # go.sum still verifies
 case $H in
   codex) args+=(--ro-bind "$U/node_modules/@openai" "$U/node_modules/@openai")

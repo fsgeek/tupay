@@ -11,6 +11,7 @@ The log outranks this note. A living note: rewritten in place as state changes; 
   - **Do not read:** `episode/sealed/`, `episode/spec/`, khipumaq Episode sessions (search with `scope: "tupay"` only), session `38a33a70`, `experiments/D2/phase0/recognised-and-reports.md`, Tony on Episode.
 - **D1**: phase 2 prereg owed after D2 calibrates (handoff 7, item 2).
 - **T1**: prereg and launch owed (handoff 7, item 3).
+- **Candidate after D2 (Tony, 2026-10-27: other modelling tools are in scope, no rush):** one trial, not a survey: a model author with a proof assistant (Lean first, since LLM authors are strongest there; Rocq/Isabelle otherwise) in place of TLC, the assumed-impossible list as declared axioms, so `Print Assumptions`-style tracking is compared with switched-off environment actions. Tool diversity as a second axis beside family diversity (log, "the failure model's other half").
 - **Harness dependency contracts** (month measure item 4): not started; tupay's own harness as first customer (log, this tenure's exchange with Tony).
 
 ## The month's measure (to 2026-11-26)

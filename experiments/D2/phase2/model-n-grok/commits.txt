@@ -1,0 +1,13 @@
+4a143f2 G 2026-10-27T13:12:07-07:00 ots: stamp c52d439a40ac511a3445632c073ced947f9d2821
+c52d439 G 2026-10-27T13:12:05-07:00 report: honest-environment failure, no schema finding
+22c9872 G 2026-10-27T13:11:58-07:00 ots: stamp c2013491fb56fa5bb719515dc96cba4fe5f42390
+c201349 G 2026-10-27T13:11:57-07:00 record TLC checks
+4afb8bf G 2026-10-27T13:07:42-07:00 ots: stamp 66042f7399fb37e9f362b538c7b767eebd7caef4
+66042f7 G 2026-10-27T13:07:37-07:00 fix: define CrashPhases before Complete
+04dc07c G 2026-10-27T13:06:17-07:00 ots: stamp 6ae555a2d4768b42abdb7e64643e997b2635dd9f
+6ae555a G 2026-10-27T13:06:15-07:00 fix: disk completions stop at the crash
+efad0cf G 2026-10-27T13:04:47-07:00 ots: stamp 3bc549d012ee9d46eb601fb6a54313856442fab1
+3bc549d G 2026-10-27T13:04:43-07:00 model log mount path and record replay
+4b0aba9 G 2026-10-27T12:52:29-07:00 ots: stamp 4ffa974a533e92092076a9129609993517410c5a
+4ffa974 G 2026-10-27T12:52:21-07:00 pre-register: 0 schema findings, 1 honest-environment failure
+5742190 N 2026-10-27T11:31:37-07:00 D2 model-n inputs

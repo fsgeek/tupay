@@ -998,3 +998,10 @@ Owed item (3). From README and traces, per side: does the grant path consult a c
 
 ## 2026-10-27: host git run in a running author checkout (steward lapse; 18:37Z)
 Checking progress, the steward ran host `git -C ~/projects/tupay-d2-model-c-grok log` while the Grok author was working in it, against the practice ("Host git never runs in an author checkout"). **Cost: none found.** The checkout's `.git/config`, read afterwards as data, is the steward's own (mtime 18:32:12Z, before launch at 18:33:40Z; identity, signing and allowed signers only), and `.git/hooks` holds only the steward's `post-commit`. The same command on the box failed on git's ownership check before reading anything. **From here:** progress is read from transcript sizes and, for commits, from `.git/logs/HEAD` as a file, never by running git there.
+
+## 2026-10-27: more families offered (Tony); how they are used (18:40Z)
+Tony: Kimi, DeepSeek and GLM models are available beside Grok (through OpenRouter, per khipumaq). None has touched tupay's material, which makes them the cleanest third parties tupay has. **Decided, before any judge packet or audit review exists:**
+1. **The X3 support audit's mapping** (built by a Claude subagent for a Claude steward) gets an adversarial review by **DeepSeek**, packet inline, before any probe verdict counts. One family checking itself is what the practice's outsider review exists to prevent.
+2. **X3's judge stays as registered (Gemini).** **Kimi** rules on the same packets, without Gemini's rulings, as a second reading **reported beside** the registered score, never instead of it.
+3. **D2 phase 3**: Episode's steward and Gemini as designed; **GLM** rules on the same packet without either ruling, reported beside, and "a prediction holds only under both" is unchanged. Recorded here as an additive amendment to the design, before any phase 2 output is read.
+One role per family, so no family sees two experiments' material. Through the API these run as plain calls with no tools or files, so the packet is the only thing they see.

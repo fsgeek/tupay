@@ -1,0 +1,4 @@
+INVALID R-planted-P1.jsonl: token 1 granted 2 times (C1.1)
+UNEXPLAINED inputs Grant: equal inputs, 2 outcomes: (1, 'c1', 0) at R-planted-P1.jsonl:n1#0.4; (1, 'c2', 0) at R-planted-P1.jsonl:n1#0.13
+decision-replay: 1 traces, 1 invalid, 1 UNEXPLAINED inputs
+EXIT 1

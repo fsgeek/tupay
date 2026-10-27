@@ -1,0 +1,67 @@
+P1-mutation.jsonl: INVALID A/model/observe/P1-mutation.jsonl: token 1 granted 2 times (C1.1)
+P1-mutation.jsonl: INVALID A/model/observe/P1-mutation.jsonl: n1#0 agreed to token 1 after token 1 (C1.1)
+P1-mutation.jsonl: decision-replay: 1 traces, 2 invalid, 0 UNEXPLAINED inputs
+P14-mutation.jsonl: INVALID A/model/observe/P14-mutation.jsonl: s#0.2 ReadAccept: outcome contradicts token 1 vs ledger 2
+P14-mutation.jsonl: decision-replay: 1 traces, 1 invalid, 0 UNEXPLAINED inputs
+P15-mutation.jsonl: INVALID A/model/observe/P15-mutation.jsonl: s#0.2 ReadAccept: outcome contradicts token 1 vs ledger 2
+P15-mutation.jsonl: decision-replay: 1 traces, 1 invalid, 0 UNEXPLAINED inputs
+P19-mutation.jsonl: INVALID A/model/observe/P19-mutation.jsonl: token 2 granted 2 times (C1.1)
+P19-mutation.jsonl: INVALID A/model/observe/P19-mutation.jsonl: n3#0 agreed to token 2 after token 2 (C1.1)
+P19-mutation.jsonl: decision-replay: 1 traces, 2 invalid, 0 UNEXPLAINED inputs
+P2-mutation.jsonl: INVALID A/model/observe/P2-mutation.jsonl: n1#0.3 Grant: counted eligible nodes ['n1'] are not a majority of ['n1', 'n2', 'n3'] (C3.7)
+P2-mutation.jsonl: INVALID A/model/observe/P2-mutation.jsonl: n2#0.3 Grant: counted eligible nodes ['n2'] are not a majority of ['n1', 'n2', 'n3'] (C3.7)
+P2-mutation.jsonl: INVALID A/model/observe/P2-mutation.jsonl: token 1 granted 2 times (C1.1)
+P2-mutation.jsonl: decision-replay: 1 traces, 3 invalid, 0 UNEXPLAINED inputs
+P20-mutation.jsonl: INVALID A/model/observe/P20-mutation.jsonl: token 1 granted 2 times (C1.1)
+P20-mutation.jsonl: INVALID A/model/observe/P20-mutation.jsonl: n2#0 agreed to token 1 after token 1 (C1.1)
+P20-mutation.jsonl: decision-replay: 1 traces, 2 invalid, 0 UNEXPLAINED inputs
+P21-mutation.jsonl: INVALID A/model/observe/P21-mutation.jsonl: s#0.2 WriteAccept: outcome contradicts token 1 vs ledger 2
+P21-mutation.jsonl: decision-replay: 1 traces, 1 invalid, 0 UNEXPLAINED inputs
+P22-mutation.jsonl: INVALID A/model/observe/P22-mutation.jsonl: s#0.2 WriteAccept: outcome contradicts token 1 vs ledger 2
+P22-mutation.jsonl: decision-replay: 1 traces, 1 invalid, 0 UNEXPLAINED inputs
+P27-mutation.jsonl: INVALID A/model/observe/P27-mutation.jsonl: s#0.2 ReadAccept: outcome contradicts token 1 vs ledger 2
+P27-mutation.jsonl: decision-replay: 1 traces, 1 invalid, 0 UNEXPLAINED inputs
+P28-mutation.jsonl: INVALID A/model/observe/P28-mutation.jsonl: s#0.2 ReadAccept: outcome contradicts token 1 vs ledger 2
+P28-mutation.jsonl: decision-replay: 1 traces, 1 invalid, 0 UNEXPLAINED inputs
+P3-mutation.jsonl: INVALID A/model/observe/P3-mutation.jsonl: token 1 granted 2 times (C1.1)
+P3-mutation.jsonl: INVALID A/model/observe/P3-mutation.jsonl: n1#0 agreed to token 1 after token 1 (C1.1)
+P3-mutation.jsonl: INVALID A/model/observe/P3-mutation.jsonl: n2#0 agreed to token 1 after token 1 (C1.1)
+P3-mutation.jsonl: decision-replay: 1 traces, 3 invalid, 0 UNEXPLAINED inputs
+P31-mutation.jsonl: INVALID A/model/observe/P31-mutation.jsonl: epoch 1 decided 2 times (C3.1)
+P31-mutation.jsonl: decision-replay: 1 traces, 1 invalid, 0 UNEXPLAINED inputs
+P32-mutation.jsonl: INVALID A/model/observe/P32-mutation.jsonl: n1#0.10 ConfigCommitted: no committed configuration of epoch -3 in the trace (C3.1)
+P32-mutation.jsonl: decision-replay: 1 traces, 1 invalid, 0 UNEXPLAINED inputs
+P33-mutation.jsonl: INVALID A/model/observe/P33-mutation.jsonl: epoch 1 decided 2 times (C3.1)
+P33-mutation.jsonl: decision-replay: 1 traces, 1 invalid, 0 UNEXPLAINED inputs
+P43-mutation.jsonl: INVALID A/model/observe/P43-mutation.jsonl: n3#0.9 ConfigCommitted: members differ from request r1's (C3.8)
+P43-mutation.jsonl: decision-replay: 1 traces, 1 invalid, 0 UNEXPLAINED inputs
+P44-mutation.jsonl: INVALID A/model/observe/P44-mutation.jsonl: s#0.0 WriteReject: outcome contradicts token 1 vs ledger 0
+P44-mutation.jsonl: decision-replay: 1 traces, 1 invalid, 0 UNEXPLAINED inputs
+P45-mutation.jsonl: INVALID A/model/observe/P45-mutation.jsonl: n1#0.9 ConfigCommitted: readmits n2#1 without an Agreed from it for this proposal
+P45-mutation.jsonl: decision-replay: 1 traces, 1 invalid, 0 UNEXPLAINED inputs
+P46-mutation.jsonl: INVALID A/model/observe/P46-mutation.jsonl: token 1 granted 2 times (C1.1)
+P46-mutation.jsonl: INVALID A/model/observe/P46-mutation.jsonl: grant under epoch 1 with token 1 not above epoch 0's token 1 (C1.1)
+P46-mutation.jsonl: decision-replay: 1 traces, 2 invalid, 0 UNEXPLAINED inputs
+P47-mutation.jsonl: INVALID A/model/observe/P47-mutation.jsonl: token 1 granted 2 times (C1.1)
+P47-mutation.jsonl: INVALID A/model/observe/P47-mutation.jsonl: n1#0 agreed to token 1 after token 1 (C1.1)
+P47-mutation.jsonl: INVALID A/model/observe/P47-mutation.jsonl: n2#0 agreed to token 1 after token 1 (C1.1)
+P47-mutation.jsonl: decision-replay: 1 traces, 3 invalid, 0 UNEXPLAINED inputs
+P48-mutation.jsonl: INVALID A/model/observe/P48-mutation.jsonl: token 1 granted 2 times (C1.1)
+P48-mutation.jsonl: INVALID A/model/observe/P48-mutation.jsonl: grantor_term 1 decided by 2 node incarnations
+P48-mutation.jsonl: INVALID A/model/observe/P48-mutation.jsonl: n2#0 agreed to token 1 after token 1 (C1.1)
+P48-mutation.jsonl: INVALID A/model/observe/P48-mutation.jsonl: n4#0 agreed to token 1 after token 1 (C1.1)
+P48-mutation.jsonl: decision-replay: 1 traces, 4 invalid, 0 UNEXPLAINED inputs
+P49-mutation.jsonl: INVALID A/model/observe/P49-mutation.jsonl: s#0.2 WriteAccept: outcome contradicts token 1 vs ledger 2
+P49-mutation.jsonl: decision-replay: 1 traces, 1 invalid, 0 UNEXPLAINED inputs
+P5-mutation.jsonl: INVALID A/model/observe/P5-mutation.jsonl: s#0.2 WriteAccept: outcome contradicts token 1 vs ledger 2
+P5-mutation.jsonl: decision-replay: 1 traces, 1 invalid, 0 UNEXPLAINED inputs
+P50-mutation.jsonl: INVALID A/model/observe/P50-mutation.jsonl: s#0.1 WriteAccept: outcome contradicts token 1 vs ledger 2
+P50-mutation.jsonl: decision-replay: 1 traces, 1 invalid, 0 UNEXPLAINED inputs
+P51-mutation.jsonl: INVALID A/model/observe/P51-mutation.jsonl: s#0.1 WriteAccept: outcome contradicts token 1 vs ledger 2
+P51-mutation.jsonl: decision-replay: 1 traces, 1 invalid, 0 UNEXPLAINED inputs
+P59-mutation.jsonl: INVALID A/model/observe/P59-mutation.jsonl: n1#0.13 Grant: counted eligible nodes ['n1'] are not a majority of ['n1', 'n2', 'n4'] (C3.7)
+P59-mutation.jsonl: decision-replay: 1 traces, 1 invalid, 0 UNEXPLAINED inputs
+P60-mutation.jsonl: INVALID A/model/observe/P60-mutation.jsonl: n1#0.15 Grant: counted eligible nodes ['n1', 'n3'] are not a majority of ['n1', 'n2', 'n3', 'n4'] (C3.7)
+P60-mutation.jsonl: decision-replay: 1 traces, 1 invalid, 0 UNEXPLAINED inputs
+P63-mutation.jsonl: INVALID A/model/observe/P63-mutation.jsonl: n1#0.10 ConfigCommitted: not counted by majorities of epoch 0 and epoch 1 (C3.8)
+P63-mutation.jsonl: decision-replay: 1 traces, 1 invalid, 0 UNEXPLAINED inputs

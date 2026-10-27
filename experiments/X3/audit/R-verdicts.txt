@@ -1,0 +1,63 @@
+VERDICT side=R schedule=P1 mutant=0 SUPPORT trace=18 states=51737 seconds=16
+VERDICT side=R schedule=P2 mutant=0 SUPPORT trace=11 states=4127 seconds=5
+VERDICT side=R schedule=P3 mutant=0 SUPPORT trace=10 states=1850 seconds=5
+VERDICT side=R schedule=P4 mutant=0 SUPPORT trace=15 states=5956 seconds=4
+VERDICT side=R schedule=P5 mutant=0 SUPPORT trace=12 states=3046 seconds=6
+VERDICT side=R schedule=P6 mutant=0 SUPPORT trace=11 states=1991 seconds=6
+VERDICT side=R schedule=P7 mutant=0 SUPPORT trace=13 states=6132 seconds=5
+VERDICT side=R schedule=P8 mutant=0 SUPPORT trace=12 states=2975 seconds=5
+VERDICT side=R schedule=P9 mutant=0 SUPPORT trace=9 states=1229 seconds=4
+VERDICT side=R schedule=P10 mutant=0 SUPPORT trace=12 states=5564 seconds=5
+VERDICT side=R schedule=P11 mutant=0 SUPPORT trace=12 states=5079 seconds=5
+VERDICT side=R schedule=P12 mutant=0 SUPPORT trace=7 states=470 seconds=5
+VERDICT side=R schedule=P13 mutant=0 SUPPORT trace=15 states=5792 seconds=5
+VERDICT side=R schedule=P14 mutant=0 SUPPORT trace=12 states=3487 seconds=6
+VERDICT side=R schedule=P15 mutant=0 SUPPORT trace=11 states=1962 seconds=4
+VERDICT side=R schedule=P16 mutant=0 SUPPORT trace=17 states=8262 seconds=5
+VERDICT side=R schedule=P17 mutant=0 SUPPORT trace=5 states=151 seconds=2
+VERDICT side=R schedule=P18 mutant=0 SUPPORT trace=15 states=3199 seconds=4
+VERDICT side=R schedule=P19 mutant=0 SUPPORT trace=13 states=7889 seconds=5
+VERDICT side=R schedule=P20 mutant=0 SUPPORT trace=13 states=8600 seconds=5
+VERDICT side=R schedule=P21 mutant=0 SUPPORT trace=12 states=3197 seconds=4
+VERDICT side=R schedule=P22 mutant=0 SUPPORT trace=13 states=2936 seconds=4
+VERDICT side=R schedule=P23 mutant=0 SUPPORT trace=12 states=2665 seconds=4
+VERDICT side=R schedule=P24 mutant=0 SUPPORT trace=12 states=2274 seconds=4
+VERDICT side=R schedule=P25 mutant=0 SUPPORT trace=8 states=910 seconds=4
+VERDICT side=R schedule=P26 mutant=0 SUPPORT trace=8 states=1015 seconds=2
+VERDICT side=R schedule=P27 mutant=0 SUPPORT trace=12 states=3449 seconds=3
+VERDICT side=R schedule=P28 mutant=0 SUPPORT trace=13 states=2863 seconds=3
+VERDICT side=R schedule=P29 mutant=0 SUPPORT trace=15 states=4356 seconds=4
+VERDICT side=R schedule=P30 mutant=0 SUPPORT trace=15 states=4216 seconds=4
+VERDICT side=R schedule=P31 mutant=0 SUPPORT trace=14 states=6034 seconds=5
+VERDICT side=R schedule=P32 mutant=0 VACUOUS not modelled: clocksteps, maxticks; modelled floors (vacuous ones by step position): SUPPORT trace=11 states=6606 seconds=7
+VERDICT side=R schedule=P33 mutant=0 SUPPORT trace=16 states=47013 seconds=19
+VERDICT side=R schedule=P40 mutant=0 SUPPORT trace=11 states=3190 seconds=7
+VERDICT side=R schedule=P41 mutant=0 VACUOUS not modelled: clocksteps, maxticks; modelled floors (vacuous ones by step position): SUPPORT trace=13 states=19710 seconds=10
+VERDICT side=R schedule=P42 mutant=0 SUPPORT trace=11 states=5885 seconds=11
+VERDICT side=R schedule=P43 mutant=0 SUPPORT trace=17 states=6270 seconds=5
+VERDICT side=R schedule=P44 mutant=0 VACUOUS not modelled: clocksteps, maxticks; modelled floors (vacuous ones by step position): SUPPORT trace=9 states=1733 seconds=5
+VERDICT side=R schedule=P45 mutant=0 SUPPORT trace=12 states=3808 seconds=5
+VERDICT side=R schedule=P46 mutant=0 SUPPORT trace=19 states=1991 seconds=5
+VERDICT side=R schedule=P47 mutant=0 VACUOUS not modelled: clocksteps, maxticks; modelled floors (vacuous ones by step position): SUPPORT trace=7 states=423 seconds=3
+VERDICT side=R schedule=P48 mutant=0 SUPPORT trace=12 states=207168 seconds=28
+VERDICT side=R schedule=P49 mutant=0 SUPPORT trace=18 states=7895 seconds=5
+VERDICT side=R schedule=P50 mutant=0 VACUOUS not modelled: clocksteps, maxticks; modelled floors (vacuous ones by step position): SUPPORT trace=7 states=437 seconds=9
+VERDICT side=R schedule=P51 mutant=0 SUPPORT trace=8 states=940 seconds=3
+VERDICT side=R schedule=P52 mutant=0 SUPPORT trace=14 states=85553 seconds=33
+VERDICT side=R schedule=P53 mutant=0 VACUOUS not modelled: clocksteps, maxticks; modelled floors (vacuous ones by step position): SUPPORT trace=8 states=842 seconds=4
+VERDICT side=R schedule=P54 mutant=0 SUPPORT trace=9 states=1057 seconds=4
+VERDICT side=R schedule=P58 mutant=0 SUPPORT trace=15 states=9015 seconds=7
+VERDICT side=R schedule=P59 mutant=0 VACUOUS not modelled: clocksteps, maxticks; modelled floors (vacuous ones by step position): SUPPORT trace=14 states=22715 seconds=12
+VERDICT side=R schedule=P60 mutant=0 SUPPORT trace=17 states=72130 seconds=23
+VERDICT side=R schedule=P61 mutant=0 SUPPORT trace=13 states=10146 seconds=7
+VERDICT side=R schedule=P62 mutant=0 VACUOUS not modelled: clocksteps, maxticks; modelled floors (vacuous ones by step position): SUPPORT trace=11 states=4965 seconds=6
+VERDICT side=R schedule=P63 mutant=0 SUPPORT trace=12 states=12519 seconds=7
+VERDICT side=R schedule=false-suspicion-v1 mutant=0 SUPPORT trace=12 states=3567 seconds=5
+VERDICT side=R schedule=H7 mutant=0 SUPPORT trace=13 states=2908 seconds=4
+VERDICT side=R schedule=H8 mutant=0 SUPPORT trace=14 states=3572 seconds=5
+VERDICT side=R schedule=H9 mutant=0 SUPPORT trace=8 states=875 seconds=3
+VERDICT side=R schedule=H10 mutant=0 SUPPORT trace=13 states=3045 seconds=5
+VERDICT side=R schedule=H11 mutant=0 VACUOUS not modelled: clocksteps, maxticks; modelled floors (vacuous ones by step position): SUPPORT trace=11 states=1459 seconds=3
+VERDICT side=R schedule=H12 mutant=0 VACUOUS not modelled: clocksteps, maxticks; modelled floors (vacuous ones by step position): SUPPORT trace=25 states=11742 seconds=12
+VERDICT side=R schedule=H13 mutant=0 VACUOUS not modelled: clocksteps, maxticks; modelled floors (vacuous ones by step position): ERROR TLC: Error: when writing the disk (StatePoolWriter.run): seconds=9
+VERDICT side=R schedule=H14 mutant=0 SUPPORT trace=10 states=2878 seconds=3

@@ -1,0 +1,14 @@
+side R schedule P59 mutant 0
+bounds (the side's own defaults): MaxTerm 3 (TermCap MaxTerm + 4 after the last fault), Spur0 1
+schedule: clone testbed/schedules/P59.yaml (same as main)
+lease	floor 4	structural	Len(LeaseSeq) >= 4
+config	floor 3	structural	Cardinality(InitCfg) >= 3
+clients	floor 2	structural	Cardinality(Clients) >= 2
+grants	floor 3	state	Cardinality(gr) >= 3
+reconfig	floor 1	state	Cardinality(rqs) >= 1
+epochs	floor 1	state	GCur >= 1
+crashes	floor 0	step	(floor 0: not conjoined)
+amnesic	floor 0	state	(floor 0: not conjoined)
+clocksteps	floor 1	vacuous	AuditStepsDone("clock") >= 1
+maxticks	floor 10	vacuous	\E ai \in 1..(pc - 1) : Steps[ai].do.a = "clock" /\ (Steps[ai].do.ticks >= 10 \/ -Steps[ai].do.ticks >= 10)
+terms	floor 2	state	(\E ag \in gr : ag.term >= 2) \/ (\E an \in Lease : role[an] = "L" /\ term[an] >= 2)

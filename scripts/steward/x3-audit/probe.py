@@ -133,6 +133,12 @@ def main(argv):
     if mutant:
         floors['epochs'] = nreconf + 1
         notes.append(f'MUTANT: epochs floor raised to {nreconf + 1} (reconfigure steps + 1; unreachable by design)')
+    # BESIDE=<col>=<k>: a reading reported beside the registered verdict, never instead of it (log 2026-10-27,
+    # "X3 support audit verdicts"); its verdict line is labelled so it cannot be read as the registered probe
+    for ov in filter(None, os.environ.get('BESIDE', '').split(',')):
+        col, k = ov.split('=')
+        floors[col] = int(k)
+        notes.append(f'BESIDE (not the registered probe): {col} floor set to {k}')
 
     spec = importlib.util.spec_from_file_location('side_compile', src / 'compile.py')
     C = importlib.util.module_from_spec(spec)

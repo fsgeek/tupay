@@ -1,0 +1,1 @@
+VERDICT side=R schedule=P47 mutant=0 VACUOUS not modelled: clocksteps, maxticks; modelled floors (vacuous ones by step position): SUPPORT trace=7 states=423 seconds=3

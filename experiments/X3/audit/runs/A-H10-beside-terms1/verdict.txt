@@ -1,0 +1,1 @@
+VERDICT side=A schedule=H10 mutant=0 BESIDE=terms=1 SUPPORT trace=13 states=323 seconds=2

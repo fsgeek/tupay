@@ -29,7 +29,7 @@ esac
   echo "TLA2TOOLS=$JAR $(sha256sum "$JAR" | cut -c1-16)"; java -version 2>&1 | head -1
   echo "audit.sh $(sha256sum "$0" | cut -c1-16) probe.py $(sha256sum "$HERE/probe.py" | cut -c1-16)"; } > "$O/env.txt"
 
-verdict() { echo "VERDICT side=$SIDE schedule=$SID mutant=${MUTANT:-0} $*" | tee -a "$O/verdict.txt"; }
+verdict() { echo "VERDICT side=$SIDE schedule=$SID mutant=${MUTANT:-0}${BESIDE:+ BESIDE=$BESIDE} $*" | tee -a "$O/verdict.txt"; }
 
 if ! PYTHONDONTWRITEBYTECODE=1 uv run -q --no-project --with pyyaml==6.0.3 python -B "$HERE/probe.py" \
      "$SIDE" "$SID" "$O" "${MUTANT:-0}" > "$O/probe.json" 2> "$O/probe.err"; then

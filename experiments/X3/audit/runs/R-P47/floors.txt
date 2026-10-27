@@ -1,0 +1,14 @@
+side R schedule P47 mutant 0
+bounds (the side's own defaults): MaxTerm 2 (TermCap MaxTerm + 3 after the last fault), Spur0 1
+schedule: clone testbed/schedules/P47.yaml (same as main)
+lease	floor 3	structural	Len(LeaseSeq) >= 3
+config	floor 3	structural	Cardinality(InitCfg) >= 3
+clients	floor 2	structural	Cardinality(Clients) >= 2
+grants	floor 2	state	Cardinality(gr) >= 2
+reconfig	floor 0	state	(floor 0: not conjoined)
+epochs	floor 0	state	(floor 0: not conjoined)
+crashes	floor 0	step	(floor 0: not conjoined)
+amnesic	floor 0	state	(floor 0: not conjoined)
+clocksteps	floor 1	vacuous	AuditStepsDone("clock") >= 1
+maxticks	floor 3	vacuous	\E ai \in 1..(pc - 1) : Steps[ai].do.a = "clock" /\ (Steps[ai].do.ticks >= 3 \/ -Steps[ai].do.ticks >= 3)
+terms	floor 1	state	(\E ag \in gr : ag.term >= 1) \/ (\E an \in Lease : role[an] = "L" /\ term[an] >= 1)

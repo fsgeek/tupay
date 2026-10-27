@@ -1,0 +1,14 @@
+side A schedule H14 mutant 0
+bounds (the side's own defaults): MaxTerm 6, MaxDups 1
+schedule: experiments/X3/holdout/H14.yaml (hash matches SHA256SUMS)
+lease	floor 3	structural	Cardinality(Nodes) >= 3
+config	floor 3	structural	Cardinality(Init0) >= 3
+clients	floor 1	structural	Cardinality(Clients) >= 1
+grants	floor 1	state	Len(grants) >= 1
+reconfig	floor 1	step	AuditStepsDone("reconfig") >= 1
+epochs	floor 1	state	\E ai \in 1..Len(commits) : commits[ai].rec.ep >= 1
+crashes	floor 0	step	(floor 0: not conjoined)
+amnesic	floor 0	state	(floor 0: not conjoined)
+clocksteps	floor 0	step	(floor 0: not conjoined)
+maxticks	floor 0	step	(floor 0: not conjoined)
+terms	floor 2	state	(\E ai \in 1..Len(grants) : grants[ai].term >= 2) \/ (\E an \in Nodes : leader[an] /\ term[an] >= 2)

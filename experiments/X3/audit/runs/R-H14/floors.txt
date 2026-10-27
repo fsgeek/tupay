@@ -1,0 +1,14 @@
+side R schedule H14 mutant 0
+bounds (the side's own defaults): MaxTerm 4 (TermCap MaxTerm + 3 after the last fault), Spur0 1
+schedule: experiments/X3/holdout/H14.yaml (hash matches SHA256SUMS)
+lease	floor 3	structural	Len(LeaseSeq) >= 3
+config	floor 3	structural	Cardinality(InitCfg) >= 3
+clients	floor 1	structural	Cardinality(Clients) >= 1
+grants	floor 1	state	Cardinality(gr) >= 1
+reconfig	floor 1	state	Cardinality(rqs) >= 1
+epochs	floor 1	state	GCur >= 1
+crashes	floor 0	step	(floor 0: not conjoined)
+amnesic	floor 0	state	(floor 0: not conjoined)
+clocksteps	floor 0	vacuous	(floor 0: not conjoined)
+maxticks	floor 0	vacuous	(floor 0: not conjoined)
+terms	floor 2	state	(\E ag \in gr : ag.term >= 2) \/ (\E an \in Lease : role[an] = "L" /\ term[an] >= 2)

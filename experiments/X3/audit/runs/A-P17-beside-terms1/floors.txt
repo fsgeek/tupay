@@ -1,0 +1,15 @@
+side A schedule P17 mutant 0
+bounds (the side's own defaults): MaxTerm 6, MaxDups 1
+schedule: clone testbed/schedules/P17.yaml (same as main)
+BESIDE (not the registered probe): terms floor set to 1
+lease	floor 3	structural	Cardinality(Nodes) >= 3
+config	floor 3	structural	Cardinality(Init0) >= 3
+clients	floor 2	structural	Cardinality(Clients) >= 2
+grants	floor 1	state	Len(grants) >= 1
+reconfig	floor 0	step	(floor 0: not conjoined)
+epochs	floor 0	state	(floor 0: not conjoined)
+crashes	floor 0	step	(floor 0: not conjoined)
+amnesic	floor 0	state	(floor 0: not conjoined)
+clocksteps	floor 0	step	(floor 0: not conjoined)
+maxticks	floor 0	step	(floor 0: not conjoined)
+terms	floor 1	state	(\E ai \in 1..Len(grants) : grants[ai].term >= 1) \/ (\E an \in Nodes : leader[an] /\ term[an] >= 1)

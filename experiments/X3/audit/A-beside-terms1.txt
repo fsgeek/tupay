@@ -1,0 +1,13 @@
+VERDICT side=A schedule=P8 mutant=0 BESIDE=terms=1 SUPPORT trace=12 states=377 seconds=2
+VERDICT side=A schedule=P17 mutant=0 BESIDE=terms=1 SUPPORT trace=5 states=28 seconds=3
+VERDICT side=A schedule=P19 mutant=0 BESIDE=terms=1 SUPPORT trace=15 states=462 seconds=2
+VERDICT side=A schedule=P22 mutant=0 BESIDE=terms=1 SUPPORT trace=13 states=280 seconds=3
+VERDICT side=A schedule=P23 mutant=0 BESIDE=terms=1 SUPPORT trace=12 states=316 seconds=3
+VERDICT side=A schedule=P24 mutant=0 BESIDE=terms=1 SUPPORT trace=12 states=310 seconds=4
+VERDICT side=A schedule=P25 mutant=0 BESIDE=terms=1 SUPPORT trace=8 states=118 seconds=2
+VERDICT side=A schedule=P28 mutant=0 BESIDE=terms=1 SUPPORT trace=13 states=272 seconds=3
+VERDICT side=A schedule=P29 mutant=0 BESIDE=terms=1 SUPPORT trace=15 states=617 seconds=3
+VERDICT side=A schedule=P30 mutant=0 BESIDE=terms=1 SUPPORT trace=15 states=442 seconds=3
+VERDICT side=A schedule=H7 mutant=0 BESIDE=terms=1 SUPPORT trace=13 states=294 seconds=2
+VERDICT side=A schedule=H9 mutant=0 BESIDE=terms=1 SUPPORT trace=8 states=79 seconds=2
+VERDICT side=A schedule=H10 mutant=0 BESIDE=terms=1 SUPPORT trace=13 states=323 seconds=2

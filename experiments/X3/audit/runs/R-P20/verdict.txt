@@ -1,0 +1,1 @@
+VERDICT side=R schedule=P20 mutant=0 SUPPORT trace=13 states=8600 seconds=5

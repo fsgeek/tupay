@@ -1,0 +1,14 @@
+side R schedule H11 mutant 0
+bounds (the side's own defaults): MaxTerm 4 (TermCap MaxTerm + 3 after the last fault), Spur0 1
+schedule: experiments/X3/holdout/H11.yaml (hash matches SHA256SUMS)
+lease	floor 3	structural	Len(LeaseSeq) >= 3
+config	floor 3	structural	Cardinality(InitCfg) >= 3
+clients	floor 1	structural	Cardinality(Clients) >= 1
+grants	floor 0	state	(floor 0: not conjoined)
+reconfig	floor 2	state	Cardinality(rqs) >= 2
+epochs	floor 1	state	GCur >= 1
+crashes	floor 0	step	(floor 0: not conjoined)
+amnesic	floor 0	state	(floor 0: not conjoined)
+clocksteps	floor 1	vacuous	AuditStepsDone("clock") >= 1
+maxticks	floor 1	vacuous	\E ai \in 1..(pc - 1) : Steps[ai].do.a = "clock" /\ (Steps[ai].do.ticks >= 1 \/ -Steps[ai].do.ticks >= 1)
+terms	floor 2	state	(\E ag \in gr : ag.term >= 2) \/ (\E an \in Lease : role[an] = "L" /\ term[an] >= 2)

@@ -1,0 +1,63 @@
+VERDICT side=A schedule=P1 mutant=0 SUPPORT trace=20 states=7487 seconds=4
+VERDICT side=A schedule=P2 mutant=0 SUPPORT trace=13 states=562 seconds=3
+VERDICT side=A schedule=P3 mutant=0 SUPPORT trace=12 states=365 seconds=3
+VERDICT side=A schedule=P4 mutant=0 SUPPORT trace=18 states=892 seconds=4
+VERDICT side=A schedule=P5 mutant=0 SUPPORT trace=14 states=387 seconds=2
+VERDICT side=A schedule=P6 mutant=0 SUPPORT trace=13 states=256 seconds=3
+VERDICT side=A schedule=P7 mutant=0 SUPPORT trace=14 states=1321 seconds=14
+VERDICT side=A schedule=P8 mutant=0 NO-SUPPORT search complete, distinct=2900 seconds=3
+VERDICT side=A schedule=P9 mutant=0 SUPPORT trace=11 states=232 seconds=2
+VERDICT side=A schedule=P10 mutant=0 SUPPORT trace=14 states=569 seconds=3
+VERDICT side=A schedule=P11 mutant=0 SUPPORT trace=13 states=483 seconds=3
+VERDICT side=A schedule=P12 mutant=0 SUPPORT trace=7 states=94 seconds=2
+VERDICT side=A schedule=P13 mutant=0 SUPPORT trace=18 states=1019 seconds=3
+VERDICT side=A schedule=P14 mutant=0 SUPPORT trace=14 states=476 seconds=2
+VERDICT side=A schedule=P15 mutant=0 SUPPORT trace=13 states=250 seconds=2
+VERDICT side=A schedule=P16 mutant=0 SUPPORT trace=19 states=2202 seconds=4
+VERDICT side=A schedule=P17 mutant=0 NO-SUPPORT search complete, distinct=6680 seconds=4
+VERDICT side=A schedule=P18 mutant=0 SUPPORT trace=15 states=552 seconds=3
+VERDICT side=A schedule=P19 mutant=0 NO-SUPPORT search complete, distinct=794 seconds=4
+VERDICT side=A schedule=P20 mutant=0 SUPPORT trace=17 states=529 seconds=3
+VERDICT side=A schedule=P21 mutant=0 SUPPORT trace=14 states=372 seconds=2
+VERDICT side=A schedule=P22 mutant=0 NO-SUPPORT search complete, distinct=5180 seconds=4
+VERDICT side=A schedule=P23 mutant=0 NO-SUPPORT search complete, distinct=2900 seconds=4
+VERDICT side=A schedule=P24 mutant=0 NO-SUPPORT search complete, distinct=12569 seconds=4
+VERDICT side=A schedule=P25 mutant=0 NO-SUPPORT search complete, distinct=266 seconds=2
+VERDICT side=A schedule=P26 mutant=0 SUPPORT trace=9 states=191 seconds=2
+VERDICT side=A schedule=P27 mutant=0 SUPPORT trace=14 states=409 seconds=3
+VERDICT side=A schedule=P28 mutant=0 NO-SUPPORT search complete, distinct=5180 seconds=5
+VERDICT side=A schedule=P29 mutant=0 NO-SUPPORT search complete, distinct=16427 seconds=5
+VERDICT side=A schedule=P30 mutant=0 NO-SUPPORT search complete, distinct=13607 seconds=11
+VERDICT side=A schedule=P31 mutant=0 SUPPORT trace=14 states=86888 seconds=13
+VERDICT side=A schedule=P32 mutant=0 SUPPORT trace=11 states=748 seconds=3
+VERDICT side=A schedule=P33 mutant=0 SUPPORT trace=13 states=13084 seconds=6
+VERDICT side=A schedule=P40 mutant=0 SUPPORT trace=10 states=786 seconds=3
+VERDICT side=A schedule=P41 mutant=0 SUPPORT trace=12 states=1405 seconds=3
+VERDICT side=A schedule=P42 mutant=0 SUPPORT trace=10 states=3091 seconds=3
+VERDICT side=A schedule=P43 mutant=0 SUPPORT trace=17 states=7395 seconds=15
+VERDICT side=A schedule=P44 mutant=0 SUPPORT trace=11 states=400 seconds=2
+VERDICT side=A schedule=P45 mutant=0 SUPPORT trace=12 states=384 seconds=2
+VERDICT side=A schedule=P46 mutant=0 SUPPORT trace=17 states=5221 seconds=4
+VERDICT side=A schedule=P47 mutant=0 SUPPORT trace=8 states=86 seconds=2
+VERDICT side=A schedule=P48 mutant=0 SUPPORT trace=11 states=2247 seconds=4
+VERDICT side=A schedule=P49 mutant=0 SUPPORT trace=17 states=1555 seconds=4
+VERDICT side=A schedule=P50 mutant=0 SUPPORT trace=7 states=89 seconds=2
+VERDICT side=A schedule=P51 mutant=0 SUPPORT trace=9 states=171 seconds=3
+VERDICT side=A schedule=P52 mutant=0 SUPPORT trace=14 states=10098 seconds=5
+VERDICT side=A schedule=P53 mutant=0 SUPPORT trace=10 states=380 seconds=4
+VERDICT side=A schedule=P54 mutant=0 SUPPORT trace=9 states=199 seconds=2
+VERDICT side=A schedule=P58 mutant=0 SUPPORT trace=15 states=23371 seconds=8
+VERDICT side=A schedule=P59 mutant=0 SUPPORT trace=14 states=18373 seconds=13
+VERDICT side=A schedule=P60 mutant=0 SUPPORT trace=16 states=5200 seconds=4
+VERDICT side=A schedule=P61 mutant=0 SUPPORT trace=10 states=3614 seconds=4
+VERDICT side=A schedule=P62 mutant=0 SUPPORT trace=9 states=180 seconds=2
+VERDICT side=A schedule=P63 mutant=0 SUPPORT trace=11 states=640 seconds=3
+VERDICT side=A schedule=false-suspicion-v1 mutant=0 SUPPORT trace=14 states=426 seconds=3
+VERDICT side=A schedule=H7 mutant=0 NO-SUPPORT search complete, distinct=87449 seconds=17
+VERDICT side=A schedule=H8 mutant=0 SUPPORT trace=15 states=469 seconds=2
+VERDICT side=A schedule=H9 mutant=0 NO-SUPPORT search complete, distinct=242 seconds=2
+VERDICT side=A schedule=H10 mutant=0 NO-SUPPORT search complete, distinct=1697 seconds=4
+VERDICT side=A schedule=H11 mutant=0 SUPPORT trace=13 states=256 seconds=2
+VERDICT side=A schedule=H12 mutant=0 SUPPORT trace=24 states=33401 seconds=22
+VERDICT side=A schedule=H13 mutant=0 SUPPORT trace=20 states=20884 seconds=8
+VERDICT side=A schedule=H14 mutant=0 SUPPORT trace=11 states=353 seconds=2

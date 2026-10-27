@@ -1,0 +1,14 @@
+side A schedule P60 mutant 0
+bounds (the side's own defaults): MaxTerm 8, MaxDups 1
+schedule: clone testbed/schedules/P60.yaml (same as main)
+lease	floor 4	structural	Cardinality(Nodes) >= 4
+config	floor 3	structural	Cardinality(Init0) >= 3
+clients	floor 2	structural	Cardinality(Clients) >= 2
+grants	floor 3	state	Len(grants) >= 3
+reconfig	floor 1	step	AuditStepsDone("reconfig") >= 1
+epochs	floor 1	state	\E ai \in 1..Len(commits) : commits[ai].rec.ep >= 1
+crashes	floor 1	step	AuditStepsDone("crash") >= 1
+amnesic	floor 1	state	AuditSum(inc, Nodes) >= 1
+clocksteps	floor 0	step	(floor 0: not conjoined)
+maxticks	floor 0	step	(floor 0: not conjoined)
+terms	floor 1	state	(\E ai \in 1..Len(grants) : grants[ai].term >= 1) \/ (\E an \in Nodes : leader[an] /\ term[an] >= 1)

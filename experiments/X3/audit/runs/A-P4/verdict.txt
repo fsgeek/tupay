@@ -1,0 +1,1 @@
+VERDICT side=A schedule=P4 mutant=0 SUPPORT trace=18 states=892 seconds=4

@@ -1048,3 +1048,6 @@ Tony: he suspended the box's VM to lock 96 GB for another resident's experiments
 
 ## 2026-10-28: D2 phase 2 complete: Claude N ended; collected (20:10Z)
 Claude N ran 18:54:00Z to its last write at 20:09:24Z; final event `result`/`success`, `end_turn`, 177 turns, `duration_ms` 4,520,346, US$16.81. The watcher reported the unit inactive at 20:10:14Z. Exported: 23 author commits signed `G`, the steward's input commit `N`; 302 assistant messages, none not `claude-opus-5-5`. Commit subjects were not displayed this time (export output to a file, counted by signature only). Finding headings counted, not read (`experiments/D2/phase2/model-n-claude/`). **All four phase 2 authors are in:** Claude C, Claude N, Grok C, Grok N. **Next: phase 3**, beginning with the freeze.
+
+## 2026-10-28: D2 phase 3 step 1: the freeze (20:11Z)
+The four authors' final commits and file hashes are committed (`experiments/D2/phase3/freeze/`), with reproducible tar archives in `~/projects/tupay-private/D2/phase3/` (hashes committed). By hash, not copy: the trees may quote the DCE source at length (design "Licence") and the steward has not read them. This commit's stamp is the freeze time; step 2 (packet, opaque ids by the first beacon pulse after this commit) builds only from these heads.

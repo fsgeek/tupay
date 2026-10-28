@@ -19,6 +19,7 @@ How the steward runs a round, as of 2026-10-21 after X2. Each rule names the err
 
 - **Credentials are copied in, never bind-mounted.** A harness that refreshes its token rotates it at the provider and saves by renaming over its credential file; a bind-mounted file refuses the rename, the new token is lost and Tony's login dies (2026-10-25: Grok's, since 2026-10-23). `author-sandbox.sh` copies the credential in and writes a rotated one back only if Tony's file is unchanged since the copy.
 - **Model authors run on the box** (`scripts/steward/box/`): `box-check.sh` before each launch (it fails on any earlier session in the author's home), `box-push.sh`, `box-launch.sh` (pinned model; no web tools, no `RemoteTrigger`, which starts a cloud agent past the proxy; no MCP), `box-export.sh`, which runs `model-id-check.py` over the transcript.
+- **Every box run gets a tracked watcher on this host** (the harness's background mechanism) that polls the unit and exits when it ends or the box stops answering. Box units are not the harness's processes, so without one nothing reports their end. (2026-10-28: the Claude C author's end went unnoticed for most of a day, and then the box was unreachable.)
 
 ## While authors work
 - **Never edit a script a run is executing.** Bash reads a script as it runs; an edit lands in the running process (2026-10-25: both D1 Codex runs exited 127 executing a fragment of the edited `author-sandbox.sh` after their harness finished). Edit a copy, or wait.

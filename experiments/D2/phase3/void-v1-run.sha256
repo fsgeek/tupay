@@ -1,0 +1,8 @@
+996ee37488a7f8a3305a2410796abcccf8e27739829c1f72b60925d8eee1b010  ./findings/gemini/.agents/deny-all.sh
+6ac0e4689669f3a7d4db24b4ff9d7a1cbd5caa30a0a84e286eaaa8455693d243  ./findings/gemini/.agents/hooks.json
+d123efebb823fcd638a0046d8e3b8f849880e00b86a28f2e95e93246f88a2b88  ./findings/gemini/start.txt
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  ./findings/gemini/stderr.txt
+f2aebd927dc8b70eaf7bbbe3819f929b66c55a3cd5ac92eee41bf536b068df5d  ./findings/gemini/stdin.jsonl
+b6fff0665d85112b0937403238ca59fe78eb816933f8f751c92a3805c3ac1a75  ./findings/gemini/transcript.jsonl
+5edc680845960ffd16565a6f53d5c004fa070849141ae82e1b6f3669c3ebcb4a  ./findings/packet-sent.md
+d3945bb479baf30f56365095443aaf028ee6b9281cf846173c4198d8c759604b  ./findings/packet-sent.sha256

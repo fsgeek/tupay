@@ -6,10 +6,10 @@
 # derives: experiments/D2/design.md draft 2, phase 3 step 3; log 2026-10-29 "D2 phase 3 step 2"
 set -uo pipefail
 P=$(realpath "$1"); O=$(realpath -m "$2"); SD=$(dirname "$(realpath "$0")"); [ -e "$O" ] && { echo "exists: $O"; exit 1; }
-SEALED_SHA=227d250888122a852f8b477dee3c6ff2fd0975d339ad341d85a4ef6f6b7b9698
-mkdir -p "$O"; S=$(git -C "$HOME/projects/episode" show 7eeb027:sealed/2026-10-26-tupay-D2-findings.md) || exit 1
+SEALED_SHA=1736879642dd697bfc0d5b1509034cfd519e581129541fa8b7a78efb47f17231   # v2; v1 (227d2508…, 7eeb027) superseded for judging by Episode, 2026-10-27
+mkdir -p "$O"; S=$(git -C "$HOME/projects/episode" show b30107c:sealed/2026-10-27-tupay-D2-findings-v2.md) || exit 1
 [ "$(printf '%s\n' "$S" | sha256sum | cut -d' ' -f1)" = "$SEALED_SHA" ] || { echo "sealed hash mismatch"; exit 1; }
-{ sed 's/{SEALED_WHERE}/at the end of this packet, under "The sealed analysis"/' "$P"; printf '\n## The sealed analysis (sealed 2026-10-26, before any list existed)\n\n%s\n' "$S"; } > "$O/packet-sent.md"
+{ sed 's/{SEALED_WHERE}/at the end of this packet, under "The sealed analysis"/' "$P"; printf '\n## The sealed analysis (v2, sealed 2026-10-27T18:15:54Z, before any finding existed)\n\n%s\n' "$S"; } > "$O/packet-sent.md"
 sha256sum "$O/packet-sent.md" | cut -d' ' -f1 > "$O/packet-sent.sha256"; G=$O/gemini
 "$SD/d1-agy-workspace.sh" "$G" >/dev/null
 python3 -c 'import json,sys; print(json.dumps({"event":"user","message":{"role":"user","content":open(sys.argv[1]).read()}}))' "$O/packet-sent.md" > "$G/stdin.jsonl"

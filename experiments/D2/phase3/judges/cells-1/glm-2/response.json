@@ -1,0 +1,54 @@
+{
+ "id": "gen-1793255078-7oOGv6FjfSdBmebIiQS2",
+ "object": "chat.completion",
+ "created": 1793255078,
+ "model": "z-ai/glm-5.3-prime",
+ "provider": "Alibaba",
+ "system_fingerprint": null,
+ "service_tier": null,
+ "choices": [
+  {
+   "index": 0,
+   "logprobs": null,
+   "finish_reason": "stop",
+   "native_finish_reason": "stop",
+   "message": {
+    "role": "assistant",
+    "content": "{\"cells\": [{\"id\": \"C001\", \"names_contract_of\": [\"E4\"], \"reason\": \"The cell's clause 'must not return success for a page that was not stored' is E4's contract that a completed write was actually stored (no lost writes).\"}, {\"id\": \"C002\", \"names_contract_of\": [], \"reason\": \"Write-back mode selection is a caller obligation not recorded for any sealed bug.\"}, {\"id\": \"C003\", \"names_contract_of\": [], \"reason\": \"Kernel-address/copyin contract is not among the sealed contracts (E2\u2013E5 are disk durability only).\"}, {\"id\": \"C004\", \"names_contract_of\": [], \"reason\": \"Equivalence-class merging obligations are not recorded for any sealed bug.\"}, {\"id\": \"C005\", \"names_contract_of\": [], \"reason\": \"Transaction lifetime/reservation bounds are not sealed contracts.\"}, {\"id\": \"C006\", \"names_contract_of\": [], \"reason\": \"Transaction-ID retirement is not a sealed contract.\"}, {\"id\": \"C007\", \"names_contract_of\": [], \"reason\": \"Block-reuse/buffer-transition contract is not among the sealed bugs.\"}, {\"id\": \"C008\", \"names_contract_of\": [], \"reason\": \"Log-block array description is not a sealed contract.\"}, {\"id\": \"C009\", \"names_contract_of\": [], \"reason\": \"Canonical device identity is not a sealed contract.\"}, {\"id\": \"C010\", \"names_contract_of\": [], \"reason\": \"Logging-enabled initialization is not a sealed contract.\"}, {\"id\": \"C011\", \"names_contract_of\": [], \"reason\": \"Log-location array lifetime is not a sealed contract.\"}, {\"id\": \"C012\", \"names_contract_of\": [], \"reason\": \"Nested-transaction size bounds are not sealed contracts.\"}, {\"id\": \"C013\", \"names_contract_of\": [], \"reason\": \"The caller-timing obligation on ending undo-zero differs from E5's sealed contract, which is disk durability of the completed user-data write, not a VM ending rule.\"}, {\"id\": \"C014\", \"names_contract_of\": [], \"reason\": \"CPU/compiler alignment is not a sealed contract.\"}, {\"id\": \"C015\", \"names_contract_of\": [], \"reason\": \"Quiesce boundary interpretation is not a sealed contract.\"}, {\"id\": \"C016\", \"names_contract_of\": [], \"reason\": \"Shutdown synchronization/single-writer is not a sealed contract.\"}, {\"id\": \"C017\", \"names_contract_of\": [], \"reason\": \"Live tuning limits are not a sealed contract.\"}, {\"id\": \"C018\", \"names_contract_of\": [], \"reason\": \"Read returning last completed write's data is a read contract; the sealed file records only write-durability contracts (E2\u2013E5).\"}, {\"id\": \"C019\", \"names_contract_of\": [], \"reason\": \"Restart-marker authenticity/ordering is not a sealed contract.\"}, {\"id\": \"C020\", \"names_contract_of\": [], \"reason\": \"Object serialization is not a sealed contract.\"}, {\"id\": \"C021\", \"names_contract_of\": [], \"reason\": \"Checksum scheme selection is not a sealed contract.\"}, {\"id\": \"C022\", \"names_contract_of\": [], \"reason\": \"Device identity/mapping stability is not a sealed contract.\"}, {\"id\": \"C023\", \"names_contract_of\": [], \"reason\": \"Fast-modify kernel-address contract is not sealed.\"}, {\"id\": \"C024\", \"names_contract_of\": [], \"reason\": \"metadataOK-after-commit is not a sealed contract.\"}, {\"id\": \"C025\", \"names_contract_of\": [], \"reason\": \"OS pinning/DMA residency is not a sealed contract.\"}, {\"id\": \"C026\", \"names_contract_of\": [], \"reason\": \"Stable device block-size/addressing is not a sealed contract.\"}, {\"id\": \"C027\", \"names_contract_of\": [], \"reason\": \"Tlock recycling serialization is not a sealed contract.\"}, {\"id\": \"C028\", \"names_contract_of\": [], \"reason\": \"RCVR_RECOVERED handling is not a sealed contract.\"}, {\"id\": \"C029\", \"names_contract_of\": [], \"reason\": \"Sleep/wakeup atomicity is not a sealed contract.\"}, {\"id\": \"C030\", \"names_contract_of\": [], \"reason\": \"Recovery-time comparability is not a sealed contract.\"}, {\"id\": \"C031\", \"names_contract_of\": [], \"reason\": \"Primary superblock validity is not a sealed contract.\"}, {\"id\": \"C032\", \"names_contract_of\": [], \"reason\": \"Storage returning last durably written bytes is a read-side contract; sealed bugs record only write-durability contracts.\"}, {\"id\": \"C033\", \"names_contract_of\": [], \"reason\": \"On-disk format/endianness compatibility is not a sealed contract.\"}, {\"id\": \"C034\", \"names_contract_of\": [], \"reason\": \"No-read buffer initialization is not a sealed contract.\"}, {\"id\": \"C035\", \"names_contract_of\": [], \"reason\": \"In-range block addresses are not a sealed contract.\"}, {\"id\": \"C036\", \"names_contract_of\": [], \"reason\": \"Fail-stop crash semantics are the ambient model, not the violated contract recorded for any sealed bug (E1/E6/E7 record 'none violated').\"}, {\"id\": \"C037\", \"names_contract_of\": [], \"reason\": \"Active-second-transaction merge precondition is not a sealed contract.\"}]}",
+    "refusal": null,
+    "reasoning": "Need to judge each cell: does it name the violated contract recorded for some sealed bug? Sealed bugs' contracts: E1 none; E2/E3/E4/E5 disk durability contracts (completed write durable / actually stored). E6/E7 none.\n\nSo cells matching disk durability/stored contracts: C001 (device must report failed/unreadable transfer as error, not return success for page not stored) \u2014 E4 \"completed write was actually stored (no lost writes)\"? C001 is about reporting errors, not durability. E4's contract is \"a completed write was actually stored\". C001's contract: device must not return success for a page not stored \u2014 that's essentially E4's contract. Yes, E4.\n\nC002: write-back mode sync \u2014 not sealed.\nC018: later read returns data of last write reported complete \u2014 that's a read contract, not sealed (sealed has write durability). No.\nC032: storage returns bytes last durably written or error \u2014 read contract; not sealed. Sealed only write durability. No.\nC036: crash stops machine, leaves only completed sector writes \u2014 that's the crash model; sealed bugs say \"none violated\" for E1/E6/E7... E2/E3/E5 assume crash + durability. C036's contract is fail-stop crash model, not the disk durability contract. No.\nC025 pinning \u2014 no.\nC013 undo-zero timing \u2014 E5's contract is disk durability of the user data write covered by undo-zero. C013's contract: VM must end undo-zero only after first write reached disk. Hmm \u2014 E5's mechanism: Z's END durable while user data in volatile cache. The contract violated in E5 is disk durability, not VM ending timing. C013's contract is about caller ending transaction after write completes \u2014 different contract. But is it \"the same violated contract\"? E5's contract: \"disk: a completed write is durable (here: the user data write covered by undo-zero)\". C013 says caller must not end transaction before write completes \u2014 that's a caller obligation, not disk durability. Different. No.\n\nC001: \"must not return success for a page that was not stored\" \u2014 E4: \"a completed write was actually stored (no lost writes)\". Same contract essentially. Yes, E4.\n\nAny others? C019 restart marker durability \u2014 no. C021 checksum \u2014 no.\n\nSo only C001 \u2192 E4. Maybe C018/C032? Sealed has no read contract. No.\n\nAnswer JSON.",
+    "reasoning_details": [
+     {
+      "type": "reasoning.text",
+      "text": "Need to judge each cell: does it name the violated contract recorded for some sealed bug? Sealed bugs' contracts: E1 none; E2/E3/E4/E5 disk durability contracts (completed write durable / actually stored). E6/E7 none.\n\nSo cells matching disk durability/stored contracts: C001 (device must report failed/unreadable transfer as error, not return success for page not stored) \u2014 E4 \"completed write was actually stored (no lost writes)\"? C001 is about reporting errors, not durability. E4's contract is \"a completed write was actually stored\". C001's contract: device must not return success for a page not stored \u2014 that's essentially E4's contract. Yes, E4.\n\nC002: write-back mode sync \u2014 not sealed.\nC018: later read returns data of last write reported complete \u2014 that's a read contract, not sealed (sealed has write durability). No.\nC032: storage returns bytes last durably written or error \u2014 read contract; not sealed. Sealed only write durability. No.\nC036: crash stops machine, leaves only completed sector writes \u2014 that's the crash model; sealed bugs say \"none violated\" for E1/E6/E7... E2/E3/E5 assume crash + durability. C036's contract is fail-stop crash model, not the disk durability contract. No.\nC025 pinning \u2014 no.\nC013 undo-zero timing \u2014 E5's contract is disk durability of the user data write covered by undo-zero. C013's contract: VM must end undo-zero only after first write reached disk. Hmm \u2014 E5's mechanism: Z's END durable while user data in volatile cache. The contract violated in E5 is disk durability, not VM ending timing. C013's contract is about caller ending transaction after write completes \u2014 different contract. But is it \"the same violated contract\"? E5's contract: \"disk: a completed write is durable (here: the user data write covered by undo-zero)\". C013 says caller must not end transaction before write completes \u2014 that's a caller obligation, not disk durability. Different. No.\n\nC001: \"must not return success for a page that was not stored\" \u2014 E4: \"a completed write was actually stored (no lost writes)\". Same contract essentially. Yes, E4.\n\nAny others? C019 restart marker durability \u2014 no. C021 checksum \u2014 no.\n\nSo only C001 \u2192 E4. Maybe C018/C032? Sealed has no read contract. No.\n\nAnswer JSON.",
+      "format": "unknown",
+      "index": 0
+     }
+    ]
+   }
+  }
+ ],
+ "usage": {
+  "prompt_tokens": 15400,
+  "completion_tokens": 1747,
+  "total_tokens": 17147,
+  "cost": 0.0584936,
+  "is_byok": false,
+  "prompt_tokens_details": {
+   "cached_tokens": 0,
+   "cache_write_tokens": 0,
+   "audio_tokens": 0,
+   "video_tokens": 0
+  },
+  "cost_details": {
+   "upstream_inference_cost": 0.0584936,
+   "upstream_inference_prompt_cost": 0.04312,
+   "upstream_inference_completions_cost": 0.0153736
+  },
+  "completion_tokens_details": {
+   "reasoning_tokens": 534,
+   "image_tokens": 0,
+   "audio_tokens": 0
+  }
+ }
+}

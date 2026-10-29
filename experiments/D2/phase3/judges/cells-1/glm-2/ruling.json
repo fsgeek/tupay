@@ -1,0 +1,191 @@
+{
+ "cells": [
+  {
+   "id": "C001",
+   "names_contract_of": [
+    "E4"
+   ],
+   "reason": "The cell's clause 'must not return success for a page that was not stored' is E4's contract that a completed write was actually stored (no lost writes)."
+  },
+  {
+   "id": "C002",
+   "names_contract_of": [],
+   "reason": "Write-back mode selection is a caller obligation not recorded for any sealed bug."
+  },
+  {
+   "id": "C003",
+   "names_contract_of": [],
+   "reason": "Kernel-address/copyin contract is not among the sealed contracts (E2\u2013E5 are disk durability only)."
+  },
+  {
+   "id": "C004",
+   "names_contract_of": [],
+   "reason": "Equivalence-class merging obligations are not recorded for any sealed bug."
+  },
+  {
+   "id": "C005",
+   "names_contract_of": [],
+   "reason": "Transaction lifetime/reservation bounds are not sealed contracts."
+  },
+  {
+   "id": "C006",
+   "names_contract_of": [],
+   "reason": "Transaction-ID retirement is not a sealed contract."
+  },
+  {
+   "id": "C007",
+   "names_contract_of": [],
+   "reason": "Block-reuse/buffer-transition contract is not among the sealed bugs."
+  },
+  {
+   "id": "C008",
+   "names_contract_of": [],
+   "reason": "Log-block array description is not a sealed contract."
+  },
+  {
+   "id": "C009",
+   "names_contract_of": [],
+   "reason": "Canonical device identity is not a sealed contract."
+  },
+  {
+   "id": "C010",
+   "names_contract_of": [],
+   "reason": "Logging-enabled initialization is not a sealed contract."
+  },
+  {
+   "id": "C011",
+   "names_contract_of": [],
+   "reason": "Log-location array lifetime is not a sealed contract."
+  },
+  {
+   "id": "C012",
+   "names_contract_of": [],
+   "reason": "Nested-transaction size bounds are not sealed contracts."
+  },
+  {
+   "id": "C013",
+   "names_contract_of": [],
+   "reason": "The caller-timing obligation on ending undo-zero differs from E5's sealed contract, which is disk durability of the completed user-data write, not a VM ending rule."
+  },
+  {
+   "id": "C014",
+   "names_contract_of": [],
+   "reason": "CPU/compiler alignment is not a sealed contract."
+  },
+  {
+   "id": "C015",
+   "names_contract_of": [],
+   "reason": "Quiesce boundary interpretation is not a sealed contract."
+  },
+  {
+   "id": "C016",
+   "names_contract_of": [],
+   "reason": "Shutdown synchronization/single-writer is not a sealed contract."
+  },
+  {
+   "id": "C017",
+   "names_contract_of": [],
+   "reason": "Live tuning limits are not a sealed contract."
+  },
+  {
+   "id": "C018",
+   "names_contract_of": [],
+   "reason": "Read returning last completed write's data is a read contract; the sealed file records only write-durability contracts (E2\u2013E5)."
+  },
+  {
+   "id": "C019",
+   "names_contract_of": [],
+   "reason": "Restart-marker authenticity/ordering is not a sealed contract."
+  },
+  {
+   "id": "C020",
+   "names_contract_of": [],
+   "reason": "Object serialization is not a sealed contract."
+  },
+  {
+   "id": "C021",
+   "names_contract_of": [],
+   "reason": "Checksum scheme selection is not a sealed contract."
+  },
+  {
+   "id": "C022",
+   "names_contract_of": [],
+   "reason": "Device identity/mapping stability is not a sealed contract."
+  },
+  {
+   "id": "C023",
+   "names_contract_of": [],
+   "reason": "Fast-modify kernel-address contract is not sealed."
+  },
+  {
+   "id": "C024",
+   "names_contract_of": [],
+   "reason": "metadataOK-after-commit is not a sealed contract."
+  },
+  {
+   "id": "C025",
+   "names_contract_of": [],
+   "reason": "OS pinning/DMA residency is not a sealed contract."
+  },
+  {
+   "id": "C026",
+   "names_contract_of": [],
+   "reason": "Stable device block-size/addressing is not a sealed contract."
+  },
+  {
+   "id": "C027",
+   "names_contract_of": [],
+   "reason": "Tlock recycling serialization is not a sealed contract."
+  },
+  {
+   "id": "C028",
+   "names_contract_of": [],
+   "reason": "RCVR_RECOVERED handling is not a sealed contract."
+  },
+  {
+   "id": "C029",
+   "names_contract_of": [],
+   "reason": "Sleep/wakeup atomicity is not a sealed contract."
+  },
+  {
+   "id": "C030",
+   "names_contract_of": [],
+   "reason": "Recovery-time comparability is not a sealed contract."
+  },
+  {
+   "id": "C031",
+   "names_contract_of": [],
+   "reason": "Primary superblock validity is not a sealed contract."
+  },
+  {
+   "id": "C032",
+   "names_contract_of": [],
+   "reason": "Storage returning last durably written bytes is a read-side contract; sealed bugs record only write-durability contracts."
+  },
+  {
+   "id": "C033",
+   "names_contract_of": [],
+   "reason": "On-disk format/endianness compatibility is not a sealed contract."
+  },
+  {
+   "id": "C034",
+   "names_contract_of": [],
+   "reason": "No-read buffer initialization is not a sealed contract."
+  },
+  {
+   "id": "C035",
+   "names_contract_of": [],
+   "reason": "In-range block addresses are not a sealed contract."
+  },
+  {
+   "id": "C036",
+   "names_contract_of": [],
+   "reason": "Fail-stop crash semantics are the ambient model, not the violated contract recorded for any sealed bug (E1/E6/E7 record 'none violated')."
+  },
+  {
+   "id": "C037",
+   "names_contract_of": [],
+   "reason": "Active-second-transaction merge precondition is not a sealed contract."
+  }
+ ]
+}

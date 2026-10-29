@@ -1,0 +1,209 @@
+{
+ "cells": [
+  {
+   "id": "C038",
+   "names_contract_of": [],
+   "reason": "C038 concerns C compiler/ABI struct layout (\"contiguous device-pointer and block-number layout\") and device pointer aliasing, whereas the sealed bugs only record violated contracts on disk write durability and storage (E2\u2013E5)."
+  },
+  {
+   "id": "C039",
+   "names_contract_of": [],
+   "reason": "C039 concerns callers keeping transaction equivalence classes small enough that \"every pending member's end-record reservation fits in the log,\" which is not the violated contract of any sealed bug."
+  },
+  {
+   "id": "C040",
+   "names_contract_of": [],
+   "reason": "C040 concerns administrative callers requesting COMMIT quiescence and flushing buffers before reading the raw device, which does not match any contract in E1\u2013E7."
+  },
+  {
+   "id": "C041",
+   "names_contract_of": [
+    "E2",
+    "E3",
+    "E4",
+    "E5"
+   ],
+   "reason": "C041 states that an I/O completion reported as `ESOFT` \"must mean the transfer finished and is durable\" / reached \"stable media\" rather than being a write that \"was not stored,\" which is the AIX-specific instance of the sealed contract for E2, E3, E4, and E5 that a completed disk write is durable and actually stored."
+  },
+  {
+   "id": "C042",
+   "names_contract_of": [],
+   "reason": "C042 concerns API callers choosing the right `waitOK` persistence level rather than treating `EndTran` as durable commitment, not disk durability of completed writes (E2\u2013E5)."
+  },
+  {
+   "id": "C043",
+   "names_contract_of": [],
+   "reason": "C043 concerns clients passing \"live transaction IDs belonging to the intended device\" and not logging after `EndTran`, which is not a contract of E1\u2013E7."
+  },
+  {
+   "id": "C044",
+   "names_contract_of": [],
+   "reason": "C044 concerns the liveness obligation that the async I/O service \"must eventually complete each accepted request\" rather than hanging, whereas E2\u2013E5 concern whether an already completed write was durably stored."
+  },
+  {
+   "id": "C045",
+   "names_contract_of": [],
+   "reason": "C045 concerns clients classifying buffers as \"logged metadata or unlogged data correctly,\" which is unrelated to the contracts in E1\u2013E7."
+  },
+  {
+   "id": "C046",
+   "names_contract_of": [],
+   "reason": "C046 concerns VM integration flushing dirty mapped pages and vnode `fsync` calling `elbb_LogForce`, which does not match any sealed bug's contract."
+  },
+  {
+   "id": "C047",
+   "names_contract_of": [],
+   "reason": "C047 concerns OS thread scheduling and VM I/O daemon liveness (\"eventually schedule threads and I/O workers\"), which is not the contract of any sealed bug."
+  },
+  {
+   "id": "C048",
+   "names_contract_of": [],
+   "reason": "C048 concerns callers scheduling dirty-buffer and VM undo-zero writes before waiting in commit quiescence, which does not match any sealed bug's contract."
+  },
+  {
+   "id": "C049",
+   "names_contract_of": [],
+   "reason": "C049 concerns OS mutex mutual exclusion and interprocessor memory visibility, which is unrelated to E1\u2013E7."
+  },
+  {
+   "id": "C050",
+   "names_contract_of": [],
+   "reason": "C050 concerns callers not holding an active transaction while waiting for transaction completion or quiescence, which is not a contract of E1\u2013E7."
+  },
+  {
+   "id": "C051",
+   "names_contract_of": [],
+   "reason": "C051 concerns the block allocator not reusing freed metadata blocks until \"the freeing transaction and its prior dependencies have committed,\" which is not the contract of any sealed bug."
+  },
+  {
+   "id": "C052",
+   "names_contract_of": [],
+   "reason": "C052 concerns callers passing in-bounds byte ranges and valid pointers to buffer modification APIs and finishing buffer updates before `elbb_UndoZeroBuffer`, whereas E5's contract is disk durability of the completed write."
+  },
+  {
+   "id": "C053",
+   "names_contract_of": [],
+   "reason": "C053 concerns excluding concurrent filesystem mounts, raw writers, or multiple salvagers on the same aggregate, which is not a contract of E1\u2013E7."
+  },
+  {
+   "id": "C054",
+   "names_contract_of": [],
+   "reason": "C054 concerns single-sector crash atomicity (\"write each sector atomically and correctly across a crash\" without tearing), whereas E2\u2013E5 concern whole completed writes being durable and actually stored."
+  },
+  {
+   "id": "C055",
+   "names_contract_of": [],
+   "reason": "C055 concerns callers finishing in-memory buffer updates before calling `UndoZeroBuffer`, whereas E5's violated contract is the disk contract that \"a completed write is durable\" once written."
+  },
+  {
+   "id": "C056",
+   "names_contract_of": [],
+   "reason": "C056 concerns callers passing valid kernel-space pointers to `elbb_Tune`/`elbl_Tune`, which is unrelated to E1\u2013E7."
+  },
+  {
+   "id": "C057",
+   "names_contract_of": [],
+   "reason": "C057 concerns CPU/compiler atomicity of 32-bit memory stores for tuning parameters, which is unrelated to E1\u2013E7."
+  },
+  {
+   "id": "C058",
+   "names_contract_of": [],
+   "reason": "C058 concerns not forging or corrupting the unchecksummed clean restart record and ordering it after recovery or shutdown writes, which is not the general completed-write durability/storage contract recorded for E2\u2013E5."
+  },
+  {
+   "id": "C059",
+   "names_contract_of": [],
+   "reason": "C059 concerns running user-space recovery single-threaded with a valid `setjmp` frame and excluding concurrent writers, which is not a contract of E1\u2013E7."
+  },
+  {
+   "id": "C060",
+   "names_contract_of": [
+    "E2",
+    "E3",
+    "E4",
+    "E5"
+   ],
+   "reason": "C060 requires that the async I/O service \"associate each completion and error with the correct submitted request\" so waiting cannot \"certify a write that never completed\" or drop an I/O error, matching the obligation in E2\u2013E5 that a write reported complete was actually and durably stored."
+  },
+  {
+   "id": "C061",
+   "names_contract_of": [],
+   "reason": "C061 concerns provisioning the log container to at least `elbl_MinLogSize` and keeping its size fixed, which is not a contract of E1\u2013E7."
+  },
+  {
+   "id": "C062",
+   "names_contract_of": [],
+   "reason": "C062 concerns kernel panic code not continuing to modify metadata after `elbb_StartTran` fails, which is unrelated to E1\u2013E7."
+  },
+  {
+   "id": "C063",
+   "names_contract_of": [],
+   "reason": "C063 concerns device block sizes being a supported power of two between 1 KiB and 64 KiB, which is unrelated to E1\u2013E7."
+  },
+  {
+   "id": "C064",
+   "names_contract_of": [],
+   "reason": "C064 concerns higher-level vnode locking serializing overlapping block I/O across in-transit waits, which is not a contract of E1\u2013E7."
+  },
+  {
+   "id": "C065",
+   "names_contract_of": [],
+   "reason": "C065 concerns callers holding valid writable buffer references and releasing them without leaks, which is unrelated to E1\u2013E7."
+  },
+  {
+   "id": "C066",
+   "names_contract_of": [],
+   "reason": "C066 concerns `DEV_BSIZE`/`btodb` sector-address conversion matching physical disk sectors, rather than completed writes being durable or retained (E2\u2013E5)."
+  },
+  {
+   "id": "C067",
+   "names_contract_of": [],
+   "reason": "C067 concerns the VM async daemon and scheduler continuing to run to complete undo-zero I/O without deadlocking on log space, which is not a contract of E1\u2013E7."
+  },
+  {
+   "id": "C068",
+   "names_contract_of": [],
+   "reason": "C068 concerns callers checking `BUF_WOULDBLOCK` and error return codes from `logbuf`, which is unrelated to E1\u2013E7."
+  },
+  {
+   "id": "C069",
+   "names_contract_of": [],
+   "reason": "C069 concerns the block allocator committing user-data kill (`undo-zero`) transactions before reusing blocks for metadata, which is not a contract of E1\u2013E7."
+  },
+  {
+   "id": "C070",
+   "names_contract_of": [
+    "E2",
+    "E3",
+    "E4",
+    "E5"
+   ],
+   "reason": "C070 states that the async service \"must finish all transfers before reporting their event complete,\" which is part of the E2\u2013E5 contract that a write reported as completed has actually been stored to durable media."
+  },
+  {
+   "id": "C071",
+   "names_contract_of": [
+    "E2",
+    "E3",
+    "E4",
+    "E5"
+   ],
+   "reason": "C071 states that the storage stack/device \"must preserve completed writes until an explicitly authorized overwrite\" and return \"the bytes of the last completed write,\" directly naming the E2\u2013E5 contract that a completed write is durably stored and not lost."
+  },
+  {
+   "id": "C072",
+   "names_contract_of": [],
+   "reason": "C072 concerns the host memory allocator supplying enough heap space to hold the active log during recovery, which is unrelated to E1\u2013E7."
+  },
+  {
+   "id": "C073",
+   "names_contract_of": [],
+   "reason": "C073 concerns callers calling `elbb_Reserve` before acquiring multiple buffers simultaneously, which is unrelated to E1\u2013E7."
+  },
+  {
+   "id": "C074",
+   "names_contract_of": [],
+   "reason": "C074 concerns `setjmp`/`longjmp` properly unwinding the stack on `RCVR_RAISE` during recovery, which is unrelated to E1\u2013E7."
+  }
+ ]
+}

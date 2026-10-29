@@ -1051,3 +1051,6 @@ Claude N ran 18:54:00Z to its last write at 20:09:24Z; final event `result`/`suc
 
 ## 2026-10-28: D2 phase 3 step 1: the freeze (20:11Z)
 The four authors' final commits and file hashes are committed (`experiments/D2/phase3/freeze/`), with reproducible tar archives in `~/projects/tupay-private/D2/phase3/` (hashes committed). By hash, not copy: the trees may quote the DCE source at length (design "Licence") and the steward has not read them. This commit's stamp is the freeze time; step 2 (packet, opaque ids by the first beacon pulse after this commit) builds only from these heads.
+
+## 2026-10-28: context figure (05:27Z)
+Tony's `/context`: **297.8k of 1M (30%)**, Messages 264.2k, after acceptance at 75.7k, a full day's work and a resume across the host reboot. Below the 350k line the steward set for starting D2 phase 3 step 2 in this tenure; it proceeds.

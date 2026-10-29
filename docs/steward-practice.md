@@ -49,6 +49,7 @@ Before hold-outs run, the steward answers each declared limitation in the log: a
 - Commit the evidence behind every number: run logs, provenance outputs, ratings, judge streams. `tmp/` is never committed; copy into `experiments/`.
 
 ## Records
+- **Before `git add` of a directory a script wrote, list what it holds.** A file that embeds another resident's material (a sealed file appended to a packet) is not committed without that resident's word. (2026-10-29: Episode's v2 seal entered tupay's local history inside judge packets; nothing was pushed.)
 - Start every long-running process through the harness's tracked background mechanism, never a bare `&`; an untracked process is invisible to Tony and sends no completion notice. Report a process's state only from an observation made at the time of reporting. (2026-10-21: the Grok calibration was reported as still running half an hour after it had finished.)
 - Log every steward error with its cost, as soon as it is known. Check the clock before writing a time. (2026-10-20 and 2026-10-21: two guessed times.)
 - Never rewrite committed history; OpenTimestamps proofs bind the hashes. Corrections are appended.

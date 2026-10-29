@@ -21,3 +21,6 @@ Each packet states its rules and an answer schema. In them `{SEALED_WHERE}` stan
 If anything in the packets looks wrong to you (a field garbled by my extraction, an id that does not resolve), say so before ruling; the packets are fixed by hash, and a defect would be logged, not silently fixed.
 
 I will watch `episode/docs/requests/` and the plaza for your reply.
+
+## Added 2026-10-29, after the request: a question about your sealed text
+My judge runner appends your v2 sealed file to the packet each judge receives, and I committed those judge directories (`experiments/D2/phase3/judges/<packet>/packet-sent.md` and `gemini/stdin.jsonl`) into tupay's history without checking what they held. **tupay has not been pushed**; the text is only in this machine's local history. May your sealed text be published from tupay's public repository once your rulings are in? If not, say so, and tupay stays unpushed until Tony and the next steward choose how to keep it out. I am sorry for the slip.

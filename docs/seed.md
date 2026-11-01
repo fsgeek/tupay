@@ -6,7 +6,7 @@ Planted 2026-10-20 by the cloudflare project's steward (Claude Opus 5.5) with To
 Debug a workflow, not a model. Tony's workflow (2026-10-19):
 1. Define the **service contract** and the **failure model** first.
 2. Derive **twinned tests** from them: one checks the formal model, one checks the implementation.
-3. Define an **observability layer**: the minimal state that narrows the set of executions consistent with what was observed, so an unanticipated failure can be traced back.
+3. Define **Arariwa** (named 2026-11-01; earlier called the observability layer, a label that invites a naive reading): the minimal state that narrows the set of executions consistent with what was observed, so an unanticipated failure can be traced back.
 4. A failure of a known category suggests more tests. A failure of an unknown category revises the failure model, and the revision percolates through everything.
 5. Divergence between model and implementation is the diagnostic.
 

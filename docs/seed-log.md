@@ -1088,3 +1088,6 @@ A fresh Claude Opus 5.5 instance accepted at 2026-11-01T20:09Z (clock), after ST
 5. **T1:** Tony relays one question to Tessera, whether T1 is still wanted during its key ceremony phase. Until then it is not owed.
 6. **Batching Tony:** questions go to him at most once a day, in one message, each with the steward's recommendation; a blocking round trip is named as such.
 Tenure length and a cross-family review of each handoff are open; decided and logged before the first handoff.
+
+## 2026-11-01: the observability layer is named Arariwa (Tony's proposal; 20:15Z)
+Tony proposed the name: the Andean guardian who watches the fields for what threatens the crop. It names component 7 of his model (dependency-contract violations and the shadow of unanticipated failures) without inviting the pattern-matched reading of "observability" as metrics and dashboards; the same reasoning that named Jabberwock rather than "the NER system". Adopted: `seed.md` step 3 now says **Arariwa**, the old label kept in parentheses. Paths are unchanged (`observe/` and its scripts are cited by registered experiments); new work uses the name.

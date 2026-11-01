@@ -12,7 +12,7 @@ git init -q "$SC"; git -C "$SC" fetch -q "$E" refs/remotes/author/main:refs/head
 C=$P/tupay-x3-plant-$A-$S
 (cd "$C" && find . -type f ! -name BRIEF.md -print0 | sort -z | xargs -0 sha256sum) > "$O/after.sha256"
 diff <(sort -k2 "$PL/../$A-$S.base.sha256") <(sort -k2 "$O/after.sha256") | awk '/^>/{print $3}' \
-  | grep -v -x -e ./PLANT.md -e ./WITNESS.yaml > "$O/planted-files.txt" || true
+  | grep -v -x -e ./PLANT.md -e ./WITNESS.yaml | grep -v '/observe/' > "$O/planted-files.txt" || true
 while read -r f; do cp "$C/$f" "$SC/$f"; done < "$O/planted-files.txt"
 cp "$C/WITNESS.yaml" "$SC/testbed/schedules/WITNESS.yaml"
 git -C "$SC" diff --stat > "$O/planted-diffstat.txt"

@@ -18,6 +18,6 @@ The log outranks this note (`docs/seed-log.md`, the authority). The ninth's note
 - [x] 3 cost: `experiments/X3/measure3-cost.md` (A more tokens both sides; A impl slower, A model faster; cost condition of the rule fails; advisor and Tony-decision counts still to gather for the result)
 - [x] 4 residue: `experiments/X3/residue/RESULT.md` (A impl 2, others 0; full diff read not made, stated)
 - [x] 6, 7: `experiments/X3/raters/RESULT.md` (DeepSeek + Kimi; m6 model kappa 0.09, unreliable; X3-9 confirmed)
-- [~] 9: plants 1-3 caught by their arm's suite (`experiments/X3/plants/`); plant 4 (R model, C1.2) scoring; plants private in `tupay-private/X3/plants/`
+- [x] 9: `experiments/X3/plants/RESULT.md` (4/4 caught; X3-6 not confirmed)
 - [x] 10: `experiments/X3/recon/RESULT.md` (helper added hooks, steward named both blind; X3-7 confirmed)
-- [ ] score; review; publish `experiments/X3-result.md`
+- [ ] score (sources: `experiments/X3/runs/`, `audit/`, `judge/RULINGS.md`, `measure8-design-fact.md`, `measure3-cost.md`, `residue/`, `raters/`, `plants/`, `recon/`; registered rule in `experiments/X3-prereg.md`); non-Claude adversarial review; publish `experiments/X3-result.md`

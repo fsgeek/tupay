@@ -1,0 +1,46 @@
+{
+ "id": "gen-1793570138-vRsEglHVRqm2p8Vtrkv4",
+ "object": "chat.completion",
+ "created": 1793570138,
+ "model": "deepseek/deepseek-v4-pro-0813",
+ "provider": "Sail Research",
+ "system_fingerprint": null,
+ "service_tier": "asap",
+ "choices": [
+  {
+   "index": 0,
+   "logprobs": null,
+   "finish_reason": "stop",
+   "native_finish_reason": "stop",
+   "message": {
+    "role": "assistant",
+    "content": "{\"ratings\": [{\"unit\": \"U01\", \"label\": \"C\", \"reason\": \"Chooses an abstract Raft-with-joint-consensus protocol and specific adaptations (e.g., one-step grant/commit with agreements, leader adoption of voter configuration histories) where the inputs only require a published protocol and evidence floors.\"}, {\"unit\": \"U02\", \"label\": \"C\", \"reason\": \"Chooses how to compile v5 schedule features into the model, including fixed MAX_LEASE=6, default operators/config, and the mapping of reconfigure/clock/amnesia actions, which the schedule format leaves open.\"}, {\"unit\": \"U03\", \"label\": \"C\", \"reason\": \"Chooses how to emit Agree/Agreed records and decision inputs from the model's internal step structure, including the ordering and grouping of agreements, which the schema specifies only as named values and causes.\"}, {\"unit\": \"U04\", \"label\": \"C\", \"reason\": \"Selects and implements specific mutation mechanisms for each pair, which are deliberate breaks on the enforcing path; the inputs require mutations but leave the exact mechanism open.\"}, {\"unit\": \"U05\", \"label\": \"C\", \"reason\": \"Chooses the checking strategy (terminal-state liveness forms plus acyclicity, fallback to TLC liveness) and the decision-replay integration, which the inputs do not prescribe.\"}, {\"unit\": \"U06\", \"label\": \"C\", \"reason\": \"Introduces a specific lexicographic progress measure and FairNext to prove acyclicity and liveness, a modeling choice not dictated by the contract or failure model.\"}, {\"unit\": \"U07\", \"label\": \"C\", \"reason\": \"Adds reach probes with chosen predicates for epochs, refusals, re-admission, and grants, which are author-defined coverage checks beyond the shared pair list.\"}, {\"unit\": \"U08\", \"label\": \"C\", \"reason\": \"Re-places the P49 mutation to a per-epoch fence and keeps the original as P49a, a choice about which mechanism sits on the enforcing path for the pair.\"}, {\"unit\": \"U09\", \"label\": \"C\", \"reason\": \"Reorders P31 last and adds reach-probe running and NOPROGRESS handling, which are operational and coverage choices not prescribed by the inputs.\"}, {\"unit\": \"U10\", \"label\": \"C\", \"reason\": \"Rewrites GoodR to use a single connected set C and changes Progress to a quantifier-bound form, which are modeling choices about how to express the liveness premise and measure.\"}, {\"unit\": \"U11\", \"label\": \"C\", \"reason\": \"Refines the reach-probe logic for busy/superseded and epoch counts based on valid requests, an authorial interpretation of which schedule shapes can meet at a receiver.\"}, {\"unit\": \"U12\", \"label\": \"P\", \"reason\": \"Adds a TLC checkpoint interval to manage disk usage for large state spaces, an implementation detail of running the model checker with no input-prescribed behavior.\"}]}",
+    "refusal": null,
+    "reasoning": null
+   }
+  }
+ ],
+ "usage": {
+  "prompt_tokens": 91018,
+  "completion_tokens": 660,
+  "total_tokens": 91678,
+  "cost": 0.06222915,
+  "is_byok": false,
+  "prompt_tokens_details": {
+   "cached_tokens": 0,
+   "cache_write_tokens": 0,
+   "audio_tokens": 0,
+   "video_tokens": 0
+  },
+  "cost_details": {
+   "upstream_inference_cost": 0.06222915,
+   "upstream_inference_prompt_cost": 0.06143715,
+   "upstream_inference_completions_cost": 0.000792
+  },
+  "completion_tokens_details": {
+   "reasoning_tokens": 0,
+   "image_tokens": 0,
+   "audio_tokens": 0
+  }
+ }
+}

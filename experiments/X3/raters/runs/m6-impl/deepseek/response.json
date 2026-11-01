@@ -1,0 +1,46 @@
+{
+ "id": "gen-1793570138-E6mIw7hxPmnpgWXIs1oe",
+ "object": "chat.completion",
+ "created": 1793570138,
+ "model": "deepseek/deepseek-v4-pro-0813",
+ "provider": "Sail Research",
+ "system_fingerprint": null,
+ "service_tier": "asap",
+ "choices": [
+  {
+   "index": 0,
+   "logprobs": null,
+   "finish_reason": "stop",
+   "native_finish_reason": "stop",
+   "message": {
+    "role": "assistant",
+    "content": "{\"ratings\": [{\"unit\": \"U01\", \"label\": \"C\", \"reason\": \"Delegates v3 evidence checking to an external Python script and disables the old C1.1 total-order check when v5 events are present, choosing how to integrate the new checker rather than implementing a fixed prescription.\"}, {\"unit\": \"U02\", \"label\": \"P\", \"reason\": \"Updates Ref comparisons to include the new Inc field as required by the v5 schema's identity rule.\"}, {\"unit\": \"U03\", \"label\": \"P\", \"reason\": \"Updates Ref comparisons to include the new Inc field as required by the v5 schema's identity rule.\"}, {\"unit\": \"U04\", \"label\": \"P\", \"reason\": \"Updates Ref comparisons to include the new Inc field as required by the v5 schema's identity rule.\"}, {\"unit\": \"U05\", \"label\": \"P\", \"reason\": \"Updates test fixtures to use the new three-field Ref format mandated by the v5 schema.\"}, {\"unit\": \"U06\", \"label\": \"C\", \"reason\": \"Chooses to use Raft joint consensus for reconfiguration, to gate ineligible nodes from voting, and to snapshot state, all choices among permitted protocol behaviors.\"}, {\"unit\": \"U07\", \"label\": \"C\", \"reason\": \"Implements grant waiting on a local clock, chooses token allocation from Raft log index, and adds mutation-specific behaviors, all choices the inputs leave open.\"}, {\"unit\": \"U08\", \"label\": \"P\", \"reason\": \"Updates test fixtures to use the new three-field Ref format and new Engine fields required by the v5 schema.\"}, {\"unit\": \"U09\", \"label\": \"C\", \"reason\": \"Adds a --reps flag and changes schedule discovery to scan the schedules directory, choosing how to run repetitions and which schedules to include.\"}, {\"unit\": \"U10\", \"label\": \"C\", \"reason\": \"Implements reconfiguration via Raft joint consensus, chooses how to record agreements and evidence, and decides how to handle re-admission and non-member receivers, all open protocol choices.\"}, {\"unit\": \"U11\", \"label\": \"P\", \"reason\": \"Adds a test helper that synthesizes quorum evidence for isolated tests, following the schema's required evidence format.\"}, {\"unit\": \"U12\", \"label\": \"P\", \"reason\": \"Adds the Inc field to Ref and Event and updates marshaling to emit the new v5 fields as specified by the schema.\"}, {\"unit\": \"U13\", \"label\": \"P\", \"reason\": \"Updates test fixtures to use the new three-field Ref format mandated by the v5 schema.\"}, {\"unit\": \"U14\", \"label\": \"P\", \"reason\": \"Implements the contract's overflow rule by stopping issuance and recording Overflow when a bounded integer would wrap.\"}, {\"unit\": \"U15\", \"label\": \"C\", \"reason\": \"Chooses how to reconstruct final membership and eligibility from traces, and how to certify reconfiguration progress horizons, which the inputs leave open.\"}, {\"unit\": \"U16\", \"label\": \"C\", \"reason\": \"Chooses to use Raft's StepDownOnRemoval and to store additional state on LeaseNode, adapting the published protocol in ways the contract permits but does not prescribe.\"}, {\"unit\": \"U17\", \"label\": \"P\", \"reason\": \"Updates test fixtures to use the new three-field Ref format mandated by the v5 schema.\"}, {\"unit\": \"U18\", \"label\": \"C\", \"reason\": \"Adds a mutation-specific behavior to suppress grant relaying for P12, a choice about how to implement the mutation.\"}, {\"unit\": \"U19\", \"label\": \"P\", \"reason\": \"Updates test fixtures to use the new three-field Ref format and fixtureAllocation helper.\"}, {\"unit\": \"U20\", \"label\": \"P\", \"reason\": \"Adds a check for a preregistration section, following the artifact's own process requirement.\"}, {\"unit\": \"U21\", \"label\": \"C\", \"reason\": \"Chooses how to handle non-member selectors, resume timing, and reconfiguration quiescence, all behaviors the inputs leave open.\"}, {\"unit\": \"U22\", \"label\": \"C\", \"reason\": \"Chooses to sort members in triggers, to allow 1..6 lease nodes, and to validate new v5 actions, all choices about how to interpret the schedule format.\"}, {\"unit\": \"U23\", \"label\": \"P\", \"reason\": \"Updates test fixtures to use the new three-field Ref format mandated by the v5 schema.\"}, {\"unit\": \"U24\", \"label\": \"P\", \"reason\": \"Adds agreements to RaftPacket and updates Ref handling as required by the v5 schema.\"}, {\"unit\": \"U25\", \"label\": \"P\", \"reason\": \"Adds non-member selector and operator role handling as specified by the v5 schedule format.\"}, {\"unit\": \"U26\", \"label\": \"C\", \"reason\": \"Chooses how to retain and score evidence, including which traces to keep and how to aggregate results, which the inputs leave open.\"}, {\"unit\": \"U27\", \"label\": \"C\", \"reason\": \"Adds tests that choose specific schedules and assertions to verify recovery evidence and initial null handling, choices about what to test.\"}]}",
+    "refusal": null,
+    "reasoning": null
+   }
+  }
+ ],
+ "usage": {
+  "prompt_tokens": 86926,
+  "completion_tokens": 1159,
+  "total_tokens": 88085,
+  "cost": 0.06006585,
+  "is_byok": false,
+  "prompt_tokens_details": {
+   "cached_tokens": 0,
+   "cache_write_tokens": 0,
+   "audio_tokens": 0,
+   "video_tokens": 0
+  },
+  "cost_details": {
+   "upstream_inference_cost": 0.06006585,
+   "upstream_inference_prompt_cost": 0.05867505,
+   "upstream_inference_completions_cost": 0.0013908
+  },
+  "completion_tokens_details": {
+   "reasoning_tokens": 0,
+   "image_tokens": 0,
+   "audio_tokens": 0
+  }
+ }
+}

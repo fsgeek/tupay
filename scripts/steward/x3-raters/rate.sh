@@ -8,7 +8,8 @@ sha256sum "$P" > "$O/packet.sha256"; date -u +%FT%TZ > "$O/start.txt"
 python3 - "$P" "$M" "$O" <<'PY'
 import json, os, re, sys, urllib.request
 P, M, O = sys.argv[1:]
-req = {'model': M, 'messages': [{'role': 'user', 'content': open(P).read()}], 'temperature': 0, 'max_tokens': 40000}
+req = {'model': M, 'messages': [{'role': 'user', 'content': open(P).read()}], 'temperature': 0, 'max_tokens': int(os.environ.get('MAXTOK', 40000))}
+if os.environ.get('REASON'): req['reasoning'] = {'max_tokens': int(os.environ['REASON'])}
 r = urllib.request.Request('https://openrouter.ai/api/v1/chat/completions', data=json.dumps(req).encode(),
     headers={'Authorization': 'Bearer ' + os.environ['OPENROUTER_API_KEY'], 'Content-Type': 'application/json'})
 resp = json.load(urllib.request.urlopen(r, timeout=3600)); json.dump(resp, open(f'{O}/response.json', 'w'), indent=1)

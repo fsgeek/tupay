@@ -1,0 +1,139 @@
+{
+ "ratings": [
+  {
+   "unit": "U01",
+   "label": "P",
+   "reason": "The changes propagate incarnation-aware record identity, per-incarnation sequencing, and the extended C1.4 premise, then delegate v3 evidence checking to the prescribed decision-replay checker. The remaining wiring applies the artifact's reconfiguration-progress check without a new contract reading."
+  },
+  {
+   "unit": "U02",
+   "label": "P",
+   "reason": "Propagates the schema's (proc, inc, seq) record identity through the existing ack/provenance comparisons without changing their rules."
+  },
+  {
+   "unit": "U03",
+   "label": "P",
+   "reason": "Updates the read checker to the prescribed incarnation-aware record identity; the C2.1 and C2.2 checks are otherwise unchanged."
+  },
+  {
+   "unit": "U04",
+   "label": "P",
+   "reason": "Threads incarnation-aware references through the existing routing and grant-delivery checks, with no new behavioural choice."
+  },
+  {
+   "unit": "U05",
+   "label": "P",
+   "reason": "Updates test fixtures and expectations to the new three-part record references while preserving the behaviours under test."
+  },
+  {
+   "unit": "U06",
+   "label": "C",
+   "reason": "Chooses a concrete Raft adaptation involving snapshot-driven recovery, agreement evidence piggybacked on MsgAppResp, and filtering of ineligible nodes' protocol messages. The contract prescribes eligibility and evidence but leaves these protocol mechanisms open."
+  },
+  {
+   "unit": "U07",
+   "label": "C",
+   "reason": "Chooses the expressly optional wait-for-expiry grantor behaviour using per-node clock readings and last-grant records; v3 also permits granting without waiting. It additionally selects particular token, recovery, and evidence mechanisms within that design."
+  },
+  {
+   "unit": "U08",
+   "label": "P",
+   "reason": "Adapts existing routing tests to incarnation-aware references and the additional v3 setup/evidence records without selecting new service behaviour."
+  },
+  {
+   "unit": "U09",
+   "label": "P",
+   "reason": "Adds the pair list's prescribed P31\u2013P63 clause mappings and discovers schedules in the mandated shared directory. Repetition and run-naming changes only control execution of those tests."
+  },
+  {
+   "unit": "U10",
+   "label": "C",
+   "reason": "Makes open protocol-design choices for joint-consensus reconfiguration, including request forwarding, explicit joint entry and exit, same-set re-admission handling, snapshots, and the point at which commit evidence is acted upon."
+  },
+  {
+   "unit": "U11",
+   "label": "P",
+   "reason": "This test-only helper constructs the majority agreement evidence now required by the grant path; it does not change or interpret production contract behaviour."
+  },
+  {
+   "unit": "U12",
+   "label": "P",
+   "reason": "Implements schema v5 directly: incarnation-bearing identities, new event fields and decision inputs, per-incarnation sequencing, and explicit null or empty JSON values."
+  },
+  {
+   "unit": "U13",
+   "label": "P",
+   "reason": "Mechanically updates observation-schema fixtures to incarnation-aware references without changing the tested rules."
+  },
+  {
+   "unit": "U14",
+   "label": "P",
+   "reason": "Implements the overflow prescription by recording Overflow and preventing further term or token issuance before a uint64 can wrap."
+  },
+  {
+   "unit": "U15",
+   "label": "C",
+   "reason": "Operationalizes the clauses' unbounded \u201ceventually\u201d and \u201clong enough\u201d language as a three-second stable-horizon certificate recorded in sidecar evidence. The premises are prescribed, but that finite liveness-witness criterion is not."
+  },
+  {
+   "unit": "U16",
+   "label": "C",
+   "reason": "Selects Raft's optional StepDownOnRemoval behaviour as part of membership adaptation; the inputs leave a removed leader's protocol behaviour open. The file also propagates the prescribed initial membership and v3 recovery state."
+  },
+  {
+   "unit": "U17",
+   "label": "P",
+   "reason": "Updates read-test fixtures to the new incarnation-aware reference representation without altering their assertions."
+  },
+  {
+   "unit": "U18",
+   "label": "P",
+   "reason": "Re-places the P12 liveness mutation on grant relaying after a pause so it still breaks the artifact's paused-holder progress mechanism, as the pair's enforcing-path rule requires."
+  },
+  {
+   "unit": "U19",
+   "label": "P",
+   "reason": "Adapts routing tests to synthetic v3 quorum evidence and the additional records emitted during setup, preserving the original routing expectations."
+  },
+  {
+   "unit": "U20",
+   "label": "P",
+   "reason": "Extends the existing runner guard to require committed X3 preregistration before execution, propagating the experiment's registration prerequisite."
+  },
+  {
+   "unit": "U21",
+   "label": "P",
+   "reason": "Implements the v5 runner rules for non-member selection, lifetime-based resume gating, reconfiguration-aware quiescence and horizons, and after-last-fault bookkeeping."
+  },
+  {
+   "unit": "U22",
+   "label": "P",
+   "reason": "Parses and validates the v5 addendum's process defaults, reconfigure/clock/amnesia actions, trigger fields, unique request ids, and whole-tick clock constraint."
+  },
+  {
+   "unit": "U23",
+   "label": "P",
+   "reason": "Mechanically updates schedule-test fixtures to incarnation-aware references."
+  },
+  {
+   "unit": "U24",
+   "label": "P",
+   "reason": "Extends the transport packet to carry agreement metadata used elsewhere; the prescribed link-fate and generation behaviour remains unchanged."
+  },
+  {
+   "unit": "U25",
+   "label": "P",
+   "reason": "Adds the prescribed non-member selector and operator role and threads the new reconfiguration and clock targets through existing selector validation."
+  },
+  {
+   "unit": "U26",
+   "label": "C",
+   "reason": "Defines new evidence-acceptance criteria: exact run and mutation totals, ten repetitions per cell, and zero flaky or canonically varying cells. Those reporting and acceptance choices are not prescribed by the inputs."
+  },
+  {
+   "unit": "U27",
+   "label": "P",
+   "reason": "Adds tests for prescribed v3 behaviour, including amnesic identity and re-admission evidence, ineligible-incarnation exclusion, overflow handling, and the initial null stored value with its decision inputs."
+  }
+ ]
+}

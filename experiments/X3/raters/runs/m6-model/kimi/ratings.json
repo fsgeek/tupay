@@ -1,0 +1,64 @@
+{
+ "ratings": [
+  {
+   "unit": "U01",
+   "label": "C",
+   "reason": "The contract expressly leaves the agreement and reconfiguration protocol open; this unit chooses an abstract Raft/joint-consensus design, including election and history-adoption rules and one-step agreement/commit abstractions."
+  },
+  {
+   "unit": "U02",
+   "label": "P",
+   "reason": "It implements the v5 schedule syntax, process defaults, lifetime conversion, new actions and prescribed validation, then emits the corresponding TLC constants and check configurations. It does not introduce a new contract behaviour or reading."
+  },
+  {
+   "unit": "U03",
+   "label": "P",
+   "reason": "It maps model events to the v5 schema's prescribed identities, agreement and reconfiguration records, causes and named decision inputs. Those record formats and provenance relations are fixed by `observe/schema.md`."
+  },
+  {
+   "unit": "U04",
+   "label": "C",
+   "reason": "The pair list requires a break on each enforcing path but leaves the defect open; this unit chooses the concrete P31\u2013P63 defects, such as clock-derived epochs and tokens, fail-open fencing and incorrect eligibility counting."
+  },
+  {
+   "unit": "U05",
+   "label": "P",
+   "reason": "It automates the specified schedule, mutation and decision-replay runs and mechanizes the already-defined terminal-state, acyclicity and per-property checks. It does not change protocol behaviour, clause meanings or schedule semantics."
+  },
+  {
+   "unit": "U06",
+   "label": "P",
+   "reason": "This changes how the existing liveness and acyclicity argument is checked, using a fair-action disjunction and a lexicographic progress measure, without changing protocol transitions or clause premises."
+  },
+  {
+   "unit": "U07",
+   "label": "C",
+   "reason": "It introduces a reachability policy, choosing which epochs, grants, refusal kinds, re-admissions and clock effects each schedule must be able to reach. The inputs do not prescribe these additional non-vacuity obligations."
+  },
+  {
+   "unit": "U08",
+   "label": "C",
+   "reason": "It chooses a replacement P49 defect based on per-epoch fences and retains the original as an expected-PASS record. The inputs require an enforcing-path mutation but leave that concrete replacement and bookkeeping choice open."
+  },
+  {
+   "unit": "U09",
+   "label": "P",
+   "reason": "It supplies runner mechanics for the selected progress and reachability checks and the record-only mutation case, along with execution ordering and TLC process isolation. No new contract or schedule interpretation is introduced."
+  },
+  {
+   "unit": "U10",
+   "label": "P",
+   "reason": "The GoodR rewrite is an equivalent single-set formulation of the prescribed connected-majorities premise, and the Progress rewrite is an evaluation optimization. Neither changes protocol or schedule behaviour."
+  },
+  {
+   "unit": "U11",
+   "label": "P",
+   "reason": "It corrects probe generation using direct contract facts: invalid requests never commit, only valid requests can remain pending, and `grantor` and `non-grantor` cannot designate the same receiver at one resolution."
+  },
+  {
+   "unit": "U12",
+   "label": "P",
+   "reason": "It only changes TLC's checkpoint interval to control disk consumption; model, schedule and verdict semantics are untouched."
+  }
+ ]
+}

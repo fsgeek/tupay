@@ -1,0 +1,280 @@
+{
+ "ratings": [
+  {
+   "entry": "1",
+   "verdict": "UNCHANGED",
+   "already_contradicted_before": true,
+   "reason": "The diff does not touch schedule location; run.py still resolves shared schedules via find_schedule, so the superseded status is unchanged."
+  },
+  {
+   "entry": "2",
+   "verdict": "UNCHANGED",
+   "already_contradicted_before": false,
+   "reason": "export.py/run.py still write model/observe/<run>.jsonl with side model; no change."
+  },
+  {
+   "entry": "3",
+   "verdict": "CONTRADICTED",
+   "already_contradicted_before": false,
+   "reason": "Diff adds Lifetime as L in ticks and off/early/ClockStep, so time is no longer only an abstract reported value."
+  },
+  {
+   "entry": "4",
+   "verdict": "UNCHANGED",
+   "already_contradicted_before": false,
+   "reason": "Pause/Resume and Good(c) still treat paused clients as not up; no run-time clock enforcement added."
+  },
+  {
+   "entry": "5",
+   "verdict": "CONTRADICTED",
+   "already_contradicted_before": false,
+   "reason": "Elect now uses MajOf(Q, X.mem) over the adopted configuration and allows early[n] instead of only ~HearsLeader(n), contradicting any-majority and only-when-no-leader."
+  },
+  {
+   "entry": "6",
+   "verdict": "UNCHANGED",
+   "already_contradicted_before": false,
+   "reason": "DoRequest still requires ~pending[c], so a waiting client does not send another request."
+  },
+  {
+   "entry": "7",
+   "verdict": "EXTENDED",
+   "already_contradicted_before": false,
+   "reason": "Grant/Resend still record at issuance and retransmit the same token; v3 adds config_epoch and recorded inputs to the grant record."
+  },
+  {
+   "entry": "8",
+   "verdict": "EXTENDED",
+   "already_contradicted_before": false,
+   "reason": "Emit now carries a sequence of events and Matches scans it, preserving T1 while covering multi-event steps."
+  },
+  {
+   "entry": "9",
+   "verdict": "EXTENDED",
+   "already_contradicted_before": false,
+   "reason": "Quiescent is extended with rcMsgs, NoPending, owed and opMsgs, so end-of-run now covers reconfiguration."
+  },
+  {
+   "entry": "10",
+   "verdict": "UNCHANGED",
+   "already_contradicted_before": false,
+   "reason": "Resolve still resolves grantor/holder at trigger time; non-member is added separately."
+  },
+  {
+   "entry": "11",
+   "verdict": "UNCHANGED",
+   "already_contradicted_before": false,
+   "reason": "StaleTok is unchanged in the diff."
+  },
+  {
+   "entry": "12",
+   "verdict": "CONTRADICTED",
+   "already_contradicted_before": false,
+   "reason": "compile.py now accepts 1-6 lease nodes, operators/config and F3.x actions, contradicting fixed 3/2/1 and F1.1-F1.3-only."
+  },
+  {
+   "entry": "13",
+   "verdict": "UNCHANGED",
+   "already_contradicted_before": true,
+   "reason": "Already contradicted by X2; the diff keeps per-send link fate and does not alter that status."
+  },
+  {
+   "entry": "14",
+   "verdict": "EXTENDED",
+   "already_contradicted_before": false,
+   "reason": "Ordinary Crash/Restart still keep durable promised/maxTok and storage ledger; diff adds operator exclusion and amnesia as separate F3.3."
+  },
+  {
+   "entry": "15",
+   "verdict": "UNCHANGED",
+   "already_contradicted_before": false,
+   "reason": "C1_2 remains over the decisions history; StorageDecide only adds stored_value input."
+  },
+  {
+   "entry": "16",
+   "verdict": "UNCHANGED",
+   "already_contradicted_before": false,
+   "reason": "RecvAck/WriteAck still identify by client/token/value and record accepted only from the ack outcome."
+  },
+  {
+   "entry": "17",
+   "verdict": "CONTRADICTED",
+   "already_contradicted_before": false,
+   "reason": "Good(c) now requires NoPending and an eligible majority of GLatest, not any majority of lease nodes."
+  },
+  {
+   "entry": "18",
+   "verdict": "UNCHANGED",
+   "already_contradicted_before": false,
+   "reason": "C1_4 still reads pending[c] => <>~pending[c]; crash still ends waiting."
+  },
+  {
+   "entry": "19",
+   "verdict": "UNCHANGED",
+   "already_contradicted_before": false,
+   "reason": "Witness export still produces one shortest trace per PASS run."
+  },
+  {
+   "entry": "20",
+   "verdict": "CONTRADICTED",
+   "already_contradicted_before": false,
+   "reason": "export.py changes identity to (proc, inc, seq) with seq restarting per incarnation, contradicting per-process seq."
+  },
+  {
+   "entry": "21",
+   "verdict": "UNCHANGED",
+   "already_contradicted_before": false,
+   "reason": "P3/P7 mutation breaks remain as described in the diff."
+  },
+  {
+   "entry": "R2.1",
+   "verdict": "EXTENDED",
+   "already_contradicted_before": false,
+   "reason": "Emit/ScheduleStep still arm the next trigger on lastEv' and now scan a sequence, so an action's own emitted events can trigger the next step."
+  },
+  {
+   "entry": "R2.2",
+   "verdict": "EXTENDED",
+   "already_contradicted_before": false,
+   "reason": "Quiescent still counts messages only to running receivers; the diff extends the same rule to reconfig messages and owed replies."
+  },
+  {
+   "entry": "R2.3",
+   "verdict": "EXTENDED",
+   "already_contradicted_before": false,
+   "reason": "Resolve still resolves at trigger time; the diff adds non-member resolution with the same wait-if-unresolved behaviour."
+  },
+  {
+   "entry": "R2.4",
+   "verdict": "EXTENDED",
+   "already_contradicted_before": false,
+   "reason": "static_checks remains conservative and now also handles reconfig/amnesia aliases."
+  },
+  {
+   "entry": "R2.5",
+   "verdict": "EXTENDED",
+   "already_contradicted_before": false,
+   "reason": "Join(n) still brings lagging nodes into the leader's term, now over JoinScope in one step."
+  },
+  {
+   "entry": "R2.1-a",
+   "verdict": "EXTENDED",
+   "already_contradicted_before": false,
+   "reason": "trigNG/trigNM are updated after lastEv' in Emit/ScheduleStep, preserving just-after-trigger evaluation."
+  },
+  {
+   "entry": "R2.1-b",
+   "verdict": "UNCHANGED",
+   "already_contradicted_before": false,
+   "reason": "NGChoices still returns trigNG; if empty, ScheduleStep has no ng and waits."
+  },
+  {
+   "entry": "X1.1",
+   "verdict": "UNCHANGED",
+   "already_contradicted_before": false,
+   "reason": "DoRead still sets rid |-> pc."
+  },
+  {
+   "entry": "X1.2",
+   "verdict": "UNCHANGED",
+   "already_contradicted_before": false,
+   "reason": "C2_1 still checks read tokens against accepted write history, not the ledger variable."
+  },
+  {
+   "entry": "X1.3",
+   "verdict": "UNCHANGED",
+   "already_contradicted_before": false,
+   "reason": "StorageRead still leaves highest unchanged on every read decision."
+  },
+  {
+   "entry": "X1.4",
+   "verdict": "UNCHANGED",
+   "already_contradicted_before": false,
+   "reason": "StorageRead still records held as stval at decision and returns it."
+  },
+  {
+   "entry": "X1.5",
+   "verdict": "UNCHANGED",
+   "already_contradicted_before": false,
+   "reason": "ReadReject and rejected ReadAck still carry no value."
+  },
+  {
+   "entry": "X1.6",
+   "verdict": "UNCHANGED",
+   "already_contradicted_before": false,
+   "reason": "Duplicate read acks are still ignored because only awaited reads are acked."
+  },
+  {
+   "entry": "X1.7",
+   "verdict": "UNCHANGED",
+   "already_contradicted_before": false,
+   "reason": "DoRead/RecvReadAck do not alter tok or pending grant state."
+  },
+  {
+   "entry": "X1.8",
+   "verdict": "UNCHANGED",
+   "already_contradicted_before": false,
+   "reason": "P13-P18 mutation texts are re-applied with only kvars/xvars frames; breaks unchanged."
+  },
+  {
+   "entry": "V22.1",
+   "verdict": "UNCHANGED",
+   "already_contradicted_before": false,
+   "reason": "export.py still sets answers from the client's attempt and leaves causes empty when no storage decision exists."
+  },
+  {
+   "entry": "X2.1",
+   "verdict": "EXTENDED",
+   "already_contradicted_before": false,
+   "reason": "Directional HearsLeader/Link definitions remain; the diff adds early as an additional timer trigger."
+  },
+  {
+   "entry": "X2.2",
+   "verdict": "CONTRADICTED",
+   "already_contradicted_before": false,
+   "reason": "Elect now allows early[q] voters, so a node may vote while hearing a leader, contradicting stickiness."
+  },
+  {
+   "entry": "X2.3",
+   "verdict": "EXTENDED",
+   "already_contradicted_before": false,
+   "reason": "CheckQuorum still steps down when not connected to a majority, now of eligible current configuration and also on removal/early."
+  },
+  {
+   "entry": "X2.4",
+   "verdict": "UNCHANGED",
+   "already_contradicted_before": true,
+   "reason": "Already contradicted by the routing fix; Grant still uses ReqRoute/RepRoute rather than Conn."
+  },
+  {
+   "entry": "X2.5",
+   "verdict": "UNCHANGED",
+   "already_contradicted_before": true,
+   "reason": "Already contradicted; ReqRoute/RepRoute relay remains."
+  },
+  {
+   "entry": "X2.6",
+   "verdict": "UNCHANGED",
+   "already_contradicted_before": false,
+   "reason": "NGChoices/Resolve still resolve all non-grantor occurrences to one explored node."
+  },
+  {
+   "entry": "X2.7",
+   "verdict": "UNCHANGED",
+   "already_contradicted_before": false,
+   "reason": "export.py still emits cut/drop pairs and directed links."
+  },
+  {
+   "entry": "FR.1",
+   "verdict": "EXTENDED",
+   "already_contradicted_before": false,
+   "reason": "ReqRoute/RepRoute one-hop lease-node relay remains; FwdRoute extends the same route to reconfig forwarding."
+  },
+  {
+   "entry": "FR.2",
+   "verdict": "EXTENDED",
+   "already_contradicted_before": false,
+   "reason": "Grant still records when heard, issued prevents same-term re-grant, Resend retransmits; v3 adds config_epoch and inputs."
+  }
+ ]
+}

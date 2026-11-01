@@ -1,0 +1,2 @@
+decision-replay: 1860 traces, 0 invalid, 0 UNEXPLAINED inputs
+replay exit 0 (hooked 30 + registered 1830 from runs/armA-impl/traces.txt)

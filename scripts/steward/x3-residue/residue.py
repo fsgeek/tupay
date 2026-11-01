@@ -37,10 +37,16 @@ def git(repo, *a):
     return subprocess.run(['git', '-C', repo, *a], capture_output=True, text=True, check=True).stdout
 
 def tags(text):
-    ids = set()
-    for line in text.splitlines():
+    # A tag may wrap: a derives line ending in a comma continues on the next line.
+    ids, lines = set(), text.splitlines()
+    for n, line in enumerate(lines):
         i = line.find('derives:')
         if i >= 0:
+            part = line[i:]
+            while part.rstrip().endswith(',') and n + 1 < len(lines):
+                n += 1
+                part = lines[n]
+                ids |= set(ID.findall(part))
             ids |= set(ID.findall(line[i:]))
     return ids
 

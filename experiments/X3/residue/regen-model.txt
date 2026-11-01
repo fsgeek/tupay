@@ -1,0 +1,6 @@
+repo /home/tony/projects/tupay-x3-export-regen-model ref author/main root 2bb5b90: 1120 files in diff
+(i) candidates: 1
+  CAND model-regen/tlc.sh | config/epoch | 1 lines | e.g. -cp /opt/tlaplus/tla2tools.jar tlc2.TLC -workers ${TLC_WORKERS:-32} -nowarning -config "$cfg" "$@" MC > "$out" 2>&1
+(ii) list/range tags for reading: 1
+  LIST model-regen/report.py | """derives: C1.1 -- schedule order: P1..P63 by number, then the others"""
+(iii) retired ids: 0

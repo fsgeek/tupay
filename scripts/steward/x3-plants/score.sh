@@ -7,7 +7,7 @@ set -euo pipefail
 A=$1; S=$2; CL=$3; SC=$4; O=$(realpath -m "$5"); P=$HOME/projects; E=$P/tupay-x3-export-$A-$S; PL=$P/tupay-private/X3/plants/$A-$S
 case $A-$S in adapt-impl) D=impl;; adapt-model) D=model;; regen-impl) D=impl-regen;; regen-model) D=model-regen;; esac
 [ -e "$SC" ] && { echo "exists: $SC"; exit 1; }; [ -e "$O" ] && { echo "exists: $O"; exit 1; }; mkdir -p "$O"
-git init -q "$SC"; git -C "$SC" fetch -q "$E" refs/remotes/author/main:refs/heads/main; git -C "$SC" checkout -q main
+git init -q "$SC"; git -C "$SC" fetch -q "$E" refs/remotes/author/main:refs/heads/author; git -C "$SC" checkout -q author
 # the planted files: every file whose hash differs from the base, except PLANT.md and WITNESS.yaml
 C=$P/tupay-x3-plant-$A-$S
 (cd "$C" && find . -type f ! -name BRIEF.md -print0 | sort -z | xargs -0 sha256sum) > "$O/after.sha256"

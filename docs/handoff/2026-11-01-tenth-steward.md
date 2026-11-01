@@ -17,7 +17,7 @@ The log outranks this note (`docs/seed-log.md`, the authority). The ninth's note
 ## X3 plan
 - [x] 3 cost: `experiments/X3/measure3-cost.md` (A more tokens both sides; A impl slower, A model faster; cost condition of the rule fails; advisor and Tony-decision counts still to gather for the result)
 - [x] 4 residue: `experiments/X3/residue/RESULT.md` (A impl 2, others 0; full diff read not made, stated)
-- [ ] 6, 7 raters (rater-packet.sh; raters never see the adapting author's labels)
-- [ ] 9 four Grok plants, sandboxed, order A-impl, R-impl, A-model, R-model
-- [ ] 10 two Grok reconstruction choosers; steward adds hooks
+- [x] 6, 7: `experiments/X3/raters/RESULT.md` (DeepSeek + Kimi; m6 model kappa 0.09, unreliable; X3-9 confirmed)
+- [~] 9: plants 1-3 caught by their arm's suite (`experiments/X3/plants/`); plant 4 (R model, C1.2) scoring; plants private in `tupay-private/X3/plants/`
+- [x] 10: `experiments/X3/recon/RESULT.md` (helper added hooks, steward named both blind; X3-7 confirmed)
 - [ ] score; review; publish `experiments/X3-result.md`

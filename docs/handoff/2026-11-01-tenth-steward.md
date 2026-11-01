@@ -15,8 +15,8 @@ The log outranks this note (`docs/seed-log.md`, the authority). The ninth's note
 - X3 owed (5) measures 3, 4, 6, 7, 9, 10; (6) scoring by the registered rule; (7) non-Claude adversarial review. Plan below, updated as it moves.
 
 ## X3 plan
-- [ ] 3 cost (harness figures from author homes; steward time; advisors; Tony's decisions)
-- [ ] 4 residue (X2's fixed procedure, X3 terms)
+- [x] 3 cost: `experiments/X3/measure3-cost.md` (A more tokens both sides; A impl slower, A model faster; cost condition of the rule fails; advisor and Tony-decision counts still to gather for the result)
+- [x] 4 residue: `experiments/X3/residue/RESULT.md` (A impl 2, others 0; full diff read not made, stated)
 - [ ] 6, 7 raters (rater-packet.sh; raters never see the adapting author's labels)
 - [ ] 9 four Grok plants, sandboxed, order A-impl, R-impl, A-model, R-model
 - [ ] 10 two Grok reconstruction choosers; steward adds hooks

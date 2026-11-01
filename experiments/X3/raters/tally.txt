@@ -1,0 +1,16 @@
+## m6 impl
+  deepseek: P 15/27 = 0.556
+  kimi: P 21/27 = 0.778
+  agreement 0.778 on 27, kappa 0.526; disagree: ['U01', 'U09', 'U18', 'U21', 'U22', 'U27']
+## m6 model
+  deepseek: P 1/12 = 0.083
+  kimi: P 8/12 = 0.667
+  agreement 0.417 on 12, kappa 0.087; disagree: ['U02', 'U03', 'U05', 'U06', 'U09', 'U10', 'U11']
+## m7 impl
+  deepseek: contradicted by X3 15/85 ['13', '18', '23', '26', '3', '4', '42', '50', '51', '7', '70', '77', '80', '83', '85']; contradicted, flagged before 0 []; extended 13; on 77: 14
+  kimi: contradicted by X3 9/85 ['13', '20', '23', '26', '3', '50', '7', '80', '83']; contradicted, flagged before 1 ['81']; extended 30; on 77: 9
+  agreement 0.741 on 85, kappa 0.546
+## m7 model
+  deepseek: contradicted by X3 6/46 ['12', '17', '20', '3', '5', 'X2.2']; contradicted, flagged before 0 []; extended 14
+  kimi: contradicted by X3 5/46 ['12', '20', '3', '5', 'X2.2']; contradicted, flagged before 0 []; extended 16
+  agreement 0.913 on 46, kappa 0.848

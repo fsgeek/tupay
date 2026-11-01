@@ -1,0 +1,514 @@
+{
+ "ratings": [
+  {
+   "entry": "1",
+   "verdict": "UNCHANGED",
+   "already_contradicted_before": true,
+   "reason": "The README had already superseded this with entry 29. The diff retains root shared-schedule loading and impl-local outputs without changing that status."
+  },
+  {
+   "entry": "2",
+   "verdict": "EXTENDED",
+   "already_contradicted_before": true,
+   "reason": "Committed allocation still records a Grant independently of delivery, with gaps possible. The diff adds config_epoch, proposal and quorum-input evidence for v3 grants."
+  },
+  {
+   "entry": "3",
+   "verdict": "CONTRADICTED",
+   "already_contradicted_before": false,
+   "reason": "Grants still wait on the grantor clock, but pause/resume no longer uses a later Grant as its expiry witness: workloadReady and act enforce elapsed run-time lifetime directly."
+  },
+  {
+   "entry": "4",
+   "verdict": "EXTENDED",
+   "already_contradicted_before": false,
+   "reason": "Ordinary restarts retain durable Raft and storage state while clients lose grants. F3.3 adds the distinct amnesic-restart path that deliberately replaces a lease node's durable store and increments its incarnation."
+  },
+  {
+   "entry": "5",
+   "verdict": "UNCHANGED",
+   "already_contradicted_before": true,
+   "reason": "Real-elapsed-time execution had already been superseded by entry 81. The diff retains the logical scheduler and adds clock-step handling without reviving the old claim."
+  },
+  {
+   "entry": "6",
+   "verdict": "UNCHANGED",
+   "already_contradicted_before": false,
+   "reason": "Causal references remain backwards decision-to-attempt-to-grant chains; adding inc to Ref does not alter that interpretation."
+  },
+  {
+   "entry": "7",
+   "verdict": "CONTRADICTED",
+   "already_contradicted_before": false,
+   "reason": "checkC11 now returns without demanding total causal grant order whenever a ConfigCommitted record is present, delegating v3 C1.1 checks to decision_replay.py instead of rejecting missing order evidence itself."
+  },
+  {
+   "entry": "8",
+   "verdict": "EXTENDED",
+   "already_contradicted_before": false,
+   "reason": "The three-second C1.4 certificate remains. ReconfigHorizon and checkReconfigProgress apply the same bounded-horizon approach to v3 reconfiguration progress."
+  },
+  {
+   "entry": "9",
+   "verdict": "UNCHANGED",
+   "already_contradicted_before": true,
+   "reason": "The expiry-based stale-token reading was already superseded by entry 33. highestGranted and stale selection retain the numeric-supersession rule."
+  },
+  {
+   "entry": "10",
+   "verdict": "UNCHANGED",
+   "already_contradicted_before": true,
+   "reason": "Sticky triggers were already superseded by entry 30. The diff retains fresh arming and merely admits additional v3 events and filters."
+  },
+  {
+   "entry": "11",
+   "verdict": "UNCHANGED",
+   "already_contradicted_before": true,
+   "reason": "The old delivery-recheck behavior was already contradicted by entry 67. Send-time message fate remains unchanged in the adapted transport."
+  },
+  {
+   "entry": "12",
+   "verdict": "UNCHANGED",
+   "already_contradicted_before": false,
+   "reason": "The false-suspicion partition behavior is not altered; the diff only generalizes partition expansion to include operators when present."
+  },
+  {
+   "entry": "13",
+   "verdict": "CONTRADICTED",
+   "already_contradicted_before": false,
+   "reason": "Grant lifetime is no longer invariably 40 ms: lifetime() multiplies the deployment's schedule.Lifetime, and grants record lifetimeTicks()."
+  },
+  {
+   "entry": "14",
+   "verdict": "UNCHANGED",
+   "already_contradicted_before": true,
+   "reason": "Partition-only aliases were already superseded by entry 34. The diff continues aliases in general action targets and adds non-member."
+  },
+  {
+   "entry": "15",
+   "verdict": "EXTENDED",
+   "already_contradicted_before": false,
+   "reason": "Tokens remain committed Raft indices and terms, with snapshot-retained last-token state. Snapshots and log commands now additionally carry configuration and proposal evidence across membership changes."
+  },
+  {
+   "entry": "16",
+   "verdict": "EXTENDED",
+   "already_contradicted_before": false,
+   "reason": "The trusted three-second C1.4 sidecar remains, with the same checking limitations. Reconfiguration horizons extend the certificate mechanism to C3.4."
+  },
+  {
+   "entry": "17",
+   "verdict": "UNCHANGED",
+   "already_contradicted_before": false,
+   "reason": "The same accepted-attempt versus ghost-ack distinctions remain; references merely gain incarnation identity."
+  },
+  {
+   "entry": "18",
+   "verdict": "EXTENDED",
+   "already_contradicted_before": false,
+   "reason": "Ordinary restarts still preserve sequence state and idle nodes do not invent out-of-schema events. The new incarnation/sequence handling covers amnesic restarts, while Agree and ConfigCommitted are new in-schema events."
+  },
+  {
+   "entry": "19",
+   "verdict": "EXTENDED",
+   "already_contradicted_before": false,
+   "reason": "Resolved faults remain observable and strict compilation remains. Validation now covers v3 actions, operators, request IDs, configuration membership and new trigger fields."
+  },
+  {
+   "entry": "20",
+   "verdict": "CONTRADICTED",
+   "already_contradicted_before": false,
+   "reason": "Grant spacing remains, but a later Grant is no longer the required pause-duration witness. Resume readiness and validation now directly require at least the configured run-time lifetime."
+  },
+  {
+   "entry": "21",
+   "verdict": "UNCHANGED",
+   "already_contradicted_before": true,
+   "reason": "The real-timing and cut-delivery assumptions were already superseded. The diff preserves seeded logical delivery and send-time loss."
+  },
+  {
+   "entry": "22",
+   "verdict": "UNCHANGED",
+   "already_contradicted_before": true,
+   "reason": "The unconditional fixed drain was already superseded by entry 37. The diff extends the actual-work quiescence predicate rather than restoring that drain."
+  },
+  {
+   "entry": "23",
+   "verdict": "CONTRADICTED",
+   "already_contradicted_before": false,
+   "reason": "uint64 exhaustion is no longer simply outside the supported behavior: overflow() records Overflow and stops issuance, with explicit token, term, epoch and incarnation guards."
+  },
+  {
+   "entry": "24",
+   "verdict": "EXTENDED",
+   "already_contradicted_before": false,
+   "reason": "The committed-preregistration and declared-clause scoring rules remain. run.sh adds the X3 registration gate and main.go adds the v3 mutation scoring table."
+  },
+  {
+   "entry": "25",
+   "verdict": "UNCHANGED",
+   "already_contradicted_before": true,
+   "reason": "This transport description was already contradicted by entry 67. The adapted transport retains send-time admission without cut-history or delivery-time rechecks."
+  },
+  {
+   "entry": "26",
+   "verdict": "CONTRADICTED",
+   "already_contradicted_before": false,
+   "reason": "Bootstrap is no longer specifically a fixed three-voter configuration at all three nodes: initialMembers() accepts a deployment config and schedules may contain one to six lease nodes."
+  },
+  {
+   "entry": "27",
+   "verdict": "UNCHANGED",
+   "already_contradicted_before": false,
+   "reason": "Cache, temporary and output placement under impl remains unchanged."
+  },
+  {
+   "entry": "28",
+   "verdict": "UNCHANGED",
+   "already_contradicted_before": false,
+   "reason": "These are historical first-version evidence-retention claims. The new X3 evidence files do not alter them."
+  },
+  {
+   "entry": "29",
+   "verdict": "UNCHANGED",
+   "already_contradicted_before": false,
+   "reason": "Schedule arguments still resolve only as basenames in the repository-root shared schedule directory."
+  },
+  {
+   "entry": "30",
+   "verdict": "EXTENDED",
+   "already_contradicted_before": false,
+   "reason": "Fresh arming and synchronous predecessor effects remain unchanged. The generalized event cursor and new observable events extend the rule to ReconfigSend, clock/amnesia Faults and other v3 records."
+  },
+  {
+   "entry": "31",
+   "verdict": "EXTENDED",
+   "already_contradicted_before": false,
+   "reason": "T2 delay and trigger-time selector freezing remain. freezeAction now also resolves the v3 non-member selector before action execution."
+  },
+  {
+   "entry": "32",
+   "verdict": "UNCHANGED",
+   "already_contradicted_before": false,
+   "reason": "Request, client-incarnation and token readiness rules remain as described; the added resume timing guard does not change them."
+  },
+  {
+   "entry": "33",
+   "verdict": "UNCHANGED",
+   "already_contradicted_before": false,
+   "reason": "highestGranted still defines stale solely as numerically below the highest granted token."
+  },
+  {
+   "entry": "34",
+   "verdict": "EXTENDED",
+   "already_contradicted_before": false,
+   "reason": "Aliases still work throughout action targets with role checks. non-member, reconfiguration receivers and clock targets extend this to v3."
+  },
+  {
+   "entry": "35",
+   "verdict": "EXTENDED",
+   "already_contradicted_before": false,
+   "reason": "The remembered rest-set behavior remains. Partition expansion now includes operator processes, covering the new v3 process role."
+  },
+  {
+   "entry": "36",
+   "verdict": "EXTENDED",
+   "already_contradicted_before": false,
+   "reason": "Two-phase A2 validation and pause/resume checks remain. Validation now also covers F3.3 amnesic lease restarts and the new v3 actions."
+  },
+  {
+   "entry": "37",
+   "verdict": "EXTENDED",
+   "already_contradicted_before": false,
+   "reason": "Quiescence still counts only active current-incarnation workload. reconfigActive() now additionally keeps pending reconfigurations, outcomes and configuration packets in flight."
+  },
+  {
+   "entry": "38",
+   "verdict": "EXTENDED",
+   "already_contradicted_before": false,
+   "reason": "The five-second operational wait and trusted three-second C1.4 horizon remain. Reconfiguration horizons add the corresponding bounded C3.4 evidence."
+  },
+  {
+   "entry": "39",
+   "verdict": "UNCHANGED",
+   "already_contradicted_before": false,
+   "reason": "checkTrace still returns witnessed clause failures before operational incompleteness, now with an additional v3 check in the same priority structure."
+  },
+  {
+   "entry": "40",
+   "verdict": "UNCHANGED",
+   "already_contradicted_before": false,
+   "reason": "P7 still bypasses storage acceptance after restart and fabricates success for the unaccepted attempt."
+  },
+  {
+   "entry": "41",
+   "verdict": "UNCHANGED",
+   "already_contradicted_before": true,
+   "reason": "The literal-n1 P10 interpretation was already superseded by entry 47. The diff adjusts the P10 mutation trigger count but does not restore literal-target substitution."
+  },
+  {
+   "entry": "42",
+   "verdict": "UNCHANGED",
+   "already_contradicted_before": true,
+   "reason": "The v2 runner-ID and signing details were already historical. The X3 ID and registration gate do not change their status again."
+  },
+  {
+   "entry": "43",
+   "verdict": "EXTENDED",
+   "already_contradicted_before": false,
+   "reason": "The synchronous/fresh-event cursor rule remains. Its generic event handling now covers the newly observable v3 actions and records."
+  },
+  {
+   "entry": "44",
+   "verdict": "UNCHANGED",
+   "already_contradicted_before": false,
+   "reason": "non-grantor still excludes the latest observable grant issuer and uses the established deterministic selection and trigger-time freezing."
+  },
+  {
+   "entry": "45",
+   "verdict": "UNCHANGED",
+   "already_contradicted_before": false,
+   "reason": "restart: non-grantor remains bound only to the last successfully applied selector crash."
+  },
+  {
+   "entry": "46",
+   "verdict": "UNCHANGED",
+   "already_contradicted_before": false,
+   "reason": "The non-grantor selector's role and resolution behavior are unchanged; non-member is implemented separately."
+  },
+  {
+   "entry": "47",
+   "verdict": "UNCHANGED",
+   "already_contradicted_before": false,
+   "reason": "P10 continues to execute shared selector-based actions without literal-node or hidden-leader substitution."
+  },
+  {
+   "entry": "48",
+   "verdict": "UNCHANGED",
+   "already_contradicted_before": false,
+   "reason": "These are historical v2.1 workflow details untouched by the X3 code adaptation."
+  },
+  {
+   "entry": "49",
+   "verdict": "UNCHANGED",
+   "already_contradicted_before": false,
+   "reason": "readDecision still compares the presented token with the accepted-write ledger, permits equality and never advances that ledger on a read."
+  },
+  {
+   "entry": "50",
+   "verdict": "CONTRADICTED",
+   "already_contradicted_before": false,
+   "reason": "Initial storage no longer starts with the empty string: storagePresent begins false, storedInput() returns nil, and an initial served read explicitly carries value null."
+  },
+  {
+   "entry": "51",
+   "verdict": "EXTENDED",
+   "already_contradicted_before": false,
+   "reason": "Empty-string served values remain explicitly present and rejections omit values. NullValue and the custom marshaler extend the representation to v3's initially absent value."
+  },
+  {
+   "entry": "52",
+   "verdict": "UNCHANGED",
+   "already_contradicted_before": false,
+   "reason": "The read action's workload, alias, T1 and quiescence behavior remains as described."
+  },
+  {
+   "entry": "53",
+   "verdict": "UNCHANGED",
+   "already_contradicted_before": true,
+   "reason": "The delivery-time connectivity recheck in this entry was already contradicted by entry 67. The adapted code retains send-time fate."
+  },
+  {
+   "entry": "54",
+   "verdict": "UNCHANGED",
+   "already_contradicted_before": false,
+   "reason": "checkC21 still reconstructs the write-only ledger in storage sequence order and applies the same necessary serving condition."
+  },
+  {
+   "entry": "55",
+   "verdict": "UNCHANGED",
+   "already_contradicted_before": false,
+   "reason": "C2.2 still reconstructs values from causally named accepted writes in storage order, now with incarnation-aware identities."
+  },
+  {
+   "entry": "56",
+   "verdict": "EXTENDED",
+   "already_contradicted_before": false,
+   "reason": "Served-ack correlation and wrong-value discrimination remain. The read-ack path and serialization now also preserve the new served-null case distinctly from an empty string."
+  },
+  {
+   "entry": "57",
+   "verdict": "UNCHANGED",
+   "already_contradicted_before": false,
+   "reason": "P13/P14/P15 and the related read-fence mutations retain their enforcing paths."
+  },
+  {
+   "entry": "58",
+   "verdict": "UNCHANGED",
+   "already_contradicted_before": false,
+   "reason": "P16 and P17 still fabricate served replies without corresponding storage serves, preserving attempt correlation."
+  },
+  {
+   "entry": "59",
+   "verdict": "UNCHANGED",
+   "already_contradicted_before": false,
+   "reason": "P18 still replaces the captured reply snapshot with the current storage value after resume."
+  },
+  {
+   "entry": "60",
+   "verdict": "UNCHANGED",
+   "already_contradicted_before": true,
+   "reason": "The real-timing portions were already superseded by entry 81. C1.4's qualified horizon and declared-clause scoring remain, with no renewed status change to this historical entry."
+  },
+  {
+   "entry": "61",
+   "verdict": "UNCHANGED",
+   "already_contradicted_before": false,
+   "reason": "The remembered non-grantor restart binding and A2 checks are unchanged."
+  },
+  {
+   "entry": "62",
+   "verdict": "UNCHANGED",
+   "already_contradicted_before": false,
+   "reason": "Every ack still names its original attempt in answers; adding inc to the reference preserves rather than changes that rule."
+  },
+  {
+   "entry": "63",
+   "verdict": "UNCHANGED",
+   "already_contradicted_before": false,
+   "reason": "answers remains redundant provenance evidence, checked for existence, matching identity and causal reachability without inventing edges."
+  },
+  {
+   "entry": "64",
+   "verdict": "UNCHANGED",
+   "already_contradicted_before": false,
+   "reason": "The requirement that answers equal the storage decision's exact attempt reference remains intact, now including incarnation."
+  },
+  {
+   "entry": "65",
+   "verdict": "UNCHANGED",
+   "already_contradicted_before": false,
+   "reason": "Strict provenance checking and non-rewriting of historical traces remain unchanged."
+  },
+  {
+   "entry": "66",
+   "verdict": "UNCHANGED",
+   "already_contradicted_before": true,
+   "reason": "The v2.2 runner-ID and timing details were already historical or superseded. The X3 relabeling does not alter their status again."
+  },
+  {
+   "entry": "67",
+   "verdict": "EXTENDED",
+   "already_contradicted_before": true,
+   "reason": "Send-time fate remains in force. Reconfiguration sends, learned-commit packets and operator links now use the same link-admission model."
+  },
+  {
+   "entry": "68",
+   "verdict": "UNCHANGED",
+   "already_contradicted_before": false,
+   "reason": "Storage's 8 ms local reply preparation and independent send-time network admission remain unchanged."
+  },
+  {
+   "entry": "69",
+   "verdict": "EXTENDED",
+   "already_contradicted_before": false,
+   "reason": "The accumulated directed-link matrix and heal semantics remain. Partition/rest expansion now includes v3 operators, whose links follow the same rules."
+  },
+  {
+   "entry": "70",
+   "verdict": "EXTENDED",
+   "already_contradicted_before": false,
+   "reason": "C1.4 still requires a direct bidirectional clique and trusted finite certificate. finalMembership, eligibility and cliquePremise now evaluate the committed configuration and exclude horizons with pending reconfiguration."
+  },
+  {
+   "entry": "71",
+   "verdict": "EXTENDED",
+   "already_contradicted_before": true,
+   "reason": "Read/write quiescence, outstanding requests and no duplicate Grant retransmission remain. quiescent() now also accounts for active reconfigurations and configuration packets."
+  },
+  {
+   "entry": "72",
+   "verdict": "UNCHANGED",
+   "already_contradicted_before": false,
+   "reason": "The described P19\u2013P30 mutation placements remain unchanged."
+  },
+  {
+   "entry": "73",
+   "verdict": "UNCHANGED",
+   "already_contradicted_before": false,
+   "reason": "This is a historical bounded timing observation; no diff hunk changes its account of P17."
+  },
+  {
+   "entry": "74",
+   "verdict": "UNCHANGED",
+   "already_contradicted_before": false,
+   "reason": "The recorded P25/P26 traces and bounded-liveness caveat are historical and unaffected by the v3 additions."
+  },
+  {
+   "entry": "75",
+   "verdict": "EXTENDED",
+   "already_contradicted_before": true,
+   "reason": "Committed issuance still precedes and is independent of delivery, with fresh allocations receiving new Grants. Grants now additionally carry configuration epochs and replayable quorum/clock inputs."
+  },
+  {
+   "entry": "76",
+   "verdict": "EXTENDED",
+   "already_contradicted_before": false,
+   "reason": "Client request/reply forwarding and send-time link admission remain. reconfigRoute and pumpReconfiguration extend lease-node routing to v3 reconfiguration requests."
+  },
+  {
+   "entry": "77",
+   "verdict": "EXTENDED",
+   "already_contradicted_before": true,
+   "reason": "Direct-connectivity premises and receipt-before-pause readiness remain. The premise logic now covers changing committed membership, eligibility and pending reconfiguration, using configurable lifetimes."
+  },
+  {
+   "entry": "78",
+   "verdict": "EXTENDED",
+   "already_contradicted_before": false,
+   "reason": "grant_deliveries and its trusted-receipt limitation remain. The sidecar now additionally carries reconfiguration horizons and protocol-state evidence for v3."
+  },
+  {
+   "entry": "79",
+   "verdict": "EXTENDED",
+   "already_contradicted_before": false,
+   "reason": "R1/R2 and the old enforcing-path mutations remain. The scoring table and engine add the new P31\u2013P63 anti-theater mutations."
+  },
+  {
+   "entry": "80",
+   "verdict": "CONTRADICTED",
+   "already_contradicted_before": false,
+   "reason": "The logical scheduler and sampling remain, but grant lifetime is not fixed at the nominal 40 units: schedule.Lifetime scales it and clock steps adjust per-process grant clocks."
+  },
+  {
+   "entry": "81",
+   "verdict": "CONTRADICTED",
+   "already_contradicted_before": true,
+   "reason": "RawNode and synchronous Ready processing remain, but the claim of three nodes with a fixed voter configuration no longer holds universally: startup uses initialMembers and committed ConfChangeV2 entries now change membership."
+  },
+  {
+   "entry": "82",
+   "verdict": "EXTENDED",
+   "already_contradicted_before": false,
+   "reason": "Scheduler-driven campaigns, quiesced ticking and sorted outbound messages remain. Campaign and vote handling now additionally enforce membership, re-admission eligibility and term-overflow guards."
+  },
+  {
+   "entry": "83",
+   "verdict": "CONTRADICTED",
+   "already_contradicted_before": false,
+   "reason": "Resume is no longer witnessed by the later-grant workload barrier; both readiness and action validation directly use elapsed scheduler run time, and lifetime is deployment-configurable."
+  },
+  {
+   "entry": "84",
+   "verdict": "EXTENDED",
+   "already_contradicted_before": false,
+   "reason": "Directed send-time fate and receiver-generation checks remain. The same machinery now carries v3 agreement, configuration and reconfiguration traffic."
+  },
+  {
+   "entry": "85",
+   "verdict": "EXTENDED",
+   "already_contradicted_before": false,
+   "reason": "Old mutation placements and canonical replay principles remain. X3 adds registered membership mutations, repetitions and whole-matrix decision-replay evidence."
+  }
+ ]
+}

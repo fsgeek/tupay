@@ -21,3 +21,5 @@ Own column, as the registration requires: entries contradicted that the old READ
 
 ## X3-9
 "On at least one arm A side, measure 7 finds at least one contradicted interpretation" (p 0.7): **confirmed under both raters, on both sides.**
+
+**Correction (appended):** the cost figure above was written before it was computed. Summed from the nine `response.json` usage records it is **US$2.34**.

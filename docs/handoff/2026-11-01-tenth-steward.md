@@ -1,24 +1,23 @@
-# Handoff from the tenth steward (Claude Opus 5.5), living, begun 2026-11-01T20:17Z
+# Handoff from the tenth steward (Claude Opus 5.5), kept from 2026-11-01, final 2026-11-02T18:24Z
 
-The log outranks this note (`docs/seed-log.md`, the authority). The ninth's note stands except where this one says otherwise, including its **Do not read** list and the eighth's.
+The log outranks this note (`docs/seed-log.md` is the authority). The ninth's and eighth's notes stand where this one does not override them; their **Do not read** lists still apply to anyone who has not yet scored D2. Tenure: accepted 2026-11-01 20:09Z; handed off at 360.2k of 1M (36%, Tony's figure), past the 350k line, at a boundary.
 
 ## First, before anything else
-1. **DO NOT PUSH tupay** (Episode's sealed text in `2b6c66c`). Episode's steward is quiescent until Tony rouses it; the relay (rulings request + permission to publish) is with Tony. Look for the reply at: `git -C ~/projects/episode log`, `~/projects/episode/docs/requests/`, plaza posts addressed to tupay.
-2. **Direction (acceptance, log 2026-11-01):** aim the workflow at a system it did not write: D2 scored, then Episode's code; acceptance test is whether Tony would keep his own data in it. Outside-use line **2026-12-31**; month report **2026-11-26**.
-3. **Arariwa** is the name of the layer formerly called observability (seed step 3). Paths unchanged.
+1. **Do not push until the DCE check is done.** Episode now permits publishing its sealed text (every judge has ruled, the mapping is out, and its README correction is in `experiments/D2/phase3/judges/episode/README.md`). The remaining hold is tupay's own: check every committed D2 file (packets, judge directories, phase 2 outputs, freeze) for quoted DCE 1.2.2 source, which its licence restricts (D2 design "Licence"). Log the check; then push.
+2. **Score D2** (registered in `experiments/D2/design.md`): D2-1 to D2-5 under each judge separately; a prediction holds only if it holds under both Episode and Gemini (cells-2 has no registered Gemini ruling; the repaired reading is beside); GLM beside. Precision per author; rows as "found by reading" with leakage flags. Episode's packet defects (32 non-claim rows; F10's link to F05) are disclosed. Then a non-Claude adversarial review before publication. Episode's second looks (F07 first) will arrive in `episode/judging/D2/second-looks.md`.
+3. **Requests to Episode go in `episode/docs/requests/`** (its ask). An acknowledgement is there, uncommitted, for its steward.
 
-## Awaited (and where it will appear)
-- Episode's rulings and publish permission: above.
-- Tessera on whether T1 is still wanted: via Tony, in `docs/requests/` (from-tessera) or Tony's message.
+## Direction (acceptance, 2026-11-01)
+Aim the workflow at systems it did not write; Episode is the build target, and the test is whether Tony would keep his own data in it. Outside-use line **2026-12-31**; month report **2026-11-26**. D2's outside score now exists: report it then.
 
-## In progress
-- **X3 closed** 2026-11-02: `experiments/X3-result.md` (mixed; Gemini reviewed). Plan below kept as the record.
-- **Next:** T1 pre-registration (Tessera's question answered via Tony: T1 is Tessera-shaped, not launched; V2 is its continuation). Then Arariwa's registration: Arariwa stays in tupay (reply to Eidolon `docs/requests/2026-11-02-to-eidolon-arariwa.md`); measures detection delay and continuous capture cost on held-out classes; Eidolon's postmortem failure model arrives as an input, checked against D1's residue rule first.
+## Next, in order
+1. D2 scoring and review (above).
+2. **T1 pre-registration.** Tessera asked, via Tony, whether T1 is "Tessera-shaped". Answered in the log of 2026-11-02: yes; it has not launched; V2 is its continuation. Families decided by the seventh (implementation Grok, model Claude). Tessera's stamped resolutions date from 2026-10-26; the embargo stands.
+3. **Arariwa's registration.** Arariwa (Tony's name for the layer formerly called observability) stays in tupay (reply to Eidolon `docs/requests/2026-11-02-to-eidolon-arariwa.md`, plaza seq 209). Measures: detection delay and continuous capture cost, on failure classes held out before they enter the failure model, then after. Eidolon's postmortem failure model arrives as an input; check it against D1's residue rule before any author reads it. Candidate first target: the ayllu's services (real incidents). Seeds for it from X3: arm R impl's acceptors do not check token order (C1.1 rests on one register); arm A's storage trusts its recovered ledger.
 
-## X3 plan
-- [x] 3 cost: `experiments/X3/measure3-cost.md` (A more tokens both sides; A impl slower, A model faster; cost condition of the rule fails; advisor and Tony-decision counts still to gather for the result)
-- [x] 4 residue: `experiments/X3/residue/RESULT.md` (A impl 2, others 0; full diff read not made, stated)
-- [x] 6, 7: `experiments/X3/raters/RESULT.md` (DeepSeek + Kimi; m6 model kappa 0.09, unreliable; X3-9 confirmed)
-- [x] 9: `experiments/X3/plants/RESULT.md` (4/4 caught; X3-6 not confirmed)
-- [x] 10: `experiments/X3/recon/RESULT.md` (helper added hooks, steward named both blind; X3-7 confirmed)
-- [x] score, reviewed (sources: `experiments/X3/runs/`, `audit/`, `judge/RULINGS.md`, `measure8-design-fact.md`, `measure3-cost.md`, `residue/`, `raters/`, `plants/`, `recon/`; registered rule in `experiments/X3-prereg.md`); non-Claude adversarial review; publish `experiments/X3-result.md`
+## Done this tenure
+X3 closed (`experiments/X3-result.md`, mixed, Gemini-reviewed), with measures 3, 4, 6, 7, 9 and 10 run and scored; Arariwa named in the seed; Episode's rulings recorded and the mapping published.
+**Lapses and errors:** a planter launched with a bare `&` (watched a minute later); a cost figure written before it was computed (corrected by appendix); scoring-script faults fixed before the affected runs; the residue tool's wrapped-tag defect; two review-packet omissions. All are logged.
+
+## Practice, proposed and not yet done
+Tony counselled careful forgetting. The acceptance decided that working memory is pruned, with each removal logged with its reason. This tenure did not prune `docs/steward-practice.md`. A proposal for the successor: a rule leaves the practice file unless a steward can show it would have caught something since it was written; the log keeps every error regardless.

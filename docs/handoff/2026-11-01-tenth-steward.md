@@ -12,7 +12,8 @@ The log outranks this note (`docs/seed-log.md`, the authority). The ninth's note
 - Tessera on whether T1 is still wanted: via Tony, in `docs/requests/` (from-tessera) or Tony's message.
 
 ## In progress
-- X3 owed (5) measures 3, 4, 6, 7, 9, 10; (6) scoring by the registered rule; (7) non-Claude adversarial review. Plan below, updated as it moves.
+- **X3 closed** 2026-11-02: `experiments/X3-result.md` (mixed; Gemini reviewed). Plan below kept as the record.
+- **Next:** T1 pre-registration (Tessera's question answered via Tony: T1 is Tessera-shaped, not launched; V2 is its continuation). Then Arariwa's registration: Arariwa stays in tupay (reply to Eidolon `docs/requests/2026-11-02-to-eidolon-arariwa.md`); measures detection delay and continuous capture cost on held-out classes; Eidolon's postmortem failure model arrives as an input, checked against D1's residue rule first.
 
 ## X3 plan
 - [x] 3 cost: `experiments/X3/measure3-cost.md` (A more tokens both sides; A impl slower, A model faster; cost condition of the rule fails; advisor and Tony-decision counts still to gather for the result)
@@ -20,4 +21,4 @@ The log outranks this note (`docs/seed-log.md`, the authority). The ninth's note
 - [x] 6, 7: `experiments/X3/raters/RESULT.md` (DeepSeek + Kimi; m6 model kappa 0.09, unreliable; X3-9 confirmed)
 - [x] 9: `experiments/X3/plants/RESULT.md` (4/4 caught; X3-6 not confirmed)
 - [x] 10: `experiments/X3/recon/RESULT.md` (helper added hooks, steward named both blind; X3-7 confirmed)
-- [ ] score (sources: `experiments/X3/runs/`, `audit/`, `judge/RULINGS.md`, `measure8-design-fact.md`, `measure3-cost.md`, `residue/`, `raters/`, `plants/`, `recon/`; registered rule in `experiments/X3-prereg.md`); non-Claude adversarial review; publish `experiments/X3-result.md`
+- [x] score, reviewed (sources: `experiments/X3/runs/`, `audit/`, `judge/RULINGS.md`, `measure8-design-fact.md`, `measure3-cost.md`, `residue/`, `raters/`, `plants/`, `recon/`; registered rule in `experiments/X3-prereg.md`); non-Claude adversarial review; publish `experiments/X3-result.md`

@@ -1,0 +1,80 @@
+{
+ "findings": [
+  {
+   "id": "F01",
+   "ruling": "no match",
+   "bugs": [],
+   "flag_confirmed_property": null,
+   "reason": "Shares only the effect class with E2 (silent loss of an acknowledged commit). Its contract (a log write outstanding for a full lap) and its mechanism (EarlierPassno aliasing in TranCommitted/BufCommitted when activeLogBlock equals currentLogBlock) are not in the sealed file, and E1's count-versus-distance defect is a different line of recovery code. This looks like a plausible own-rule defect the sealed analysis missed; it deserves verification."
+  },
+  {
+   "id": "F02",
+   "ruling": "no match",
+   "bugs": [],
+   "flag_confirmed_property": null,
+   "reason": "Unknown checksum version forcing success (recover.c:2577) is not among E1-E7. It does not contradict P5, which concerns torn home-page writes under physical redo, not torn log pages accepted by a disabled check. Plausibly real from the cited source line; not in the sealed analysis."
+  },
+  {
+   "id": "F03",
+   "ruling": "match",
+   "bugs": [
+    "E6"
+   ],
+   "flag_confirmed_property": null,
+   "reason": "Same trigger as E6 (out-of-order completion among the first pages after a clean mount, then crashes), same mechanism (elbr_GetCleanLogInfo sees page 0's restart record, the log reopens with IncPassno(restart pass), and two incarnations share a pass number), and same class of effect: silent-splice, with stale records joining the active log. The finding calls the trigger an environment violation, while v2 classes E6 as logbuf's own defect because the source permits out-of-order writes; the finding quotes that permission itself, so this is a labelling difference, not a different contract. Its tran-id restart detail (MarkCommitted by tran id alone) extends the sealed mechanism and is consistent with it."
+  },
+  {
+   "id": "F04",
+   "ruling": "no match",
+   "bugs": [],
+   "flag_confirmed_property": null,
+   "reason": "A caller passing metadataOK=true to elbb_Kill before the freeing transaction commits is a caller-contract defect not among E1-E7. The scenario depends on the model replacing the active log at the kill, which the finding itself presents as an abstraction of checkpointing; how faithful that is was not established in the sealed analysis either way."
+  },
+  {
+   "id": "F05",
+   "ruling": "no match",
+   "bugs": [],
+   "flag_confirmed_property": null,
+   "reason": "An overwrite of an acknowledged head log page being taken as an incomplete write is not in E1-E7. E4 shares the effect class (silent loss) but has a different contract (a lost write at write time) and mechanism (masking until checkpoint truncation). The ambiguity it exploits, that a damaged newest page is indistinguishable from an interrupted write, is the same trade-off the sealed analysis named for jbd2 (out of scope) but did not list for Episode; a fair omission to charge to the analysis."
+  },
+  {
+   "id": "F06",
+   "ruling": "no match",
+   "bugs": [],
+   "flag_confirmed_property": null,
+   "reason": "A stale read of the log head (C018) is a different contract from E4's lost write and a different mechanism (END not seen, so the committed transaction is undone), though the effect class, silent loss, is shared. The sealed EpisodeLog model treats pages as sealed once (no tail rewrite); if Episode rewrites a partly filled head page, this scenario lies outside that model's reach. That is an abstraction gap in the analysis worth a second look, not a match."
+  },
+  {
+   "id": "F07",
+   "ruling": "partial",
+   "bugs": [
+    "E6"
+   ],
+   "flag_confirmed_property": null,
+   "reason": "Same contract as E6 (permitted out-of-order completion plus crashes, nothing below logbuf violated) and same class of effect (stale pages of a crashed incarnation accepted into the log, splicing histories), but a different mechanism: the recovery path's checkpoint block written into the hole with the old pass before the +2 restart block. This disagrees with the sealed E6 note that the +2 bump covers the recovery path; WrapLog modelled that path and did not report it, so either the sealed model's bounds missed it or the finding is wrong. Second look required."
+  },
+  {
+   "id": "F08",
+   "ruling": "partial",
+   "bugs": [
+    "E3"
+   ],
+   "flag_confirmed_property": null,
+   "reason": "The right mechanism of E3 (a home metadata write reaches media while the log record that would undo it does not, so an uncommitted value survives: silent-atomicity) under a different contract: AIX ESOFT success for an unstored log write, which is E4's contract (a completed write is stored), not E3's (a completed write is durable). E4 itself does not match: only its contract is shared."
+  },
+  {
+   "id": "F09",
+   "ruling": "no match",
+   "bugs": [],
+   "flag_confirmed_property": null,
+   "reason": "A forged or corrupted restart page, which recovery deliberately does not checksum (recover.c:2738), is not among E1-E7. Plausible from the source; not in the sealed analysis."
+  },
+  {
+   "id": "F10",
+   "ruling": "no match",
+   "bugs": [],
+   "flag_confirmed_property": null,
+   "reason": "Same shape as F05, under media decay (C071) instead of an overwrite. E4's contract is a lost write at write time, not later decay, and its mechanism differs; only the effect class (silent loss) is shared."
+  }
+ ]
+}

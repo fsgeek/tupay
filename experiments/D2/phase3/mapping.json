@@ -1,0 +1,697 @@
+{
+ "beacon": {
+  "outputValue": "0C9C387BD5BBAC2C6D74D1ABC9CBF0E4243FA16CBEFA91DDFE40C18652CB9663F94F1CD005DBCD5756F7906894C9FAB233E082AB27CD5E6C65C9090D3D21F6AD",
+  "pulseIndex": 2003390,
+  "timeStamp": "2026-10-28T20:12:00.000Z"
+ },
+ "cells": {
+  "C001": "D95",
+  "C002": "D48",
+  "C003": "D109",
+  "C004": "D40",
+  "C005": "D37",
+  "C006": "D77",
+  "C007": "D59",
+  "C008": "D22",
+  "C009": "D91",
+  "C010": "D106",
+  "C011": "D90",
+  "C012": "D38",
+  "C013": "D63",
+  "C014": "D104",
+  "C015": "D66",
+  "C016": "D46",
+  "C017": "D88",
+  "C018": "D97",
+  "C019": "D72",
+  "C020": "D41",
+  "C021": "D69",
+  "C022": "D21",
+  "C023": "D100",
+  "C024": "D60",
+  "C025": "D14",
+  "C026": "D81",
+  "C027": "D43",
+  "C028": "D32",
+  "C029": "D10",
+  "C030": "D68",
+  "C031": "D99",
+  "C032": "D79",
+  "C033": "D16",
+  "C034": "D55",
+  "C035": "D110",
+  "C036": "D93",
+  "C037": "D42",
+  "C038": "D18",
+  "C039": "D107",
+  "C040": "D108",
+  "C041": "D96",
+  "C042": "D47",
+  "C043": "D39",
+  "C044": "D8",
+  "C045": "D57",
+  "C046": "D50",
+  "C047": "D12",
+  "C048": "D87",
+  "C049": "D9",
+  "C050": "D44",
+  "C051": "D58",
+  "C052": "D53",
+  "C053": "D30",
+  "C054": "D2",
+  "C055": "D82",
+  "C056": "D75",
+  "C057": "D15",
+  "C058": "D71",
+  "C059": "D85",
+  "C060": "D7",
+  "C061": "D25",
+  "C062": "D101",
+  "C063": "D20",
+  "C064": "D64",
+  "C065": "D51",
+  "C066": "D102",
+  "C067": "D11",
+  "C068": "D76",
+  "C069": "D92",
+  "C070": "D80",
+  "C071": "D4",
+  "C072": "D13",
+  "C073": "D45",
+  "C074": "D103",
+  "C075": "D34",
+  "C076": "D29",
+  "C077": "D5",
+  "C078": "D1",
+  "C079": "D52",
+  "C080": "D19",
+  "C081": "D98",
+  "C082": "D27",
+  "C083": "D70",
+  "C084": "D54",
+  "C085": "D33",
+  "C086": "D61",
+  "C087": "D67",
+  "C088": "D24",
+  "C089": "D62",
+  "C090": "D36",
+  "C091": "D49",
+  "C092": "D56",
+  "C093": "D23",
+  "C094": "D26",
+  "C095": "D6",
+  "C096": "D65",
+  "C097": "D84",
+  "C098": "D31",
+  "C099": "D105",
+  "C100": "D86",
+  "C101": "D28",
+  "C102": "D78",
+  "C103": "D89",
+  "C104": "D94",
+  "C105": "D35",
+  "C106": "D17",
+  "C107": "D73",
+  "C108": "D3",
+  "C109": "D74",
+  "C110": "D83"
+ },
+ "findings": {
+  "F01": {
+   "author": "model-n-claude",
+   "author_status": null,
+   "confidence": "medium \u2014 the arithmetic is exactly log.c's TranCommitted/EarlierPassno. It needs one log write to stay outstanding for a full lap: 4 pages in the model, at least 13 pages in a real log (elbl_MinLogSize with 8K blocks).",
+   "defence": "The model has the activeLogBlock-based commit test, which is the source's defence against out-of-order completion. Without it (D_ALB=FALSE, `mut_noalb`) a forced commit returns before its page lands even in the honest environment. With it in place, the page-offset wrap defeats it.",
+   "effect": "A transaction whose commit was acknowledged by a forced commit (fsync path) is rolled back by recovery (silent): breaks G7 and G23 (also G29). The same test gates buffer.c Write's log force (G5), but no WAL break was found within the bounds checked (see REPORT.md).",
+   "heading": "F3",
+   "label": "model-n-claude#3",
+   "mechanism": "TranCommitted and BufCommitted compare a position against (EarlierPassno(activeLogBlock), activeLogBlock), where activeLogBlock is the oldest page still in transit. When that page has the same index as currentLogBlock, EarlierPassno returns the current pass, so the stalled page looks a lap newer and every record behind it, including pages still in transit, counts as committed. elbl_ForceTran then returns without waiting, so elbt_TranForce(waitOK=1) returns for a transaction whose END page is not on disk. A crash loses that page, and recovery undoes the transaction.",
+   "named_cells": [],
+   "rank": 3,
+   "scored": true,
+   "violated": "The log device left one log-page write (page 0) outstanding while it completed enough later log writes for currentLogBlock to wrap round to the same page index, a full lap of the log."
+  },
+  "F02": {
+   "author": "model-c-grok",
+   "author_status": null,
+   "confidence": "high \u2014 the trace ends recovered b1=2, oracle b1=1, cksum bad, version unknown, and the honest replay of the real log keeps 1.",
+   "defence": "The checksum routine is the defence, and it is enabled in this run. The unknown-version branch makes the check succeed and print that the checksum is being ignored. Removing the checksum defence also accepts the torn body (traces/C021-nodefence.txt). A known bad checksum is pulled back; this cell is the fail-open version.",
+   "effect": "Recovery finishes and writes a metadata value the disk did not commit. Users see block b1 as 2 rather than the committed 1. Breaks G54 and G1.",
+   "heading": "F4",
+   "label": "model-c-grok#4",
+   "mechanism": "The committed log records b1 changing from 0 to 1, and the home block is already 1. The page recovery reads has a bad checksum, an unknown checksum version, and a body that records the new value 2 together with an end record. ValidLogPageChecksum forces success on UNKNOWN_CKSUM_TYPE (recover.c:2577). The torn page is parsed instead of pulling the head back to the good prefix. Redo installs 2.",
+   "named_cells": [
+    "D69"
+   ],
+   "rank": 4,
+   "scored": true,
+   "violated": "C021"
+  },
+  "F03": {
+   "author": "model-n-claude",
+   "author_status": null,
+   "confidence": "medium \u2014 each step follows a source line (log.c elbl_InitLog, recover.c SafeDumpLog/MarkCommitted, tran.c elbt_GlobalTranId), but it needs out-of-order completion among the first pages after a mount, then a second crash before those pages are overwritten.",
+   "defence": "The model has the pass-number fence between log incarnations (IncPassno at open, +2 after recovery), the in-transit io_window check and the per-page pass check. The fence fails because two incarnations get the same pass when no recovery ran between them. The io_window check, which would catch the missing page 0, never runs because the log looks clean. Removing the fence (D_INC=FALSE) lets stale pages join a log with no environment deviation at all (`mut_noinc` fails). Removing D_IOW, D_PASS or D_BUMP leaves this run unchanged (`f1_noIOW`, `f1_noPASS`, `f1_noBUMP` fail the same way).",
+   "effect": "Recovery reports success but metadata now holds an update of a transaction that never ended (silent): breaks G3 and G8 (also G1, G2). The same mechanism can instead make recovery abort with RCVR_ASSERT on records left UNDEF (G55/G58; `model/results/v3/f1_fail.out`).",
+   "heading": "F1",
+   "label": "model-n-claude#1",
+   "mechanism": "Page 0 still holds the restart record, so elbl_InitLog (elbr_GetCleanLogInfo) treats the log as clean, skips recovery, and reopens it with passno = IncPassno(restart pass), the same pass the crashed incarnation used, so the stale page 1 cannot be told apart from the new incarnation's pages. After a second crash SafeDumpLog's binary search takes the stale page as head, its io_window and pass-number checks pass because page 0 now holds a new page with the same pass, and the stale records join the active log. MarkCommitted matches records by tran id alone and tran ids restart at 0xfffffff6 on every boot, so the stale END of boot-1 tran 1 marks boot-2 tran 1's uncommitted update REDO.",
+   "named_cells": [],
+   "rank": 1,
+   "scored": true,
+   "violated": "The log device completed a later write of a freshly opened log (page 1) before its first write (page 0, which overwrites the restart block), and the machine crashed in between; log.c ForceMap explicitly allows this (\"We don't assume in-order writes\")."
+  },
+  "F04": {
+   "author": "model-c-grok",
+   "author_status": null,
+   "confidence": "high \u2014 the trace ends recovered b1=0 and oracle b1=1 after the kill replaces the log, and the honest run keeps t1's redo.",
+   "defence": "elbb_Kill returns BUF_CANTDELETE only when metadataOK is false and the buffer is logged and dirty (buffer.c:1395). That boolean is the defence. It does not look at whether the freeing transaction's end record is durable. block_alloc.c:450 passes metadataOK true. The defence-removed run breaks the same way (traces/C024-nodefence.txt) because the true flag never consulted the commit record.",
+   "effect": "A committed metadata update is gone after the crash, while the uncommitted follower is undone. A later free can look committed in memory and then abort, resurrecting or dropping the block the committed transaction described. Breaks G7, G21, and G22.",
+   "heading": "F2",
+   "label": "model-c-grok#2",
+   "mechanism": "Transaction t1 commits an update of b1 from 0 to 1. The home block is still 0 because the dirty buffer is holding the redo in the active log. Transaction t2 then logs an update and does not commit. elbb_Kill with metadataOK true drops t1's buffer, and the active log that recovery sees no longer contains t1's redo (the model replaces that log with t2's record, which is the checkpoint moving past a buffer that left the age queue). Crash undoes t2 and has nothing to redo for t1, so b1 stays 0.",
+   "named_cells": [
+    "D60"
+   ],
+   "rank": 2,
+   "scored": true,
+   "violated": "C024"
+  },
+  "F05": {
+   "author": "model-c-claude",
+   "author_status": "draft",
+   "confidence": "medium \u2014 mechanism follows the source line by line; the overwrite must hit the newest pages before the crash.",
+   "defence": "checksums (ValidLogPageChecksum) and pass numbers detect the damage, but the head-window rule converts detected damage into \"not yet written\" instead of failing; only damage outside the window raises RCVR_IOERR.",
+   "effect": "a transaction fsync/LogForce reported as committed is silently lost after recovery; G7, G23 (Inv_Durable).",
+   "heading": "F-draft-1 (D24)",
+   "label": "model-c-claude#1",
+   "mechanism": "A completed, acknowledged log page at the head of the active log is overwritten (no magic, bad checksum). Recovery's binary search does not check magic on the endpoints, finds that page as head, and the in-transit window scan (recover.c:940-975) treats the checksum failure as an incomplete write, moving the head to the previous page. The committed transaction's END is discarded and its records are undone (or simply not redone), with no error.",
+   "named_cells": [
+    "D24"
+   ],
+   "rank": 1,
+   "scored": true,
+   "violated": "C088"
+  },
+  "F06": {
+   "author": "model-c-grok",
+   "author_status": null,
+   "confidence": "high \u2014 the trace ends recovered b1=0 and oracle b1=1, with the seen log containing only the update, and the honest run replays the end record and keeps 1.",
+   "defence": "SafeDumpLog checks the checksum and the pass number of the page it read (recover.c:933 and the active-page pass check). Both succeed for an older well-formed page. They do not detect that the end record was on the page the device should have returned. The defence-removed run undoes the same committed value (traces/C018-nodefence.txt).",
+   "effect": "A committed metadata update is undone after a stale read of the log head. Users see the pre-transaction value of b1. Breaks G7.",
+   "heading": "F5",
+   "label": "model-c-grok#5",
+   "mechanism": "The committed log is an update of b1 from 0 to 1 plus an end record, and the home block is already 1. The read of the head returns the previous well-formed page, which contains the update and not the end. Pass number and checksum both accept that page. Recovery classifies the transaction as undo, because it sees no end, and writes the old value 0 back over the committed home block.",
+   "named_cells": [
+    "D97"
+   ],
+   "rank": 5,
+   "scored": true,
+   "violated": "C018"
+  },
+  "F07": {
+   "author": "model-n-claude",
+   "author_status": null,
+   "confidence": "medium \u2014 direct consequence of recover.c step 5 and SafeDumpLog; needs two independent events (a hole at the first crash, then an interruption inside recovery's two-write window).",
+   "defence": "The model has recover.c's checkpoint-before-restart block (\"the checkpoint block itself becomes the entire active region of the log\") plus the head search (binary search, io_window, pass checks). Removing the checkpoint write (D_CKPT=FALSE, `f2_noCKPT`) removes every violation at the same bounds, so the checkpoint write is what turns a tolerated hole into corruption. Removing D_IOW does not change this run (`f2_noIOW`), because at N=4 the binary search, not the io_window check, stops at the hole.",
+   "effect": "After a successful recovery a transaction is partly applied, and an abort decided by one recovery is undone by the next (silent): breaks G2 and G6/G8 (also G1).",
+   "heading": "F2",
+   "label": "model-n-claude#2",
+   "mechanism": "The first recovery's head search stops at the hole and correctly undoes the transaction. It then writes its checkpoint block at head+1, which is the hole, with the same pass number and a valid checksum. On the next recovery the binary search therefore reaches the stale page 2 as head, and its io_window check sees only the valid checkpoint page. The transaction whose END is on page 2 is marked REDO even though its middle record (on the lost page 1) is gone, so only part of it is redone, reversing the first recovery's decision.",
+   "named_cells": [],
+   "rank": 2,
+   "scored": true,
+   "violated": "The log device kept one write (page 1) outstanding while it completed a later one (page 2, holding a transaction's END), and the machine crashed. Then a second crash (or a failed restart write followed by a rerun of recovery) interrupted elbr_Recover after elbr_WriteCheckpointBlock and before elbr_WriteRestartBlock."
+  },
+  "F08": {
+   "author": "model-c-grok",
+   "author_status": null,
+   "confidence": "high \u2014 the trace ends with an empty log, recovered b1=1, and oracle b1=0, and the honest force keeps the log record ahead of the home write.",
+   "defence": "The log's check of the I/O status is the defence. It never observes ESOFT, because the async layer cleared the error first. With that check removed the same home block is still published (traces/C041-nodefence.txt).",
+   "effect": "A metadata write that the file system treated as logged is on disk, and the log that should undo it is not. After the crash users see the uncommitted value. Breaks G5 and G29.",
+   "heading": "F3",
+   "label": "model-c-grok#3",
+   "mechanism": "The update of b1 is logged in memory and the log force is the next step. On AIX, asevent_Iodone clears ESOFT, b_resid, and B_ERROR before the log looks at the event (asevent.c:1070). The force is therefore reported successful while the log page was not stored. Write-ahead then allows the home write, so disk b1 becomes 1. No end record is durable, so the committed image is still the old value. Crash sees an empty log and leaves b1 at 1.",
+   "named_cells": [
+    "D96"
+   ],
+   "rank": 3,
+   "scored": true,
+   "violated": "C041"
+  },
+  "F09": {
+   "author": "model-c-grok",
+   "author_status": null,
+   "confidence": "high \u2014 the trace ends recovered b1=1, oracle b1=0, with fake restart set, and the honest run of the same uncommitted image undoes it.",
+   "defence": "The clean test is the defence, and a well-formed restart is what it accepts. elbr_InitLogPageHdr already puts the salvage magic on every page, and the restart page is deliberately not checksummed, so a restored or forged restart is indistinguishable from a finished recovery. Removing the magic check does not help: the clean path is taken because the image looks like a restart, which traces/C058-nodefence.txt also shows.",
+   "effect": "After the crash the aggregate mounts as a clean log. Users see metadata the transaction did not commit. Breaks G56, G58, G8, and G1.",
+   "heading": "F1",
+   "label": "model-c-grok#1",
+   "mechanism": "An uncommitted update of block b1 from 0 to 1 is logged and its home block is written. The environment then plants a restart image on the first log block. elbr_GetCleanLogInfo (recover.c:2813 and recover.c:2840) treats salvage magic plus a first record of type restart as a clean log, and it does not checksum that page (recover.c:2826 and recover.c:2737). Replay never runs. The home block stays 1.",
+   "named_cells": [
+    "D71"
+   ],
+   "rank": 1,
+   "scored": true,
+   "violated": "C058"
+  },
+  "F10": {
+   "author": "model-c-claude",
+   "author_status": "draft",
+   "confidence": "medium \u2014 same mechanism as F-draft-1.",
+   "defence": "checksums detect the decay, but within the io_window range a bad page is taken to be an in-flight write and silently truncated.",
+   "effect": "acknowledged commits silently disappear; G7, G23.",
+   "heading": "F-draft-2 (D4)",
+   "label": "model-c-claude#2",
+   "mechanism": "Bits of a completed head log page decay (checksum fails, header intact). Recovery finds it as head by pass number; the in-transit scan (index 0 is the head itself) sees the bad checksum and pulls the head back one page, so the END of an acknowledged transaction is dropped and its updates are undone or not redone.",
+   "named_cells": [
+    "D4"
+   ],
+   "rank": 2,
+   "scored": true,
+   "violated": "C071"
+  }
+ },
+ "rows": {
+  "R01": {
+   "enumerator": "grok-1",
+   "kind": "recognised",
+   "label": "grok-1/Recognised/22",
+   "section": "Recognised",
+   "text": "OT 3435, recorded in logbuf/crc.c: out-of-order sector writes inside a log page made a torn page look valid, which is why page checksums were added; E3 is the contract that remains."
+  },
+  "R02": {
+   "enumerator": "codex-2",
+   "kind": "report",
+   "label": "codex-2/Checkout inventory and status/20",
+   "section": "Checkout inventory and status",
+   "text": "enumeration.md"
+  },
+  "R03": {
+   "enumerator": "grok-1",
+   "kind": "report",
+   "label": "grok-1/Report/34",
+   "section": "Report",
+   "text": "``` On branch main Untracked files: (use \"git add <file>...\" to include in what will be committed) enumeration.md"
+  },
+  "R04": {
+   "enumerator": "grok-2",
+   "kind": "recognised",
+   "label": "grok-2/Recognised/38",
+   "section": "Recognised",
+   "text": "E2 is the contract behind volatile disk write caches that report completion before the media is stable. I recall that failure mode from write-ahead logging practice of this era, including DFS and Episode deployments that enabled SCSI write caching without a battery."
+  },
+  "R05": {
+   "enumerator": "grok-1",
+   "kind": "recognised",
+   "label": "grok-1/Recognised/24",
+   "section": "Recognised",
+   "text": "OT 3804 and OT 1020, new-block security, recorded in the anode and logbuf history: a crash after allocation and before the first write exposed the previous contents; E36 and E38, and strategy.c still says the VM undo-zero path is not implemented."
+  },
+  "R06": {
+   "enumerator": "grok-2",
+   "kind": "recognised",
+   "label": "grok-2/Recognised/39",
+   "section": "Recognised",
+   "text": "E37 is the contract behind Episode new-block security. The logbuf locking history in this tree names it as OT 3804 and OT 1020, and anode/strategy.c still says the iodone undo-zero database is not implemented."
+  },
+  "R07": {
+   "enumerator": "codex-1",
+   "kind": "report",
+   "label": "codex-1/Inventory/10",
+   "section": "Inventory",
+   "text": "nothing added to commit but untracked files present (use \"git add\" to track) ```"
+  },
+  "R08": {
+   "enumerator": "grok-1",
+   "kind": "recognised",
+   "label": "grok-1/Recognised/23",
+   "section": "Recognised",
+   "text": "OT 3338, recorded in the epimount history: the mount path did not recover a dirty log before the kernel attached it; that is E17."
+  },
+  "R09": {
+   "enumerator": "grok-1",
+   "kind": "report",
+   "label": "grok-1/Report/35",
+   "section": "Report",
+   "text": "nothing added to commit but untracked files present (use \"git add\" to track) ```"
+  },
+  "R10": {
+   "enumerator": "grok-2",
+   "kind": "report",
+   "label": "grok-2/Report/51",
+   "section": "Report",
+   "text": "Whether the \"undo-zero not yet implemented\" comment in epia_Iodone is stale after the OT 3804 work. elbb_UndoZero has no caller in this tree, so I treated the VM gap as real and scored E37 accordingly."
+  },
+  "R11": {
+   "enumerator": "grok-2",
+   "kind": "report",
+   "label": "grok-2/Report/50",
+   "section": "Report",
+   "text": "Whether GetCleanLogInfo's inspection of block 0 alone is safe when log writes complete out of order. It looks safe if E2 holds and a force waits for every earlier in-transit page, but I did not follow every commit path far enough to be certain."
+  },
+  "R12": {
+   "enumerator": "grok-2",
+   "kind": "report",
+   "label": "grok-2/Report/48",
+   "section": "Report",
+   "text": "Could not decide:"
+  },
+  "R13": {
+   "enumerator": "grok-1",
+   "kind": "recognised",
+   "label": "grok-1/Recognised/27",
+   "section": "Recognised",
+   "text": "Write-back disk caches that acknowledge a write before it is on media, the failure E2 names. I do not have an Episode defect number for it; it is the same class of bug as other write-ahead logs of the period."
+  },
+  "R14": {
+   "enumerator": "codex-2",
+   "kind": "report",
+   "label": "codex-2/Checkout inventory and status/18",
+   "section": "Checkout inventory and status",
+   "text": "./source: episode-1992.pdf episode-1992.txt"
+  },
+  "R15": {
+   "enumerator": "grok-1",
+   "kind": "report",
+   "label": "grok-1/Report/31",
+   "section": "Report",
+   "text": "``` .: AGENTS.md BRIEF.md GUARANTEES.md enumeration.md source"
+  },
+  "R16": {
+   "enumerator": "grok-2",
+   "kind": "report",
+   "label": "grok-2/Report/41",
+   "section": "Report",
+   "text": "48 contracts."
+  },
+  "R17": {
+   "enumerator": "codex-1",
+   "kind": "report",
+   "label": "codex-1/Limitations and undecided points/2",
+   "section": "Limitations and undecided points",
+   "text": "Source concerns kept out of the environment list: `logbuf/buffer.c` disables several logging-consistency assertions with `#if 0`; its logged ModifySource path logs before an address-space-dependent copy, raising an unresolved question about logged USER sources and copy faults; `logbuf/recover.c` deliberately accepts unknown checksum types without validating their checksum and does not checksum restart-only pages. `anode/strategy.c` says undo-zero completion processing is not yet implemented in that path; I cannot establish from that comment alone which supported VM ports obtain coverage elsewhere. These are implementation/integration questions, not evidence that an operator violated a contract. The external source-stability, coverage, and completion obligations still apply."
+  },
+  "R18": {
+   "enumerator": "grok-1",
+   "kind": "report",
+   "label": "grok-1/Report/30",
+   "section": "Report",
+   "text": "`ls -R --ignore=episode` from the checkout root (this leaves out `source/episode/`):"
+  },
+  "R19": {
+   "enumerator": "grok-2",
+   "kind": "report",
+   "label": "grok-2/Report/42",
+   "section": "Report",
+   "text": "Defects in logbuf's own rules, kept out of the list:"
+  },
+  "R20": {
+   "enumerator": "codex-2",
+   "kind": "report",
+   "label": "codex-2/Limits and undecided points/12",
+   "section": "Limits and undecided points",
+   "text": "The logbuf implementation itself may have defects; these are not environment contracts. In particular, elbb_UndoZero loops over a multi-block range without incrementing blkno (buffer.c:2440\u20132449), so its advertised cross-block coverage appears suspect. This is a static observation, not an executed or experimentally confirmed failure. The power-of-two comment in elbl_MinTranReservation is stronger than its mask assertion. Disabled logging-consistency assertions also limit detection. These observations do not establish which component caused any real divergence."
+  },
+  "R21": {
+   "enumerator": "grok-2",
+   "kind": "report",
+   "label": "grok-2/Report/49",
+   "section": "Report",
+   "text": "Whether a 16-bit pass-number wrap is its own obligation on log traffic. Each pass overwrites every log page, so a collision with an older pass also requires a lost write, which is E2. I left it out."
+  },
+  "R22": {
+   "enumerator": "grok-2",
+   "kind": "report",
+   "label": "grok-2/Report/55",
+   "section": "Report",
+   "text": "./source: episode episode-1992.pdf episode-1992.txt"
+  },
+  "R23": {
+   "enumerator": "grok-2",
+   "kind": "report",
+   "label": "grok-2/Report/54",
+   "section": "Report",
+   "text": "``` .: AGENTS.md BRIEF.md GUARANTEES.md enumeration.md source"
+  },
+  "R24": {
+   "enumerator": "grok-1",
+   "kind": "report",
+   "label": "grok-1/Report/33",
+   "section": "Report",
+   "text": "`git status`:"
+  },
+  "R25": {
+   "enumerator": "grok-2",
+   "kind": "report",
+   "label": "grok-2/Report/47",
+   "section": "Report",
+   "text": "Restart pages are written without a checksum. The crash window is handled by the checkpoint-then-restart sequence, which still depends on E3."
+  },
+  "R26": {
+   "enumerator": "codex-2",
+   "kind": "report",
+   "label": "codex-2/Checkout inventory and status/16",
+   "section": "Checkout inventory and status",
+   "text": "Inventory below is `ls -R` with source/episode pruned; hidden entries are omitted by ls convention. Status is captured after creating this report; Temporary writing helpers have been removed."
+  },
+  "R27": {
+   "enumerator": "grok-2",
+   "kind": "report",
+   "label": "grok-2/Report/59",
+   "section": "Report",
+   "text": "nothing added to commit but untracked files present (use \"git add\" to track) ```"
+  },
+  "R28": {
+   "enumerator": "codex-2",
+   "kind": "report",
+   "label": "codex-2/Limits and undecided points/13",
+   "section": "Limits and undecided points",
+   "text": "Performance claims G9\u2013G11 are qualified by active log size, transaction duration, checkpointing, storage speed and available recovery memory; the paper's benchmark hardware is evidence for measured results, not a universal required device model. User-data atomicity is expressly excluded. Checksums are finite and may be disabled by the chosen supported format, so detection claims never imply arbitrary-corruption protection. No requirement of whole-page atomicity or in-order completion was inferred: the code explicitly tolerates out-of-order writes and partial pages in the in-transit window."
+  },
+  "R29": {
+   "enumerator": "grok-2",
+   "kind": "report",
+   "label": "grok-2/Report/44",
+   "section": "Report",
+   "text": "elbr_Recover panics when SafeDumpLog returns an error, despite the comment that recovery should return an error rather than panic."
+  },
+  "R30": {
+   "enumerator": "grok-1",
+   "kind": "report",
+   "label": "grok-1/Report/32",
+   "section": "Report",
+   "text": "./source: episode-1992.pdf episode-1992.txt ```"
+  },
+  "R31": {
+   "enumerator": "codex-2",
+   "kind": "report",
+   "label": "codex-2/Checkout inventory and status/17",
+   "section": "Checkout inventory and status",
+   "text": "```text $ ls -R -I episode . .: AGENTS.md BRIEF.md GUARANTEES.md enumeration.md source"
+  },
+  "R32": {
+   "enumerator": "codex-2",
+   "kind": "report",
+   "label": "codex-2/Limits and undecided points/14",
+   "section": "Limits and undecided points",
+   "text": "No formal contract clauses, failure-model cells, prediction/scoring protocol or paired model/implementation brief were provided. This is a source enumeration only; no tests or outcome-bearing experiment were run and no commit was made, as BRIEF.md directs. Exhaustiveness remains a reading judgment; no external information was used."
+  },
+  "R33": {
+   "enumerator": "codex-1",
+   "kind": "recognised",
+   "label": "codex-1/Recognised/0",
+   "section": "Recognised",
+   "text": "<!-- derives: BRIEF.md recognition rule; logbuf/logbuf-locking revision history; anode/strategy.c:456. --> I do not independently recall a specific published Episode/DFS incident behind these contracts. The supplied revision history itself reports new-block-security work (OT 3804/1020), transaction/waiting fixes (OT 5508/5249/4548), fsync work (OT 5316), and pass-number fixes (OT 5527); these are source evidence, not personal recollections, and are not the organizing basis of the list."
+  },
+  "R34": {
+   "enumerator": "grok-2",
+   "kind": "report",
+   "label": "grok-2/Report/52",
+   "section": "Report",
+   "text": "The silent score for E2. I do not know the write-cache default on the paper's Seagate ST1239NS and IBM 0661, so 3 is a judgment from the period rather than a measurement."
+  },
+  "R35": {
+   "enumerator": "codex-2",
+   "kind": "report",
+   "label": "codex-2/Checkout inventory and status/21",
+   "section": "Checkout inventory and status",
+   "text": "nothing added to commit but untracked files present (use \"git add\" to track) ```"
+  },
+  "R36": {
+   "enumerator": "codex-1",
+   "kind": "report",
+   "label": "codex-1/Inventory/7",
+   "section": "Inventory",
+   "text": "./source: episode-1992.pdf episode-1992.txt ```"
+  },
+  "R37": {
+   "enumerator": "grok-2",
+   "kind": "report",
+   "label": "grok-2/Report/53",
+   "section": "Report",
+   "text": "`ls -R` of the checkout, with `source/episode/` pruned:"
+  },
+  "R38": {
+   "enumerator": "grok-2",
+   "kind": "report",
+   "label": "grok-2/Report/56",
+   "section": "Report",
+   "text": "```"
+  },
+  "R39": {
+   "enumerator": "grok-1",
+   "kind": "recognised",
+   "label": "grok-1/Recognised/28",
+   "section": "Recognised",
+   "text": "DB 3189, in tran.c: an optional compile forces every metadata transaction to commit before return. I did not list it, because with the option off the code matches the paper's rule that metadata may stay deferred until fsync."
+  },
+  "R40": {
+   "enumerator": "codex-1",
+   "kind": "report",
+   "label": "codex-1/Inventory/5",
+   "section": "Inventory",
+   "text": "`ls -R --ignore=episode .`"
+  },
+  "R41": {
+   "enumerator": "codex-2",
+   "kind": "report",
+   "label": "codex-2/Limits and undecided points/15",
+   "section": "Limits and undecided points",
+   "text": "Contract count: 68."
+  },
+  "R42": {
+   "enumerator": "grok-1",
+   "kind": "report",
+   "label": "grok-1/Report/36",
+   "section": "Report",
+   "text": "Defects in `logbuf`'s own rules, not listed as contracts: an unknown checksum version is accepted and the check is skipped (recover.c around the message that the checksum is ignored), so E49 is only partly enforced. The restart page is deliberately not checksummed. The asserts that a logged buffer's updates are either all logged or all unlogged are compiled out. elbb_FastModify does not go through elbb_StartTran when the log is full; its comment says no caller uses it. The comment above user-space recovery says both that the code must run single-threaded and that locking was removed so several recoveries may run at once. The comment on MAX_TRAN_SIZE says 35K; the constant is 70 times 1024."
+  },
+  "R43": {
+   "enumerator": "grok-1",
+   "kind": "recognised",
+   "label": "grok-1/Recognised/26",
+   "section": "Recognised",
+   "text": "OT 4548, recorded in logbuf/logbuf-locking: the fixed transaction reservation was too small for real callers; that is E29 and E30."
+  },
+  "R44": {
+   "enumerator": "codex-1",
+   "kind": "report",
+   "label": "codex-1/Inventory/9",
+   "section": "Inventory",
+   "text": "```text On branch main Untracked files: (use \"git add <file>...\" to include in what will be committed) enumeration.md"
+  },
+  "R45": {
+   "enumerator": "grok-1",
+   "kind": "report",
+   "label": "grok-1/Report/29",
+   "section": "Report",
+   "text": "50 contracts, E1 through E50."
+  },
+  "R46": {
+   "enumerator": "codex-1",
+   "kind": "report",
+   "label": "codex-1/Limitations and undecided points/3",
+   "section": "Limitations and undecided points",
+   "text": "The exact admissible maximum log length, cross-device block-size combinations, and supported cross-platform on-disk compatibility are not established here; 16-bit page/offset fields and native structure casts impose limits, but asserting a precise unverified deployment bound would overstate the evidence. The combined nested reservation must follow actual source settings: the code defines MAX_TRAN_SIZE as 70 KiB in this build, while an older nearby comment still says 35K. No actual failure frequencies, benchmark outcomes, or new defect claims were established. Similar storage-integrity contracts are split where their failure and detection mechanisms differ."
+  },
+  "R47": {
+   "enumerator": "grok-2",
+   "kind": "report",
+   "label": "grok-2/Report/45",
+   "section": "Report",
+   "text": "NewLogPage ignores the return value of asevent_QueueIO and still marks the log page in transit."
+  },
+  "R48": {
+   "enumerator": "codex-1",
+   "kind": "report",
+   "label": "codex-1/Inventory/8",
+   "section": "Inventory",
+   "text": "`git status`"
+  },
+  "R49": {
+   "enumerator": "grok-2",
+   "kind": "report",
+   "label": "grok-2/Report/43",
+   "section": "Report",
+   "text": "An unknown checksum version is treated as valid and the page is accepted. That weakens G54 instead of failing recovery."
+  },
+  "R50": {
+   "enumerator": "grok-2",
+   "kind": "report",
+   "label": "grok-2/Report/58",
+   "section": "Report",
+   "text": "``` On branch main Untracked files: (use \"git add <file>...\" to include in what will be committed) enumeration.md"
+  },
+  "R51": {
+   "enumerator": "grok-1",
+   "kind": "report",
+   "label": "grok-1/Report/37",
+   "section": "Report",
+   "text": "I could not decide three points. Dirty zero pages from efs_MakeWritableBlocks do not by themselves meet the paper's zero-on-abort rule, because they vanish on a crash unless they were written, so I kept E36 and E38; I am not sure the authors still considered the VM undo-zero record required once those pages existed. logbuf-locking names OT 5527 as a pass-number bug exposed by a test; I did not decide whether that bug is an environment contract, and the pass-number arithmetic itself is logbuf's rule. The silent score on E2 depends on how often the paper's SCSI disks had write-back caches enabled, which these sources do not say."
+  },
+  "R52": {
+   "enumerator": "grok-2",
+   "kind": "report",
+   "label": "grok-2/Report/46",
+   "section": "Report",
+   "text": "During a kernel panic, elbb_SyncForce returns immediately when the buffer lock or the log lock is held, and elbb_StartTran gives up after three loops. That narrows G41 and G28 on the panic path."
+  },
+  "R53": {
+   "enumerator": "codex-1",
+   "kind": "report",
+   "label": "codex-1/Inventory/6",
+   "section": "Inventory",
+   "text": "```text .: AGENTS.md BRIEF.md GUARANTEES.md enumeration.md source"
+  },
+  "R54": {
+   "enumerator": "codex-2",
+   "kind": "recognised",
+   "label": "codex-2/Recognised/11",
+   "section": "Recognised",
+   "text": "I do not recall a specific reported Episode or DFS bug independently of these sources. The supplied history mentions OT 3804/1020 (new-block security), OT 5508 (transaction waits), OT 5316 (FsyncForce), OT 4548 (reservations), and OT 5527 (pass numbers); these are source observations, not independent recalled reports. Volatile write-cache acknowledgements are a familiar filesystem failure pattern, without a particular report recalled."
+  },
+  "R55": {
+   "enumerator": "codex-2",
+   "kind": "report",
+   "label": "codex-2/Checkout inventory and status/19",
+   "section": "Checkout inventory and status",
+   "text": "$ git status On branch main Untracked files: (use \"git add <file>...\" to include in what will be committed)"
+  },
+  "R56": {
+   "enumerator": "grok-2",
+   "kind": "recognised",
+   "label": "grok-2/Recognised/40",
+   "section": "Recognised",
+   "text": "I recognise the pass-number comparison work named as OT 5527 in that same history as an internal log bug, so I did not make a separate environment contract for it."
+  },
+  "R57": {
+   "enumerator": "codex-1",
+   "kind": "report",
+   "label": "codex-1/Inventory/4",
+   "section": "Inventory",
+   "text": "<!-- derives: BRIEF.md final-report requirement. --> Contracts: 74."
+  },
+  "R58": {
+   "enumerator": "codex-1",
+   "kind": "report",
+   "label": "codex-1/Limitations and undecided points/1",
+   "section": "Limitations and undecided points",
+   "text": "<!-- derives: BRIEF.md environment boundary; logbuf/recover.c:745; logbuf/logrec.h:231; anode/strategy.c:456. --> The code does not assume whole-log-page atomic writes or in-order completion of different outstanding log pages: it explicitly handles an in-transit window. Sector atomicity and truthful completion are distinct obligations. Ordinary user-data transaction atomicity is expressly excluded by the paper. A caller obeying the interface is not proof of a correct logbuf implementation."
+  },
+  "R59": {
+   "enumerator": "grok-2",
+   "kind": "report",
+   "label": "grok-2/Report/57",
+   "section": "Report",
+   "text": "`git status`:"
+  },
+  "R60": {
+   "enumerator": "grok-1",
+   "kind": "recognised",
+   "label": "grok-1/Recognised/25",
+   "section": "Recognised",
+   "text": "OT 3802, recorded in anode/volume_table.h: a fileset path had no tlock, so equivalence classes were not merged; that is E32."
+  }
+ }
+}

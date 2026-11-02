@@ -1,0 +1,195 @@
+{
+ "cells": [
+  {
+   "id": "C075",
+   "names_contract_of": [],
+   "reason": "States an obligation that no sealed bug records as its violated contract (E2/E3/E5: completion implies durability; E4: a completed write was stored; E1, E6, E7: none below logbuf)."
+  },
+  {
+   "id": "C076",
+   "names_contract_of": [],
+   "reason": "States an obligation that no sealed bug records as its violated contract (E2/E3/E5: completion implies durability; E4: a completed write was stored; E1, E6, E7: none below logbuf)."
+  },
+  {
+   "id": "C077",
+   "names_contract_of": [
+    "E4"
+   ],
+   "reason": "'A failed write while leaving B_ERROR clear' is a write reported complete that was not stored, E4's contract."
+  },
+  {
+   "id": "C078",
+   "names_contract_of": [
+    "E2",
+    "E3",
+    "E5"
+   ],
+   "reason": "'When the driver reports an I/O complete, that entire transfer is on stable storage', violated by a volatile write-back cache: exactly the contract of E2, E3 and E5 (E5 through its general 'every sector of that write' statements, which cover user data writes)."
+  },
+  {
+   "id": "C079",
+   "names_contract_of": [],
+   "reason": "States an obligation that no sealed bug records as its violated contract (E2/E3/E5: completion implies durability; E4: a completed write was stored; E1, E6, E7: none below logbuf)."
+  },
+  {
+   "id": "C080",
+   "names_contract_of": [],
+   "reason": "States an obligation that no sealed bug records as its violated contract (E2/E3/E5: completion implies durability; E4: a completed write was stored; E1, E6, E7: none below logbuf)."
+  },
+  {
+   "id": "C081",
+   "names_contract_of": [],
+   "reason": "States an obligation that no sealed bug records as its violated contract (E2/E3/E5: completion implies durability; E4: a completed write was stored; E1, E6, E7: none below logbuf)."
+  },
+  {
+   "id": "C082",
+   "names_contract_of": [],
+   "reason": "States an obligation that no sealed bug records as its violated contract (E2/E3/E5: completion implies durability; E4: a completed write was stored; E1, E6, E7: none below logbuf)."
+  },
+  {
+   "id": "C083",
+   "names_contract_of": [],
+   "reason": "States an obligation that no sealed bug records as its violated contract (E2/E3/E5: completion implies durability; E4: a completed write was stored; E1, E6, E7: none below logbuf)."
+  },
+  {
+   "id": "C084",
+   "names_contract_of": [],
+   "reason": "States an obligation that no sealed bug records as its violated contract (E2/E3/E5: completion implies durability; E4: a completed write was stored; E1, E6, E7: none below logbuf)."
+  },
+  {
+   "id": "C085",
+   "names_contract_of": [],
+   "reason": "States an obligation that no sealed bug records as its violated contract (E2/E3/E5: completion implies durability; E4: a completed write was stored; E1, E6, E7: none below logbuf)."
+  },
+  {
+   "id": "C086",
+   "names_contract_of": [],
+   "reason": "Names the caller's undo-zero coverage obligation, not E5's device durability contract; no."
+  },
+  {
+   "id": "C087",
+   "names_contract_of": [],
+   "reason": "States an obligation that no sealed bug records as its violated contract (E2/E3/E5: completion implies durability; E4: a completed write was stored; E1, E6, E7: none below logbuf)."
+  },
+  {
+   "id": "C088",
+   "names_contract_of": [],
+   "reason": "States an obligation that no sealed bug records as its violated contract (E2/E3/E5: completion implies durability; E4: a completed write was stored; E1, E6, E7: none below logbuf)."
+  },
+  {
+   "id": "C089",
+   "names_contract_of": [],
+   "reason": "Names the VM's undo-zero obligation, not E5's device durability contract; no."
+  },
+  {
+   "id": "C090",
+   "names_contract_of": [],
+   "reason": "States an obligation that no sealed bug records as its violated contract (E2/E3/E5: completion implies durability; E4: a completed write was stored; E1, E6, E7: none below logbuf)."
+  },
+  {
+   "id": "C091",
+   "names_contract_of": [],
+   "reason": "States an obligation that no sealed bug records as its violated contract (E2/E3/E5: completion implies durability; E4: a completed write was stored; E1, E6, E7: none below logbuf)."
+  },
+  {
+   "id": "C092",
+   "names_contract_of": [],
+   "reason": "States an obligation that no sealed bug records as its violated contract (E2/E3/E5: completion implies durability; E4: a completed write was stored; E1, E6, E7: none below logbuf)."
+  },
+  {
+   "id": "C093",
+   "names_contract_of": [],
+   "reason": "States an obligation that no sealed bug records as its violated contract (E2/E3/E5: completion implies durability; E4: a completed write was stored; E1, E6, E7: none below logbuf)."
+  },
+  {
+   "id": "C094",
+   "names_contract_of": [],
+   "reason": "States an obligation that no sealed bug records as its violated contract (E2/E3/E5: completion implies durability; E4: a completed write was stored; E1, E6, E7: none below logbuf)."
+  },
+  {
+   "id": "C095",
+   "names_contract_of": [],
+   "reason": "States an obligation that no sealed bug records as its violated contract (E2/E3/E5: completion implies durability; E4: a completed write was stored; E1, E6, E7: none below logbuf)."
+  },
+  {
+   "id": "C096",
+   "names_contract_of": [],
+   "reason": "Names no sealed bug's contract; it is the asserted half of the strategy-layer assumption around O1 (at most one waiter per in-transit block), which the sealed file records as asserted (fail-stop), not a bug."
+  },
+  {
+   "id": "C097",
+   "names_contract_of": [],
+   "reason": "States an obligation that no sealed bug records as its violated contract (E2/E3/E5: completion implies durability; E4: a completed write was stored; E1, E6, E7: none below logbuf)."
+  },
+  {
+   "id": "C098",
+   "names_contract_of": [],
+   "reason": "States an obligation that no sealed bug records as its violated contract (E2/E3/E5: completion implies durability; E4: a completed write was stored; E1, E6, E7: none below logbuf)."
+  },
+  {
+   "id": "C099",
+   "names_contract_of": [],
+   "reason": "States an obligation that no sealed bug records as its violated contract (E2/E3/E5: completion implies durability; E4: a completed write was stored; E1, E6, E7: none below logbuf)."
+  },
+  {
+   "id": "C100",
+   "names_contract_of": [],
+   "reason": "States an obligation that no sealed bug records as its violated contract (E2/E3/E5: completion implies durability; E4: a completed write was stored; E1, E6, E7: none below logbuf)."
+  },
+  {
+   "id": "C101",
+   "names_contract_of": [],
+   "reason": "States an obligation that no sealed bug records as its violated contract (E2/E3/E5: completion implies durability; E4: a completed write was stored; E1, E6, E7: none below logbuf)."
+  },
+  {
+   "id": "C102",
+   "names_contract_of": [],
+   "reason": "States an obligation that no sealed bug records as its violated contract (E2/E3/E5: completion implies durability; E4: a completed write was stored; E1, E6, E7: none below logbuf)."
+  },
+  {
+   "id": "C103",
+   "names_contract_of": [],
+   "reason": "States an obligation that no sealed bug records as its violated contract (E2/E3/E5: completion implies durability; E4: a completed write was stored; E1, E6, E7: none below logbuf)."
+  },
+  {
+   "id": "C104",
+   "names_contract_of": [],
+   "reason": "Sector atomicity and header placement; no sealed bug rests on it (cf. P5)."
+  },
+  {
+   "id": "C105",
+   "names_contract_of": [],
+   "reason": "States an obligation that no sealed bug records as its violated contract (E2/E3/E5: completion implies durability; E4: a completed write was stored; E1, E6, E7: none below logbuf)."
+  },
+  {
+   "id": "C106",
+   "names_contract_of": [],
+   "reason": "States an obligation that no sealed bug records as its violated contract (E2/E3/E5: completion implies durability; E4: a completed write was stored; E1, E6, E7: none below logbuf)."
+  },
+  {
+   "id": "C107",
+   "names_contract_of": [
+    "E2",
+    "E3"
+   ],
+   "reason": "Its statements that a completed write on the log device must still be present at recovery, violated by 'a log on volatile media while the data disk kept its completed writes', name the durability-on-completion contract in E3's shape (data durable, log record lost) and E2's."
+  },
+  {
+   "id": "C108",
+   "names_contract_of": [
+    "E4"
+   ],
+   "reason": "Its third statement names 'a dropped write that was acknowledged' on a committed log page, E4's contract; the rest is later decay or stale reads, which no sealed bug records."
+  },
+  {
+   "id": "C109",
+   "names_contract_of": [],
+   "reason": "States an obligation that no sealed bug records as its violated contract (E2/E3/E5: completion implies durability; E4: a completed write was stored; E1, E6, E7: none below logbuf)."
+  },
+  {
+   "id": "C110",
+   "names_contract_of": [],
+   "reason": "States an obligation that no sealed bug records as its violated contract (E2/E3/E5: completion implies durability; E4: a completed write was stored; E1, E6, E7: none below logbuf)."
+  }
+ ]
+}

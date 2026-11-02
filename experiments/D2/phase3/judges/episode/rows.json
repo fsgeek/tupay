@@ -1,0 +1,308 @@
+{
+ "rows": [
+  {
+   "id": "R01",
+   "matches": [],
+   "reason": "OT 3435 (CRCs added for out-of-order sector writes within a log page) is real DCE history (crc.c), but concerns torn log pages, not a sealed bug."
+  },
+  {
+   "id": "R02",
+   "matches": [],
+   "reason": "Not a claim: a heading, count, file listing or git output captured from the report (see packet notes)."
+  },
+  {
+   "id": "R03",
+   "matches": [],
+   "reason": "Not a claim: a heading, count, file listing or git output captured from the report (see packet notes)."
+  },
+  {
+   "id": "R04",
+   "matches": [
+    "E2"
+   ],
+   "reason": "Names E2's contract (volatile caches reporting completion before media is stable) with the write-ahead-log loss of acknowledged log writes as the failure; recognised from general practice of the era, not from the sealed analysis, so a match by contract and general mechanism but not evidence of leakage."
+  },
+  {
+   "id": "R05",
+   "matches": [],
+   "reason": "Exposure of previous contents after allocation shares E5's effect class, but the mechanism (missing VM undo-zero coverage, OT 3804/1020) and contract (caller coverage) differ from E5's (device durability with coverage correct)."
+  },
+  {
+   "id": "R06",
+   "matches": [],
+   "reason": "As R05: new-block security via missing undo-zero coverage, not E5's device-durability mechanism."
+  },
+  {
+   "id": "R07",
+   "matches": [],
+   "reason": "Not a claim: a heading, count, file listing or git output captured from the report (see packet notes)."
+  },
+  {
+   "id": "R08",
+   "matches": [],
+   "reason": "Does not describe any sealed bug's contract and mechanism."
+  },
+  {
+   "id": "R09",
+   "matches": [],
+   "reason": "Not a claim: a heading, count, file listing or git output captured from the report (see packet notes)."
+  },
+  {
+   "id": "R10",
+   "matches": [],
+   "reason": "As R05; the observation that elbb_UndoZero has no caller in this tree, if true, is an exposure path the sealed analysis did not list (its P6 is only about the B_ASYNC precondition)."
+  },
+  {
+   "id": "R11",
+   "matches": [],
+   "reason": "Points at E6's location (GetCleanLogInfo inspecting block 0 under out-of-order completion) but concludes it 'looks safe' and gives no failing mechanism, so no match; it is the question F03 answered."
+  },
+  {
+   "id": "R12",
+   "matches": [],
+   "reason": "Not a claim: a heading, count, file listing or git output captured from the report (see packet notes)."
+  },
+  {
+   "id": "R13",
+   "matches": [
+    "E2"
+   ],
+   "reason": "Same as R04: write-back caches acknowledging before media, 'the same class of bug as other write-ahead logs'; general knowledge, not leakage."
+  },
+  {
+   "id": "R14",
+   "matches": [],
+   "reason": "Not a claim: a heading, count, file listing or git output captured from the report (see packet notes)."
+  },
+  {
+   "id": "R15",
+   "matches": [],
+   "reason": "Not a claim: a heading, count, file listing or git output captured from the report (see packet notes)."
+  },
+  {
+   "id": "R16",
+   "matches": [],
+   "reason": "Not a claim: a heading, count, file listing or git output captured from the report (see packet notes)."
+  },
+  {
+   "id": "R17",
+   "matches": [],
+   "reason": "Unknown checksum types and unchecksummed restart pages (cf. F02, F09) are not sealed bugs."
+  },
+  {
+   "id": "R18",
+   "matches": [],
+   "reason": "Not a claim: a heading, count, file listing or git output captured from the report (see packet notes)."
+  },
+  {
+   "id": "R19",
+   "matches": [],
+   "reason": "Not a claim: a heading, count, file listing or git output captured from the report (see packet notes)."
+  },
+  {
+   "id": "R20",
+   "matches": [],
+   "reason": "The elbb_UndoZero multi-block loop that never increments blkno (buffer.c:2440-2449) is a new own-rule defect claim not in the sealed file; worth verifying."
+  },
+  {
+   "id": "R21",
+   "matches": [],
+   "reason": "No match, and a disagreement with E7: it argues that pass-number collision needs a lost write because 'each pass overwrites every log page', which is the premise E7 shows false (restarting at slot 0 leaves far slots unrewritten)."
+  },
+  {
+   "id": "R22",
+   "matches": [],
+   "reason": "Not a claim: a heading, count, file listing or git output captured from the report (see packet notes)."
+  },
+  {
+   "id": "R23",
+   "matches": [],
+   "reason": "Not a claim: a heading, count, file listing or git output captured from the report (see packet notes)."
+  },
+  {
+   "id": "R24",
+   "matches": [],
+   "reason": "Not a claim: a heading, count, file listing or git output captured from the report (see packet notes)."
+  },
+  {
+   "id": "R25",
+   "matches": [],
+   "reason": "Does not describe any sealed bug's contract and mechanism."
+  },
+  {
+   "id": "R26",
+   "matches": [],
+   "reason": "Not a claim: a heading, count, file listing or git output captured from the report (see packet notes)."
+  },
+  {
+   "id": "R27",
+   "matches": [],
+   "reason": "Not a claim: a heading, count, file listing or git output captured from the report (see packet notes)."
+  },
+  {
+   "id": "R28",
+   "matches": [],
+   "reason": "States that the code assumes no in-order completion, consistent with v2's classification of E1 and E6 as logbuf's own defects; no match."
+  },
+  {
+   "id": "R29",
+   "matches": [],
+   "reason": "Does not describe any sealed bug's contract and mechanism."
+  },
+  {
+   "id": "R30",
+   "matches": [],
+   "reason": "Not a claim: a heading, count, file listing or git output captured from the report (see packet notes)."
+  },
+  {
+   "id": "R31",
+   "matches": [],
+   "reason": "Not a claim: a heading, count, file listing or git output captured from the report (see packet notes)."
+  },
+  {
+   "id": "R32",
+   "matches": [],
+   "reason": "Not a claim: a heading, count, file listing or git output captured from the report (see packet notes)."
+  },
+  {
+   "id": "R33",
+   "matches": [],
+   "reason": "Does not describe any sealed bug's contract and mechanism."
+  },
+  {
+   "id": "R34",
+   "matches": [],
+   "reason": "Does not describe any sealed bug's contract and mechanism."
+  },
+  {
+   "id": "R35",
+   "matches": [],
+   "reason": "Not a claim: a heading, count, file listing or git output captured from the report (see packet notes)."
+  },
+  {
+   "id": "R36",
+   "matches": [],
+   "reason": "Not a claim: a heading, count, file listing or git output captured from the report (see packet notes)."
+  },
+  {
+   "id": "R37",
+   "matches": [],
+   "reason": "Not a claim: a heading, count, file listing or git output captured from the report (see packet notes)."
+  },
+  {
+   "id": "R38",
+   "matches": [],
+   "reason": "Not a claim: a heading, count, file listing or git output captured from the report (see packet notes)."
+  },
+  {
+   "id": "R39",
+   "matches": [],
+   "reason": "Does not describe any sealed bug's contract and mechanism."
+  },
+  {
+   "id": "R40",
+   "matches": [],
+   "reason": "Not a claim: a heading, count, file listing or git output captured from the report (see packet notes)."
+  },
+  {
+   "id": "R41",
+   "matches": [],
+   "reason": "Not a claim: a heading, count, file listing or git output captured from the report (see packet notes)."
+  },
+  {
+   "id": "R42",
+   "matches": [],
+   "reason": "Own-rule observations (unknown checksum accepted, restart page unchecksummed, compiled-out asserts) are not sealed bugs."
+  },
+  {
+   "id": "R43",
+   "matches": [],
+   "reason": "Does not describe any sealed bug's contract and mechanism."
+  },
+  {
+   "id": "R44",
+   "matches": [],
+   "reason": "Not a claim: a heading, count, file listing or git output captured from the report (see packet notes)."
+  },
+  {
+   "id": "R45",
+   "matches": [],
+   "reason": "Not a claim: a heading, count, file listing or git output captured from the report (see packet notes)."
+  },
+  {
+   "id": "R46",
+   "matches": [],
+   "reason": "Does not describe any sealed bug's contract and mechanism."
+  },
+  {
+   "id": "R47",
+   "matches": [],
+   "reason": "NewLogPage ignoring asevent_QueueIO's return is a new own-rule defect claim not in the sealed file."
+  },
+  {
+   "id": "R48",
+   "matches": [],
+   "reason": "Not a claim: a heading, count, file listing or git output captured from the report (see packet notes)."
+  },
+  {
+   "id": "R49",
+   "matches": [],
+   "reason": "Unknown checksum accepted (cf. F02); not a sealed bug."
+  },
+  {
+   "id": "R50",
+   "matches": [],
+   "reason": "Not a claim: a heading, count, file listing or git output captured from the report (see packet notes)."
+  },
+  {
+   "id": "R51",
+   "matches": [],
+   "reason": "OT 5527 is real DCE history: a pass number reaching zero after repeated init/shutdown (anode/passno.test). It is in E7's area (pass numbers across mounts) but is a different defect, and the row draws no mechanism; no match."
+  },
+  {
+   "id": "R52",
+   "matches": [],
+   "reason": "Does not describe any sealed bug's contract and mechanism."
+  },
+  {
+   "id": "R53",
+   "matches": [],
+   "reason": "Not a claim: a heading, count, file listing or git output captured from the report (see packet notes)."
+  },
+  {
+   "id": "R54",
+   "matches": [],
+   "reason": "Names E2's contract only as 'a familiar filesystem failure pattern', with no mechanism; no match."
+  },
+  {
+   "id": "R55",
+   "matches": [],
+   "reason": "Not a claim: a heading, count, file listing or git output captured from the report (see packet notes)."
+  },
+  {
+   "id": "R56",
+   "matches": [],
+   "reason": "Recognises OT 5527 as an internal pass-number bug, in E7's area, but gives no mechanism, and OT 5527 (a zero pass number after repeated mounts) is not E7's masked-comparison aliasing; no match."
+  },
+  {
+   "id": "R57",
+   "matches": [],
+   "reason": "Not a claim: a heading, count, file listing or git output captured from the report (see packet notes)."
+  },
+  {
+   "id": "R58",
+   "matches": [],
+   "reason": "Consistent with v2's E1/E6 classification; no match."
+  },
+  {
+   "id": "R59",
+   "matches": [],
+   "reason": "Not a claim: a heading, count, file listing or git output captured from the report (see packet notes)."
+  },
+  {
+   "id": "R60",
+   "matches": [],
+   "reason": "Does not describe any sealed bug's contract and mechanism."
+  }
+ ]
+}

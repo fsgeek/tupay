@@ -1,0 +1,693 @@
+# Adversarial review of a scored experiment result (you are the reviewer; independent)
+
+Below are an experiment's **registration** (fixed before any outcome), a **draft result** scored against it, and the evidence files the draft cites. Your job is to find what is wrong in the draft: any number that does not match the evidence, any scoring that departs from the registration's text, any reading presented as the registered score, any overstatement, any omission the registration requires, any prediction scored wrongly. Be adversarial; agreement is not useful to the author. Cite the registration's words and the evidence lines for each finding. Do not propose new measures.
+
+Answer with one JSON object and nothing after it:
+{"findings": [{"id": "F1", "severity": "error" | "overstatement" | "omission" | "minor", "where": "section or table cell of the draft", "finding": "what is wrong", "evidence": "registration words and evidence lines"}, ...], "headline_holds": true | false, "headline_reason": "one or two sentences"}
+
+# Registration (experiments/X3-prereg.md)
+````
+# X3 pre-registration: a new authority locus (configuration); tupay's amend-or-rebuild
+
+**REGISTERED 2026-10-25** by the seventh steward (Claude Opus 5.5), in the commit that adds this line; draft 5 plus the registration-time counts, the hold-outs and the items listed under "Hold-out set". History: Drafted 2026-10-23 by the fifth steward (Claude Opus 5.5); drafts 3 to 5 by the sixth (Claude Opus 5.5): 3 and 4 after the third and fourth input reviews, with the inputs' drafts 4 and 5; 5 after Fable's adversarial review of draft 4 (`experiments/X3/prereg-review/fable-1.md`; dispositions in the log). Template: `experiments/X2-prereg.md`, whose scoring rule is kept; departures are listed with reasons. Before registration: an input review by the hold-out family (Grok), an adversarial review of this file by a Fable 5.1 instance, hold-outs written blind, and the steward-built checks validated with their mutation pairs. Amendments after registration are additive and say whether an outcome informed them.
+
+## The change
+Contract v2 → `contract/v3.md`: a new locus, **configuration** (the grantor's membership and its epoch), clauses **C3.1** (epochs), **C3.4** (reconfiguration liveness), **C3.5** (reconstructibility: every recorded decision a function of its recorded inputs), **C3.7** (grant evidence: eligible agreements from a majority of the decider's current configuration), **C3.8** (commit evidence: majorities of the old and the new configuration; operator acks); C3.2, C3.3 and C3.6 (drafts 1 to 3, a voting protocol written into the contract) are retired. The agreement protocol is not prescribed: each side follows a published one, named in its README, which is what carries C1.1 across a change; C1.1 is made precise without a global order. Failure model v2 → `failure-model/v3.md`: **F3.1** reconfiguration under faults, **F3.2** clock steps, **F3.3** amnesia (bounded). Interfaces: schedule format v5 addendum, observe schema v5 addendum (decision inputs). Pairs: `tests/pairs-v4.md`, 24 new (P31 to P33, P40 to P54, P58 to P63), with the cut stated there.
+
+Under the hereditary fence the change invalidates: every element that represents the set of lease nodes as fixed (it derived from v1's "three processes"); every element that decides a grant (C3.7 now constrains whose agreement counts, and C1.1 is checked through agreements); every element that consults a clock without recording it (C3.5); every element that assumes a restart keeps durable state (F3.3). It also invalidates every element that emits a decision record, storage included (C3.5 and the v5 schema give every decision `inputs`, and the eight write and read events carry `grantor_term`), and every storage element whose acceptance rule was "only if" rather than v3's "if and only if". Nothing else tagged only with a storage clause is invalidated.
+
+**This is tupay's amend-or-rebuild** (log 2026-10-22, "amend or rebuild tupay itself: do both"): arm A amends the existing artifacts, arm R rebuilds from the inputs, and the comparison is the answer, not either arm alone.
+
+## Arms
+- **Adapt (A).** A fresh Claude Opus 5.5 model author given `model/` as on `main` at this registration, and a fresh Codex implementation author given `impl/` as on `main` (after the timing repair, etcd raft), each with its README, predictions and results files, told that the previous author is unavailable.
+- **Regenerate (R).** A fresh Claude Opus 5.5 instance and a fresh Codex session, building from nothing in `model-regen/` and `impl-regen/`, given only the self-contained inputs: `contract/v3.md`, `failure-model/v3.md`, `tests/pairs-v4.md`, `testbed/schedule-format.md`, `observe/schema.md`, the shared schedules, `AGENTS.md` and its brief. Same families as arm A.
+- **Isolation (new, Departure 1).** The two **implementation** authors (Codex) run here in `scripts/steward/author-sandbox.sh`: history-free checkout, per-author HOME, no network but the allowlisting proxy, account tools off, own signing key; `inputcheck.sh` with `HARNESS=codex` passes on each checkout before its author starts, and the sandbox check's mutation pair is run once for the round; work comes out only through `author-export.sh`. The two **model** authors (Claude) run on a separate machine, ubuntu26-test, as the dedicated user `tupay-author`: its own Claude login, no MCP servers, plugins or memory, web tools denied in its settings and on the command line, egress only through an allowlisting proxy enforced by an nftables rule on its uid (`scripts/steward/box/`, `egress-claude.allow`); `box/box-check.sh` passes before each model author starts, and its four-mutation pair is run once for the round; the model is pinned (`--model claude-opus-5-5`) and every turn of each transcript is checked for that model ID before scoring; work comes out as a bundle fetched over ssh and verified here. The model authors run **in sequence** (arm A first), each capped at 24 GB; the implementation authors run concurrently here. Sides therefore run on different hosts and a side is compared only with its counterpart in the other arm, never across sides, for cost.
+- **Checkouts (registered).** All four authors receive `observe/decision_replay.py` and `observe/decision_replay_tests/`: C3.5 is a published requirement, the check is its oracle, and both arms may self-check (Fable finding 2). Arm A's checkouts are the repository minus `experiments/`, `docs/` (but its brief), `scripts/steward/`, `replay/`, `src/`, `timestamps/`, `README.md`, `CLAUDE.md`, `.mcp.json` (the plaza connection; added before registration, 2026-10-25), the other side and the regen directories; arm R's are an include-list: `AGENTS.md`, `.gitignore`, `pyproject.toml`, `uv.lock`, `scripts/hooks/`, `contract/` (but v1), `failure-model/`, `tests/`, `testbed/schedule-format.md`, `testbed/schedules/`, `observe/schema.md`, `observe/decision_replay.py`, `observe/decision_replay_tests/`, its brief, its directory. `inputcheck.sh`'s forbidden list follows these lists. Go modules come from a cache holding what `main`'s `go.mod` lists, for both implementation sides, a deliberate constraint on both arms (the module proxy is not reachable).
+- **Briefs** (all four): the candour rule; the fairness rule (model sides); the steward may run unseen schedules under any name; authors list declared limitations; predictions are committed before building; and, new, each model author states for every bounded check **what it must be able to reach** (the configurations, epochs, restarts and clock steps a shared schedule needs) and the bounds it ran. **Grok's roles**, said once: input review (four instances, done), hold-out authoring, the measure 9 plants and the measure 10 plants; one fresh instance per role and per plant.
+
+## Departures from X2, with reasons
+1. **Sandboxed authors.** The replay's guard against reading the log, the other arm or the public repository was an instruction and a transcript search; the 2026-10-23 probes showed a sandboxed shell could still reach the public repository, and Codex had account connectors. Prevention replaces detection.
+2. **Three measures added** (8 to 10): the decision-replay check (C3.5), a planted defect per arm, and reconstruction of an out-of-model failure.
+3. **The support audit is registered** (practice since the replay): every model PASS is scored only after the steward has run a probe showing the checked space contains the schedule's needed reach. A passed audit is permission to score, one necessary condition met; it does not make the PASS evidence that the property holds beyond the checked space (Yupi, plaza seq 149). **Needed reach is registered**, per schedule, in `experiments/X3/reach.md`, generated from the schedule text by `scripts/steward/reach-table.py` (floors for lease and configuration size, clients, grants, requests, epochs, crashes, amnesic restarts, clock steps, largest step in ticks, terms), so it cannot be fitted to an arm. **Probe method**, per model side: for each schedule, a TLC run at the author's stated bounds with an invariant negating a state that meets every floor of that row (for example, "no state has a committed epoch k and an incarnation i and a clock offset of t ticks"); the audit passes if TLC reports that invariant violated. **A failed audit** makes the schedule "no support" in 1(a), counted as not PASS, and its mutation unassessable in 1(b). A side that does not model a quantity a row needs (no clock, no incarnation) is "vacuous by design" for that schedule: reported, not PASS.
+4. **Not every crossing is a pair** (`tests/pairs-v4.md`): 24 of 58, with the reason stated there.
+
+## Liveness rules
+As X2 (fairness legitimacy; Rule E3 bound; one mechanism scored once; unit of failure), with C3.4 added beside C1.4 and their premises read by format Rule L3 as extended in v5. **Mechanism groups, registered** (a stall is scored once per group only if the judge names that group's mechanism as its cause; a stall outside every group, or by another mechanism, is FAIL on every schedule it occurs on): X2's {P25, P19}, {P26, P20}, {P21, P27}; **M1** the new configuration has no old member, and a grant or client must find it: {P46, P52, P58}; **M2** a commit while an old member is partitioned, cut or amnesic: {P40, P42, P43, P49}; **M3** an amnesic member not re-admitted while grants continue: {P48, P51, P54, P60}; **M4** a request at, or re-admission of, an amnesic node: {P33, P45, P63}; **M5** a request at a non-member, or concurrent requests: {P31, P61}; **M6** clock steps on lease nodes during grants or a change: {P32, P41, P44, P47, P53, P59, P62}. P50 is in no group. An implementation pair is scored on exactly ten repetitions at each of three seeds; a pair whose outcome varies is **flaky**, never PASS or kill. "At first run" (X3-2) means the first steward run after the arm's export, all thirty runs of it.
+
+## Measures (fixed here)
+Per arm, per side, at the first steward run after the arm's export, before any fix:
+1. **Correctness.** (a) Shared schedules: PASS count of 59 per side (P1 to P33, P40 to P54, P58 to P63, false-suspicion-v1, H7 to H10) (implementation: a schedule passes only if all ten repetitions of all three seeds pass; per-seed rates reported); unreached reported separately. **A side's PASS counts only if `observe/decision_replay.py` parts 1 and 2 report nothing on that schedule's traces**; a PASS with such a report is scored FAIL of the clause the check names and sent to the judge as a divergence (Fable finding 3); a model PASS also needs its support audit (Departure 3). (b) Mutations: count, of 54 per side (P1 to P33, P40 to P54, P58 to P63), that fail on their pair's schedule; a flaky mutation is never a kill. (c) Hold-outs H11 onward, hashes in `experiments/X3/holdout/SHA256SUMS`; their count is fixed when the hashes are committed, and written here before launch. **Fixed 2026-10-25: four, H11 to H14** (one fresh Grok instance, `experiments/X3/holdout/`; lint clean after the lint's own `rest` defect was fixed; liveness premises read against L3). (d) Provenance: untraceable decisions under `observe/provenance_check.py`. (e) Distinct C1.4 and C3.4 stall mechanisms, named by the judge. (f) **Independent evidence reports**: the count of `decision_replay.py` part 1 and part 2 reports per side over every shared and hold-out trace (lower is better).
+2. **Divergence count** between an arm's sides, shared and hold-out separately; Gemini judge, packet inlined.
+3. **Cost.** Tokens and wall-clock per author (harness-reported); arm A split at its first commit after predictions; steward time; advisor tokens; decisions asked of Tony.
+4. **Residue** by X2's fixed procedure, with the F3.x and C3.x terms and the tags each requires in a file that mentions it in code: `reconfig` (F3.1, C3.4 or C3.8), `config`/`epoch` (C3.1, C3.7, C3.8 or F3.1), `clock` (F3.2 or C3.5), `amnesia`/`incarnation` (F3.3). Excluded: TLC `.cfg` files, generated files, the YAML key names a compiler parses, Go configuration structs that hold no membership, and Unix-time code. Rule (iii), tags naming a retired id, is expected to be zero on every side (no author saw C3.2, C3.3, C3.6, P34 to P39 or P55 to P57): reported, not scored.
+5. **What each arm keeps and discards.** Of the thirty-five shared P1 to P30, false-suspicion-v1 and H7 to H10 that the existing artifacts PASS on `main` at registration (counted by a steward run at registration and written here before launch), the count each arm still PASSes. Reported for both arms, scored only as part of 1(a). **Counted 2026-10-25** (`experiments/X3/baseline/`, `scripts/steward/x3-baseline.sh`, commit 9b44992, artifacts identical to 9665554): **model 35 of 35 PASS; implementation 35 of 35** (every one of ten repetitions at three seeds PASS). PASS here is each side's own verdict: `main`'s artifacts predate schema v5's decision records, so the decision-replay condition of 1(a) would fail all of them and make the baseline vacuous.
+6. **Propagation fraction (arm A)**, under the measure 6 ruling in practice (conceptual iff it makes a choice the inputs leave open).
+7. **Interpretations contradicted (arm A)**, denominators counted at registration and written here before launch, with the steward's at-risk list (interpretations the change plausibly contradicts) committed with them; raters do not see the adapting author's labels. **Counted 2026-10-25** (`experiments/X3/measure7-denominators.md`): model README 46 entries, impl README 85 (X2's rule, every numbered entry; 77 excluding eight workflow or result entries, reported beside it); at-risk: model 8, impl 13; entries contradicted before X3 rated in their own column.
+8. **Reconstructibility (C3.5).** The steward-built decision-replay check (`observe/`, schema v5) over every trace of every shared and hold-out run: count of `UNEXPLAINED inputs` groups and of the decisions in them, both, per side (lower is better). On a model side it is expected to be zero in both arms (TLC has no hidden inputs), a tie by construction, said so here. Read beside it, per side, a **design fact** registered from the README and the traces before scoring: does the grant path consult a clock (yes/no). A side that consults no clock passes the F3.2 schedules and P44 vacuously as to clocks: counted as PASS (the contract permits it), reported as "vacuous by design".
+9. **Planted defect.** A fresh Grok instance per plant, given one arm's exported artifacts on one side, `contract/v3.md` and `failure-model/v3.md`, plants one defect: a violation of a named clause, in lease-node, client or storage code only (not testbed, compiler or emitter), reachable by a schedule the format can express, which it supplies as its **witness** (plant and witness committed only as hashes until scoring). Before scoring the steward verifies the witness FAILs the planted copy; a plant whose witness does not is void and reported. Score: whether the arm's shipped suite, run at three seeds by ten repetitions, produces a FAIL of the planted clause on the planted copy (a flaky FAIL of that clause counts as caught, and is reported as flaky). Four plants, in the order A-impl, R-impl, A-model, R-model; planter tokens in measure 3.
+10. **Out-of-model reconstruction.** A fresh Grok instance per arm chooses one of the fifty-nine shared schedules and one registered **hook class** (ledger rollback, a lost durable record at a lease node, a duplicated grant reply delivered after a newer grant, a storage restart from an older state), with its parameters, recorded and hashed; the steward adds the hook to a copy of that arm's implementation and runs the schedule. Registered in advance, per hook class, is what each check is expected to flag (to be written with the hook classes, before hold-outs). Scored in two parts: (i) does any registered check (replay parts 1 to 3, provenance) report anything on the trace; (ii) given the trace and the checks' output, does the steward name the decision and the failure, against the hashed record. A class no check can flag by design is a stated outcome, a result for the schema, not for the arm.
+
+## Scoring rule for the standing prediction (unchanged from X1)
+"Adaptation wins" means: arm A is at least as correct as arm R on every item of 1(a) to 1(f) and 8 (higher is better for 1(a), 1(b), 1(c); lower for 1(d), 1(e), 1(f) and 8), and arm A's author cost is lower in both tokens and wall-clock on both sides. If arm R is more correct on any item, regeneration wins that item regardless of cost. Mixed is reported as mixed and scores X3-1a as **not confirmed**. Where arm A is strictly more correct on an item and more expensive, the result says so in those words, item by item, beside "mixed".
+
+## Predictions (steward's probabilities)
+- **X3-1a.** Adaptation does **not** win under the rule. p = 0.75. (Near-certain for many reasons, cost among them; it is the seed's prediction only in its weakest form.)
+- **X3-1b.** The seed's standing prediction in its strong form: regeneration wins, i.e. arm R is at least as correct as arm A on every scored item and strictly more correct on at least one, cost reported beside it. p = 0.4. (Draft 5 split X3-1 after Fable's review; not outcome-informed.)
+- **X3-2.** At least one unmutated side, at first run, violates C1.1, C3.7 or C3.8 on P48, P60 or P63 (amnesia), by its own verdict or by `decision_replay.py` parts 1 and 2 (the union). p = 0.45. (Draft 3 of this file: the clauses and pairs renamed with the inputs' draft 4, before any author started; the probability is unchanged and was not informed by any outcome.)
+- **X3-3.** At least one implementation side has at least one `UNEXPLAINED inputs` decision under measure 8 on a shared schedule. p = 0.65. Arm A's implementation more than arm R's: p = 0.5, scored only if both implementations' grant paths consult a clock (the design fact under measure 8); otherwise reported as unscorable. Zero for both is "not confirmed".
+- **X3-4.** At least one model side fails its support audit on at least one shared schedule (its bounds exclude what the schedule needs). p = 0.5.
+- **X3-5.** At least one hold-out produces a FAIL or a divergence in at least one arm. p = 0.75.
+- **X3-6.** Measure 9: the planted defect is caught by the arm's own suite on at most two of the four sides. p = 0.6.
+- **X3-7.** Measure 10: the steward finds the out-of-model failure from the trace in both arms. p = 0.4.
+- **X3-8.** Arm A's implementation author's total tokens are lower than arm R's. p = 0.5. Arm A's model author's total tokens are lower than arm R's. p = 0.4.
+- **X3-9.** On at least one arm A side, measure 7 finds at least one contradicted interpretation. p = 0.7.
+
+## Hold-out set, input review and order
+- **Hold-outs:** four, H11 to H14, written 2026-10-25 by one fresh Grok instance in the sandbox from `experiments/X3/holdout/packet.md` (the frozen inputs and one example schedule, P58; no prediction or prereg text), blind to this file; notes with per-schedule P(fail) in `holdout/NOTES.md`; hashes in `holdout/SHA256SUMS`; needed reach in `holdout/reach.md`; lint clean; liveness premises read against L3. The author reported two input defects, both steward text in `contract/v3.md`, fixed before registration by aligning wording with clauses already stated (log, "X3 hold-outs H11 to H14 committed").
+- **Input review:** four reviews by Grok (`experiments/X3/input-review/`), dispositions in the log; the steward stopped after the fourth ("draft 5").
+- **Adversarial review of this file:** Fable 5.1, of draft 4 (`experiments/X3/prereg-review/fable-1.md`), applied in draft 5. The seventh steward's additions since (measures 5, 7 and 10's registered counts and expectations, `.mcp.json` excluded, the hold-outs and the two wording fixes) are reviewed only by the steward: a residue.
+- **Validation:** the decision-replay check's 22 cases (`observe/decision_replay_tests/`): all 22 exit codes re-run at registration and equal to `expected.txt` (their reasons were matched when the check was written); the box (`scripts/steward/box/box-check.sh`, model-ID check and their mutation pairs) and the sandbox (`sandbox-check.sh` and its pair) checked before launch.
+- **Order of launch:** the two implementation authors concurrently in the sandbox here; the two model authors in sequence on the box, arm A first; each author's checkout from this registration commit by `scripts/steward/setup-x3-checkouts.sh`.
+
+## Not in X3
+Key management (X4). Quorum systems other than majority. Partial loss of durable state. Family swap.
+````
+
+# Draft result (experiments/X3-result.md)
+````
+# X3 result: a new authority locus (configuration); amend versus rebuild
+
+**DRAFT for adversarial review**, scored 2026-11-02 by the tenth steward (Claude Opus 5.5) against `experiments/X3-prereg.md` as registered. Arms: **A** (adapt: fresh instances inheriting `model/` and `impl/`) and **R** (regenerate: fresh instances from the inputs alone). Implementations by Codex in the sandbox; models by Claude Opus 5.5 on the box. Evidence under `experiments/X3/`; the log entries of 2026-10-25 to 2026-11-02 give the history. **X3's score is internal evidence:** every judge and rater is another model family, and no party outside tupay has scored it.
+
+## Headline
+**Mixed.** Adaptation does not win: arm A cost more tokens on both sides and more wall-clock on the implementation side. Regeneration does not win either: arm R is more correct on three items and arm A on three (one of them an artefact of the steward's check). One registered sentence makes X3-1a's own score self-contradictory under "mixed"; see X3-1a below.
+
+## Measures
+| Measure | A impl | R impl | A model | R model | more correct |
+|---|---|---|---|---|---|
+| 1(a) shared PASS of 59, registered conditions applied | 59 | 59 | **46** (13 "no support": P8, P17, P19, P22 to P25, P28 to P30, H7, H9, H10) | **50** (P63 FAIL C3.4; 8 clock rows vacuous by design: P32, P41, P44, P47, P50, P53, P59, P62) | impl tie; **model R** |
+| 1(b) mutations killed of 54 | 54 (56/56 with two extras) | 54 (every run) | **41** (13 unassessable: no support; extra P49a PASSes) | **53** (P12 `UNEXPLAINED end unreachable`) | impl tie; **model R** |
+| 1(c) hold-outs H11 to H14 PASS | **1** (H12; H11 and H14 refused by an exactly-two-clients rule, H13 UNEXPLAINED 30/30) | **4** | **4** | **1** (H14; H11, H12 vacuous by design; H13 TLC disk-write abort) | **impl R**; **model A** |
+| 1(d) untraceable decisions, registered `provenance_check.py` | **0** | **80** (P7, P16) | 4 | 4 | **impl A** (artefact; see below); model tie |
+| 1(d) beside: `provenance_check_v5.py` | 0 | 0 | 0 | 0 | tie |
+| 1(e) distinct C1.4/C3.4 stall mechanisms (judge) | 0 | 0 | **0** | **1** (R-P63, genuine C3.4) | impl tie; **model A** |
+| 1(f) replay part 1 and 2 reports, shared and hold-out traces | 0 | 0 | 0 | 0 | tie |
+| 8 `UNEXPLAINED inputs` (groups, decisions) | 0, 0 | 0, 0 | 0, 0 | 0, 0 | tie (models by construction) |
+| 2 divergences, shared / hold-out | | | | | A: 0 / 3 (H11, H13, H14); R: 1 (P63) / 1 (H13) |
+| 3 author tokens (total) | 7.34M | 3.33M | 120.6M | 89.4M | |
+| 3 author wall-clock | 25 min | 14 min | 5 h 08 | 5 h 26 | |
+| 4 residue | 2 | 0 | 0 | 0 (1 if an exclusion is refused) | |
+| 5 of the 35 baseline schedules, still PASS (part of 1(a)) | 35 | 35 | 22 (13 no support) | 35 | |
+| 6 propagation fraction (DeepSeek / Kimi) | 0.56 / 0.78 | | 0.08 / 0.67 (kappa 0.09) | | |
+| 7 interpretations contradicted (DeepSeek / Kimi) | 15 / 9 of 85 | | 6 / 5 of 46 | | |
+| 9 planted defect caught | yes (C1.2) | yes (C1.3) | yes (C1.1) | yes (C1.2) | |
+| 10 (i) a check flags / (ii) steward names | no / yes | yes / yes | | | |
+
+Files: 1(a) to 1(c) `runs/*/schedules.txt`, `runs/*/mutations.txt`, `audit/{A,R}-verdicts.txt`; 1(d) `runs/*/provenance{,-v5}.txt`; 1(e) and 2 `judge/RULINGS.md`; 1(f) and 8 `runs/*/replay-*.txt`; 3 `measure3-cost.md`; 4 `residue/RESULT.md`; 6 and 7 `raters/RESULT.md`; 8's design fact `measure8-design-fact.md`; 9 `plants/RESULT.md`; 10 `recon/RESULT.md`.
+
+## Readings the registration forced, stated
+1. **Vacuous by design, two registered sentences in conflict.** Departure 3: a model side that does not model a quantity a row needs is "vacuous by design for that schedule: reported, not PASS". Measure 8: a side whose grant path consults no clock "passes the F3.2 schedules and P44 vacuously as to clocks: counted as PASS (the contract permits it), reported as vacuous by design". Arm R's model has no clock. **Primary reading here: Departure 3 for the support audit**, because 1(a)'s model PASS is conditioned on the audit by name ("a model PASS also needs its support audit (Departure 3)"). Measure 8 governs the clock design fact. **Beside, under measure 8's reading:** R model 1(a) 58, 1(c) 3. **Neither reading changes any "more correct" cell**: R model 50 or 58 against A model 46; A model 4 against R model 1 or 3.
+2. **1(b) and vacuity.** The registration makes a *failed* audit's mutation unassessable and says nothing about vacuous rows; R model's eight vacuous pairs are counted as assessed (all eight killed). Beside, if they were unassessable: 45 of 54, still above A model's 41.
+3. **1(d) is an artefact.** Both judges found the registered `provenance_check.py` keys records by `(proc, seq)`, not schema v5's `(proc, inc, seq)`, so R impl's 80 are valid chains after a client restart, and the model sides' 4 each are the same defect (arm A's model README declared it; log 2026-10-27). Under the corrected check every side is 0. The registered score stands, and "A more correct on 1(d) impl" **is a fact about the steward's instrument, not about either arm**.
+4. **1(e).** Counted as stall mechanisms the judge names as genuine C1.4 or C3.4 violations: R-P63 only. A-H13's run blocks under T3, but both judges call it explained with no genuine violation (Gemini locus implementation, Kimi interface). If it were counted, the impl cell becomes A 1 / R 0, R more correct.
+
+## Scoring rule
+"Adaptation wins" needs arm A at least as correct on every item of 1(a) to 1(f) and 8, and cheaper in tokens and wall-clock on both sides. **Cost fails** (tokens on both sides, wall-clock on impl). Item by item: **R strictly more correct** on 1(a) model, 1(b) model, 1(c) impl; **A strictly more correct** on 1(c) model, 1(d) impl (instrument artefact, reading 3), 1(e) model. Ties elsewhere. **Mixed.** In the rule's required words: **arm A is strictly more correct on 1(c) model, 1(d) impl and 1(e) model, and more expensive.**
+
+## Predictions
+| | prediction | p | outcome |
+|---|---|---|---|
+| X3-1a | adaptation does not win under the rule | 0.75 | **contradictory registration**: by its own words, confirmed (adaptation does not win). The scoring-rule section also says "Mixed is reported as mixed and scores X3-1a as **not confirmed**", a sentence carried from X1, where the first prediction was "adaptation wins". Under that sentence: not confirmed. Both are reported; the steward does not choose. |
+| X3-1b | regeneration wins (R at least as correct everywhere, strictly more somewhere) | 0.4 | **not confirmed** (A strictly more correct on three items; on two of them without the artefact) |
+| X3-2 | an unmutated side violates C1.1, C3.7 or C3.8 on P48, P60 or P63 | 0.45 | **not confirmed** (R model's P63 violates C3.4, not a named clause; replay parts 1 and 2 report nothing) |
+| X3-3 | an impl side has an `UNEXPLAINED inputs` decision on a shared schedule | 0.65 | **not confirmed** (0 both); second part unscorable (R impl's grant path consults no clock) |
+| X3-4 | a model side fails its support audit on a shared schedule | 0.5 | **confirmed** (A model, 13; failing floor terms = 2 on all; with terms at 1 all 13 have support, beside) |
+| X3-5 | a hold-out produces a FAIL or divergence in some arm | 0.75 | **confirmed** (A: H11, H13, H14 divergences; R: H13) |
+| X3-6 | planted defect caught on at most two of four sides | 0.6 | **not confirmed** (four of four) |
+| X3-7 | steward finds the out-of-model failure from the trace in both arms | 0.4 | **confirmed**, with the departure (a helper added the hooks) |
+| X3-8 | A impl total tokens below R's; A model below R's | 0.5; 0.4 | **not confirmed; not confirmed** (on output tokens alone the model half reverses, beside) |
+| X3-9 | measure 7 finds a contradiction on some arm A side | 0.7 | **confirmed** (both raters, both sides) |
+
+## What X3 shows, read beside the score
+- **The structure the seed predicted is not what separated the arms.** The seed's standing prediction was that a new locus favours regeneration. Correctness split by side, not by arm: regeneration did better on the model's support and mutations and on the implementation's hold-outs; adaptation did better on the model's hold-outs and had no genuine stall. Every arm A loss on the implementation's hold-outs traces to one inherited rule (an exactly-two-clients admission check from an earlier format), which is the epoch-laundering-in-artifacts the seed names: a superseded requirement still enforced by an inherited element. Measure 4's residue (2, arm A impl) is the same kind of thing.
+- **Arm A's model lost 13 schedules to a registered reach floor** (terms = 2 on any schedule with a partition) that its untimed failure detector need not reach; a choice its README states. Whether the floor or the model is wrong is not settled here.
+- **The measures that need raters are weak.** Measure 6 has kappa 0.09 on model units; the ruling did not make the boundary between propagation and choice reliable.
+- **No arm's own suite missed a planted defect**, but every planter chose a core safety clause unprompted, so measure 9 tested easy plants.
+- **The steward's instruments were wrong twice in X3** (the provenance check's identity key, inherited; the reach generator's terms floor, a reading). Both were found by others (judges, an author's README), not by the steward.
+
+## Departures and disclosures
+- Measure 10's hooks were added by a helper, not the steward (logged before any chooser ran).
+- Measures 6 and 7 rated by DeepSeek and Kimi, the steward rating nothing (logged before any rating).
+- Plant 4 launched untracked, watched a minute later; three scoring-script corrections before the affected plants scored; the residue tool's wrapped-tag defect fixed before disposition.
+- The adversarial review of this draft by a non-Claude family follows, and its findings are disposed of before the word DRAFT is removed.
+````
+
+# Evidence
+## experiments/X3/measure3-cost.md
+````
+# X3 measure 3: cost
+
+Computed 2026-11-01 by the tenth steward from the log's harness figures (entries "X3 arm R implementation author ended", "X3 arm A implementation author ended", "X3 arm A model author ended", "X3 arm R model author ended") and the authors' commit times in the exported repositories (`~/projects/tupay-x3-export-<arm>-<side>`, ref `author/main`). derives: X3 prereg measure 3, X3-8, scoring rule.
+
+## Per author
+| | A impl (Codex) | R impl (Codex) | A model (Opus 5.5) | R model (Opus 5.5) |
+|---|---|---|---|---|
+| start → end (clock) | 20:30:00Z → 20:55:02Z | 20:30:00Z → 20:44:26Z | 20:30:19Z → 01:38:44Z | 01:39:42Z → 07:05:32Z |
+| wall-clock | **25 min 02 s** | **14 min 26 s** | **5 h 08 min 25 s** (harness 18,491 s) | **5 h 25 min 50 s** (harness 19,501 s) |
+| input tokens (all, cached included) | 7,288,362 (7,172,992 cached) | 3,290,756 (3,225,344 cached) | 120,114,643 (466 uncached + 675,227 cache-write + 119,438,950 cache-read) | 88,925,259 (370 + 660,559 + 88,264,330) |
+| output tokens | 53,753 (18,909 reasoning) | 37,418 (11,558 reasoning) | 442,458 (246,705 thinking) | 492,158 |
+| **total tokens** (input + output) | **7,342,115** | **3,328,174** | **120,557,101** | **89,417,417** |
+| harness cost figure | n/a | n/a | US$38.14 equivalent | US$32.78 equivalent |
+
+## Arm A split at its first commit after predictions (wall-clock; tokens are not split by either harness)
+| | start → predictions | predictions commit | first commit after | before | after |
+|---|---|---|---|---|---|
+| A impl | 20:30:00Z | `fe12a32` 20:31:14Z | `fc6718e` 20:49:10Z | 19 min 10 s | 5 min 52 s |
+| A model | 20:30:19Z | `aaf2c10` 20:52:26Z | `2bcce7b` 21:52:36Z | 1 h 22 min 17 s | 3 h 46 min 08 s |
+
+"Before" runs from launch to the first commit after the predictions commit.
+
+## X3-8 outcome under the registered word "total tokens" (scored in the result)
+- Implementation: A 7,342,115 vs R 3,328,174. **A not lower: not confirmed** (p 0.5).
+- Model: A 120,557,101 vs R 89,417,417. **A not lower: not confirmed** (p 0.4).
+- **Beside, not instead:** on **output tokens alone**, the model side reverses (A 442,458 < R 492,158); the implementation side does not (A 53,753 > R 37,418). The registration says "total"; the cached input dominates both totals (over 98% of input on every side), so the scored comparison is mostly a comparison of context re-reads.
+
+## Cost half of the scoring rule
+"Adaptation wins" needs arm A's author cost lower **in both tokens and wall-clock on both sides**. Arm A's implementation took longer (25 min vs 14 min) and more tokens on both sides. **The cost condition fails on three of four counts**, so adaptation cannot win under the rule whatever the correctness items show; correctness still decides X3-1b and is scored item by item.
+
+## Other cost items (registered)
+- **Steward time**: not measured as such by any steward; the log's entry times bound it. Reported as not measured.
+- **Advisor tokens** (from the log): DeepSeek audit review 83k prompt tokens, US$0.04; Kimi judge US$0.85 for six items; Gemini judge via `agy` (no token figure from the harness); hold-out author (Grok), four input reviews (Grok) and the Fable prereg review: figures, where the log has them, to be gathered into the result.
+- **Decisions asked of Tony during X3**: to be counted from the log and khipumaq for the result.
+````
+## experiments/X3/measure8-design-fact.md
+````
+# X3 measure 8: the design fact (does the grant path consult a clock), registered before scoring
+
+Written by the ninth steward, 2026-10-27, before any X3 score is computed, as `experiments/X3-prereg.md` measure 8 requires: "registered from the README and the traces before scoring". Sources: each side's README in the steward's scoring clones (`~/projects/tupay-x3-score/`, at the commits in `runs/<side>/commit.txt`), and the decision inputs recorded on every `Grant` in each side's unmutated steward-run traces (`runs/<side>/observe.tar.xz`).
+
+| Side | Grant path consults a clock | README | Traces: Grant decision inputs |
+|---|---|---|---|
+| arm A model | **no** | `model/README.md` L29 ("The grantor does not wait for expiry, so no decision reads a clock"), L56 | 128 grants in 63 traces; inputs `agreed`, `members`, `config_epoch`, `grantor_term`, `last_token`; none records `clock` |
+| arm R model | **no** | `model-regen/README.md` L110 ("No clocks. No protocol decision reads a clock"), L132 | 126 grants in 62 traces; same five names; none records `clock` |
+| arm A impl | **yes** | `impl/README.md` L1269 (a grantor that has issued before waits using its own local clock, records `clock` and `last_grant_at`), L1188 | every grant (7,140) records `clock` and `last_grant_at` beside the five |
+| arm R impl | **no** | `impl-regen/README.md` L21 ("Grant does not wait for lease expiry or read any clock") | 3,840 grants; the five names only |
+
+Trace counts include every unmutated `.jsonl` in each archive (the implementation archives' file count differs from `traces.txt` where the archive also holds mutation traces under other names; the names found are the same in every grant either way).
+
+**Consequences, as the registration states them (applied at scoring, not here):**
+- Three sides (both models, arm R's implementation) pass the F3.2 schedules and P44 **vacuously by design** as to clocks: counted as PASS, reported as such.
+- **X3-3's second part** ("arm A's implementation more than arm R's", p 0.5) is scored only if both implementations consult a clock; arm R's does not, so it is **unscorable**, reported as such. X3-3's first part is unaffected.
+````
+## experiments/X3/residue/RESULT.md
+````
+# X3 measure 4: residue
+
+Procedure: X3 prereg measure 4 (X2's fixed procedure, X3 terms), mechanised in `scripts/steward/x3-residue/residue.py` (committed with its mutation pair `test.sh` before any run, `12d6ba6`). Each side's diff runs from its inputs commit (the root of `author/main` in the exported repository) to its final head. Raw outputs: `adapt-impl.txt`, `regen-impl.txt`, `adapt-model.txt`, `regen-model.txt`. derives: X3 prereg measure 4.
+
+**Tool defect, found on the first run and fixed before any disposition:** the parser read only the line on which `derives:` appears, but a tag may wrap. Arm R's model file `model-regen/mutations/make.py` ends its tag's first line in `F3.2,` and carries `F3.3` on the next line, so the first run listed it as a false candidate. Fixed so that a tag line ending in a comma continues on the next line, and the mutation pair gained two cases (wrapped: 0; the same text without the comma: flagged). The fix removes a false candidate only. The first run's output was not kept; it differed only by that line.
+
+| | A impl | R impl | A model | R model |
+|---|---|---|---|---|
+| (i) term without its tag | **2** | 0 | 0 | 0 (1 candidate excluded, below) |
+| (ii) list tag not matching what the element runs | 0 (2 read) | 0 | 0 (6 read) | 0 (1 read) |
+| (iii) retired id in a tag | 0 | 0 | 0 | 0 |
+| **residue** | **2** | **0** | **0** | **0** |
+
+## Dispositions
+- **A impl, `impl/links_v2_test.go` and `impl/schedule_v2_test.go` (residue, 2).** Both files are in arm A's diff: its edits gave every fixture `Ref` the incarnation field (`Ref{"n1", 1, 0}`) and the nodes `members: initialMembers(...)`. Both mention `incarnation` in code (`t.Fatal("reply crossed incarnation")`, `t.Fatal("old incarnation counted")`). Neither carries F3.3 or any C3.x tag. The word predates X3 in each file (one mention each at the inputs commit), but the rule counts any file in the diff, and X3's change to the identity schema went into these fixtures untagged, which is the kind of residue the measure exists to find.
+- **R model, `model-regen/tlc.sh` (excluded).** The only match is TLC's command-line flag `-config "$cfg"`, which names the TLC configuration file. Excluded under "TLC `.cfg` files" as the same object: a reading, stated here. If the exclusion is not accepted, arm R's model has residue 1.
+- **(ii), read against the registered sets.** A impl `engine.go`: two tags naming P13 to P16 among clauses. These are derivations, not a list of what the element runs, so not the X1 kind. A model `mutate.py` and `run.py`: six tags. `replace_def`'s "P1, P4, P7, P13" was checked by computation: exactly the four pairs whose mutation uses a `def` edit. The other five name the 54 mutation pairs or the 59 shared schedules (P1 to P33, P40 to P54, P58 to P63, false-suspicion-v1, H7 to H10), the registered sets; read, not executed. The stale header that X1 and X2 each scored as residue ("checking runs for P1-P12 and M1") is gone. R model `report.py`: "P1..P63 by number" describes a sort order, not a list run.
+
+## Not done
+The registered "read of the diff for anything the procedure missed" was limited to the candidates and list tags above. The diffs hold 6,064 (A impl), 13,581 (R impl), 197 (A model) and 1,120 (R model) files, most of them run evidence. A full read was not made, and this is stated as a residue of the measure.
+````
+## experiments/X3/raters/RESULT.md
+````
+# X3 measures 6 and 7: ratings
+
+Raters: DeepSeek (`deepseek/deepseek-v4-pro-0813`) and Kimi (`moonshotai/kimi-k3.1-pro`), independent, packets in `packets/` (hashes `packets/SHA256SUMS`), answers in `runs/<measure>-<side>/<rater>/`, tally `tally.txt` by `scripts/steward/x3-raters/tally.py`. The steward rated nothing (log 2026-11-01). Seven of eight calls parsed at first. **Kimi's m7-impl call stopped at its output limit with no answer** (`finish length`) and was rerun once, as the rule logged before sending allows, with reasoning capped at 24k tokens (`runs/m7-impl/kimi-2/`, parsed, 85 ratings); the failed run is kept. Cost of all nine calls: about US$2.36. derives: X3 prereg measures 6, 7, X3-9.
+
+## Measure 6: propagation fraction (arm A), per rater
+| side | DeepSeek | Kimi | agreement | Cohen's kappa |
+|---|---|---|---|---|
+| impl (27 units) | 15/27 = **0.56** | 21/27 = **0.78** | 21/27 | 0.53 |
+| model (12 units) | 1/12 = **0.08** | 8/12 = **0.67** | 5/12 | **0.09** |
+
+The raters disagree on the model side almost entirely: kappa near zero, 7 of 12 units split. Under the measure 6 ruling, DeepSeek read nearly every model unit as making a choice the inputs leave open; Kimi read two thirds as implementing a prescription. X2's raters split on the same boundary before the ruling existed. **The ruling did not make measure 6 reliable on model units**, and that is reported as a result about the measure. The steward does not adjudicate.
+
+## Measure 7: interpretations contradicted (arm A), per rater
+| side | DeepSeek | Kimi | agreement (3 verdicts) | kappa |
+|---|---|---|---|---|
+| model (of 46) | **6**: 3, 5, 12, 17, 20, X2.2 | **5**: 3, 5, 12, 20, X2.2 | 42/46 | 0.85 |
+| impl (of 85) | **15**: 3, 4, 7, 13, 18, 23, 26, 42, 50, 51, 70, 77, 80, 83, 85 | **9**: 3, 7, 13, 20, 23, 26, 50, 80, 83 | 63/85 | 0.55 |
+| impl (of 77, beside) | 14 | 9 | | |
+
+Own column, as the registration requires: entries contradicted that the old README had already marked superseded: DeepSeek 0 on both sides; Kimi 1 on impl (81), 0 on model. Both raters name **3, 5, 12, 20, X2.2** on the model and **3, 7, 13, 23, 26, 50, 80, 83** on impl.
+
+## X3-9
+"On at least one arm A side, measure 7 finds at least one contradicted interpretation" (p 0.7): **confirmed under both raters, on both sides.**
+
+**Correction (appended):** the cost figure above was written before it was computed. Summed from the nine `response.json` usage records it is **US$2.34**.
+````
+## experiments/X3/plants/RESULT.md
+````
+# X3 measure 9: planted defects
+
+One fresh Grok instance per plant, sandboxed, given one side's exported tree with no git history and `BRIEF.md` (`scripts/steward/x3-plants/`). Scoring by `score.sh`: the witness is run on the planted copy (implementations at 3 seeds by 10 repetitions), then the arm's shipped suite (the 59 shared schedules) on the planted copy. Plants, witnesses and transcripts are in `tupay-private/X3/plants/`, with hashes in each `<arm>-<side>/private.sha256`. derives: X3 prereg measure 9, X3-6.
+
+| plant (order) | clause | planted | planter time | witness on planted copy | suite: schedules FAILing the planted clause | caught |
+|---|---|---|---|---|---|---|
+| 1 A impl | C1.2 | `impl/engine.go`, 1 line (and `go.sum`, a build side effect) | 3 min | 30/30 FAIL C1.2 | 11 of 59, each 30/30 | **yes** |
+| 2 R impl | C1.3 | `impl-regen/main.go`, 3 lines | 7 min | 30/30 FAIL C1.3 | 11 of 59, each 30/30 | **yes** |
+| 3 A model | C1.1 | `model/Lease.tla` | 5 min | FAIL `C1_1` | 52 of 59 | **yes** |
+| 4 R model | C1.2 | `model-regen/Lease.tla` | 6 min | FAIL C1.2 | 31 of 59 (plus P63's registered C3.4) | **yes** |
+
+No plant was void and none was flaky. **X3-6** ("caught by the arm's own suite on at most two of the four sides", p 0.6): **not confirmed**; all four were caught. A reading beside the score: each planter chose a defect in the core safety clauses (C1.1 to C1.3), which every arm's suite covers heavily. The brief let the planter choose and did not ask for a hard-to-catch defect, so this measures whether the suites catch the defects a fresh instance plants unprompted, not whether they catch subtle ones. The two implementation plants were caught on the same 11 schedules, the ones that write across a change of holder.
+
+Process notes: the scoring script was corrected three times as plants arrived, each before that plant's scoring ran (fetch into a non-current branch; trace files and bytecode caches are not planted files). Plant 4 was launched untracked and watched a minute later (lapse, logged).
+````
+## experiments/X3/recon/RESULT.md
+````
+# X3 measure 10: out-of-model reconstruction
+
+Choosers: one fresh Grok instance per arm, sandboxed (`scripts/steward/x3-recon/`). Hooks added by a Claude helper working for the steward, which saw each record; the steward did not (departure, log 2026-11-01). Naming committed in `NAMING.md` (`124a165`) before the steward read either record. Records, hooks and the helper's readings are in `tupay-private/X3/recon/`, with hashes in `<arm>-impl/private.sha256`; the `CHOICE.md` hashes match those committed before the hooks were added (`<arm>-impl/choice.sha256`). derives: X3 prereg measure 10, X3-7.
+
+| | arm A | arm R |
+|---|---|---|
+| chosen schedule | P4 | P1 |
+| hook class | storage restart from an older state (ledger 3, value v1, after the token-4 accept) | lost durable record at a lease node (the grantor's highest-token register reset to 0 on an ordinary restart) |
+| record's expected failure | C1.2, storage's `WriteAccept` of c1's stale `v3` write at token 3 | C1.1, n1's `Grant` to c2 with token 1 |
+| **(i) any registered check reports** | **no** (replay parts 1 to 3, alone and with the 1,830 registered traces; provenance, both versions) | **yes**: replay part 2, `token 1 granted 2 times (C1.1)` on 30 of 30 |
+| **(ii) steward names the decision and failure** | **yes**: the same decision, C1.2, and the hook class | **yes**: the same decision, C1.1, and the hook class |
+
+**Against the registered expectations** (`experiments/X3/measure10-expectations.md`): storage restart from an older state was registered as "no check flags it, by design", and none did. On arm A, part (ii) was the only route, and it went through the one visible sign, `highest_before` dropping from 4 to 3 across storage's restart. Lost durable record at a lease node was registered as flagged by part 2 when the node's counted `Agree` carries a token not above one already agreed, and it was.
+
+**X3-7** ("the steward finds the out-of-model failure from the trace in both arms", p 0.4): **confirmed**, with the departure stated. The namer did not write the hooks, but it is the same steward who read the registered expectations, and both choosers picked classes those expectations describe in detail.
+
+**Observation (arm R, not a score):** the record shows the hook touched only n1's register, so n2's and n3's second agreement to token 1 is the implementation's own rule. Its acceptors agree per slot and do not check token monotonicity, and C1.1 rests on the grantor's register alone. That falls inside an exclusion of failure model v3 (partial loss of durable state), so it is not a contract violation in-model. It is the kind of single-point dependency Arariwa exists to make visible. Arm A's storage likewise trusts its recovered ledger with no cross-check.
+````
+## experiments/X3/judge/RULINGS.md
+````
+# X3 judge rulings (both judges, as returned)
+
+Gemini is the registered judge; Kimi is reported beside it, never instead. Neither saw the other's ruling. Full answers: `<item>/<judge>/response.md`; packets: `packets/` (committed `d996756` before any ruling). Generated from `ruling.json`; the steward resolves no disagreement.
+
+| Item | Judge | verdict | genuine violation | locus | mechanism (as given, first 300 characters) |
+|---|---|---|---|---|---|
+| A-H11 | Gemini (registered) | explained | not applicable | implementation | Schedule H11 declares a single client (`clients: [c1]`), which is valid under the schedule format, but Arm A's implementation schedule compiler rejects any schedule that does not declare exactly two clients. |
+| A-H11 | Kimi (beside) | explained | not applicable | implementation | The implementation runner applies an extra exactly-two-clients admission rule and exits before executing H11. The difference is therefore at schedule admission, not in the model's and implementation's reconfiguration behaviour. |
+| A-H13 | Gemini (registered) | explained | not applicable | implementation | In H13, steps 2 through 8 chain synchronously on each predecessor's emitted event (`Grant(c1)` -> four `Fault`s -> `Fault` partition -> `Request(c2)` -> `write: c1`), so step 8 (`write: c1`) is reached before `c1` has received the grant reply emitted by `n1` at step 1, and the implementation fails t |
+| A-H13 | Kimi (beside) | explained | not applicable | interface | The implementation sampled an ordering in which n1 recorded c1's grant and was crashed before c1 held the token. The later write by c1 therefore blocked under T3, so the accepted-write trigger for the heal never fired; the model witness instead has c1 write before the heal and then completes c2's gr |
+| A-H14 | Gemini (registered) | explained | not applicable | implementation | Schedule H14 declares a single client (`clients: [c1]`), which is valid under the inputs, but Arm A's implementation schedule compiler rejects any schedule that does not declare exactly 2 clients (`need 1..6 lease nodes, 2 clients, 1 storage`). Arm A's model compiler relaxed its earlier fixed-topolo |
+| A-H14 | Kimi (beside) | explained | not applicable | implementation | The implementation runner applies a stale exactly-two-clients validation rule and rejects H14 before executing it. The written schedule interface imposes no such requirement, so this refusal does not contradict the model's behavioural PASS. |
+| R-H13 | Gemini (registered) | explained | not applicable | none | TLC aborted with a disk write I/O error (StatePoolWriter.run) immediately after generating the single initial state, before exploring any transitions of H13. |
+| R-H13 | Kimi (beside) | explained | not applicable | model | The model result is a TLC state-writer/disk I/O abort, not a safety or liveness result: TLC parsed the modules and generated the initial state, then failed in StatePoolWriter.run. The lower-level I/O cause is not shown, and no trace or counterexample was produced. |
+| R-P63 | Gemini (registered) | explained | yes | model | The model assigns the reconfiguration request's receiver (n2#0) as the sole distinguished learner/decider for that proposal (to guarantee C3.1/schema v5's single `decided: true` record per epoch) and prohibits proposing a new configuration while a joint entry in the leader's log is undecided. When n |
+| R-P63 | Kimi (beside) | explained | yes | model | The model lets n1 append r1 before n2 crashes, then makes n2 incarnation 0 r1's sole decider; F3.3 eliminates that incarnation and its pending copy. The undecided joint entry blocks r2 at n1, leaving r2 permanently without a commit, a superseded refusal, or an operator ack. |
+| R-provenance | Gemini (registered) | explained | no | none | The steward's checker `observe/provenance_check.py` indexes trace records by `(proc, seq)` instead of the v5 schema's `(proc, inc, seq)` identity. When client `c1` crashes and restarts in P7 and P16, its incarnation increments to `inc: 1` and its sequence counter resets, so its post-restart `WriteAc |
+| R-provenance | Kimi (beside) | explained | no | interface | The steward's checker uses pre-v5 identity: `recs` and its traversals key records by `(proc,seq)`, ignoring `inc`. After c1 restarts, its inc-1 acks reuse sequence numbers and overwrite its inc-0 attempts in that table, although the traces' full `(proc,inc,seq)` references retain valid provenance ch |
+
+**Agreement:** both judges explain every item; they agree on locus for A-H11, A-H14 (implementation) and R-P63 (model, genuine C3.4 violation), and on R-provenance being no violation (an artefact of the steward's check; locus none / interface). **Disagreement on locus:** A-H13 (Gemini implementation, Kimi interface); R-H13 (Gemini none, Kimi model).
+````
+## audit verdicts (experiments/X3/audit/*-verdicts.txt, VERDICT lines, first 160 characters each)
+````
+VERDICT side=R schedule=P1 mutant=0 SUPPORT trace=18 states=51737 seconds=16
+VERDICT side=R schedule=P2 mutant=0 SUPPORT trace=11 states=4127 seconds=5
+VERDICT side=R schedule=P3 mutant=0 SUPPORT trace=10 states=1850 seconds=5
+VERDICT side=R schedule=P4 mutant=0 SUPPORT trace=15 states=5956 seconds=4
+VERDICT side=R schedule=P5 mutant=0 SUPPORT trace=12 states=3046 seconds=6
+VERDICT side=R schedule=P6 mutant=0 SUPPORT trace=11 states=1991 seconds=6
+VERDICT side=R schedule=P7 mutant=0 SUPPORT trace=13 states=6132 seconds=5
+VERDICT side=R schedule=P8 mutant=0 SUPPORT trace=12 states=2975 seconds=5
+VERDICT side=R schedule=P9 mutant=0 SUPPORT trace=9 states=1229 seconds=4
+VERDICT side=R schedule=P10 mutant=0 SUPPORT trace=12 states=5564 seconds=5
+VERDICT side=R schedule=P11 mutant=0 SUPPORT trace=12 states=5079 seconds=5
+VERDICT side=R schedule=P12 mutant=0 SUPPORT trace=7 states=470 seconds=5
+VERDICT side=R schedule=P13 mutant=0 SUPPORT trace=15 states=5792 seconds=5
+VERDICT side=R schedule=P14 mutant=0 SUPPORT trace=12 states=3487 seconds=6
+VERDICT side=R schedule=P15 mutant=0 SUPPORT trace=11 states=1962 seconds=4
+VERDICT side=R schedule=P16 mutant=0 SUPPORT trace=17 states=8262 seconds=5
+VERDICT side=R schedule=P17 mutant=0 SUPPORT trace=5 states=151 seconds=2
+VERDICT side=R schedule=P18 mutant=0 SUPPORT trace=15 states=3199 seconds=4
+VERDICT side=R schedule=P19 mutant=0 SUPPORT trace=13 states=7889 seconds=5
+VERDICT side=R schedule=P20 mutant=0 SUPPORT trace=13 states=8600 seconds=5
+VERDICT side=R schedule=P21 mutant=0 SUPPORT trace=12 states=3197 seconds=4
+VERDICT side=R schedule=P22 mutant=0 SUPPORT trace=13 states=2936 seconds=4
+VERDICT side=R schedule=P23 mutant=0 SUPPORT trace=12 states=2665 seconds=4
+VERDICT side=R schedule=P24 mutant=0 SUPPORT trace=12 states=2274 seconds=4
+VERDICT side=R schedule=P25 mutant=0 SUPPORT trace=8 states=910 seconds=4
+VERDICT side=R schedule=P26 mutant=0 SUPPORT trace=8 states=1015 seconds=2
+VERDICT side=R schedule=P27 mutant=0 SUPPORT trace=12 states=3449 seconds=3
+VERDICT side=R schedule=P28 mutant=0 SUPPORT trace=13 states=2863 seconds=3
+VERDICT side=R schedule=P29 mutant=0 SUPPORT trace=15 states=4356 seconds=4
+VERDICT side=R schedule=P30 mutant=0 SUPPORT trace=15 states=4216 seconds=4
+VERDICT side=R schedule=P31 mutant=0 SUPPORT trace=14 states=6034 seconds=5
+VERDICT side=R schedule=P32 mutant=0 VACUOUS not modelled: clocksteps, maxticks; modelled floors (vacuous ones by step position): SUPPORT trace=11 states=6606 s
+VERDICT side=R schedule=P33 mutant=0 SUPPORT trace=16 states=47013 seconds=19
+VERDICT side=R schedule=P40 mutant=0 SUPPORT trace=11 states=3190 seconds=7
+VERDICT side=R schedule=P41 mutant=0 VACUOUS not modelled: clocksteps, maxticks; modelled floors (vacuous ones by step position): SUPPORT trace=13 states=19710 
+VERDICT side=R schedule=P42 mutant=0 SUPPORT trace=11 states=5885 seconds=11
+VERDICT side=R schedule=P43 mutant=0 SUPPORT trace=17 states=6270 seconds=5
+VERDICT side=R schedule=P44 mutant=0 VACUOUS not modelled: clocksteps, maxticks; modelled floors (vacuous ones by step position): SUPPORT trace=9 states=1733 se
+VERDICT side=R schedule=P45 mutant=0 SUPPORT trace=12 states=3808 seconds=5
+VERDICT side=R schedule=P46 mutant=0 SUPPORT trace=19 states=1991 seconds=5
+VERDICT side=R schedule=P47 mutant=0 VACUOUS not modelled: clocksteps, maxticks; modelled floors (vacuous ones by step position): SUPPORT trace=7 states=423 sec
+VERDICT side=R schedule=P48 mutant=0 SUPPORT trace=12 states=207168 seconds=28
+VERDICT side=R schedule=P49 mutant=0 SUPPORT trace=18 states=7895 seconds=5
+VERDICT side=R schedule=P50 mutant=0 VACUOUS not modelled: clocksteps, maxticks; modelled floors (vacuous ones by step position): SUPPORT trace=7 states=437 sec
+VERDICT side=R schedule=P51 mutant=0 SUPPORT trace=8 states=940 seconds=3
+VERDICT side=R schedule=P52 mutant=0 SUPPORT trace=14 states=85553 seconds=33
+VERDICT side=R schedule=P53 mutant=0 VACUOUS not modelled: clocksteps, maxticks; modelled floors (vacuous ones by step position): SUPPORT trace=8 states=842 sec
+VERDICT side=R schedule=P54 mutant=0 SUPPORT trace=9 states=1057 seconds=4
+VERDICT side=R schedule=P58 mutant=0 SUPPORT trace=15 states=9015 seconds=7
+VERDICT side=R schedule=P59 mutant=0 VACUOUS not modelled: clocksteps, maxticks; modelled floors (vacuous ones by step position): SUPPORT trace=14 states=22715 
+VERDICT side=R schedule=P60 mutant=0 SUPPORT trace=17 states=72130 seconds=23
+VERDICT side=R schedule=P61 mutant=0 SUPPORT trace=13 states=10146 seconds=7
+VERDICT side=R schedule=P62 mutant=0 VACUOUS not modelled: clocksteps, maxticks; modelled floors (vacuous ones by step position): SUPPORT trace=11 states=4965 s
+VERDICT side=R schedule=P63 mutant=0 SUPPORT trace=12 states=12519 seconds=7
+VERDICT side=R schedule=false-suspicion-v1 mutant=0 SUPPORT trace=12 states=3567 seconds=5
+VERDICT side=R schedule=H7 mutant=0 SUPPORT trace=13 states=2908 seconds=4
+VERDICT side=R schedule=H8 mutant=0 SUPPORT trace=14 states=3572 seconds=5
+VERDICT side=R schedule=H9 mutant=0 SUPPORT trace=8 states=875 seconds=3
+VERDICT side=R schedule=H10 mutant=0 SUPPORT trace=13 states=3045 seconds=5
+VERDICT side=R schedule=H11 mutant=0 VACUOUS not modelled: clocksteps, maxticks; modelled floors (vacuous ones by step position): SUPPORT trace=11 states=1459 s
+VERDICT side=R schedule=H12 mutant=0 VACUOUS not modelled: clocksteps, maxticks; modelled floors (vacuous ones by step position): SUPPORT trace=25 states=11742 
+VERDICT side=R schedule=H13 mutant=0 VACUOUS not modelled: clocksteps, maxticks; modelled floors (vacuous ones by step position): ERROR TLC: Error: when writing
+VERDICT side=R schedule=H14 mutant=0 SUPPORT trace=10 states=2878 seconds=3
+VERDICT side=A schedule=P1 mutant=0 SUPPORT trace=20 states=7487 seconds=4
+VERDICT side=A schedule=P2 mutant=0 SUPPORT trace=13 states=562 seconds=3
+VERDICT side=A schedule=P3 mutant=0 SUPPORT trace=12 states=365 seconds=3
+VERDICT side=A schedule=P4 mutant=0 SUPPORT trace=18 states=892 seconds=4
+VERDICT side=A schedule=P5 mutant=0 SUPPORT trace=14 states=387 seconds=2
+VERDICT side=A schedule=P6 mutant=0 SUPPORT trace=13 states=256 seconds=3
+VERDICT side=A schedule=P7 mutant=0 SUPPORT trace=14 states=1321 seconds=14
+VERDICT side=A schedule=P8 mutant=0 NO-SUPPORT search complete, distinct=2900 seconds=3
+VERDICT side=A schedule=P9 mutant=0 SUPPORT trace=11 states=232 seconds=2
+VERDICT side=A schedule=P10 mutant=0 SUPPORT trace=14 states=569 seconds=3
+VERDICT side=A schedule=P11 mutant=0 SUPPORT trace=13 states=483 seconds=3
+VERDICT side=A schedule=P12 mutant=0 SUPPORT trace=7 states=94 seconds=2
+VERDICT side=A schedule=P13 mutant=0 SUPPORT trace=18 states=1019 seconds=3
+VERDICT side=A schedule=P14 mutant=0 SUPPORT trace=14 states=476 seconds=2
+VERDICT side=A schedule=P15 mutant=0 SUPPORT trace=13 states=250 seconds=2
+VERDICT side=A schedule=P16 mutant=0 SUPPORT trace=19 states=2202 seconds=4
+VERDICT side=A schedule=P17 mutant=0 NO-SUPPORT search complete, distinct=6680 seconds=4
+VERDICT side=A schedule=P18 mutant=0 SUPPORT trace=15 states=552 seconds=3
+VERDICT side=A schedule=P19 mutant=0 NO-SUPPORT search complete, distinct=794 seconds=4
+VERDICT side=A schedule=P20 mutant=0 SUPPORT trace=17 states=529 seconds=3
+VERDICT side=A schedule=P21 mutant=0 SUPPORT trace=14 states=372 seconds=2
+VERDICT side=A schedule=P22 mutant=0 NO-SUPPORT search complete, distinct=5180 seconds=4
+VERDICT side=A schedule=P23 mutant=0 NO-SUPPORT search complete, distinct=2900 seconds=4
+VERDICT side=A schedule=P24 mutant=0 NO-SUPPORT search complete, distinct=12569 seconds=4
+VERDICT side=A schedule=P25 mutant=0 NO-SUPPORT search complete, distinct=266 seconds=2
+VERDICT side=A schedule=P26 mutant=0 SUPPORT trace=9 states=191 seconds=2
+VERDICT side=A schedule=P27 mutant=0 SUPPORT trace=14 states=409 seconds=3
+VERDICT side=A schedule=P28 mutant=0 NO-SUPPORT search complete, distinct=5180 seconds=5
+VERDICT side=A schedule=P29 mutant=0 NO-SUPPORT search complete, distinct=16427 seconds=5
+VERDICT side=A schedule=P30 mutant=0 NO-SUPPORT search complete, distinct=13607 seconds=11
+VERDICT side=A schedule=P31 mutant=0 SUPPORT trace=14 states=86888 seconds=13
+VERDICT side=A schedule=P32 mutant=0 SUPPORT trace=11 states=748 seconds=3
+VERDICT side=A schedule=P33 mutant=0 SUPPORT trace=13 states=13084 seconds=6
+VERDICT side=A schedule=P40 mutant=0 SUPPORT trace=10 states=786 seconds=3
+VERDICT side=A schedule=P41 mutant=0 SUPPORT trace=12 states=1405 seconds=3
+VERDICT side=A schedule=P42 mutant=0 SUPPORT trace=10 states=3091 seconds=3
+VERDICT side=A schedule=P43 mutant=0 SUPPORT trace=17 states=7395 seconds=15
+VERDICT side=A schedule=P44 mutant=0 SUPPORT trace=11 states=400 seconds=2
+VERDICT side=A schedule=P45 mutant=0 SUPPORT trace=12 states=384 seconds=2
+VERDICT side=A schedule=P46 mutant=0 SUPPORT trace=17 states=5221 seconds=4
+VERDICT side=A schedule=P47 mutant=0 SUPPORT trace=8 states=86 seconds=2
+VERDICT side=A schedule=P48 mutant=0 SUPPORT trace=11 states=2247 seconds=4
+VERDICT side=A schedule=P49 mutant=0 SUPPORT trace=17 states=1555 seconds=4
+VERDICT side=A schedule=P50 mutant=0 SUPPORT trace=7 states=89 seconds=2
+VERDICT side=A schedule=P51 mutant=0 SUPPORT trace=9 states=171 seconds=3
+VERDICT side=A schedule=P52 mutant=0 SUPPORT trace=14 states=10098 seconds=5
+VERDICT side=A schedule=P53 mutant=0 SUPPORT trace=10 states=380 seconds=4
+VERDICT side=A schedule=P54 mutant=0 SUPPORT trace=9 states=199 seconds=2
+VERDICT side=A schedule=P58 mutant=0 SUPPORT trace=15 states=23371 seconds=8
+VERDICT side=A schedule=P59 mutant=0 SUPPORT trace=14 states=18373 seconds=13
+VERDICT side=A schedule=P60 mutant=0 SUPPORT trace=16 states=5200 seconds=4
+VERDICT side=A schedule=P61 mutant=0 SUPPORT trace=10 states=3614 seconds=4
+VERDICT side=A schedule=P62 mutant=0 SUPPORT trace=9 states=180 seconds=2
+VERDICT side=A schedule=P63 mutant=0 SUPPORT trace=11 states=640 seconds=3
+VERDICT side=A schedule=false-suspicion-v1 mutant=0 SUPPORT trace=14 states=426 seconds=3
+VERDICT side=A schedule=H7 mutant=0 NO-SUPPORT search complete, distinct=87449 seconds=17
+VERDICT side=A schedule=H8 mutant=0 SUPPORT trace=15 states=469 seconds=2
+VERDICT side=A schedule=H9 mutant=0 NO-SUPPORT search complete, distinct=242 seconds=2
+VERDICT side=A schedule=H10 mutant=0 NO-SUPPORT search complete, distinct=1697 seconds=4
+VERDICT side=A schedule=H11 mutant=0 SUPPORT trace=13 states=256 seconds=2
+VERDICT side=A schedule=H12 mutant=0 SUPPORT trace=24 states=33401 seconds=22
+VERDICT side=A schedule=H13 mutant=0 SUPPORT trace=20 states=20884 seconds=8
+VERDICT side=A schedule=H14 mutant=0 SUPPORT trace=11 states=353 seconds=2
+````
+## experiments/X3/runs/armA-impl: verdict counts per schedule (from schedules.txt; implementation lines are one per run)
+````
+     30 schedule=H10 PASS schedule=H10
+      1 schedule=H11 UNEXPLAINED need
+     30 schedule=H12 PASS schedule=H12
+     30 schedule=H13 UNEXPLAINED workload
+      1 schedule=H14 UNEXPLAINED need
+     30 schedule=H7 PASS schedule=H7
+     30 schedule=H8 PASS schedule=H8
+     30 schedule=H9 PASS schedule=H9
+     30 schedule=P1 PASS schedule=P1
+     30 schedule=P10 PASS schedule=P10
+     30 schedule=P11 PASS schedule=P11
+     30 schedule=P12 PASS schedule=P12
+     30 schedule=P13 PASS schedule=P13
+     30 schedule=P14 PASS schedule=P14
+     30 schedule=P15 PASS schedule=P15
+     30 schedule=P16 PASS schedule=P16
+     30 schedule=P17 PASS schedule=P17
+     30 schedule=P18 PASS schedule=P18
+     30 schedule=P19 PASS schedule=P19
+     30 schedule=P2 PASS schedule=P2
+     30 schedule=P20 PASS schedule=P20
+     30 schedule=P21 PASS schedule=P21
+     30 schedule=P22 PASS schedule=P22
+     30 schedule=P23 PASS schedule=P23
+     30 schedule=P24 PASS schedule=P24
+     30 schedule=P25 PASS schedule=P25
+     30 schedule=P26 PASS schedule=P26
+     30 schedule=P27 PASS schedule=P27
+     30 schedule=P28 PASS schedule=P28
+     30 schedule=P29 PASS schedule=P29
+     30 schedule=P3 PASS schedule=P3
+     30 schedule=P30 PASS schedule=P30
+     30 schedule=P31 PASS schedule=P31
+     30 schedule=P32 PASS schedule=P32
+     30 schedule=P33 PASS schedule=P33
+     30 schedule=P4 PASS schedule=P4
+     30 schedule=P40 PASS schedule=P40
+     30 schedule=P41 PASS schedule=P41
+     30 schedule=P42 PASS schedule=P42
+     30 schedule=P43 PASS schedule=P43
+     30 schedule=P44 PASS schedule=P44
+     30 schedule=P45 PASS schedule=P45
+     30 schedule=P46 PASS schedule=P46
+     30 schedule=P47 PASS schedule=P47
+     30 schedule=P48 PASS schedule=P48
+     30 schedule=P49 PASS schedule=P49
+     30 schedule=P5 PASS schedule=P5
+     30 schedule=P50 PASS schedule=P50
+     30 schedule=P51 PASS schedule=P51
+     30 schedule=P52 PASS schedule=P52
+     30 schedule=P53 PASS schedule=P53
+     30 schedule=P54 PASS schedule=P54
+     30 schedule=P58 PASS schedule=P58
+     30 schedule=P59 PASS schedule=P59
+     30 schedule=P6 PASS schedule=P6
+     30 schedule=P60 PASS schedule=P60
+     30 schedule=P61 PASS schedule=P61
+     30 schedule=P62 PASS schedule=P62
+     30 schedule=P63 PASS schedule=P63
+     30 schedule=P7 PASS schedule=P7
+     30 schedule=P8 PASS schedule=P8
+     30 schedule=P9 PASS schedule=P9
+     30 schedule=false-suspicion-v1 PASS schedule=false-suspicion-v1
+schedule=H11 RUNNER-EXIT 1 SECONDS 1
+schedule=H13 RUNNER-EXIT 1 SECONDS 3
+schedule=H14 RUNNER-EXIT 1 SECONDS 0
+schedule=H11 UNEXPLAINED need 1..6 lease nodes, 2 clients, 1 storage schedule=H11
+schedule=H13 UNEXPLAINED workload unavailable under T3 schedule=H13 seed=1 trace=observe/H13-x3-v1-baseline-seed-1-rep-0001.jsonl
+schedule=H13 UNEXPLAINED workload unavailable under T3 schedule=H13 seed=1 trace=observe/H13-x3-v1-baseline-seed-1-rep-0002.jsonl
+````
+## experiments/X3/runs/armA-impl: mutations (non-kill lines and totals)
+````
+Mutation kills: 56/56 across 3 seed(s), 10 repetition(s)
+RUNNER-EXIT 0
+Mutation kills: 56/56 across 3 seed(s), 10 repetition(s)
+FAIL lines: 1680
+````
+## experiments/X3/runs/armA-impl: provenance totals
+registered: 0 untraceable; v5: 0
+## experiments/X3/runs/armA-impl: decision replay summary
+decision-replay: 1830 traces, 0 invalid, 0 UNEXPLAINED inputs
+EXIT 0
+## experiments/X3/runs/armR-impl: verdict counts per schedule (from schedules.txt; implementation lines are one per run)
+````
+````
+## experiments/X3/runs/armR-impl: mutations (non-kill lines and totals)
+````
+Decision replay diagnostics recorded in /home/tony/projects/tupay-x3-score/armR-impl/impl-regen/observe/batch-79.json
+RUNNER-EXIT 0
+FAIL lines: 1620
+````
+## experiments/X3/runs/armR-impl: provenance totals
+registered: 80 untraceable; v5: 0
+## experiments/X3/runs/armR-impl: decision replay summary
+decision-replay: 1890 traces, 0 invalid, 0 UNEXPLAINED inputs
+EXIT 0
+## experiments/X3/runs/armA-model: verdict counts per schedule (from schedules.txt; implementation lines are one per run)
+````
+      1 schedule=H10 PASS 
+      1 schedule=H11 PASS 
+      1 schedule=H12 PASS 
+      1 schedule=H13 PASS 
+      1 schedule=H14 PASS 
+      1 schedule=H7 PASS 
+      1 schedule=H8 PASS 
+      1 schedule=H9 PASS 
+      1 schedule=P1 PASS 
+      1 schedule=P10 PASS 
+      1 schedule=P11 PASS 
+      1 schedule=P12 PASS 
+      1 schedule=P13 PASS 
+      1 schedule=P14 PASS 
+      1 schedule=P15 PASS 
+      1 schedule=P16 PASS 
+      1 schedule=P17 PASS 
+      1 schedule=P18 PASS 
+      1 schedule=P19 PASS 
+      1 schedule=P2 PASS 
+      1 schedule=P20 PASS 
+      1 schedule=P21 PASS 
+      1 schedule=P22 PASS 
+      1 schedule=P23 PASS 
+      1 schedule=P24 PASS 
+      1 schedule=P25 PASS 
+      1 schedule=P26 PASS 
+      1 schedule=P27 PASS 
+      1 schedule=P28 PASS 
+      1 schedule=P29 PASS 
+      1 schedule=P3 PASS 
+      1 schedule=P30 PASS 
+      1 schedule=P31 PASS 
+      1 schedule=P32 PASS 
+      1 schedule=P33 PASS 
+      1 schedule=P4 PASS 
+      1 schedule=P40 PASS 
+      1 schedule=P41 PASS 
+      1 schedule=P42 PASS 
+      1 schedule=P43 PASS 
+      1 schedule=P44 PASS 
+      1 schedule=P45 PASS 
+      1 schedule=P46 PASS 
+      1 schedule=P47 PASS 
+      1 schedule=P48 PASS 
+      1 schedule=P49 PASS 
+      1 schedule=P5 PASS 
+      1 schedule=P50 PASS 
+      1 schedule=P51 PASS 
+      1 schedule=P52 PASS 
+      1 schedule=P53 PASS 
+      1 schedule=P54 PASS 
+      1 schedule=P58 PASS 
+      1 schedule=P59 PASS 
+      1 schedule=P6 PASS 
+      1 schedule=P60 PASS 
+      1 schedule=P61 PASS 
+      1 schedule=P62 PASS 
+      1 schedule=P63 PASS 
+      1 schedule=P7 PASS 
+      1 schedule=P8 PASS 
+      1 schedule=P9 PASS 
+      1 schedule=false-suspicion-v1 PASS 
+````
+## experiments/X3/runs/armA-model: mutations (non-kill lines and totals)
+````
+P49a mutation: PASS
+RUNNER-EXIT 0
+FAIL lines: 54
+````
+## experiments/X3/runs/armA-model: provenance totals
+registered: 4 untraceable; v5: 0
+## experiments/X3/runs/armA-model: decision replay summary
+decision-replay: 63 traces, 0 invalid, 0 UNEXPLAINED inputs
+EXIT 0
+## experiments/X3/runs/armR-model: verdict counts per schedule (from schedules.txt; implementation lines are one per run)
+````
+      1 schedule=H10 PASS 
+      1 schedule=H11 PASS 
+      1 schedule=H12 PASS 
+      1 schedule=H13 UNEXPLAINED model-error
+      1 schedule=H14 PASS 
+      1 schedule=H7 PASS 
+      1 schedule=H8 PASS 
+      1 schedule=H9 PASS 
+      1 schedule=P1 PASS 
+      1 schedule=P10 PASS 
+      1 schedule=P11 PASS 
+      1 schedule=P12 PASS 
+      1 schedule=P13 PASS 
+      1 schedule=P14 PASS 
+      1 schedule=P15 PASS 
+      1 schedule=P16 PASS 
+      1 schedule=P17 PASS 
+      1 schedule=P18 PASS 
+      1 schedule=P19 PASS 
+      1 schedule=P2 PASS 
+      1 schedule=P20 PASS 
+      1 schedule=P21 PASS 
+      1 schedule=P22 PASS 
+      1 schedule=P23 PASS 
+      1 schedule=P24 PASS 
+      1 schedule=P25 PASS 
+      1 schedule=P26 PASS 
+      1 schedule=P27 PASS 
+      1 schedule=P28 PASS 
+      1 schedule=P29 PASS 
+      1 schedule=P3 PASS 
+      1 schedule=P30 PASS 
+      1 schedule=P31 PASS 
+      1 schedule=P32 PASS 
+      1 schedule=P33 PASS 
+      1 schedule=P4 PASS 
+      1 schedule=P40 PASS 
+      1 schedule=P41 PASS 
+      1 schedule=P42 PASS 
+      1 schedule=P43 PASS 
+      1 schedule=P44 PASS 
+      1 schedule=P45 PASS 
+      1 schedule=P46 PASS 
+      1 schedule=P47 PASS 
+      1 schedule=P48 PASS 
+      1 schedule=P49 PASS 
+      1 schedule=P5 PASS 
+      1 schedule=P50 PASS 
+      1 schedule=P51 PASS 
+      1 schedule=P52 PASS 
+      1 schedule=P53 PASS 
+      1 schedule=P54 PASS 
+      1 schedule=P58 PASS 
+      1 schedule=P59 PASS 
+      1 schedule=P6 PASS 
+      1 schedule=P60 PASS 
+      1 schedule=P61 PASS 
+      1 schedule=P62 PASS 
+      1 schedule=P63 FAIL C3.4
+      1 schedule=P7 PASS 
+      1 schedule=P8 PASS 
+      1 schedule=P9 PASS 
+      1 schedule=false-suspicion-v1 PASS 
+````
+## experiments/X3/runs/armR-model: mutations (non-kill lines and totals)
+````
+P12 mutant: UNEXPLAINED end unreachable
+RUNNER-EXIT 0
+FAIL lines: 53
+````
+## experiments/X3/runs/armR-model: provenance totals
+registered: 4 untraceable; v5: 0
+## experiments/X3/runs/armR-model: decision replay summary
+decision-replay: 62 traces, 0 invalid, 0 UNEXPLAINED inputs
+EXIT 0

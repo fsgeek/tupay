@@ -1179,3 +1179,14 @@ Timer `tupay-backup.timer` runs at 11:15 UTC. `tupay-backup-check.timer` runs at
 
 ## 2026-11-03: correction: who pushed at 14:52Z (15:40Z)
 The previous entry recorded the 14:52:24Z push as made by someone unknown. **Tony made it.** VS Code's 19 connections to WSL had failed, though WSL itself had not, and he restarted the sessions by hand. Along the way he upgraded the OTS timestamps and pushed everything. The branch-protection message ("Changes must be made through a pull request") is bypassed by design: tupay has a single author for now, and a real PR would be theatre (Tony).
+
+## 2026-11-03: D2 scored; draft result; review by Qwen sent (16:18Z)
+**Context: 179.4k of 1M (18%), Tony's figure**, before scoring began.
+**Scored** by `scripts/steward/d2-score.py`, committed (`a41cc82`) before its first run. Every rule in its header comes from the design or from this log. Output: `experiments/D2/score/score.json`. Checked against Episode's own summary (F03 match E6; F07 partial E6; F08 partial E3): it agrees.
+Under both registered judges (Episode and Gemini): **D2-1 holds, D2-2 holds (F03 → E6, Claude N; all three judges), D2-3 does not, D2-4 holds (4 of 7, exactly), D2-5 does not. P0-4 holds.** R04 and R13 (Grok Recognised lines → E2) are leakage flags under the registered rule; Episode calls them general knowledge. D2-2 does not rest on Grok's enumerations. GLM beside: D2-4 does not hold (3 of 7), and the others are the same as the registered result. The `cells-2` repair beside changes no outcome.
+**Draft** `experiments/D2-result.md`, with readings beside the score:
+- D2-1 holds by the env/own construction of the denominator. On the four environment-contract bugs it does not hold.
+- Enumeration named all four environment contracts, but the one unanimous match came from a condition N author, on an own-rule bug.
+- Four findings (F01, F02, F09, and F07 against the sealed E6 note) are possible defects beyond the sealed analysis, unverified, awaiting Episode's second looks.
+
+**Reviewer:** `qwen/qwen3.8-max-prime` through OpenRouter. It is a family new to tupay; no Qwen has appeared in the log. D2's other families are excluded: Codex and Grok were authors, Gemini and GLM judges, and DeepSeek and Kimi have already had X3 roles. One call, no tools. The packet is built by `scripts/steward/d2-review.py` by stated rules (248,575 characters, sha256 prefix `d27233d23831399f`), and the draft goes in it unchanged. No reading is published before its findings are disposed of here.

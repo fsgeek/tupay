@@ -1,0 +1,741 @@
+{
+ "registered": [
+  {
+   "judge": "episode",
+   "beside_repair": false,
+   "cells_missing_packets": [],
+   "bugs_named_by_cells": [
+    "E2",
+    "E3",
+    "E4",
+    "E5"
+   ],
+   "D2-1[seven]": {
+    "comment": [
+     3,
+     4
+    ],
+    "no_comment": [
+     1,
+     3
+    ],
+    "holds": true
+   },
+   "D2-4[seven]": {
+    "named": 4,
+    "of": 7,
+    "need": 4,
+    "holds": true
+   },
+   "D2-1[env4]": {
+    "comment": [
+     3,
+     3
+    ],
+    "no_comment": [
+     1,
+     1
+    ],
+    "holds": false
+   },
+   "D2-4[env4]": {
+    "named": 4,
+    "of": 4,
+    "need": 3,
+    "holds": true
+   },
+   "per_author": {
+    "model-c-claude": {
+     "scored": 2,
+     "match": 0,
+     "match_or_partial": 0,
+     "flagged_confirmed_property": 0,
+     "bugs_match": [],
+     "bugs_reach": [],
+     "precision_match": "0/2",
+     "precision_match_or_partial": "0/2"
+    },
+    "model-n-claude": {
+     "scored": 3,
+     "match": 1,
+     "match_or_partial": 2,
+     "flagged_confirmed_property": 0,
+     "bugs_match": [
+      "E6"
+     ],
+     "bugs_reach": [
+      "E6"
+     ],
+     "precision_match": "1/3",
+     "precision_match_or_partial": "2/3"
+    },
+    "model-c-grok": {
+     "scored": 5,
+     "match": 0,
+     "match_or_partial": 1,
+     "flagged_confirmed_property": 0,
+     "bugs_match": [],
+     "bugs_reach": [
+      "E3"
+     ],
+     "precision_match": "0/5",
+     "precision_match_or_partial": "1/5"
+    },
+    "model-n-grok": {
+     "scored": 0,
+     "match": 0,
+     "match_or_partial": 0,
+     "flagged_confirmed_property": 0,
+     "bugs_match": [],
+     "bugs_reach": [],
+     "precision_match": "0/0",
+     "precision_match_or_partial": "0/0"
+    }
+   },
+   "rows_found_by_reading": [
+    {
+     "row": "R04",
+     "kind": "recognised",
+     "enumerator": "grok-2",
+     "bugs": [
+      "E2"
+     ]
+    },
+    {
+     "row": "R13",
+     "kind": "recognised",
+     "enumerator": "grok-1",
+     "bugs": [
+      "E2"
+     ]
+    }
+   ],
+   "leakage_flags": [
+    {
+     "row": "R04",
+     "enumerator": "grok-2",
+     "bugs": [
+      "E2"
+     ]
+    },
+    {
+     "row": "R13",
+     "enumerator": "grok-1",
+     "bugs": [
+      "E2"
+     ]
+    }
+   ],
+   "P0-4": {
+    "holds": true,
+    "recognised_rows_matching": [
+     {
+      "row": "R04",
+      "enumerator": "grok-2",
+      "bugs": [
+       "E2"
+      ]
+     },
+     {
+      "row": "R13",
+      "enumerator": "grok-1",
+      "bugs": [
+       "E2"
+      ]
+     }
+    ]
+   },
+   "D2-2": {
+    "holds": true,
+    "voided_for_families_with_leakage": [
+     "grok"
+    ]
+   },
+   "D2-2g": {
+    "holds": false
+   },
+   "D2-3": {
+    "claude": {
+     "C": 0,
+     "N": 1,
+     "holds": false
+    },
+    "grok": {
+     "C": 1,
+     "N": 0,
+     "holds": true
+    },
+    "holds": false
+   },
+   "D2-5": {
+    "claude_C": 0,
+    "grok_C": 1,
+    "holds": false
+   }
+  },
+  {
+   "judge": "gemini",
+   "beside_repair": false,
+   "cells_missing_packets": [
+    "cells-2"
+   ],
+   "bugs_named_by_cells": [
+    "E2",
+    "E3",
+    "E4",
+    "E5"
+   ],
+   "D2-1[seven]": {
+    "comment": [
+     3,
+     4
+    ],
+    "no_comment": [
+     1,
+     3
+    ],
+    "holds": true
+   },
+   "D2-4[seven]": {
+    "named": 4,
+    "of": 7,
+    "need": 4,
+    "holds": true
+   },
+   "D2-1[env4]": {
+    "comment": [
+     3,
+     3
+    ],
+    "no_comment": [
+     1,
+     1
+    ],
+    "holds": false
+   },
+   "D2-4[env4]": {
+    "named": 4,
+    "of": 4,
+    "need": 3,
+    "holds": true
+   },
+   "per_author": {
+    "model-c-claude": {
+     "scored": 2,
+     "match": 0,
+     "match_or_partial": 1,
+     "flagged_confirmed_property": 0,
+     "bugs_match": [],
+     "bugs_reach": [
+      "E2"
+     ],
+     "precision_match": "0/2",
+     "precision_match_or_partial": "1/2"
+    },
+    "model-n-claude": {
+     "scored": 3,
+     "match": 1,
+     "match_or_partial": 2,
+     "flagged_confirmed_property": 0,
+     "bugs_match": [
+      "E6"
+     ],
+     "bugs_reach": [
+      "E6"
+     ],
+     "precision_match": "1/3",
+     "precision_match_or_partial": "2/3"
+    },
+    "model-c-grok": {
+     "scored": 5,
+     "match": 2,
+     "match_or_partial": 2,
+     "flagged_confirmed_property": 0,
+     "bugs_match": [
+      "E2",
+      "E3"
+     ],
+     "bugs_reach": [
+      "E2",
+      "E3"
+     ],
+     "precision_match": "2/5",
+     "precision_match_or_partial": "2/5"
+    },
+    "model-n-grok": {
+     "scored": 0,
+     "match": 0,
+     "match_or_partial": 0,
+     "flagged_confirmed_property": 0,
+     "bugs_match": [],
+     "bugs_reach": [],
+     "precision_match": "0/0",
+     "precision_match_or_partial": "0/0"
+    }
+   },
+   "rows_found_by_reading": [
+    {
+     "row": "R04",
+     "kind": "recognised",
+     "enumerator": "grok-2",
+     "bugs": [
+      "E2"
+     ]
+    },
+    {
+     "row": "R13",
+     "kind": "recognised",
+     "enumerator": "grok-1",
+     "bugs": [
+      "E2"
+     ]
+    }
+   ],
+   "leakage_flags": [
+    {
+     "row": "R04",
+     "enumerator": "grok-2",
+     "bugs": [
+      "E2"
+     ]
+    },
+    {
+     "row": "R13",
+     "enumerator": "grok-1",
+     "bugs": [
+      "E2"
+     ]
+    }
+   ],
+   "P0-4": {
+    "holds": true,
+    "recognised_rows_matching": [
+     {
+      "row": "R04",
+      "enumerator": "grok-2",
+      "bugs": [
+       "E2"
+      ]
+     },
+     {
+      "row": "R13",
+      "enumerator": "grok-1",
+      "bugs": [
+       "E2"
+      ]
+     }
+    ]
+   },
+   "D2-2": {
+    "holds": true,
+    "voided_for_families_with_leakage": [
+     "grok"
+    ]
+   },
+   "D2-2g": {
+    "holds": true
+   },
+   "D2-3": {
+    "claude": {
+     "C": 1,
+     "N": 1,
+     "holds": false
+    },
+    "grok": {
+     "C": 2,
+     "N": 0,
+     "holds": true
+    },
+    "holds": false
+   },
+   "D2-5": {
+    "claude_C": 1,
+    "grok_C": 2,
+    "holds": false
+   }
+  }
+ ],
+ "beside": [
+  {
+   "judge": "gemini",
+   "beside_repair": true,
+   "cells_missing_packets": [],
+   "bugs_named_by_cells": [
+    "E2",
+    "E3",
+    "E4",
+    "E5"
+   ],
+   "D2-1[seven]": {
+    "comment": [
+     3,
+     4
+    ],
+    "no_comment": [
+     1,
+     3
+    ],
+    "holds": true
+   },
+   "D2-4[seven]": {
+    "named": 4,
+    "of": 7,
+    "need": 4,
+    "holds": true
+   },
+   "D2-1[env4]": {
+    "comment": [
+     3,
+     3
+    ],
+    "no_comment": [
+     1,
+     1
+    ],
+    "holds": false
+   },
+   "D2-4[env4]": {
+    "named": 4,
+    "of": 4,
+    "need": 3,
+    "holds": true
+   },
+   "per_author": {
+    "model-c-claude": {
+     "scored": 2,
+     "match": 0,
+     "match_or_partial": 1,
+     "flagged_confirmed_property": 0,
+     "bugs_match": [],
+     "bugs_reach": [
+      "E2"
+     ],
+     "precision_match": "0/2",
+     "precision_match_or_partial": "1/2"
+    },
+    "model-n-claude": {
+     "scored": 3,
+     "match": 1,
+     "match_or_partial": 2,
+     "flagged_confirmed_property": 0,
+     "bugs_match": [
+      "E6"
+     ],
+     "bugs_reach": [
+      "E6"
+     ],
+     "precision_match": "1/3",
+     "precision_match_or_partial": "2/3"
+    },
+    "model-c-grok": {
+     "scored": 5,
+     "match": 2,
+     "match_or_partial": 2,
+     "flagged_confirmed_property": 0,
+     "bugs_match": [
+      "E2",
+      "E3"
+     ],
+     "bugs_reach": [
+      "E2",
+      "E3"
+     ],
+     "precision_match": "2/5",
+     "precision_match_or_partial": "2/5"
+    },
+    "model-n-grok": {
+     "scored": 0,
+     "match": 0,
+     "match_or_partial": 0,
+     "flagged_confirmed_property": 0,
+     "bugs_match": [],
+     "bugs_reach": [],
+     "precision_match": "0/0",
+     "precision_match_or_partial": "0/0"
+    }
+   },
+   "rows_found_by_reading": [
+    {
+     "row": "R04",
+     "kind": "recognised",
+     "enumerator": "grok-2",
+     "bugs": [
+      "E2"
+     ]
+    },
+    {
+     "row": "R13",
+     "kind": "recognised",
+     "enumerator": "grok-1",
+     "bugs": [
+      "E2"
+     ]
+    }
+   ],
+   "leakage_flags": [
+    {
+     "row": "R04",
+     "enumerator": "grok-2",
+     "bugs": [
+      "E2"
+     ]
+    },
+    {
+     "row": "R13",
+     "enumerator": "grok-1",
+     "bugs": [
+      "E2"
+     ]
+    }
+   ],
+   "P0-4": {
+    "holds": true,
+    "recognised_rows_matching": [
+     {
+      "row": "R04",
+      "enumerator": "grok-2",
+      "bugs": [
+       "E2"
+      ]
+     },
+     {
+      "row": "R13",
+      "enumerator": "grok-1",
+      "bugs": [
+       "E2"
+      ]
+     }
+    ]
+   },
+   "D2-2": {
+    "holds": true,
+    "voided_for_families_with_leakage": [
+     "grok"
+    ]
+   },
+   "D2-2g": {
+    "holds": true
+   },
+   "D2-3": {
+    "claude": {
+     "C": 1,
+     "N": 1,
+     "holds": false
+    },
+    "grok": {
+     "C": 2,
+     "N": 0,
+     "holds": true
+    },
+    "holds": false
+   },
+   "D2-5": {
+    "claude_C": 1,
+    "grok_C": 2,
+    "holds": false
+   }
+  },
+  {
+   "judge": "glm",
+   "beside_repair": false,
+   "cells_missing_packets": [],
+   "bugs_named_by_cells": [
+    "E2",
+    "E3",
+    "E4"
+   ],
+   "D2-1[seven]": {
+    "comment": [
+     2,
+     4
+    ],
+    "no_comment": [
+     1,
+     3
+    ],
+    "holds": true
+   },
+   "D2-4[seven]": {
+    "named": 3,
+    "of": 7,
+    "need": 4,
+    "holds": false
+   },
+   "D2-1[env4]": {
+    "comment": [
+     2,
+     3
+    ],
+    "no_comment": [
+     1,
+     1
+    ],
+    "holds": false
+   },
+   "D2-4[env4]": {
+    "named": 3,
+    "of": 4,
+    "need": 3,
+    "holds": true
+   },
+   "per_author": {
+    "model-c-claude": {
+     "scored": 2,
+     "match": 0,
+     "match_or_partial": 0,
+     "flagged_confirmed_property": 0,
+     "bugs_match": [],
+     "bugs_reach": [],
+     "precision_match": "0/2",
+     "precision_match_or_partial": "0/2"
+    },
+    "model-n-claude": {
+     "scored": 3,
+     "match": 1,
+     "match_or_partial": 1,
+     "flagged_confirmed_property": 0,
+     "bugs_match": [
+      "E6"
+     ],
+     "bugs_reach": [
+      "E6"
+     ],
+     "precision_match": "1/3",
+     "precision_match_or_partial": "1/3"
+    },
+    "model-c-grok": {
+     "scored": 5,
+     "match": 0,
+     "match_or_partial": 0,
+     "flagged_confirmed_property": 0,
+     "bugs_match": [],
+     "bugs_reach": [],
+     "precision_match": "0/5",
+     "precision_match_or_partial": "0/5"
+    },
+    "model-n-grok": {
+     "scored": 0,
+     "match": 0,
+     "match_or_partial": 0,
+     "flagged_confirmed_property": 0,
+     "bugs_match": [],
+     "bugs_reach": [],
+     "precision_match": "0/0",
+     "precision_match_or_partial": "0/0"
+    }
+   },
+   "rows_found_by_reading": [
+    {
+     "row": "R04",
+     "kind": "recognised",
+     "enumerator": "grok-2",
+     "bugs": [
+      "E2"
+     ]
+    },
+    {
+     "row": "R13",
+     "kind": "recognised",
+     "enumerator": "grok-1",
+     "bugs": [
+      "E2"
+     ]
+    }
+   ],
+   "leakage_flags": [
+    {
+     "row": "R04",
+     "enumerator": "grok-2",
+     "bugs": [
+      "E2"
+     ]
+    },
+    {
+     "row": "R13",
+     "enumerator": "grok-1",
+     "bugs": [
+      "E2"
+     ]
+    }
+   ],
+   "P0-4": {
+    "holds": true,
+    "recognised_rows_matching": [
+     {
+      "row": "R04",
+      "enumerator": "grok-2",
+      "bugs": [
+       "E2"
+      ]
+     },
+     {
+      "row": "R13",
+      "enumerator": "grok-1",
+      "bugs": [
+       "E2"
+      ]
+     }
+    ]
+   },
+   "D2-2": {
+    "holds": true,
+    "voided_for_families_with_leakage": [
+     "grok"
+    ]
+   },
+   "D2-2g": {
+    "holds": false
+   },
+   "D2-3": {
+    "claude": {
+     "C": 0,
+     "N": 1,
+     "holds": false
+    },
+    "grok": {
+     "C": 0,
+     "N": 0,
+     "holds": false
+    },
+    "holds": false
+   },
+   "D2-5": {
+    "claude_C": 0,
+    "grok_C": 0,
+    "holds": false
+   }
+  }
+ ],
+ "verdict": {
+  "D2-1[seven]": {
+   "episode": true,
+   "gemini": true,
+   "holds_under_both": true
+  },
+  "D2-2": {
+   "episode": true,
+   "gemini": true,
+   "holds_under_both": true
+  },
+  "D2-3": {
+   "episode": false,
+   "gemini": false,
+   "holds_under_both": false
+  },
+  "D2-4[seven]": {
+   "episode": true,
+   "gemini": true,
+   "holds_under_both": true
+  },
+  "D2-5": {
+   "episode": false,
+   "gemini": false,
+   "holds_under_both": false
+  },
+  "P0-4": {
+   "episode": true,
+   "gemini": true,
+   "holds_under_both": true
+  }
+ }
+}

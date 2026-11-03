@@ -31,6 +31,19 @@ P0-4  (phase 0, judged here) at least one Recognised row names a sealed bug.
 Precision per author: findings judged match, and match or partial, over scored findings; both
 are reported, neither is chosen as primary (the design says "matched").
 A finding matching several bugs counts for each (design).
+
+v2 (2026-11-03, after Qwen's review, experiments/D2/review/qwen; v1 output kept as score/score.json):
+- A missing ruling is not a negative ruling (review 1). Gemini has no registered cells-2 ruling, so
+  for D2-1 and D2-4 every possible set of bugs cells-2 might have named is tried; a prediction
+  is "holds" or "does not hold" under Gemini only if every possibility agrees, else "undetermined",
+  and "holds under both" needs a determined hold.
+- The leakage void is applied (reviews 2, 3). The registration says a Recognised-line match "voids
+  D2-2 for that family's lists" / "enumerations" without saying which findings that removes. This
+  version takes the widest reading, chosen after the outcome was seen and stated as such: remove the
+  findings of every author whose inputs include that family's enumerations (all condition C
+  authors) and of that family's own authors. The narrower readings give the same D2-2 outcome
+  (reported). D2-2g is entered in the verdict.
+- Judge disagreements are listed (review 5).
 """
 import json, sys
 from pathlib import Path
@@ -87,15 +100,27 @@ def score(judge, mapping, beside_repair=False):
     named, missing = cells_named(judge, beside_repair)
     out["cells_missing_packets"] = missing
     out["bugs_named_by_cells"] = sorted(named)
+    # every set of bugs the missing packets might have named (only the empty set if none is missing)
+    from itertools import combinations
+    extras = [set()] if not missing else [set(c) for r in range(len(ALL7) + 1) for c in combinations(ALL7, r)]
+    def decide(vals):
+        vals = set(vals)
+        return True if vals == {True} else False if vals == {False} else "undetermined"
     for label, den in (("seven", ALL7), ("env4", ENV4)):
         c = [b for b in den if b in COMMENT]
         n = [b for b in den if b not in COMMENT]
-        fc, fn = frac(c, named), frac(n, named)
-        d21 = (fc[0] / fc[1]) > (fn[0] / fn[1]) if fc[1] and fn[1] else None
-        k = sum(b in named for b in den)
         need = 4 if len(den) >= 5 else len(den) - 1
-        out[f"D2-1[{label}]"] = {"comment": fc, "no_comment": fn, "holds": d21}
-        out[f"D2-4[{label}]"] = {"named": k, "of": len(den), "need": need, "holds": k >= need}
+        d21s, d24s = [], []
+        for x in extras:
+            nm = named | x
+            fc, fn = frac(c, nm), frac(n, nm)
+            d21s.append((fc[0] / fc[1]) > (fn[0] / fn[1]))
+            d24s.append(sum(b in nm for b in den) >= need)
+        fc, fn = frac(c, named), frac(n, named)
+        out[f"D2-1[{label}]"] = {"comment": fc, "no_comment": fn, "holds": decide(d21s),
+                                 "note": "ruled packets only" if missing else ""}
+        out[f"D2-4[{label}]"] = {"named": sum(b in named for b in den), "of": len(den), "need": need,
+                                 "holds": decide(d24s), "note": "ruled packets only" if missing else ""}
     # findings
     fr = {f["id"]: f for f in ruling(judge, "findings")}
     per = {a: {"scored": 0, "match": 0, "match_or_partial": 0, "bugs_match": set(), "bugs_reach": set(),
@@ -137,8 +162,17 @@ def score(judge, mapping, beside_repair=False):
     fam = lambda a: a.split("-")[-1]
     def any_match(authors):
         return any(per[a]["match"] > 0 for a in authors)
-    out["D2-2"] = {"holds": any_match(AUTHORS), "voided_for_families_with_leakage": sorted(leak_fams)}
-    out["D2-2g"] = {"holds": any_match(["model-c-grok", "model-n-grok"])}
+    voided = set()
+    for f in leak_fams:
+        voided |= {"model-c-claude", "model-c-grok"}            # authors whose inputs include the family's enumerations
+        voided |= {a for a in AUTHORS if a.endswith("-" + f)}   # the family's own authors
+    live = [a for a in AUTHORS if a not in voided]
+    out["D2-2"] = {"holds": any_match(live), "voided_authors": sorted(voided),
+                   "without_void": any_match(AUTHORS),
+                   "narrow_reading_C_only": any_match([a for a in AUTHORS if not a.startswith("model-c")]),
+                   "narrow_reading_family_only": any_match([a for a in AUTHORS if not any(a.endswith("-" + f) for f in leak_fams)])}
+    g = [a for a in ("model-c-grok", "model-n-grok") if a not in voided]
+    out["D2-2g"] = {"holds": (any_match(g) if g else "void"), "without_void": any_match(["model-c-grok", "model-n-grok"])}
     d23 = {}
     for f in ("claude", "grok"):
         c, n = len(per[f"model-c-{f}"]["bugs_reach"]), len(per[f"model-n-{f}"]["bugs_reach"])
@@ -149,16 +183,37 @@ def score(judge, mapping, beside_repair=False):
     return out
 
 
+def disagreements():
+    """Every id on which the registered judges differ (Episode vs Gemini), with GLM beside."""
+    out = []
+    for pk, key, field in [("findings", "findings", None), ("cells-1", "cells", "names_contract_of"),
+                           ("cells-2", "cells", "names_contract_of"), ("cells-3", "cells", "names_contract_of"),
+                           ("rows", "rows", "matches")]:
+        e = {x["id"]: x for x in ruling("episode", pk)}
+        gr = ruling("gemini", pk)
+        g = {x["id"]: x for x in gr} if gr is not None else {}
+        l = {x["id"]: x for x in ruling("glm", pk)}
+        val = (lambda x: (x["ruling"], sorted(x.get("bugs") or []))) if field is None else (lambda x: sorted(x.get(field) or []))
+        for i in sorted(e):
+            ev, gv = val(e[i]), (val(g[i]) if i in g else "no ruling")
+            lv = val(l[i]) if i in l else "no ruling"
+            if ev != gv or ev != lv:
+                out.append({"packet": pk, "id": i, "episode": ev, "gemini": gv, "glm": lv,
+                            "registered_disagree": ev != gv})
+    return out
+
+
 def main():
     mapping = load(ROOT / "mapping.json")
     res = {"registered": [score("episode", mapping), score("gemini", mapping)],
            "beside": [score("gemini", mapping, beside_repair=True), score("glm", mapping)]}
-    preds = ["D2-1[seven]", "D2-2", "D2-3", "D2-4[seven]", "D2-5", "P0-4"]
+    preds = ["D2-1[seven]", "D2-2", "D2-2g", "D2-3", "D2-4[seven]", "D2-5", "P0-4"]
     verdict = {}
     for p in preds:
         e, g = (r[p]["holds"] for r in res["registered"])
-        verdict[p] = {"episode": e, "gemini": g, "holds_under_both": bool(e and g)}
+        verdict[p] = {"episode": e, "gemini": g, "holds_under_both": (e is True and g is True)}
     res["verdict"] = verdict
+    res["disagreements"] = disagreements()
     json.dump(res, sys.stdout, indent=1, default=sorted)
     print()
 

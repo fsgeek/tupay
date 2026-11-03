@@ -1190,3 +1190,19 @@ Under both registered judges (Episode and Gemini): **D2-1 holds, D2-2 holds (F03
 - Four findings (F01, F02, F09, and F07 against the sealed E6 note) are possible defects beyond the sealed analysis, unverified, awaiting Episode's second looks.
 
 **Reviewer:** `qwen/qwen3.8-max-prime` through OpenRouter. It is a family new to tupay; no Qwen has appeared in the log. D2's other families are excluded: Codex and Grok were authors, Gemini and GLM judges, and DeepSeek and Kimi have already had X3 roles. One call, no tools. The packet is built by `scripts/steward/d2-review.py` by stated rules (248,575 characters, sha256 prefix `d27233d23831399f`), and the draft goes in it unchanged. No reading is published before its findings are disposed of here.
+
+## 2026-11-03: Qwen's review of D2's scoring disposed; D2-1 no longer holds; D2 final (16:30Z)
+Qwen (`qwen/qwen3.8-max-prime`, US$0.89) returned 13 findings. **All are accepted** (`experiments/D2/review/qwen/DISPOSITIONS.md`).
+**Blocking (1):** v1 of the scorer counted Gemini's missing `cells-2` ruling as "names nothing", a rule the registration does not contain. v2 tries every ruling `cells-2` could have given. D2-4 holds under Gemini whatever `cells-2` says. **D2-1 is undetermined under Gemini, so it no longer holds under both: its registered result changes from "holds" to "not established".**
+**(2, 3):** the leakage void is now applied, under the widest reading (all condition C authors and Grok's own). That reading was chosen after the outcome was seen and is stated as such. D2-2 holds under every reading, and D2-2g is void.
+**(4 to 13):** the result now records Episode's sealed prediction status, the judges' disagreements (3 findings and 7 cells, besides the 37 unruled), GLM's precision, that Grok N's TLC ran (an honest-environment failure, 0 findings), citations, narrower readings 1 and 2, and D2-5's confounds.
+**Final registered result:**
+- D2-1 not established
+- **D2-2 holds** (F03 → E6, Claude condition N, all three judges)
+- D2-2g void
+- D2-3 does not hold
+- **D2-4 holds**
+- D2-5 does not hold
+- P0-4 holds
+
+`experiments/D2-result.md` is final. **Owed to Episode:** its second looks (F07, F06, F01, F02, F04, F09, R20, R47) and its formal score of its sealed prediction. Both are reported when they arrive.

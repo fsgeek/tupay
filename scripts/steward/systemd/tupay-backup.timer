@@ -1,0 +1,10 @@
+[Unit]
+Description=Nightly tupay backup to wam-nuc (tupay scripts/steward/backup.sh)
+
+[Timer]
+OnCalendar=*-*-* 11:15:00 UTC
+Persistent=true
+RandomizedDelaySec=10m
+
+[Install]
+WantedBy=timers.target

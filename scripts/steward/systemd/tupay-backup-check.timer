@@ -1,0 +1,9 @@
+[Unit]
+Description=Daily freshness check of the tupay backup
+
+[Timer]
+OnCalendar=*-*-* 14:00:00 UTC
+Persistent=true
+
+[Install]
+WantedBy=timers.target

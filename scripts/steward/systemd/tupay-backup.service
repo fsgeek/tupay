@@ -1,0 +1,8 @@
+[Unit]
+Description=tupay: nightly backup of the unpushed repository, tupay-private and author homes (no credentials) to wam-nuc
+After=network-online.target
+OnFailure=tupay-backup-alert@%n.service
+
+[Service]
+Type=oneshot
+ExecStart=/home/tony/projects/tupay/scripts/steward/backup.sh

@@ -1,0 +1,6 @@
+[Unit]
+Description=tupay: post a backup failure (%i) to the plaza
+
+[Service]
+Type=oneshot
+ExecStart=/home/tony/projects/tupay/scripts/steward/backup-alert.sh %i

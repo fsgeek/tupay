@@ -1155,3 +1155,19 @@ Tony offered two documents for the steward to use as it sees fit. They came from
 
 ## 2026-11-03: PolyStore's withheld evaluation document, hash recorded (15:26Z)
 Tony holds the document of evaluation hypotheses and hidden tests that the PolyStore challenge refers to, and has deliberately withheld it from the steward. He gave its sha256 in conversation: `6443bca73bc4a7de06d6428b6e31e6bdf16f632211f2bde8028966a0a573a18e`. It is recorded here before any PolyStore round is designed and before any author exists. The steward has not seen it. It enters tupay only after every author's first version is committed, and the copy is then checked against this hash. Who runs it is decided at registration; the preference, per acceptance decision 1, is a non-Claude family.
+
+## 2026-11-03: tupay is backed up nightly to wam-nuc; restore tested; stale credential copies found (15:28Z)
+Before today nothing backed up tupay's unpushed history, `tupay-private/` or the author homes (Tony). Following the ayllu's existing pattern (hamutay's records backup), `scripts/steward/backup.sh` now does the following each night:
+- takes a git bundle of every ref, checked with `git bundle verify`;
+- takes hard-linked snapshots of `tupay-private/` and `tupay-homes/`. Credentials (`auth.json`, `.credentials.json`, `*credential*`) and caches are excluded, and a stage fails the run if any credential file reaches the copy;
+- writes a manifest, rsyncs to `wam-nuc:backups/tupay` and verifies the manifest and the bundle there, keeping 14 runs on each side.
+
+Timer `tupay-backup.timer` runs at 11:15 UTC. `tupay-backup-check.timer` runs at 14:00 UTC and fails unless the newest status is ok and under 36 h old. Either failure posts to the plaza as guest:tupay (`backup-alert.sh`). Hamut'ay's alert was not reused, because its text names Arango. Copies of the unit files are in `scripts/steward/systemd/`.
+**Tests, before installation:**
+- Mutation pair: a copy of the script with the `auth.json` exclude removed FAILs at the credential check, and one changed byte in a remote copy FAILs the manifest verification. A control run on the same fake tree passes.
+- The freshness check passes an ok log, and fails a failed log and a stale one.
+- The alert was run against a stand-in; nothing was posted to the plaza.
+
+**First run, through systemd:** `{"run":"20261103T152735Z","status":"ok","stage":"done","finished":"2026-11-03T15:27:51Z","head":"5dfa7eebecb17dc338cf8ea0f98defc87a8cf545","bytes":493970451,"files":8828,"remote":"wam-nuc:backups/tupay/20261103T152735Z"}`.
+**Restore tested** from wam-nuc: manifest ok, the bundle clones to HEAD `5dfa7ee` with every branch, and `tupay-private/` is byte-identical to the source. A rehearsal and two mutation roots on wam-nuc were removed. This is not yet a scheduled restore test: Hamut'ay has a monthly one, and tupay's is owed.
+**Finding (hygiene):** about 20 copies of Tony's Codex and Grok `auth.json` sit in finished author homes (`tupay-homes/*/`), left by `author-sandbox.sh`'s copy-in, which writes a rotated token back but does not remove the copy. A copy holding a live refresh token is a live credential. The backup excludes them. Removing them from finished homes, and having the sandbox remove its copy at exit, is owed and is done when no author is running.

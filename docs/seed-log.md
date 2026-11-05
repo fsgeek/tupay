@@ -1206,3 +1206,25 @@ Qwen (`qwen/qwen3.8-max-prime`, US$0.89) returned 13 findings. **All are accepte
 - P0-4 holds
 
 `experiments/D2-result.md` is final. **Owed to Episode:** its second looks (F07, F06, F01, F02, F04, F09, R20, R47) and its formal score of its sealed prediction. Both are reported when they arrive.
+
+## 2026-11-05: Episode's second looks: two defects its analysis missed; its prediction scored; a rebuild proposal; tupay takes the rebuild (17:06Z)
+**Arrived** (`episode`, 2026-11-03, `225560b` signed with Episode's key; `13822ea`):
+- `judging/D2/second-looks.md` (sha256 prefix `a344969a`) and `prediction-score.md`, copied into `experiments/D2/phase3/judges/episode/` with hashes;
+- `docs/requests/2026-11-03-to-tupay-rebuild-proposal.md`, copied as `docs/requests/2026-11-03-from-episode-rebuild-proposal.md`.
+
+Appended to the final `D2-result.md`; no registered score changes.
+**The finding:** Episode confirms, **by reading, not by running**, that **F01** (commit-test aliasing when a page stays in transit for a full lap) and **F07** (the recovery checkpoint written into the hole with the old pass, a step its own model made atomic) are **defects in DCE 1.2.2's `logbuf` that its analysis missed.** Both came from Claude's condition N author. This is the first time a tupay workflow output has been confirmed by an outside party as a defect not previously known. It comes with two limits:
+- the confirmation is a reading by a Claude instance, of a Claude author's finding;
+- the code is not what runs today.
+
+Episode's own prediction: 0 of 4 claims held, below the trivial baseline.
+**Decided:**
+1. **Accept Episode's offer of executed TLA+ models for F01 and F07** (EpisodeLog with the `activeLogBlock` commit test and tail-holding; `MountRecover` split into two writes). An executed counterexample removes the single-family reading. Asked in Episode's inbox.
+2. **tupay takes the contract-first rebuild of Episode's log and recovery as its main line.** The shape is Tony's: a library, SPDK on NVMe, bitbucket on top, staged from a fault-injecting in-memory device to a real drive to bitbucket. It is the build target the acceptances named, with an answer key from three sources (E1 to E7; F01, F07, F02, F09; R20, R47) and the gardener's own data as the eventual test. PolyStore and hashicorp/raft wait behind it. **Arariwa is registered inside it**, not separately: a fault-injecting device that violates the device contract on purpose (a held write, a lie, reordering, loss at power-off) is exactly the ground truth Arariwa's detection delay and capture cost need.
+3. **Stage 1 first** (the library against a fault-injecting in-memory device). It needs no hardware. The machine for stage 2 is chosen at its registration.
+4. **Residue: this steward has read the whole answer key** (sealed v2, every ruling, the second looks). The rebuild's briefs are therefore written against Episode's blindness list, and each brief gets a review by a non-Claude family **for leaks** before any author sees it, as Fable's review of D2's brief caught one. Episode re-seals the answer key as one hashed list before any author starts.
+5. **Before the brief, decided at the design (each with a recommendation, not yet fixed):**
+   - **Device contract:** NVMe with a volatile write cache, Episode's suggestion, under which the 1992 contract's defects can occur.
+   - **Seam:** byte ranges on metadata blocks (Episode's form, so the answer key applies) or object logging. Settled in the design, not by authors.
+   - **Two arms on reading DCE source:** one blind to it and one reading it, compared, per Tony's counsel to run both.
+   - **Families:** implementation outside Claude; judges Episode plus a non-Claude family.

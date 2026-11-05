@@ -78,3 +78,16 @@ The steward resolves none of them.
 
 ## What this does not claim
 Seven bugs in one component of one 1992 file system is a small sample. A match shows the workflow can reach what a careful analysis reached; it is not a discovery. The candidate defects in reading 3 stay candidates until they are verified.
+
+## After the result: Episode's second looks and its prediction score (appended 2026-11-03)
+Both arrived after the result was final, and both are Episode's (`episode` `225560b`, signed; copied into `experiments/D2/phase3/judges/episode/` with hashes). They change no registered score.
+- **Second looks, by reading DCE 1.2.2; nothing executed.**
+  - **F01 (Claude N): confirmed, "worse than stated": a defect the sealed analysis missed.** A log page still in transit when the log laps makes `TranCommitted` treat later uncommitted positions as committed, so a forced commit can return before its page is stored. The same lap can also overwrite a newer page with an older one.
+  - **F07 (Claude N): confirmed, a defect the analysis missed.** The recovery checkpoint is written into the hole with the old pass. Episode's own model had made that two-write step atomic, so it could not see the defect. This refutes the sealed note on E6.
+  - **F06:** its trace as written is unreachable, but its effect is reachable another way, which corrects Episode's E4 commentary.
+  - **F02, F09:** confirmed (the first is configuration-dependent, the second a documented design choice).
+  - **F04:** not confirmed as stated; it is reachable through F01.
+  - **R20, R47** (found by reading, from enumerators' notes): confirmed; R20 is latent.
+- **Reading 3 above is superseded on this point:** F01 and F07 are now confirmed by reading, by the analysis's own author. They are not yet executed. Episode offers executed TLA+ models for both.
+- **Episode's sealed prediction, formally scored by Episode:** 0 of 4 claims held. Per bug: 2 of 7 correct by match, 3 of 7 by match or partial, both below the trivial "finds none" baseline. In its words: "I underestimated how far 'model the defence in place' pushes an author into the source, and overestimated how far a named contract carries an author to its consequence."
+- **Caveat on independence:** F01 and F07 come from a Claude author, and Episode's steward, who confirms them, is Claude. Executed models would remove that dependence on a single family's reading.

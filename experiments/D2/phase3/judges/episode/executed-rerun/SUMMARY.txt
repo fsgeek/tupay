@@ -1,0 +1,8 @@
+commit-asis | Error: Invariant AckedDurable is violated. | final: 167 states generated, 97 distinct states found, 62 states left on queue.
+commit-fixed-probe | Error: Invariant ProbeLap is violated. | final: 57 states generated, 47 distinct states found, 24 states left on queue.
+commit-fixed | Model checking completed. No error has been found. | final: 601924 states generated, 130993 distinct states found, 0 states left on queue.
+commit-fixtest-recov | Error: Invariant AckedDurable is violated. | final: 20524 states generated, 6607 distinct states found, 2847 states left on queue.
+commit-fixtest | Error: Invariant NoStaleOverwrite is violated. | final: 1470 states generated, 590 distinct states found, 286 states left on queue.
+commit-noreuse | Error: Invariant AckedDurable is violated. | final: 171 states generated, 115 distinct states found, 65 states left on queue.
+split-asis | Error: Invariant NoSilentError is violated. | final: 687 states generated, 572 distinct states found, 200 states left on queue.
+split-fix | Error: Invariant NoSilentError is violated. | final: 533 states generated, 410 distinct states found, 130 states left on queue.

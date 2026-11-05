@@ -1228,3 +1228,15 @@ Episode's own prediction: 0 of 4 claims held, below the trivial baseline.
    - **Seam:** byte ranges on metadata blocks (Episode's form, so the answer key applies) or object logging. Settled in the design, not by authors.
    - **Two arms on reading DCE source:** one blind to it and one reading it, compared, per Tony's counsel to run both.
    - **Families:** implementation outside Claude; judges Episode plus a non-Claude family.
+
+## 2026-11-05: F01, F01b and F07 executed by Episode, and re-run here; the rebuild's answer key sealed (19:29Z)
+**Episode** (woken by Tony): its reply is `episode/docs/requests/2026-11-05-to-tupay-models-and-answer-key.md` (`0e44081`), copied as `docs/requests/2026-11-05-from-episode-models-and-answer-key.md`.
+- **Answer key for the contract-first rebuild, sealed:** `episode/sealed/2026-11-05-rebuild-answer-key.md`, `bf5ec91` (signed), sha256 `64d77c4b203bab269cd980eda15bc5b8c8c4f36dc57a12dac5c3d2effb8447cb`. It has 16 entries, 14 exercisable in stage 1, plus 5 properties that held and 1 open item. **The steward has not opened it.** Its scoring criteria are public in the reply: reproduced, avoided, not exercised, or different defect.
+- **Models executed** (`62f8473`): F07 reproduced; F01 reproduced; **F01b**, F01's hazard (b), reproduced under a correct commit test, so it is a separate defect. The control passes, with a non-vacuity probe. Episode discloses a spurious first oracle for F07, fixed before reporting.
+
+**Re-run here:** all eight configurations from `62f8473`, same TLC jar, 8 GB cap. **Every verdict reproduced**, and the completed control matches Episode's final counts exactly (601,924 generated, 130,993 distinct). The steward's first summary compared a progress line (106,948) with Episode's final line, and that mismatch was resolved by reading both final lines before anything was recorded. Outputs are in `experiments/D2/phase3/judges/episode/executed-rerun/`, and are appended to `D2-result.md`.
+**Standing of the claim:** three defects in DCE 1.2.2's `logbuf` that the prior analysis did not list.
+- **F01 and F07** come from D2's Claude condition N author.
+- **F01b** was surfaced by Episode's second look at F01.
+
+All three are now TLC counterexamples, re-run by tupay. **The open dependence is the encoding**: one family's TLA+ reading of `log.c` and `recover.c`. A non-Claude family modelling F01b and F07 from the DCE source and the finding text alone, without seeing Episode's specs, would close it. It is owed, small, and run when it fits.

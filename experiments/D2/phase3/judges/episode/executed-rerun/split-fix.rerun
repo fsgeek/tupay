@@ -1,0 +1,549 @@
+TLC2 Version 2.19 of 08 August 2024 (rev: 5a47802)
+Running breadth-first search Model-Checking with fp 12 and seed 7607669793659090477 with 4 workers on 128 cores with 1820MB heap and 64MB offheap memory [pid: 1130175] (Linux 6.18.54.1-microsoft-standard-WSL2 amd64, Ubuntu 11.0.32.1 x86_64, MSBDiskFPSet, DiskStateQueue).
+Parsing file /tmp/claude-1000/-home-tony-projects-tupay/404edddb-c5f0-4026-8412-0a0d1dcd4170/scratchpad/epi-rerun/spec/WrapSplit.tla
+Parsing file /tmp/Naturals.tla
+Parsing file /tmp/FiniteSets.tla
+Parsing file /tmp/Sequences.tla
+Semantic processing of module Naturals
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module WrapSplit
+Starting... (2026-11-05 12:28:51)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-05 12:28:51.
+Error: Invariant NoSilentError is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+/\ bad = FALSE
+/\ pass = 0
+/\ alive = FALSE
+/\ rec = 16
+/\ media = ( 0 :>
+      [ pass |-> 12,
+        iow |-> 0,
+        tail |-> 0,
+        inc |-> 0,
+        seq |-> 0,
+        kind |-> "rstrt",
+        pno |-> 0 ] @@
+  1 :>
+      [ pass |-> 0,
+        iow |-> 0,
+        tail |-> 1,
+        inc |-> 0,
+        seq |-> 0,
+        kind |-> "init",
+        pno |-> 1 ] @@
+  2 :>
+      [ pass |-> 0,
+        iow |-> 0,
+        tail |-> 2,
+        inc |-> 0,
+        seq |-> 0,
+        kind |-> "init",
+        pno |-> 2 ] @@
+  3 :>
+      [ pass |-> 0,
+        iow |-> 0,
+        tail |-> 3,
+        inc |-> 0,
+        seq |-> 0,
+        kind |-> "init",
+        pno |-> 3 ] )
+/\ seq = 0
+/\ salvaged = FALSE
+/\ inc = 0
+/\ cur = 0
+/\ ckptd = FALSE
+/\ queue = {}
+
+State 2: <MountClean line 113, col 5 to line 118, col 39 of module WrapSplit>
+/\ bad = FALSE
+/\ pass = 13
+/\ alive = TRUE
+/\ rec = 16
+/\ media = ( 0 :>
+      [ pass |-> 13,
+        iow |-> 0,
+        tail |-> 0,
+        inc |-> 0,
+        seq |-> 0,
+        kind |-> "rstrt",
+        pno |-> 0 ] @@
+  1 :>
+      [ pass |-> 0,
+        iow |-> 0,
+        tail |-> 1,
+        inc |-> 0,
+        seq |-> 0,
+        kind |-> "init",
+        pno |-> 1 ] @@
+  2 :>
+      [ pass |-> 0,
+        iow |-> 0,
+        tail |-> 2,
+        inc |-> 0,
+        seq |-> 0,
+        kind |-> "init",
+        pno |-> 2 ] @@
+  3 :>
+      [ pass |-> 0,
+        iow |-> 0,
+        tail |-> 3,
+        inc |-> 0,
+        seq |-> 0,
+        kind |-> "init",
+        pno |-> 3 ] )
+/\ seq = 0
+/\ salvaged = FALSE
+/\ inc = 1
+/\ cur = 0
+/\ ckptd = FALSE
+/\ queue = {}
+
+State 3: <Submit line 153, col 5 to line 162, col 65 of module WrapSplit>
+/\ bad = FALSE
+/\ pass = 13
+/\ alive = TRUE
+/\ rec = 16
+/\ media = ( 0 :>
+      [ pass |-> 13,
+        iow |-> 0,
+        tail |-> 0,
+        inc |-> 0,
+        seq |-> 0,
+        kind |-> "rstrt",
+        pno |-> 0 ] @@
+  1 :>
+      [ pass |-> 0,
+        iow |-> 0,
+        tail |-> 1,
+        inc |-> 0,
+        seq |-> 0,
+        kind |-> "init",
+        pno |-> 1 ] @@
+  2 :>
+      [ pass |-> 0,
+        iow |-> 0,
+        tail |-> 2,
+        inc |-> 0,
+        seq |-> 0,
+        kind |-> "init",
+        pno |-> 2 ] @@
+  3 :>
+      [ pass |-> 0,
+        iow |-> 0,
+        tail |-> 3,
+        inc |-> 0,
+        seq |-> 0,
+        kind |-> "init",
+        pno |-> 3 ] )
+/\ seq = 1
+/\ salvaged = FALSE
+/\ inc = 1
+/\ cur = 1
+/\ ckptd = FALSE
+/\ queue = { [ slot |-> 0,
+    seq |-> 1,
+    pg |->
+        [ pass |-> 13,
+          iow |-> 0,
+          tail |-> 0,
+          inc |-> 1,
+          seq |-> 1,
+          kind |-> "log",
+          pno |-> 0 ] ] }
+
+State 4: <Next line 184, col 12 to line 184, col 39 of module WrapSplit>
+/\ bad = FALSE
+/\ pass = 13
+/\ alive = TRUE
+/\ rec = 16
+/\ media = ( 0 :>
+      [ pass |-> 13,
+        iow |-> 0,
+        tail |-> 0,
+        inc |-> 1,
+        seq |-> 1,
+        kind |-> "log",
+        pno |-> 0 ] @@
+  1 :>
+      [ pass |-> 0,
+        iow |-> 0,
+        tail |-> 1,
+        inc |-> 0,
+        seq |-> 0,
+        kind |-> "init",
+        pno |-> 1 ] @@
+  2 :>
+      [ pass |-> 0,
+        iow |-> 0,
+        tail |-> 2,
+        inc |-> 0,
+        seq |-> 0,
+        kind |-> "init",
+        pno |-> 2 ] @@
+  3 :>
+      [ pass |-> 0,
+        iow |-> 0,
+        tail |-> 3,
+        inc |-> 0,
+        seq |-> 0,
+        kind |-> "init",
+        pno |-> 3 ] )
+/\ seq = 1
+/\ salvaged = FALSE
+/\ inc = 1
+/\ cur = 1
+/\ ckptd = FALSE
+/\ queue = {}
+
+State 5: <Submit line 153, col 5 to line 162, col 65 of module WrapSplit>
+/\ bad = FALSE
+/\ pass = 13
+/\ alive = TRUE
+/\ rec = 16
+/\ media = ( 0 :>
+      [ pass |-> 13,
+        iow |-> 0,
+        tail |-> 0,
+        inc |-> 1,
+        seq |-> 1,
+        kind |-> "log",
+        pno |-> 0 ] @@
+  1 :>
+      [ pass |-> 0,
+        iow |-> 0,
+        tail |-> 1,
+        inc |-> 0,
+        seq |-> 0,
+        kind |-> "init",
+        pno |-> 1 ] @@
+  2 :>
+      [ pass |-> 0,
+        iow |-> 0,
+        tail |-> 2,
+        inc |-> 0,
+        seq |-> 0,
+        kind |-> "init",
+        pno |-> 2 ] @@
+  3 :>
+      [ pass |-> 0,
+        iow |-> 0,
+        tail |-> 3,
+        inc |-> 0,
+        seq |-> 0,
+        kind |-> "init",
+        pno |-> 3 ] )
+/\ seq = 2
+/\ salvaged = FALSE
+/\ inc = 1
+/\ cur = 2
+/\ ckptd = FALSE
+/\ queue = { [ slot |-> 1,
+    seq |-> 2,
+    pg |->
+        [ pass |-> 13,
+          iow |-> 0,
+          tail |-> 0,
+          inc |-> 1,
+          seq |-> 2,
+          kind |-> "log",
+          pno |-> 1 ] ] }
+
+State 6: <Submit line 153, col 5 to line 162, col 65 of module WrapSplit>
+/\ bad = FALSE
+/\ pass = 13
+/\ alive = TRUE
+/\ rec = 16
+/\ media = ( 0 :>
+      [ pass |-> 13,
+        iow |-> 0,
+        tail |-> 0,
+        inc |-> 1,
+        seq |-> 1,
+        kind |-> "log",
+        pno |-> 0 ] @@
+  1 :>
+      [ pass |-> 0,
+        iow |-> 0,
+        tail |-> 1,
+        inc |-> 0,
+        seq |-> 0,
+        kind |-> "init",
+        pno |-> 1 ] @@
+  2 :>
+      [ pass |-> 0,
+        iow |-> 0,
+        tail |-> 2,
+        inc |-> 0,
+        seq |-> 0,
+        kind |-> "init",
+        pno |-> 2 ] @@
+  3 :>
+      [ pass |-> 0,
+        iow |-> 0,
+        tail |-> 3,
+        inc |-> 0,
+        seq |-> 0,
+        kind |-> "init",
+        pno |-> 3 ] )
+/\ seq = 3
+/\ salvaged = FALSE
+/\ inc = 1
+/\ cur = 3
+/\ ckptd = FALSE
+/\ queue = { [ slot |-> 1,
+    seq |-> 2,
+    pg |->
+        [ pass |-> 13,
+          iow |-> 0,
+          tail |-> 0,
+          inc |-> 1,
+          seq |-> 2,
+          kind |-> "log",
+          pno |-> 1 ] ],
+  [ slot |-> 2,
+    seq |-> 3,
+    pg |->
+        [ pass |-> 13,
+          iow |-> 1,
+          tail |-> 0,
+          inc |-> 1,
+          seq |-> 3,
+          kind |-> "log",
+          pno |-> 2 ] ] }
+
+State 7: <Next line 184, col 12 to line 184, col 39 of module WrapSplit>
+/\ bad = FALSE
+/\ pass = 13
+/\ alive = TRUE
+/\ rec = 16
+/\ media = ( 0 :>
+      [ pass |-> 13,
+        iow |-> 0,
+        tail |-> 0,
+        inc |-> 1,
+        seq |-> 1,
+        kind |-> "log",
+        pno |-> 0 ] @@
+  1 :>
+      [ pass |-> 0,
+        iow |-> 0,
+        tail |-> 1,
+        inc |-> 0,
+        seq |-> 0,
+        kind |-> "init",
+        pno |-> 1 ] @@
+  2 :>
+      [ pass |-> 13,
+        iow |-> 1,
+        tail |-> 0,
+        inc |-> 1,
+        seq |-> 3,
+        kind |-> "log",
+        pno |-> 2 ] @@
+  3 :>
+      [ pass |-> 0,
+        iow |-> 0,
+        tail |-> 3,
+        inc |-> 0,
+        seq |-> 0,
+        kind |-> "init",
+        pno |-> 3 ] )
+/\ seq = 3
+/\ salvaged = FALSE
+/\ inc = 1
+/\ cur = 3
+/\ ckptd = FALSE
+/\ queue = { [ slot |-> 1,
+    seq |-> 2,
+    pg |->
+        [ pass |-> 13,
+          iow |-> 0,
+          tail |-> 0,
+          inc |-> 1,
+          seq |-> 2,
+          kind |-> "log",
+          pno |-> 1 ] ] }
+
+State 8: <Crash line 171, col 5 to line 173, col 74 of module WrapSplit>
+/\ bad = FALSE
+/\ pass = 13
+/\ alive = FALSE
+/\ rec = 16
+/\ media = ( 0 :>
+      [ pass |-> 13,
+        iow |-> 0,
+        tail |-> 0,
+        inc |-> 1,
+        seq |-> 1,
+        kind |-> "log",
+        pno |-> 0 ] @@
+  1 :>
+      [ pass |-> 0,
+        iow |-> 0,
+        tail |-> 1,
+        inc |-> 0,
+        seq |-> 0,
+        kind |-> "init",
+        pno |-> 1 ] @@
+  2 :>
+      [ pass |-> 13,
+        iow |-> 1,
+        tail |-> 0,
+        inc |-> 1,
+        seq |-> 3,
+        kind |-> "log",
+        pno |-> 2 ] @@
+  3 :>
+      [ pass |-> 0,
+        iow |-> 0,
+        tail |-> 3,
+        inc |-> 0,
+        seq |-> 0,
+        kind |-> "init",
+        pno |-> 3 ] )
+/\ seq = 3
+/\ salvaged = FALSE
+/\ inc = 1
+/\ cur = 3
+/\ ckptd = FALSE
+/\ queue = {}
+
+State 9: <MountRecover line 121, col 5 to line 133, col 77 of module WrapSplit>
+/\ bad = FALSE
+/\ pass = 13
+/\ alive = FALSE
+/\ rec = 15
+/\ media = ( 0 :>
+      [ pass |-> 13,
+        iow |-> 0,
+        tail |-> 0,
+        inc |-> 1,
+        seq |-> 1,
+        kind |-> "log",
+        pno |-> 0 ] @@
+  1 :>
+      [ pass |-> 13,
+        iow |-> 0,
+        tail |-> 1,
+        inc |-> 0,
+        seq |-> 0,
+        kind |-> "ckpt",
+        pno |-> 1 ] @@
+  2 :>
+      [ pass |-> 13,
+        iow |-> 1,
+        tail |-> 0,
+        inc |-> 1,
+        seq |-> 3,
+        kind |-> "log",
+        pno |-> 2 ] @@
+  3 :>
+      [ pass |-> 0,
+        iow |-> 0,
+        tail |-> 3,
+        inc |-> 0,
+        seq |-> 0,
+        kind |-> "init",
+        pno |-> 3 ] )
+/\ seq = 3
+/\ salvaged = FALSE
+/\ inc = 1
+/\ cur = 3
+/\ ckptd = TRUE
+/\ queue = {}
+
+State 10: <RecoverCrash line 146, col 5 to line 148, col 83 of module WrapSplit>
+/\ bad = FALSE
+/\ pass = 13
+/\ alive = FALSE
+/\ rec = 16
+/\ media = ( 0 :>
+      [ pass |-> 13,
+        iow |-> 0,
+        tail |-> 0,
+        inc |-> 1,
+        seq |-> 1,
+        kind |-> "log",
+        pno |-> 0 ] @@
+  1 :>
+      [ pass |-> 13,
+        iow |-> 0,
+        tail |-> 1,
+        inc |-> 0,
+        seq |-> 0,
+        kind |-> "ckpt",
+        pno |-> 1 ] @@
+  2 :>
+      [ pass |-> 13,
+        iow |-> 1,
+        tail |-> 0,
+        inc |-> 1,
+        seq |-> 3,
+        kind |-> "log",
+        pno |-> 2 ] @@
+  3 :>
+      [ pass |-> 0,
+        iow |-> 0,
+        tail |-> 3,
+        inc |-> 0,
+        seq |-> 0,
+        kind |-> "init",
+        pno |-> 3 ] )
+/\ seq = 3
+/\ salvaged = FALSE
+/\ inc = 1
+/\ cur = 3
+/\ ckptd = TRUE
+/\ queue = {}
+
+State 11: <MountRecover line 121, col 5 to line 133, col 77 of module WrapSplit>
+/\ bad = TRUE
+/\ pass = 13
+/\ alive = FALSE
+/\ rec = 15
+/\ media = ( 0 :>
+      [ pass |-> 13,
+        iow |-> 0,
+        tail |-> 0,
+        inc |-> 1,
+        seq |-> 1,
+        kind |-> "log",
+        pno |-> 0 ] @@
+  1 :>
+      [ pass |-> 13,
+        iow |-> 0,
+        tail |-> 1,
+        inc |-> 0,
+        seq |-> 0,
+        kind |-> "ckpt",
+        pno |-> 1 ] @@
+  2 :>
+      [ pass |-> 13,
+        iow |-> 1,
+        tail |-> 0,
+        inc |-> 1,
+        seq |-> 3,
+        kind |-> "log",
+        pno |-> 2 ] @@
+  3 :>
+      [ pass |-> 13,
+        iow |-> 0,
+        tail |-> 3,
+        inc |-> 0,
+        seq |-> 0,
+        kind |-> "ckpt",
+        pno |-> 3 ] )
+/\ seq = 3
+/\ salvaged = FALSE
+/\ inc = 1
+/\ cur = 3
+/\ ckptd = TRUE
+/\ queue = {}
+
+533 states generated, 410 distinct states found, 130 states left on queue.
+The depth of the complete state graph search is 13.
+The average outdegree of the complete state graph is 1 (minimum is 0, the maximum 4 and the 95th percentile is 3).
+Finished in 00s at (2026-11-05 12:28:51)

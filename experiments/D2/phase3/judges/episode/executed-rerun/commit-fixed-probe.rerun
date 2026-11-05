@@ -1,0 +1,82 @@
+TLC2 Version 2.19 of 08 August 2024 (rev: 5a47802)
+Running breadth-first search Model-Checking with fp 42 and seed -3522955122599062859 with 4 workers on 128 cores with 1820MB heap and 64MB offheap memory [pid: 1130802] (Linux 6.18.54.1-microsoft-standard-WSL2 amd64, Ubuntu 11.0.32.1 x86_64, MSBDiskFPSet, DiskStateQueue).
+Parsing file /tmp/claude-1000/-home-tony-projects-tupay/404edddb-c5f0-4026-8412-0a0d1dcd4170/scratchpad/epi-rerun/spec/EpisodeCommit.tla
+Parsing file /tmp/Integers.tla
+Parsing file /tmp/FiniteSets.tla
+Parsing file /tmp/Sequences.tla
+Parsing file /tmp/Naturals.tla
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module EpisodeCommit
+Starting... (2026-11-05 12:29:05)
+Computing initial states...
+Finished computing initial states: 1 distinct state generated at 2026-11-05 12:29:05.
+Error: Invariant ProbeLap is violated.
+Error: The behavior up to this point is:
+State 1: <Initial predicate>
+/\ dirty = {}
+/\ pass = 1
+/\ transit = <<>>
+/\ media = (0 :> 0 @@ 1 :> 0 @@ 2 :> 0 @@ 3 :> 0)
+/\ seq = 0
+/\ cur = 0
+/\ cleaned = {}
+/\ pages = <<>>
+/\ acked = {}
+
+State 2: <Submit line 85, col 5 to line 94, col 42 of module EpisodeCommit>
+/\ dirty = {}
+/\ pass = 1
+/\ transit = <<1>>
+/\ media = (0 :> 0 @@ 1 :> 0 @@ 2 :> 0 @@ 3 :> 0)
+/\ seq = 1
+/\ cur = 1
+/\ cleaned = {}
+/\ pages = <<[pass |-> 1, slot |-> 0, kind |-> "end"]>>
+/\ acked = {}
+
+State 3: <Submit line 85, col 5 to line 94, col 42 of module EpisodeCommit>
+/\ dirty = {2}
+/\ pass = 1
+/\ transit = <<1, 2>>
+/\ media = (0 :> 0 @@ 1 :> 0 @@ 2 :> 0 @@ 3 :> 0)
+/\ seq = 2
+/\ cur = 2
+/\ cleaned = {}
+/\ pages = << [pass |-> 1, slot |-> 0, kind |-> "end"],
+   [pass |-> 1, slot |-> 1, kind |-> "upd"] >>
+/\ acked = {}
+
+State 4: <Submit line 85, col 5 to line 94, col 42 of module EpisodeCommit>
+/\ dirty = {2, 3}
+/\ pass = 1
+/\ transit = <<1, 2, 3>>
+/\ media = (0 :> 0 @@ 1 :> 0 @@ 2 :> 0 @@ 3 :> 0)
+/\ seq = 3
+/\ cur = 3
+/\ cleaned = {}
+/\ pages = << [pass |-> 1, slot |-> 0, kind |-> "end"],
+   [pass |-> 1, slot |-> 1, kind |-> "upd"],
+   [pass |-> 1, slot |-> 2, kind |-> "upd"] >>
+/\ acked = {}
+
+State 5: <Submit line 85, col 5 to line 94, col 42 of module EpisodeCommit>
+/\ dirty = {2, 3, 4}
+/\ pass = 2
+/\ transit = <<1, 2, 3, 4>>
+/\ media = (0 :> 0 @@ 1 :> 0 @@ 2 :> 0 @@ 3 :> 0)
+/\ seq = 4
+/\ cur = 0
+/\ cleaned = {}
+/\ pages = << [pass |-> 1, slot |-> 0, kind |-> "end"],
+   [pass |-> 1, slot |-> 1, kind |-> "upd"],
+   [pass |-> 1, slot |-> 2, kind |-> "upd"],
+   [pass |-> 1, slot |-> 3, kind |-> "upd"] >>
+/\ acked = {}
+
+57 states generated, 47 distinct states found, 24 states left on queue.
+The depth of the complete state graph search is 5.
+The average outdegree of the complete state graph is 3 (minimum is 0, the maximum 4 and the 95th percentile is 4).
+Finished in 00s at (2026-11-05 12:29:05)

@@ -1240,3 +1240,22 @@ Episode's own prediction: 0 of 4 claims held, below the trivial baseline.
 - **F01b** was surfaced by Episode's second look at F01.
 
 All three are now TLC counterexamples, re-run by tupay. **The open dependence is the encoding**: one family's TLA+ reading of `log.c` and `recover.c`. A non-Claude family modelling F01b and F07 from the DCE source and the finding text alone, without seeing Episode's specs, would close it. It is owed, small, and run when it fits.
+
+## 2026-11-06: direction: PolyStore as tupay's own orchestrator; the backup service beside it; four guards against circularity (20:16Z)
+**Tony's counsel, 2026-11-06:** tupay should build something from scratch, its own project, code, contract and anomaly detector, and it doesn't have to be big. On PolyStore: look for existing solutions it could benefit. Orchestration is the one.
+**Decided:**
+1. **PolyStore's first customer is tupay's own author orchestration:** launching sandboxed authors on the host and the box under memory and time budgets, with outcomes that can be unresolved (a suspended box, a lost watcher, a harness that answers but doesn't exit). The 2026-10-28 box incident is the motivating case on the record. Other candidates (`ayllu-gpu` leases, the credit pool after 11-09) are asked of their owners later, not assumed.
+2. **Two layers, kept apart:**
+   - authors build PolyStore to the committed challenge spec unchanged (`docs/inputs/2026-11-03-polystore-design-challenge.md`), and Tony's hidden tests (hash logged 2026-11-03) score that layer;
+   - tupay's orchestration contract sits on top, written by tupay, and does not bend what those tests judge.
+3. **The verified-backup service** (snapshot, verify, prune, restore across this host and wam-nuc, with `backup.sh` as the rung below) runs beside it as the small project, because tupay's record needs it either way.
+4. **The Episode rebuild** stays registered as the large line, and follows these.
+
+**Guards against circularity**, owed by any claim about the orchestrator. Tupay writes the contract, tupay's authors build it, it runs tupay's authors, and tupay scores it, so every link is tupay's. These guards break the loop:
+- (a) Tony's hidden tests judge PolyStore's core;
+- (b) two baselines in common use, pessimistic admission and assume-failed-and-retry, measured under the same injected faults;
+- (c) Arariwa's detection measured on failure classes held out by someone other than the steward before any author starts;
+- (d) real orchestration incidents on the record, not demonstrations.
+
+Tony on the prospect: "a fun SOSP paper". It is recorded as his counsel, not as a goal that may shape any scoring rule.
+**Next:** the backup service's contract and failure model, and PolyStore's orchestration contract, both drafted for Tony's review before any outside review or author.

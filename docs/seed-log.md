@@ -1259,3 +1259,12 @@ All three are now TLC counterexamples, re-run by tupay. **The open dependence is
 
 Tony on the prospect: "a fun SOSP paper". It is recorded as his counsel, not as a goal that may shape any scoring rule.
 **Next:** the backup service's contract and failure model, and PolyStore's orchestration contract, both drafted for Tony's review before any outside review or author.
+
+## 2026-11-06: an adversarial customer, family undisclosed; the channel fixed (20:21Z)
+**Tony:** a separate project, stewarded by a non-Claude family that Tony does not name to tupay, defines what it wants. It talks to tupay only at the contracts layer and is built to be inherently adversarial. Accepted. The PolyStore orchestration contract is now the adversary's to write, not tupay's, which removes the first and last links of the circularity logged earlier today. Its change notices, timed by the adversary, make the seed's adapt-or-regenerate question a test that tupay does not schedule.
+**Decided:**
+- **The channel** is `docs/adversary/CHANNEL.md`: contracts, sealed test hashes, change notices, clarifications, deliveries and verdicts, in `docs/adversary/inbox/` and `outbox/`, and nothing else.
+- **The steward writes nothing about the adversary's role or judging**, since anything it wrote would carry its hypotheses about tupay's weaknesses.
+- **Family conflicts:** before each launch the steward names its planned families to Tony, who answers only "conflict" or "fine". The log records the check, not the answer.
+
+Tupay remains the user, through its author orchestration.

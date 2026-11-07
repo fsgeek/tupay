@@ -1308,3 +1308,8 @@ Tony relayed ChatGPT's response. The reply is `docs/arariwa-seed-critique-2026-1
 Four of the five stopped at *available, not retrieved*. Three of those were fixed by rules that did not prevent the next case. The one fixed by a mechanism (the watcher) has not recurred.
 **Proposed** as a first natural Arariwa test: tupay's own steward process, measuring the delay from evidence becoming available to its being consumed, in three arms, with the known cases as calibration only.
 **Lapse, counted as case 5:** the steward's promise to check Episode's channels at each boundary was a rule kept in memory, and it failed in the way the practice file says such rules fail.
+
+## 2026-11-07: the verified-backup contract, draft 0, for Tony; context figure (19:03Z)
+**Context: 374.2k of 1M (37%), Tony's figure.** The hand-off line is 450k, so this tenure does this draft and then the handoff.
+`docs/backup/contract-draft-0.md` is **not registered**. It holds contract B1.1 to B1.9, failure model BF1.1 to BF1.10, the exclusions EX1.1 to EX1.3, and the assumed-impossible items AI1.1 to AI1.4, each with a witness or marked unwitnessed. It also sets out what Arariwa observes, and what the service must beat over `backup.sh` (the rung below): a scheduled restore from R alone, pruning measured against a restore-checked snapshot, detection of an emptied source, and a witness for its own alert path. It ends with four questions to Tony, each with a recommendation. It prescribes no protocol.
+Written before any new thread was taken up, as the steward said it would (the reply to ChatGPT counts the earlier slippage as case 5).

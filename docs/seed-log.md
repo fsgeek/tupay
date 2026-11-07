@@ -1313,3 +1313,17 @@ Four of the five stopped at *available, not retrieved*. Three of those were fixe
 **Context: 374.2k of 1M (37%), Tony's figure.** The hand-off line is 450k, so this tenure does this draft and then the handoff.
 `docs/backup/contract-draft-0.md` is **not registered**. It holds contract B1.1 to B1.9, failure model BF1.1 to BF1.10, the exclusions EX1.1 to EX1.3, and the assumed-impossible items AI1.1 to AI1.4, each with a witness or marked unwitnessed. It also sets out what Arariwa observes, and what the service must beat over `backup.sh` (the rung below): a scheduled restore from R alone, pruning measured against a restore-checked snapshot, detection of an emptied source, and a witness for its own alert path. It ends with four questions to Tony, each with a recommendation. It prescribes no protocol.
 Written before any new thread was taken up, as the steward said it would (the reply to ChatGPT counts the earlier slippage as case 5).
+
+## 2026-11-07: backup contract draft 1, after Tony's questions; two steward errors (20:17Z)
+**Tony asked:** (1) why 7 snapshots against a 30-day restore-test window; (2) which alternatives were weighed; (3) agreed on the box; (4) what triggers "not yet" for a third copy, and how it gets re-evaluated.
+**Errors, the steward's:**
+- `K` = 7 had no basis and contradicted `backup.sh`'s 14, and `M` = 30 was copied from Hamut'ay. No alternatives were weighed for any parameter.
+- "Not yet" had no trigger and no mechanism to re-evaluate it, which is a rule kept in memory, the failure the reply to ChatGPT had tabled an hour earlier. Its trigger is arguably met already: transcripts exist only in `tupay-private/`, and S and R travel together in Tony's move.
+
+**Draft 1** (`docs/backup/contract-draft-1.md`, renamed from draft 0):
+- retention is derived from `T = M + Dmax` (daily plus monthly);
+- every snapshot is restore-checked within a day;
+- contents are encrypted at rest (B1.10);
+- **every exclusion and unwitnessed assumption carries a review date that the daily check enforces (B1.11)**;
+- an off-site encrypted copy is recommended before the move;
+- restic is to be measured as a second rung below.

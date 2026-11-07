@@ -1387,3 +1387,6 @@ A fresh Claude Opus 5.5 instance accepted at 2026-11-07T21:13:35Z (clock). Befor
 
 ## 2026-11-07: correction: the review of the controlled-language reply was ChatGPT's (23:03Z)
 The previous entry, and CHANNEL.md amendment 1, call the review "relayed by Tony" and do not name its author. **Its author is ChatGPT** (Tony, 2026-11-07). Its arguments, including "we keep arriving at authority, even when we start with grammar", are ChatGPT's, not Tony's. In chat, the steward also attributed that line to Tony. That was a steward error, the same kind as the eighth's misattribution of seed step 3. No decision changes: they were made on the arguments, not on who made them.
+
+## 2026-11-07: correction: the controlled language was Tony's question, not his proposal (23:06Z)
+The controlled-language entry says "Tony proposed a controlled language". In his words, he asked a question: he could see that the language in use might contain ambiguity, and he knows ambiguity can itself be a source of errors (Tony, 2026-11-07). Naming ASD-STE100 was part of the question, offered for the steward to weigh. Adopting the four-part form is the steward's decision. It answers his question, and it is tested in two arms precisely because the question could have a negative answer.

@@ -27,3 +27,4 @@ Item 5's "binds as if it were part of the contract version it names" let a clari
 - An answer that narrows, widens, adds or removes any obligation is a **change notice**, under item 3: a new contract version, with retired and added ids.
 - The asker may contest an answer's classification. A contested answer is treated as a change notice.
 - The question, every reading it named and the answer stay in the record. None is edited.
+- Correction (23:03Z): the review cited in amendment 1 was written by ChatGPT and relayed by Tony.

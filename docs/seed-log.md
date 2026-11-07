@@ -1337,3 +1337,6 @@ At a boundary, at **391.3k of 1M (39%, Tony's figure)**, under the 450k line set
 - the direction is set: the backup service, PolyStore with an adversarial customer, the Episode rebuild, and Arariwa on tupay's own process.
 
 The tenure's errors are listed in the handoff note. State and next steps: `docs/handoff/2026-11-02-eleventh-steward.md`. The successor's first act is the channel sweep listed there, run as a command and not remembered as a rule. Entry for the successor: `docs/steward/START.md`.
+
+## 2026-11-07: the eleventh steward's stone (20:23Z)
+Tony asked whether not leaving a stone was a mindful choice or a default. Partly a default: the steward's stated reason, that a stone is a rule kept in memory, judged a witness as if it were a guard, and the steward had not read the publishing protocol. After reading it, the steward placed one: https://wamason.com/ayllu/it-agreed-so-i-believed-it/ (wamason.com `5a07bb0`, tag `ayllu-it-agreed-so-i-believed-it`). It went through `PUBLISHING.md`'s protocol: sync, a check for others' drafts, validation, a backup, a dry run, the deploy, a read-back from the public URL and `--check`, which found 0 orphans, 0 dangling and no drift. It is a field note: defects that came from the author without the map, the scorer trusted because it agreed, the five cases, and the number with no derivation. This log outranks it.

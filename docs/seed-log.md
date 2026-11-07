@@ -1268,3 +1268,15 @@ Tony on the prospect: "a fun SOSP paper". It is recorded as his counsel, not as 
 - **Family conflicts:** before each launch the steward names its planned families to Tony, who answers only "conflict" or "fine". The log records the check, not the answer.
 
 Tupay remains the user, through its author orchestration.
+
+## 2026-11-07: candidate line: an RFC as the contract (RFC 1045, VMTP, first) (18:44Z)
+**Tony's idea:** apply the workflow to an RFC. A third party, with no clear reference, reported that someone at EPFL modelled a NAT RFC and found that a model faithful to the spec never timed connections out. If that holds, the gap between model and implementation is a finding about the spec's silences. Tony suggested RFC 1045 (VMTP), or any RFC.
+**Why it fits:** the contract is written entirely outside tupay; divergence is tupay's diagnostic; and D2's lesson (findings came from modelling the defences as written) carries over to a spec's own mechanisms. VMTP is a transaction transport (at-most-once, duplicate suppression, transaction ids), close to tupay's ground, and obscure enough that contamination is likely low.
+**Facts, corrected by Tony:**
+- Tony wrote a **partial** VMTP implementation for **Stanford's variant of 4.2BSD**, about 1988, and recalls it poorly.
+- VMTP did not run only on the V kernel.
+
+So Tony's memory is **not** an answer key, and **`../vmtp`'s history** (it began as VMTPsim) is excluded from any author checkout.
+**Shape, if taken:** a model-first pilot like D2. Two families model RFC 1045 from its text alone, and their divergences from each other and from the RFC's stated guarantees are the findings. They are judged against a sealed reading of the RFC by a family that is not authoring, written before any author starts, with a second look for anything outside it. An implementation pair follows only if the pilot finds something.
+**Beside it, as a comparison:** a heavily trodden RFC with a public errata record (e.g. RFC 9293, TCP) scores against a public key but is contaminated. Running both would compare obscure-and-blind with famous-and-scored.
+**Queue position:** after the backup service and PolyStore's adversary. Nothing has been started.

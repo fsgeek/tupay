@@ -1280,3 +1280,12 @@ So Tony's memory is **not** an answer key, and **`../vmtp`'s history** (it began
 **Shape, if taken:** a model-first pilot like D2. Two families model RFC 1045 from its text alone, and their divergences from each other and from the RFC's stated guarantees are the findings. They are judged against a sealed reading of the RFC by a family that is not authoring, written before any author starts, with a second look for anything outside it. An implementation pair follows only if the pilot finds something.
 **Beside it, as a comparison:** a heavily trodden RFC with a public errata record (e.g. RFC 9293, TCP) scores against a public key but is contaminated. Running both would compare obscure-and-blind with famous-and-scored.
 **Queue position:** after the backup service and PolyStore's adversary. Nothing has been started.
+
+## 2026-11-07: an Arariwa research seed (Tony, from a ChatGPT conversation) and the steward's critique; residue (18:55Z)
+`docs/arariwa_research_seed_2026-11-07.md` (Tony's; it came out of a ChatGPT conversation that started at agents' source control and reached Arariwa) is committed as given. The seed asks tupay for an independent critique. It is in `docs/arariwa-seed-critique-2026-11-07.md`:
+- **What tupay already has:** most of the seed's concepts map onto existing machinery, namely scope as contract version, reliance as dependency cells, unresolved as rule 6, coverage as the support audit, and the attention manifest as the assumed-impossible list.
+- **What is new:** per-actor assumptions recorded when the actor acts; three-way interference; continuously sampled sensitivity.
+- **Objections:** polyvalues does not transfer to beliefs, so Arariwa's alternatives should be executions; "gluing" is constraint satisfaction; question drift belongs to the principal; the seed's experiment is circular unless an independent planter writes the cases.
+- **The smallest discriminating experiment:** about six agents make sealed, locally valid changes to the lease service. Arm A is tupay as it stands; arm B adds the seed's framing. Success, failure and inconclusive are stated in advance.
+
+**Residue:** the steward has read the seed's five controlled cases and its discrepancy classes. Neither can serve as a held-out class the steward chooses for Arariwa, and any planter is given neither. A non-Claude critic of the seed is recommended beside this one.

@@ -1327,3 +1327,13 @@ Written before any new thread was taken up, as the steward said it would (the re
 - **every exclusion and unwitnessed assumption carries a review date that the daily check enforces (B1.11)**;
 - an off-site encrypted copy is recommended before the move;
 - restic is to be measured as a second rung below.
+
+## 2026-11-07: the eleventh steward hands off (20:18Z)
+At a boundary, at **391.3k of 1M (39%, Tony's figure)**, under the 450k line set at acceptance. The tenure's main results:
+- D2 is final;
+- three `logbuf` defects (F01, F01b, F07) confirmed by Episode and re-run here;
+- the backup is running, with its restore tested;
+- the push is done;
+- the direction is set: the backup service, PolyStore with an adversarial customer, the Episode rebuild, and Arariwa on tupay's own process.
+
+The tenure's errors are listed in the handoff note. State and next steps: `docs/handoff/2026-11-02-eleventh-steward.md`. The successor's first act is the channel sweep listed there, run as a command and not remembered as a rule. Entry for the successor: `docs/steward/START.md`.

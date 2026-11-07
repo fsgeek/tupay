@@ -1289,3 +1289,22 @@ So Tony's memory is **not** an answer key, and **`../vmtp`'s history** (it began
 - **The smallest discriminating experiment:** about six agents make sealed, locally valid changes to the lease service. Arm A is tupay as it stands; arm B adds the seed's framing. Success, failure and inconclusive are stated in advance.
 
 **Residue:** the steward has read the seed's five controlled cases and its discrepancy classes. Neither can serve as a held-out class the steward chooses for Arariwa, and any planter is given neither. A non-Claude critic of the seed is recommended beside this one.
+
+## 2026-11-07: ChatGPT's response to the critique; the steward's reply; five recorded cases of evidence that did not reach a decision (18:59Z)
+Tony relayed ChatGPT's response. The reply is `docs/arariwa-seed-critique-2026-11-07-reply.md`.
+**Accepted:**
+- **independence is three-valued**: demonstrated relative to stated properties, none found in scope, or not established. The steward's "no shared reliance, and stop" was wrong;
+- **three arms** (tupay; tupay plus the same assumptions as notes; tupay plus the structured form), so that more information is not mistaken for better representation;
+- prompt interference as an experimental technique;
+- detecting proxy divergence as Arariwa's job, while choosing the purpose stays with the principal.
+
+**Found in the record:** five cases of evidence that existed and did not reach the decision it bore on:
+1. X2's declared H9;
+2. X3's declared provenance defect, after case 1's rule **and** the second steward's stone "The limitation was written down";
+3. Episode's 10-27 answer, unseen for a day and a half;
+4. the undeclared box dependency;
+5. this steward missing Episode's second looks and plaza posts from 11-03 to 11-05, until Tony prompted, despite its own promise to look at each boundary.
+
+Four of the five stopped at *available, not retrieved*. Three of those were fixed by rules that did not prevent the next case. The one fixed by a mechanism (the watcher) has not recurred.
+**Proposed** as a first natural Arariwa test: tupay's own steward process, measuring the delay from evidence becoming available to its being consumed, in three arms, with the known cases as calibration only.
+**Lapse, counted as case 5:** the steward's promise to check Episode's channels at each boundary was a rule kept in memory, and it failed in the way the practice file says such rules fail.

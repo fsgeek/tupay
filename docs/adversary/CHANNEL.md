@@ -20,3 +20,10 @@ Nothing else crosses: no code, models, tests' bodies, logs, transcripts or stewa
 - tupay never negotiates a contract: no counter-proposals, and no "would you accept".
 - A question that the steward thinks reveals tupay's design is not asked; the steward records in tupay's log that it was withheld.
 - Before each launch the steward tells Tony which model families it plans to use; Tony answers only "conflict" or "fine". The log records that the check was made, not the adversary's family.
+
+## Amendment 1 (twelfth steward, 2026-11-07, 23:01Z)
+Item 5's "binds as if it were part of the contract version it names" let a clarification change a contract without a new version (the review of the controlled-language reply, relayed by Tony, 2026-11-07). It is replaced as follows:
+- An **answer** may only choose among readings the contract version already permits. It names the readings it chose between and the reading it chose.
+- An answer that narrows, widens, adds or removes any obligation is a **change notice**, under item 3: a new contract version, with retired and added ids.
+- The asker may contest an answer's classification. A contested answer is treated as a change notice.
+- The question, every reading it named and the answer stay in the record. None is edited.

@@ -1365,3 +1365,22 @@ A fresh Claude Opus 5.5 instance accepted at 2026-11-07T21:13:35Z (clock). Befor
 4. **Mechanisms over rules:** the channel sweep becomes a SessionStart hook, checked first against the author-checkout exclusions. Retired practice rules move to a "Retired" section with a handle to their evidence. Nothing is deleted.
 5. **Hygiene, while no author runs:** remove the 29 stale credential copies, and make `author-sandbox.sh` remove its copy at exit, with a mutation pair.
 6. **Tenure:** hand off by 450k (Tony's figure, asked at boundaries), as the eleventh did. Questions to Tony are batched, at most one batch a day, each with a recommendation, and none blocks on him this week.
+
+## 2026-11-07: controlled language for contracts: interpretation records, not mandatory predicates; clarification is not amendment (23:01Z)
+**Inputs:** Tony proposed a controlled language derived from ASD-STE100 as a prerequisite to the backup contract. The eleventh replied after its handoff (khipumaq, 20:32Z): STE governs words, not meanings, so add a defined-term dictionary and pair each clause with a formal predicate; adopt it before contracts, without making it a language project. A review of that reply, relayed by Tony, argued:
+- a predicate moves ambiguity rather than resolving it (B1.3's `Restorable(s)` under BF1.10);
+- a clause and a predicate written by the same author are not independent;
+- clauses need **interpretation records** (a predicate, a transition rule, a temporal property or an observation), each listing its assumptions;
+- a clarification must not amend a contract;
+- ambiguity should be measured **after** implementation and during failure injection, not only at review, and reviewers' disagreements kept as evidence;
+- every normative statement should name who may establish, interpret, amend and retire it;
+- try the scheme on the backup contract before writing a general language.
+
+**Decided:**
+1. **Adopted, with the review's amendment.** A contract has four parts: a controlled vocabulary (STE's writing rules plus a project dictionary, not STE's word list, which is built for maintenance procedures), defined terms with ids never reused, normative clauses, and interpretation records. A predicate is used only where it adds precision or testability.
+2. **Independence comes from the workflow, not the record.** The steward's interpretation records are one reading. The model authors, from another family (rule 4), give the others. Where their readings differ from the record, that is a finding, never a correction to the author.
+3. **The failure model states its effect on every clause.** For each (clause × cell) pair, the obligation either holds, is suspended until a stated event, or is replaced by a stated weaker obligation. Tupay already derives tests from this list. Draft 1 never filled in the effects. B1.3 under BF1.10 is the case that showed the gap.
+4. **Every clause and cell names its authority:** who establishes, interprets, amends and retires it. For the backup contract, all four are the steward, with Tony's review, and that is stated, not hidden.
+5. **CHANNEL.md amendment 1:** an answer chooses within existing readings. Anything that changes an obligation is a new version. The asker may contest a classification, and the ambiguity stays on the record.
+6. **Tested on the backup contract, in two arms**, per Tony's counsel to run both: draft 1's prose form and the four-part form, carrying the same obligations, each given to its own implementation author. The measure is the misreadings found after implementation and under failure injection, counted with reviewers' disagreements kept. The prediction and the scoring are registered before either author starts. A single small contract can show only a large effect, and the registration will say so.
+**Next:** draft 2 of the backup contract in the four-part form, from which the prose arm is derived. Then a non-Claude review of both. Then registration.

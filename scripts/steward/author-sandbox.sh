@@ -28,7 +28,14 @@ GROKBIN=$(readlink -f "$U/.grok/bin/grok")
 SD=$(dirname "$(realpath "$0")"); EG=${EGRESS:-$SD/egress-$H.allow}
 SOCKDIR=$(mktemp -d); python3 "$SD/egress-proxy.py" "$SOCKDIR/egress.sock" "$AH/egress.log" "$EG" & PROXY=$!
 KEEP_CRED=0   # the copy is removed at exit unless it holds a rotated token that could not be written back (2026-11-08)
-trap 'kill $PROXY 2>/dev/null; rm -rf "$SOCKDIR"; [ "$KEEP_CRED" = 1 ] || rm -f "${ACRED:-}"' EXIT
+# The author owns $AH and could plant a symlink there pointing at Tony's credential (inside the sandbox /home/tony is $AH,
+# outside it is Tony's HOME). realcred refuses any path whose directory or file is a symlink, or that does not resolve
+# under $AH. At exit the sandbox's pid namespace is gone, so the check cannot race (security review, 2026-11-08).
+realcred() { local d; d=$(dirname "$1"); [ ! -L "$d" ] && [ -d "$d" ] && [ ! -L "$1" ] &&
+  case "$(realpath -m "$1")" in "$(realpath "$AH")"/*) return 0 ;; *) return 1 ;; esac; }
+rmcred() { [ "$KEEP_CRED" = 1 ] && return; [ -n "${ACRED:-}" ] || return
+  if realcred "$ACRED"; then rm -f "$ACRED"; else echo "author-sandbox: $ACRED is not a plain file under the author home; not touched" >&2; fi; }
+trap 'kill $PROXY 2>/dev/null; rm -rf "$SOCKDIR"; rmcred' EXIT
 for _ in $(seq 50); do [ -S "$SOCKDIR/egress.sock" ] && break; sleep 0.1; done
 args=(--unshare-net --unshare-pid --unshare-ipc --unshare-uts --die-with-parent --new-session --clearenv
   --ro-bind /usr /usr --symlink usr/bin /bin --symlink usr/sbin /sbin --symlink usr/lib /lib --symlink usr/lib64 /lib64
@@ -67,12 +74,13 @@ case $H in
 esac
 CRED=$U/.$H/auth.json; ACRED=$AH/.$H/auth.json
 [ -s "$CRED" ] || { echo "no credential at $CRED (log in on the host first)" >&2; exit 2; }
-mkdir -p "$(dirname "$ACRED")"; install -m 600 "$CRED" "$ACRED"; ORIG=$(sha256sum < "$CRED")
+mkdir -p "$(dirname "$ACRED")"; realcred "$ACRED" || { echo "author-sandbox: $ACRED is a symlink or outside the author home; refusing" >&2; exit 2; }
+install -m 600 "$CRED" "$ACRED"; ORIG=$(sha256sum < "$CRED")
 [ -n "${PROBE:-}" ] && cmd=(bash)   # PROBE=1: a shell in the same sandbox, for the steward's access probes
 # the relay starts first; the harness waits for its port
 bwrap "${args[@]}" bash -c '/usr/bin/python3 /opt/sandbox-relay.py /run/egress/egress.sock & for _ in $(seq 50); do
   (exec 3<>/dev/tcp/127.0.0.1/3128) 2>/dev/null && break; sleep 0.1; done; exec "$@"' relay "${cmd[@]}" "$@" && rc=0 || rc=$?
-if [ -s "$ACRED" ] && [ "$(sha256sum < "$ACRED")" != "$ORIG" ]; then
+if realcred "$ACRED" && [ -s "$ACRED" ] && [ "$(sha256sum < "$ACRED")" != "$ORIG" ]; then
   if [ "$(sha256sum < "$CRED")" = "$ORIG" ] && python3 -c 'import json,sys; a,b=(json.load(open(f)) for f in sys.argv[1:]); sys.exit(0 if isinstance(a,dict) and a.keys()==b.keys() else 1)' "$ACRED" "$CRED"; then
     install -m 600 "$ACRED" "$CRED.tupay-new" && mv "$CRED.tupay-new" "$CRED" && echo "author-sandbox: rotated $H credential written back" >&2
   else KEEP_CRED=1; echo "author-sandbox: $H credential rotated in the sandbox but not written back (Tony's changed meanwhile, or shape differs); copy kept at $ACRED" >&2; fi

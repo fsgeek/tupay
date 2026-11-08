@@ -27,7 +27,8 @@ NODE=$(dirname "$(dirname "$(readlink -f "$(command -v node)")")")
 GROKBIN=$(readlink -f "$U/.grok/bin/grok")
 SD=$(dirname "$(realpath "$0")"); EG=${EGRESS:-$SD/egress-$H.allow}
 SOCKDIR=$(mktemp -d); python3 "$SD/egress-proxy.py" "$SOCKDIR/egress.sock" "$AH/egress.log" "$EG" & PROXY=$!
-trap 'kill $PROXY 2>/dev/null; rm -rf "$SOCKDIR"' EXIT
+KEEP_CRED=0   # the copy is removed at exit unless it holds a rotated token that could not be written back (2026-11-08)
+trap 'kill $PROXY 2>/dev/null; rm -rf "$SOCKDIR"; [ "$KEEP_CRED" = 1 ] || rm -f "${ACRED:-}"' EXIT
 for _ in $(seq 50); do [ -S "$SOCKDIR/egress.sock" ] && break; sleep 0.1; done
 args=(--unshare-net --unshare-pid --unshare-ipc --unshare-uts --die-with-parent --new-session --clearenv
   --ro-bind /usr /usr --symlink usr/bin /bin --symlink usr/sbin /sbin --symlink usr/lib /lib --symlink usr/lib64 /lib64
@@ -74,6 +75,6 @@ bwrap "${args[@]}" bash -c '/usr/bin/python3 /opt/sandbox-relay.py /run/egress/e
 if [ -s "$ACRED" ] && [ "$(sha256sum < "$ACRED")" != "$ORIG" ]; then
   if [ "$(sha256sum < "$CRED")" = "$ORIG" ] && python3 -c 'import json,sys; a,b=(json.load(open(f)) for f in sys.argv[1:]); sys.exit(0 if isinstance(a,dict) and a.keys()==b.keys() else 1)' "$ACRED" "$CRED"; then
     install -m 600 "$ACRED" "$CRED.tupay-new" && mv "$CRED.tupay-new" "$CRED" && echo "author-sandbox: rotated $H credential written back" >&2
-  else echo "author-sandbox: $H credential rotated in the sandbox but not written back (Tony's changed meanwhile, or shape differs); copy kept at $ACRED" >&2; fi
+  else KEEP_CRED=1; echo "author-sandbox: $H credential rotated in the sandbox but not written back (Tony's changed meanwhile, or shape differs); copy kept at $ACRED" >&2; fi
 fi
 exit $rc

@@ -83,5 +83,9 @@ runs "$LOCAL_ROOT" | head -n -"$KEEP" | xargs -r -d '\n' rm -rf
 ssh -o BatchMode=yes "$REMOTE" "find $RQ -mindepth 1 -maxdepth 1 -type d -name '20*Z' | sort | head -n -$KEEP | xargs -r -d '\n' rm -rf"
 
 STAGE="done"
+# Once ok is written the snapshot is acknowledged: no later failure may delete it or append a contradicting "failed"
+# (Qwen's review of backup draft 2, finding 10, 2026-11-08: the trap stayed armed over the log copy below).
+trap - ERR
 status ok done "\"head\":\"$HEAD\",\"bytes\":$SIZE,\"files\":$FILES,\"remote\":\"$REMOTE:$REMOTE_ROOT/$TS\""
-rsync -a --protect-args "$LOG" "$REMOTE:$REMOTE_ROOT/backup-log.jsonl"
+rsync -a --protect-args "$LOG" "$REMOTE:$REMOTE_ROOT/backup-log.jsonl" ||
+  { echo "backup: snapshot $TS is ok; copying the status log to $REMOTE failed" >&2; exit 3; }

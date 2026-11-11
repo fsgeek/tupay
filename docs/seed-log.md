@@ -1427,3 +1427,39 @@ The parameters are fixed with derivations (*M* 1 d, *P* 7 d new, *H* 36 h, *D* 1
 
 **Draft 3** (`docs/backup/contract-draft-3.md`, not registered) applies every disposition. It has 27 terms, B1.1 to B1.16, BF1.1 to BF1.13, EX1.1 to EX1.6 and AI1.1 to AI1.6, all of them with review dates. *Dmax* = 27 h and *T* = 51 h, both derived. A new open gap 7: nothing checks the daily check. **For Tony, one batch, none blocking:** an alert path from R that does not go through S (recommended: one push message type from wam-nuc, the channel his to choose); R as the checker's host; the off-site copy as a second contract.
 **Next, not waiting on Tony:** measure *Q* from `backup.sh`'s manifests; derive the prose arm; pre-register the two-arm test. Registration of the contract waits on Tony's reading of draft 3.
+
+## 2026-11-11: Codex's review of draft 3; the recovery account first; encryption moves to v2; draft 4; a secrets scanner (23:36Z)
+**The hook fired at this session's start.** The channel sweep printed plaza posts 240 to 246, which confirms the mechanism logged on 11-08. Two of those posts bear on the backup:
+- the whole house was down from 2026-11-10 16:31Z to 11-11 00:13Z (seq 244). Tupay's backup was unaffected: the outage fell between runs, and every run from 11-08 to 11-11 logged a single `ok`, the fixed script included;
+- **the house will move to Fedora on a separate disk**, with the old disk kept as the way back, and with better key management before the move (seq 246).
+
+**Codex's review** of draft 3, run by Tony independently of Qwen, is kept verbatim in `docs/backup/review/codex/review.md`. Its eight findings are all accepted (`DISPOSITIONS.md`). Finding 2's contradiction was **introduced by the steward's fix for Qwen's finding 1**. Its larger point is accepted and done first: **`docs/backup/recovery-account.md`**, what can be recovered today if S disappears, checked against the machines. It found:
+- 23 of tupay's 24 local branches exist only on S and in wam-nuc's bundle;
+- the restore needs an ssh key that lives on S;
+- the steward's own transcripts (109 MB) and qhaway's memories are backed up by no one known to tupay;
+- nothing would report S's silence.
+
+**Scope decision (the steward's):** encryption at rest moves from v1 to **v2, as a planned contract change**.
+- Why: it caused both reviews' blocking manifest findings, and the house is redesigning key custody before the move.
+- Retired ids, never to be reused: B1.10, B1.14, BF1.11, AI1.6, EX1.4, T7a, T7b, T14 and T27.
+- v2 adds a new authority locus, the key holder, to a service that will already have artifacts. That is the untested side of the seed's question. It is planned by tupay, so it is weaker than a change the adversary times.
+
+**Draft 4** (`contract-draft-4.md`, not registered):
+- It opens with the recovery account and maps each clause to the row it improves.
+- Classes [service], [deadline] and [preservation] replace draft 3's blanket H, with one class rule and a short exceptions table.
+- New clauses: B1.17 (completeness against a source inventory) and B1.18 (status-record recovery within *Rb*, with pruning frozen during the rebuild). New: the *restore-failed* mark, BF1.14 (host suspended) and EX1.7 (plaintext at R).
+- Sequence numbers are recoverable (T5a). *Dmax* and *T* state their conditions.
+- *Q* = 0.05, measured from 9 quiet runs (maximum shrink 0.87 %, in the bundle). Its noise under author load is unmeasured.
+
+**`scripts/steward/secrets-scan.sh`, pattern set v1**, is the detector AI1.5 names. Its mutation pair is `secrets-scan-check.sh`.
+- **The check found a scanner bug before first use:** grep read the private-key pattern, which begins with `-----`, as an option, so that pattern matched nothing. It was fixed with `-e`.
+- A second failure was in the check's own fixture, which lacked "KEY". It was fixed.
+- Final runs: all ten patterns are caught and the clean control passes. Mutants FAIL as expected: dropping two patterns, and the scanner without `-e`. Over `8370157..main`, it found no hit.
+- **Residue:** the 11-03 scan used one alternation, which grep accepted. So that scan was not affected.
+
+**For Tony, one batch, none blocking** (draft 4 §10):
+1. the push channel from wam-nuc while S is down;
+2. an ssh path to wam-nuc that is not on S;
+3. move tupay to Fedora **by restoring it from wam-nuc** following the recovery account, as the first real restore.
+
+**Stop rule for reviews:** two outside reviews have been disposed, and each produced defects that the steward's own fixes introduced. Draft 4 is not sent for a third review before Tony reads the recovery account and §A. The next review is of the prose arm and the pre-registration together.

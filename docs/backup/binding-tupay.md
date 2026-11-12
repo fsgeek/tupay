@@ -1,6 +1,6 @@
 # Tupay's binding to the generic backup contract (draft 5; not registered)
 
-The twelfth steward, 2026-11-12. This binding maps the roles of `contract-draft-6.md` (frozen) onto tupay's machines, directories and values. A change of host is a new version of this binding; it is not a change to the contract. **Binding v1 describes the host before the move. The post-move binding, v2, is written when the house's new system exists (`host-requirements.md`).**
+The twelfth steward, 2026-11-12. This binding maps the roles of `contract-draft-7.md` onto tupay's machines, directories and values. A change of host is a new version of this binding; it is not a change to the contract. **Binding v1 describes the host before the move. The post-move binding, v2, is written when the house's new system exists (`host-requirements.md`).**
 
 ## Roles
 | Role | Bound to (v1) |
@@ -25,6 +25,7 @@ The twelfth steward, 2026-11-12. This binding maps the roles of `contract-draft-
 - *D* = 1 h.
 - *X* = 2 h.
 - *Rb* = 2 d.
+- ***G* = 72 h** (recoverable age, B1.19). It must exceed *I* + *X* + *M* = 50 h. 72 h tolerates one missed run or check, and not two.
 - *K* = 14 d and *Mo* = 6 months.
 - ***Q* = 0.05.** Measured 2026-11-11 from 9 quiet runs. `tupay-private/` and `tupay-homes/` did not change; the bundle's size moved between −0.87 % and +1.32 %. Its noise under author load is unmeasured, so it is measured again after the first round with authors.
 - Derived: ***Dmax* = 27 h** and ***T* = 51 h**, both under contract §6's conditions.
@@ -34,7 +35,7 @@ The baseline is `recovery-account.md`, checked 2026-11-11.
 
 | Row of the account | Clauses that change it |
 |---|---|
-| Restore tested once, by hand | Every snapshot restore-checked within *M*, from R alone (B1.8) |
+| Restore tested once, by hand | Every snapshot restore-checked within *M*, from R alone (B1.8); **a demonstrated-recoverable snapshot never older than *G*, or a reported violation (B1.19)** |
 | Corruption at R found only by chance | Every protected snapshot re-read every *P* (B1.12) |
 | Snapshots lost at R go unnoticed | An inventory at every run and check (B1.13) |
 | A copy can silently miss files | Completeness against an inventory (B1.17) |

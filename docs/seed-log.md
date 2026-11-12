@@ -1514,3 +1514,22 @@ Tony had Codex review draft 5 before spending his one clean read on it. The revi
 §12 gives an execution example for each fix, as Codex asked. **Size:** 243 lines against 220, of which 10 are the examples. "Bounded" holds; "smaller" does not.
 **A steward correction before commit:** example 1 first had an append-only author transcript failing every run. But a prefix of an append-only file is a version it really had, so it is untorn. The example now shows that case passing, and a file rewritten in place failing. The binding states the accepted cost.
 **Decided: the contract is frozen at draft 6.** There is no fourth review round. Further defects are expected from the model author's TLA+ (T5a and run serialization are the kind TLC finds) and are reported as divergence, which is how tupay is built to find them. Tony's clean read is for whether the recovery account, the binding's accepted losses and what each clause buys meet his needs.
+
+## 2026-11-12: draft 6 had dropped the recovery guarantee (steward error); policy stated; draft 7 (22:27Z)
+Tony passed draft 6 to Codex/ChatGPT. The review is kept verbatim in `docs/backup/review/codex-4/review.md`. Tony offered to review draft 6 as it stood. **The steward declined**, because finding 1 is a substantive defect, not a contradiction of wording.
+**Steward error, with its cost:**
+- Draft 6 fixed "completion vs success" by making B1.8 a completion obligation and narrowing B1.3 to snapshots whose check had passed.
+- Nothing then obliged the service to produce a recoverable backup. A service whose restore checks always failed, and which reported each failure, would pass.
+- That was the rung below, with more paperwork.
+- The steward had named the recovery account as what every clause answers to, and did not test its own fix against that account.
+- Cost: one review round, and nearly sending a weaker service to model authors, who would have formalized it faithfully.
+
+This is the fourth round in which the steward's patch was where the next defect lived.
+**Policy (the steward's, visible for Tony's read): this service promises recoverable backups, not verified copies plus failure reports.**
+**Draft 7** (`contract-draft-7.md`):
+- **B1.19:** after the first *G*, the protected set always holds a demonstrated-recoverable snapshot younger than *G*. Otherwise B1.19 is violated, and the violation is reported as *overdue* with its cause. *G* = 72 h in the binding, which must exceed *I* + *X* + *M* = 50 h.
+- B1.9's premise includes capturability, so liveness assumes it, while B1.19 never excuses it.
+- B1.18: run entries follow S's copy, and marks follow R's copy, because marks are written only there. The example now matches the rule.
+- Examples 7 and 8 have been added.
+
+**The freeze, restated:** it stops review rounds; it does not stop corrections to a core guarantee. Before any further change to a clause, the steward asks the recovery account's question of the change: does a recoverable backup still have to exist?

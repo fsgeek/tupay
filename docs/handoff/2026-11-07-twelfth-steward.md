@@ -9,20 +9,20 @@ The log outranks this note. The tenure began 2026-11-07 and was at 314.6k of 1M 
 ## The one line: the verified-backup service
 State, in reading order:
 1. `docs/backup/recovery-account.md`: what can be recovered today if S disappears, checked against the machines. **Read this first.** Everything else answers to it.
-2. `docs/backup/contract-draft-5.md`: the generic contract, in roles. `binding-tupay.md` maps it to tupay. Drafts 1 to 4 and both reviews are in `docs/backup/review/` (Qwen: 40 findings; Codex: 8; all accepted).
+2. `docs/backup/contract-draft-6.md`: the generic contract, in roles, **frozen** (2026-11-12). `binding-tupay.md` maps it to tupay. Earlier drafts and three reviews are in `docs/backup/review/` (Qwen: 40 findings; Codex: 8, then 6; all accepted). Every finding in the third review lay in text the steward had added in the round before. Further defects go to the model author and to divergence, not to review.
 3. `docs/backup/migration-acceptance-draft-1.md`: the Fedora move as tupay's first real restore. **Its predictions are registered** (commit `9818135`), so do not edit them; amend additively.
 4. `docs/backup/host-requirements.md`: tupay's input to the house's choice of system. Tupay does not choose the system.
 
 **Waiting on Tony** (one batch, none blocking):
 - a notice channel that does not depend on S;
 - an ssh key for wam-nuc held somewhere other than S;
-- his reading of the recovery account and draft 5.
+- his one clean read: the recovery account, the binding's accepted losses, and draft 6.
 
 **Not started, and waiting on no one:**
 - the prose arm, derived from draft 5, for the two-arm test of the four-part form;
 - the pre-registration of that test.
 
-The next outside review covers the prose arm and the pre-registration together. Do not send draft 5 for a third review before Tony has read it: each review so far found defects that the steward's own fixes had introduced.
+The next outside review covers only the prose arm and the pre-registration. The contract itself is not reviewed again.
 
 **Do not touch the new disk.** No mount and no write without a word from Tony or the custodian. The house's migration is the custodian's (plaza seq 246). Tupay's requirements went to the plaza as seq 247.
 

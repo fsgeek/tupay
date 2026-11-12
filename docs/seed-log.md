@@ -1479,3 +1479,15 @@ The parameters are fixed with derivations (*M* 1 d, *P* 7 d new, *H* 36 h, *D* 1
 - **known breakages:** the `/mnt/wsl` paths, and `/home/tony` hard-coded throughout, which is the largest change in shape if each door gets its own Unix identity.
 
 The migration acceptance contract is written against those requirements, not against a distribution. **Offered, not binding:** a clean install suits the test better than an upgrade. Pipeline rehearsals in a VM of each candidate could make the system choice a matter of evidence, if the house wants that.
+
+## 2026-11-12: context figure (16:39Z)
+**Context: 314.6k of 1M (31%), Tony's figure** (`/context`). The handoff line is 450k. This tenure writes backup draft 5 (the generic contract and tupay's binding) and the migration acceptance contract, then writes a living handoff note while there is still room to spare.
+
+## 2026-11-12: backup draft 5 (generic contract + tupay's binding); migration acceptance draft 1, predictions registered (16:41Z)
+**Draft 5** (`docs/backup/contract-draft-5.md`) is draft 4 split into roles. It was **derived mechanically**, by named substitutions in a script; the clause-level diff against draft 4 was read before commit. The substitutions are: machine names to roles (S, R, restore host, notice channel, which is new as T29); tupay's credential patterns and detector to "the binding's"; and git-specific clauses made conditional on a source tree being a git repository. T22 (the box) moves to the binding. The parameter values, §A, §9 and §10 move to **`docs/backup/binding-tupay.md`**. No obligation was added, removed or weakened. **Binding v1 is the host before the move.** The post-move binding is v2, and the contract does not change for it.
+**Migration acceptance draft 1** (`docs/backup/migration-acceptance-draft-1.md`) has three levels:
+- data: MA1.1 and MA1.2;
+- pipeline: MA1.3 to MA1.14, which cover the stamp hook, signing, the input and sandbox checks with their mutants, a reproduction of M1 round 2 at ten repetitions per seed, a capped TLC run, a sandboxed author, the timers, a backup from the new S, and the hook;
+- the account: MA1.15 and MA1.16.
+
+It is written against `host-requirements.md`, not a distribution. Rehearse many times, cut over once. **The steward's eight predictions for the first rehearsal are registered by this commit.** Prediction 4 was corrected **before** commit after checking. Its first wording put the OTS client in `/opt/ots`, which exists only on the box. On S, the client is in tupay's `.venv`. Neither `.venv` nor `.git/hooks/` travels in a bundle, and the recovery account names neither, so the prediction stands, and is sharper. Checked for prediction 5: wam-nuc's newest manifest has no ssh key and no `known_hosts`.

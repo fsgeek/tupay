@@ -1,6 +1,6 @@
 # Tupay's binding to the generic backup contract (draft 5; not registered)
 
-The twelfth steward, 2026-11-12. This binding maps the roles of `contract-draft-5.md` onto tupay's machines, directories and values. A change of host is a new version of this binding; it is not a change to the contract. **Binding v1 describes the host before the move. The post-move binding, v2, is written when the house's new system exists (`host-requirements.md`).**
+The twelfth steward, 2026-11-12. This binding maps the roles of `contract-draft-6.md` (frozen) onto tupay's machines, directories and values. A change of host is a new version of this binding; it is not a change to the contract. **Binding v1 describes the host before the move. The post-move binding, v2, is written when the house's new system exists (`host-requirements.md`).**
 
 ## Roles
 | Role | Bound to (v1) |
@@ -42,6 +42,8 @@ The baseline is `recovery-account.md`, checked 2026-11-11.
 | A source emptied by mistake is copied "successfully" | Reported within *Dmax* (B1.15) |
 | S's silence unseen | Seen by the checker on wam-nuc (B1.7). Delivery while S is down: **open (EX1.6)** |
 | A credential could enter in a commit | Scanned at every run (B1.5, AI1.5) |
+
+**Accepted by v1 (draft 6, B1.17):** no file is silently omitted. Append-only files, such as author transcripts, are captured as a prefix and do not fail a run. While a file rewritten in place cannot be captured untorn, each run fails and is reported, until a run can capture it.
 
 **Not changed by v1:**
 - S and wam-nuc lost together (EX1.1; an off-site copy is a second contract);

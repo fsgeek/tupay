@@ -1491,3 +1491,26 @@ The migration acceptance contract is written against those requirements, not aga
 - the account: MA1.15 and MA1.16.
 
 It is written against `host-requirements.md`, not a distribution. Rehearse many times, cut over once. **The steward's eight predictions for the first rehearsal are registered by this commit.** Prediction 4 was corrected **before** commit after checking. Its first wording put the OTS client in `/opt/ots`, which exists only on the box. On S, the client is in tupay's `.venv`. Neither `.venv` nor `.git/hooks/` travels in a bundle, and the recovery account names neither, so the prediction stands, and is sharper. Checked for prediction 5: wam-nuc's newest manifest has no ssh key and no `known_hosts`.
+
+## 2026-11-12: Codex's third review (draft 5): six findings, all in draft 4's new text; draft 6 by bounded correction; the contract frozen (18:05Z)
+Tony had Codex review draft 5 before spending his one clean read on it. The review is kept verbatim in `docs/backup/review/codex-3/review.md`.
+**Accepted: six findings and the T20 residue** (`DISPOSITIONS.md`):
+1. *changing* files could be missing from every acknowledged snapshot;
+2. restore completion was conflated with success;
+3. deadlines restarting after an outage made "overdue" ambiguous;
+4. T5a could reuse a number;
+5. B1.18 handled lost records but not corrupted ones;
+6. T28 promised observations it could not make, and git refs need object ids.
+
+**Every one lies in text that draft 4 added.** Across rounds, the steward's patches have been where the next defects lived.
+**Draft 6** (`contract-draft-6.md`):
+- the *changing* exemption is removed (the one subtractive fix);
+- B1.8 is a completion obligation and B1.3 a demonstrated-success one;
+- deadlines are never suspended or restarted;
+- runs are serialized, with a *started* entry written at R first, and T5a's claim is narrowed;
+- each record copy carries a hash, and a copy that fails it is treated as lost and kept as evidence;
+- the inventory is (name, object id) pairs read once.
+
+§12 gives an execution example for each fix, as Codex asked. **Size:** 243 lines against 220, of which 10 are the examples. "Bounded" holds; "smaller" does not.
+**A steward correction before commit:** example 1 first had an append-only author transcript failing every run. But a prefix of an append-only file is a version it really had, so it is untorn. The example now shows that case passing, and a file rewritten in place failing. The binding states the accepted cost.
+**Decided: the contract is frozen at draft 6.** There is no fourth review round. Further defects are expected from the model author's TLA+ (T5a and run serialization are the kind TLC finds) and are reported as divergence, which is how tupay is built to find them. Tony's clean read is for whether the recovery account, the binding's accepted losses and what each clause buys meet his needs.

@@ -9,17 +9,17 @@ The log outranks this note. The tenure began 2026-11-07 and was at 314.6k of 1M 
 ## The one line: the verified-backup service
 State, in reading order:
 1. `docs/backup/recovery-account.md`: what can be recovered today if S disappears, checked against the machines. **Read this first.** Everything else answers to it.
-2. `docs/backup/contract-draft-6.md`: the generic contract, in roles, **frozen** (2026-11-12). `binding-tupay.md` maps it to tupay. Earlier drafts and three reviews are in `docs/backup/review/` (Qwen: 40 findings; Codex: 8, then 6; all accepted). Every finding in the third review lay in text the steward had added in the round before. Further defects go to the model author and to divergence, not to review.
+2. `docs/backup/contract-draft-7.md`: the generic contract, in roles. **Review rounds are stopped. Corrections to a core guarantee are not.** The policy is that the service promises recoverable backups (B1.19). Before any clause change, ask whether a recoverable backup still has to exist. `binding-tupay.md` maps it to tupay. Earlier drafts and three reviews are in `docs/backup/review/` (Qwen: 40 findings; Codex: 8, then 6, then 3; all accepted). Every finding in the third review lay in text the steward had added in the round before. Further defects go to the model author and to divergence, not to review.
 3. `docs/backup/migration-acceptance-draft-1.md`: the Fedora move as tupay's first real restore. **Its predictions are registered** (commit `9818135`), so do not edit them; amend additively.
 4. `docs/backup/host-requirements.md`: tupay's input to the house's choice of system. Tupay does not choose the system.
 
 **Waiting on Tony** (one batch, none blocking):
 - a notice channel that does not depend on S;
 - an ssh key for wam-nuc held somewhere other than S;
-- his one clean read: the recovery account, the binding's accepted losses, and draft 6.
+- his one clean read: the recovery account, the binding's accepted losses, and draft 7.
 
 **Not started, and waiting on no one:**
-- the prose arm, derived from draft 6, for the two-arm test of the four-part form;
+- the prose arm, derived from draft 7, for the two-arm test of the four-part form;
 - the pre-registration of that test.
 
 The next outside review covers only the prose arm and the pre-registration. The contract itself is not reviewed again.
@@ -49,3 +49,4 @@ The next outside review covers only the prose arm and the pre-registration. The 
 - A contradiction introduced while fixing Qwen's finding 1.
 - A claim written before it was checked (the backup log).
 - A wrong premise in a prediction, caught before registration (`/opt/ots`).
+- Draft 6 dropped the recovery guarantee while fixing a contradiction. Restored as B1.19 in draft 7.

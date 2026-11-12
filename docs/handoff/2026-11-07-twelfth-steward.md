@@ -19,7 +19,7 @@ State, in reading order:
 - his one clean read: the recovery account, the binding's accepted losses, and draft 6.
 
 **Not started, and waiting on no one:**
-- the prose arm, derived from draft 5, for the two-arm test of the four-part form;
+- the prose arm, derived from draft 6, for the two-arm test of the four-part form;
 - the pre-registration of that test.
 
 The next outside review covers only the prose arm and the pre-registration. The contract itself is not reviewed again.

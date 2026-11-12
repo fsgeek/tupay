@@ -1533,3 +1533,11 @@ This is the fourth round in which the steward's patch was where the next defect 
 - Examples 7 and 8 have been added.
 
 **The freeze, restated:** it stops review rounds; it does not stop corrections to a core guarantee. Before any further change to a clause, the steward asks the recovery account's question of the change: does a recoverable backup still have to exist?
+
+## 2026-11-12: seeds discussed, not yet planted (pointer only) (23:34Z)
+Tony said he will plant new seeds, each with "a salmon of doubt", for tupay to consider later. In conversation today (khipumaq has the full text; nothing here is decided):
+- **Tool against problem:** Paxos is a tool, and the problem is recovering from failures. The goal of a complex distributed algorithm is to recover faster and lose less. His key-value example: the key is an index, the value is data that may not exist, and rebuilding the index from the data can be prohibitive or impossible.
+- **Paxos made visible:** build it with proposers, acceptors and learners separated, on separate machines, and look at what fails under Lamport's consensus, under Howard's, and under reconfiguration. The Part-Time Parliament's vocabulary (priests, ledgers, decrees) would reduce implementation contamination.
+- **Two implementations:** a discrete-event simulator with full separation, and an optimised real implementation in a language to be chosen (C, C++, Rust, OCaml or Go; perhaps Prolog or Lisp). **Correction, Tony's:** DSLabs was an example of the kind, not a framework to adapt. He dislikes it because its projects have tests and no designs, so students infer the design from the tests.
+
+The steward's readings and doubts are in the same conversation. Seeds become tupay's only when Tony plants them. A new line belongs to the next steward.

@@ -1541,3 +1541,18 @@ Tony said he will plant new seeds, each with "a salmon of doubt", for tupay to c
 - **Two implementations:** a discrete-event simulator with full separation, and an optimised real implementation in a language to be chosen (C, C++, Rust, OCaml or Go; perhaps Prolog or Lisp). **Correction, Tony's:** DSLabs was an example of the kind, not a framework to adapt. He dislikes it because its projects have tests and no designs, so students infer the design from the tests.
 
 The steward's readings and doubts are in the same conversation. Seeds become tupay's only when Tony plants them. A new line belongs to the next steward.
+
+## 2026-11-12: Tony's read of draft 7 and the binding; G = 96 h; his answers; acceptance amendment A1 (00:07Z)
+**Tony's edits**, committed as he made them:
+- in `contract-draft-7.md`, example 7 now uses *G* = 96 h, so that the limit exceeds the sum the individual steps permit;
+- draft 6's "frozen" sentence is struck through, with his note "[TM: removed to accommodate Draft 7.]";
+- notes on the three open questions in `binding-tupay.md`.
+
+**A steward error the change exposes:** the binding's 72 h claimed to tolerate one missed run or check. Worst case, one miss gives *I* + *X* + *M* + *I* = 74 h, which already exceeds 72. Under 96 h, one miss passes and two in a row (98 h) violate. The binding now holds *G* = 96 h with that derivation.
+**His answers, and the dispositions:**
+1. **Notice channel:** "whichever one I am told to watch. wam-nuc is fine." The sender is on wam-nuc, and the steward names the channel when the alert is built. He also offered *pundit* (little CPU, plenty of storage), recorded as a candidate for EX1.1's further copy under the second contract.
+2. **ssh key not held only on S:** agreed, with the assignment to come from the house's key management.
+3. **Migration acceptance:** amendment is permissible in an emergency only, with a clear record of any deviation. This is amendment A1 of `migration-acceptance-draft-1.md`. A deviation without a record fails MA1.15.
+
+The binding is now titled "binding v1, for contract draft 7". It is versioned separately from the contract, as Tony recommended.
+**Next, waiting on no one:** the prose arm derived from draft 7, and the pre-registration of the two-arm test. The registration of contract v1 follows them.

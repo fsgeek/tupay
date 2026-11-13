@@ -62,3 +62,11 @@ These predictions concern the **first** rehearsal, with the steps as written tod
 - Other residents' data.
 - The choice of system.
 - Per-door Unix identities. These are the house's decision. This contract measures their effect on tupay, through prediction 3.
+
+## Amendment A1 (2026-11-12, additive; informed by no outcome, since no rehearsal has run)
+**Tony:** amending this acceptance contract is "permissible in an emergency situation only, with a clear record of any deviation." So:
+- the clauses, the cutover rule and the registered predictions (§4) stay as they are, unless an emergency forces a change;
+- such an amendment names the emergency, the clause it changes, what was done instead, and who decided;
+- it is logged before cutover, or, if the emergency prevents that, immediately after.
+
+A deviation without a record counts as a failure of MA1.15.

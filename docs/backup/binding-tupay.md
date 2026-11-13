@@ -1,4 +1,4 @@
-# Tupay's binding to the generic backup contract (draft 5; not registered)
+# Tupay's binding to the generic backup contract: binding v1, for contract draft 7 (not registered)
 
 The twelfth steward, 2026-11-12. This binding maps the roles of `contract-draft-7.md` onto tupay's machines, directories and values. A change of host is a new version of this binding; it is not a change to the contract. **Binding v1 describes the host before the move. The post-move binding, v2, is written when the house's new system exists (`host-requirements.md`).**
 
@@ -25,7 +25,7 @@ The twelfth steward, 2026-11-12. This binding maps the roles of `contract-draft-
 - *D* = 1 h.
 - *X* = 2 h.
 - *Rb* = 2 d.
-- ***G* = 72 h** (recoverable age, B1.19). It must exceed *I* + *X* + *M* = 50 h. 72 h tolerates one missed run or check, and not two.
+- ***G* = 96 h** (recoverable age, B1.19; Tony, 2026-11-12, changed from 72 h). It must exceed *I* + *X* + *M* = 50 h, the normal worst-case age of the newest restore-checked snapshot. Each missed run or check adds *I* = 24 h: one miss gives 74 h, which passes; two in a row give 98 h, which is violated. **Correction:** the steward's 72 h claimed to tolerate one miss, but one miss (74 h) already exceeded it.
 - *K* = 14 d and *Mo* = 6 months.
 - ***Q* = 0.05.** Measured 2026-11-11 from 9 quiet runs. `tupay-private/` and `tupay-homes/` did not change; the bundle's size moved between −0.87 % and +1.32 %. Its noise under author load is unmeasured, so it is measured again after the first round with authors.
 - Derived: ***Dmax* = 27 h** and ***T* = 51 h**, both under contract §6's conditions.
@@ -59,7 +59,10 @@ The rung below is `backup.sh`, its two timers, `backup-check.sh` and `backup-ale
 
 If the service cannot beat both this rung and restic on what they lack, the finding is that a rung was enough.
 
-## Open, for Tony (one batch, none blocking)
-1. **A notice channel that does not depend on S.** Recommendation: wam-nuc sends a single kind of push message when S has been silent longer than *H*, or the daily check has not run for 2 *I*. Which channel would you notice?
-2. **An ssh key for wam-nuc that is not held only on S.** Recommendation: create one and keep it in the house's new key management.
-3. **The move as the first real restore.** This is settled (log, 2026-11-11). The migration acceptance contract (`migration-acceptance-draft-1.md`) defines what passing means.
+## Answered by Tony, 2026-11-12 (his notes kept verbatim; the steward's disposition follows each)
+1. **A notice channel that does not depend on S.** Recommendation: wam-nuc sends a single kind of push message when S has been silent longer than *H*, or the daily check has not run for 2 *I*. Which channel would you notice? [TM: whichever one I am told to watch.  wam-nuc is fine. pundit doesn't have much CPU/memory, but it has plenty of storage.]
+   *Disposition:* the sender runs on wam-nuc. **The channel is the steward's to name, and Tony watches it.** It is named when the alert is built, with its message types fixed and carrying no content from the sources. *pundit* (little CPU, plenty of storage) is recorded as a candidate home for EX1.1's further copy, under the second contract. It is not assumed.
+2. **An ssh key for wam-nuc that is not held only on S.** Recommendation: create one and keep it in the house's new key management. [TM: agreed.  Assignment TBD.]
+   *Disposition:* agreed. The key is created when the house's key management assigns it. Until then the recovery account's dependency stands.
+3. **The move as the first real restore.** This is settled (log, 2026-11-11). The migration acceptance contract (`migration-acceptance-draft-1.md`) defines what passing means.  [TM:Amendment permissible in an emergency situation only, with a clear record of any deviation.]
+   *Disposition:* recorded as amendment A1 of `migration-acceptance-draft-1.md`.

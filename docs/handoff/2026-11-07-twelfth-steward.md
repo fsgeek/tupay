@@ -13,10 +13,11 @@ State, in reading order:
 3. `docs/backup/migration-acceptance-draft-1.md`: the Fedora move as tupay's first real restore. **Its predictions are registered** (commit `9818135`), so do not edit them; amend additively.
 4. `docs/backup/host-requirements.md`: tupay's input to the house's choice of system. Tupay does not choose the system.
 
-**Waiting on Tony** (one batch, none blocking):
-- a notice channel that does not depend on S;
-- an ssh key for wam-nuc held somewhere other than S;
-- his one clean read: the recovery account, the binding's accepted losses, and draft 7.
+**Tony's read is done** (2026-11-12): *G* = 96 h, and his answers are in `binding-tupay.md`.
+- Notice channel: the sender is on wam-nuc, and **the steward names the channel**, which Tony then watches.
+- ssh key: agreed, with the assignment from the house's key management.
+- Migration acceptance: amendment only in an emergency, with a record (A1).
+- *pundit* (plenty of storage) is a candidate home for the off-site copy.
 
 **Not started, and waiting on no one:**
 - the prose arm, derived from draft 7, for the two-arm test of the four-part form;

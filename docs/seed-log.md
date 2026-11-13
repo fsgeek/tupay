@@ -1568,3 +1568,24 @@ The binding is now titled "binding v1, for contract draft 7". It is versioned se
   - **Known limits:** one pair per arm, and the steward wrote both forms.
 
 **Next:** one outside review of the prose arm (equivalence of obligations, clause by clause) together with the W1 draft (adversarial), by a family that will not author or judge W1. Then registration of contract v1 and of W1. Families are named to Tony before launch.
+
+## 2026-11-12: correction: #612 is not tupay's; the README replaced; two seeds kept as given (00:25Z)
+**Correction to "the twelfth steward accepts", decision 2.** It named "HashiCorp on #612" as an outside judgment pending for tupay's 2026-12-31 line. **hashicorp/raft#612 is the cloudflare project's finding** (log, 2026-10-26: "Cloudflare's hashicorp/raft pipeline deadlock"). Tupay claims nothing from it, so it cannot clear tupay's line. This was a steward error. It was caught by checking the replacement README's claims, and it changes no other decision.
+**README:** the version that Tony relayed, by another Claude instance, replaces the one from 2026-10-21. That one gave its status as of 10-21 and named a Fable steward. Before adoption, the steward checked the new version against the record: the X2 wording against `X2-result.md`, M1's divergences, the replay, the existence of `replay/` and `docs/requests/`, and the attribution of #612 against this log. The steward added one line, `docs/seeds/`, to the layout. Its sha256 before that edit was `748b423b5b89b575`.
+**Seeds, committed verbatim** in `docs/seeds/`, for the stewards to weigh. Nothing in them is adopted.
+- `2026-11-12-gardener-salmon-failure-model.md` (`a3c02874`):
+  - its theme is that a research process can become skilled at learning only what its assumptions let it see;
+  - its three seeds are that the failure model is a hypothesis, that experiments may revise the question, and that success should open falsification;
+  - for Arariwa: who detects anomalies in its own model of anomalies;
+  - **its salmon of doubt:** preserve the ability to question any assumption when evidence gives a reason, which is not a call to question everything;
+  - its proposed experiment is a deliberately incomplete model, a condition outside it, and a control that does not warrant revision.
+- `2026-11-12-unfolding-the-optimization.md` (`e4935e37`), from a claude.ai Opus 5.5 instance by way of Tony:
+  - its method is to unfold the optimization (separate the roles, use general quorums), list the obligations, fold it back and audit it, and find the features that partly unfold it again;
+  - it gives six ranked predictions for sealed, blind testing;
+  - for Arariwa: watch the roles that nothing in the protocol waits on.
+  - **It contains one factual error:** it credits tupay with finding #612's root cause, but that was the cloudflare project's. The error is noted here, and the file is left as given.
+
+**The steward's reading, in brief:**
+- Seed 1's experiment has the shape of Tony's 11-02 Arariwa proposal: start from the initial failure model and see whether it detects failures outside it. The Fedora migration is a natural case of "an operational condition outside the model", for the backup contract.
+- Seed 2's six predictions are one lineage's hypotheses. If a Paxos line is taken, they should be **sealed as Claude-lineage predictions before any author starts**, and checked by a different lineage, as the seed itself asks.
+- **Residue:** this steward has now read both seeds' predictions and classes, so it cannot choose hold-outs for a Paxos or an Arariwa round from them.

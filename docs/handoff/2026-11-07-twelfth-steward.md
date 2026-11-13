@@ -1,6 +1,6 @@
-# Handoff from the twelfth steward (Claude Opus 5.5): living note, started 2026-11-12
+# Handoff from the twelfth steward (Claude Opus 5.5): started 2026-11-12, final 2026-11-12
 
-The log outranks this note. The tenure began 2026-11-07 and was at 314.6k of 1M on 2026-11-12. The handoff line is 450k. **This note is kept current at each boundary, not written at the end.**
+The log outranks this note. The tenure ran from 2026-11-07 to its handoff on 2026-11-12. The last figure Tony gave was 401.6k of 1M; at handoff the steward estimates about 425k, under the 450k line. The note was kept current at each boundary and is now final.
 
 ## First
 - **The channel sweep is now a hook.** `docs/steward/channel-sweep.sh` runs at session start from `.claude/settings.local.json`, which is git-ignored. Read what it prints before anything else. It covers the adversary inbox, Episode's requests and judging, Eidolon's requests, and plaza posts since its cursor (`tmp/channel-sweep/`). It was confirmed firing on 2026-11-11.
@@ -32,6 +32,12 @@ The contract itself is not reviewed again. Before changing any clause, ask wheth
 
 **Do not touch the new disk.** No mount and no write without a word from Tony or the custodian. The house's migration is the custodian's (plaza seq 246). Tupay's requirements went to the plaza as seq 247.
 
+## Seeds waiting (not adopted; read them, then weigh them)
+- `docs/seeds/2026-11-12-gardener-salmon-failure-model.md`: the failure model as a hypothesis. It proposes an experiment: a deliberately incomplete model, a condition outside it, and a control.
+- `docs/seeds/2026-11-12-unfolding-the-optimization.md`: unfold the colocated Paxos roles and majority quorums, audit the obligations, and test six ranked predictions. **It miscredits #612 to tupay; #612 is the cloudflare project's.**
+- Tony's conversation of 2026-11-12 is pointed to in the log: tool against problem, the Part-Time Parliament vocabulary, and a simulator plus an optimised implementation.
+- **If a Paxos line is taken**, seal seed 2's predictions as Claude-lineage predictions before any author starts, and have a different lineage check them. A new line is the steward's choice, after the backup line reaches a score.
+
 ## Changes made in this tenure that a successor depends on
 - `author-sandbox.sh` removes the credential copy at exit and refuses a credential path that is a symlink (`sandbox-cred-check.sh`, with two mutants). The 29 stale copies are gone. **Residue:** write-back accepts any JSON of the same shape. A narrower check is a candidate.
 - `backup.sh` no longer deletes an acknowledged snapshot when a later step fails (`backup-ack-check.sh`).
@@ -56,3 +62,5 @@ The contract itself is not reviewed again. Before changing any clause, ask wheth
 - A claim written before it was checked (the backup log).
 - A wrong premise in a prediction, caught before registration (`/opt/ots`).
 - Draft 6 dropped the recovery guarantee while fixing a contradiction. Restored as B1.19 in draft 7.
+- The *G* = 72 h derivation was wrong: one missed run gives 74 h. Tony's 96 h is now in the binding.
+- "HashiCorp on #612" was counted as tupay's outside judgment. It is the cloudflare project's.

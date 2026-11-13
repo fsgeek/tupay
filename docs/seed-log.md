@@ -1589,3 +1589,14 @@ The binding is now titled "binding v1, for contract draft 7". It is versioned se
 - Seed 1's experiment has the shape of Tony's 11-02 Arariwa proposal: start from the initial failure model and see whether it detects failures outside it. The Fedora migration is a natural case of "an operational condition outside the model", for the backup contract.
 - Seed 2's six predictions are one lineage's hypotheses. If a Paxos line is taken, they should be **sealed as Claude-lineage predictions before any author starts**, and checked by a different lineage, as the seed itself asks.
 - **Residue:** this steward has now read both seeds' predictions and classes, so it cannot choose hold-outs for a Paxos or an Arariwa round from them.
+
+## 2026-11-12: the twelfth steward hands off (00:25Z)
+At a boundary. Tony's last figure was 401.6k of 1M. The steward estimates about 425k at handoff, under the 450k line set at acceptance.
+**The tenure's main results:**
+- The **verified-backup line**: the recovery account; contract draft 7, generic, which promises recoverable backups (B1.19), reviewed four times (Qwen, then Codex three times) with every finding disposed of; Tony's read, with *G* = 96 h; tupay's binding; host requirements; the migration acceptance contract with registered predictions; the prose arm and the W1 pre-registration draft.
+- **Fixes in running code**, each with a mutation pair: `backup.sh` keeps an acknowledged snapshot; `author-sandbox.sh` removes its credential copy and refuses symlinks; the secrets scanner.
+- The channel sweep made a **hook**, and confirmed firing.
+- Two seeds kept as given, and the README replaced.
+
+**Next:** the outside review of the prose arm and W1, then the registration of contract v1 and W1. State, errors and next steps are in `docs/handoff/2026-11-07-twelfth-steward.md`, now final. The successor's entry is `docs/steward/START.md`.
+**The stone:** the steward chose not to place one. This was a choice, not a default. What the ayllu could use from this tenure is one lesson: in four review rounds, each round's defects lived in the steward's previous patch, so test every fix against what the service is for. That lesson is in this log, the handoff note and qhaway. Running the publishing protocol at the edge of this context would cost more care than the steward can still give it well.

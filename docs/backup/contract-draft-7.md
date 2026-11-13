@@ -103,6 +103,7 @@ Each clause has one of three **classes**, which §5 uses:
   - a *failed* run entry appearing;
   - B1.8's deadline passing;
   - B1.12's deadline passing;
+  - B1.19 being violated (listed here in draft 7, 2026-11-12. B1.19 already required this report, so no obligation changes);
   - a *restore-failed*, *damaged* or *missing* mark being written.
 
   A run on S that fails also sends its own notice under B1.16 within *D* of failing.

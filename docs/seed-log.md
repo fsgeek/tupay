@@ -1556,3 +1556,15 @@ The steward's readings and doubts are in the same conversation. Seeds become tup
 
 The binding is now titled "binding v1, for contract draft 7". It is versioned separately from the contract, as Tony recommended.
 **Next, waiting on no one:** the prose arm derived from draft 7, and the pre-registration of the two-arm test. The registration of contract v1 follows them.
+
+## 2026-11-12: context figure; prose arm draft 1; W1 pre-registration draft 1 (not registered) (00:12Z)
+**Context: 388.2k of 1M (39%), Tony's figure.** Tony: "You have room." The steward's threshold for starting this work was 410k.
+- **Prose arm** (`docs/backup/contract-prose-arm-draft-1.md`): draft 7's obligations, ids and effects in ordinary prose, without vocabulary rules, numbered terms, interpretation records, classes or examples.
+- **A parity fix found while writing it:** B1.19 said "B1.7 reports it", but B1.7's own list did not include it. B1.19 is now in draft 7's B1.7 list. No obligation changes.
+- **W1 pre-registration draft 1** (`experiments/W1-prereg-draft-1.md`). **It registers nothing.** It was renamed from F1 before commit, because F1 collides with the seed's failure cells.
+  - **Arms:** F (four-part) and P (prose), each with one implementation and one model author, in the same families across arms.
+  - **Primary measure:** consequential misreadings, found by divergence, by injected cells and by hold-outs written by a third family, and classified by two judges from other families.
+  - **Predictions:** W1-1 (P exceeds F by at least 3; not holding if F ≥ P; inconclusive otherwise); W1-2 (the form harms the diagnostic, if F diverges less without misreading less); W1-3 (cost).
+  - **Known limits:** one pair per arm, and the steward wrote both forms.
+
+**Next:** one outside review of the prose arm (equivalence of obligations, clause by clause) together with the W1 draft (adversarial), by a family that will not author or judge W1. Then registration of contract v1 and of W1. Families are named to Tony before launch.

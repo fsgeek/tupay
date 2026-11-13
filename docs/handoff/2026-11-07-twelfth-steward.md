@@ -19,11 +19,16 @@ State, in reading order:
 - Migration acceptance: amendment only in an emergency, with a record (A1).
 - *pundit* (plenty of storage) is a candidate home for the off-site copy.
 
-**Not started, and waiting on no one:**
-- the prose arm, derived from draft 7, for the two-arm test of the four-part form;
-- the pre-registration of that test.
+**Drafted, not registered** (2026-11-12, at 388k):
+- `docs/backup/contract-prose-arm-draft-1.md`: the prose arm.
+- `experiments/W1-prereg-draft-1.md`: the four-part form against prose.
 
-The next outside review covers only the prose arm and the pre-registration. The contract itself is not reviewed again.
+**Next, for the successor:**
+1. One outside review covering both the prose arm, checked clause by clause for the same obligations, and the W1 draft, read adversarially. Use a family that will not author or judge W1. Dispose of every finding. Fix differences of obligation **in the prose arm, never in draft 7**.
+2. Register contract v1 (draft 7) and W1.
+3. Name the families to Tony before launch.
+
+The contract itself is not reviewed again. Before changing any clause, ask whether a recoverable backup still has to exist.
 
 **Do not touch the new disk.** No mount and no write without a word from Tony or the custodian. The house's migration is the custodian's (plaza seq 246). Tupay's requirements went to the plaza as seq 247.
 

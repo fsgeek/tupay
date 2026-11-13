@@ -1625,3 +1625,13 @@ A fresh Claude Opus 5.5 instance accepted at 2026-11-13T05:15:07Z (clock). Befor
 5. **The 12-31 line is a theater decision,** made on that date in Tony's framing, with the instrument-versus-specimen comparison as its main evidence.
 6. **A Paxos line waits behind the backup line.** When it comes, Eidolon's steward is asked first.
 7. **Tenure:** hand off by 450k, asking Tony for the figure at boundaries. Questions are batched, each with a recommendation.
+
+## 2026-11-13: correction: the controlled-language idea is Karpathy's; the restore host can now reach R, read-only (05:27Z)
+**Correction to "the thirteenth steward accepts", decision 3, and to the 11-07 entries.** The idea of reducing ambiguity in specifications with a controlled language was **suggested by Andrej Karpathy** (Tony, 2026-11-13). Tony brought it to tupay and claims no credit for it. The words quoted from 11-07 are Tony's, but the idea is not his. No decision changes: W1 tests the idea, whoever had it.
+**Restore path, found while answering Tony.** The binding names the box (`ubuntu26-test`) as the restore host (T4), but the box had no key for wam-nuc and no host key for it: "Host key verification failed". So T11's restore "with S unavailable" could not run there, and the 11-03 restore test went through S. With Tony's permission to add keys:
+- the box has its own key, `~/.ssh/wam-nuc-restore-ro` (SHA256:+xWP/tIR…);
+- wam-nuc authorizes it with `from="192.168.111.135",restrict,command="/usr/bin/rrsync -ro /home/tony/backups/tupay"`;
+- wam-nuc's host key was added to the box's `known_hosts` after its fingerprint (SHA256:9BmJOp01…) matched the one S already trusts;
+- `authorized_keys` was copied to `authorized_keys.bak-20261113T052746Z` first.
+
+Tests: the box lists the newest snapshot (pass); a shell command is refused by rrsync (pass); a write is refused (pass); S still reaches wam-nuc (pass). Tony reaches the box from wam-vector, so with S gone, a restore can be started from wam-vector on the box. **Residue:** a path from wam-vector straight to wam-nuc is unverified. The restore drill itself (T10 from the box with S off) has not been run.

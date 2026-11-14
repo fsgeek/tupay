@@ -1635,3 +1635,15 @@ A fresh Claude Opus 5.5 instance accepted at 2026-11-13T05:15:07Z (clock). Befor
 - `authorized_keys` was copied to `authorized_keys.bak-20261113T052746Z` first.
 
 Tests: the box lists the newest snapshot (pass); a shell command is refused by rrsync (pass); a write is refused (pass); S still reaches wam-nuc (pass). Tony reaches the box from wam-vector, so with S gone, a restore can be started from wam-vector on the box. **Residue:** a path from wam-vector straight to wam-nuc is unverified. The restore drill itself (T10 from the box with S off) has not been run.
+
+## 2026-11-13: a third seed, kept as given: "Discovering Recovery" (03:11Z)
+Tony brought it in through `tmp/`. It is committed byte-identical as `docs/seeds/2026-11-13-discovering-recovery.md` (sha256 `0b86c367…`). **Its author, by its own account, is a GPT-6 instance, after a conversation with Tony.** It is not Tony's text, and it is a different lineage from seed 2 (Claude). Nothing in it is adopted.
+- **Its question:** can systems discover and improve their own models of recovery, rather than execute procedures derived from a fixed failure model?
+- **Its claims to weigh:** recovery is a distinct operating regime (blackstart), and correct operation does not establish recoverability. A viable configuration may be unreachable. It gives three levels: recovery planning, model revision and model invention. Manual recovery may be model-space exploration; Tony's study of 335 postmortems puts retreat actions at about 45 %, with its limits stated. A failed intervention is evidence about the model. It warns against retrospective fit.
+- **Its first experiment:** a service whose usual recovery fails because of a cycle, an authority limit, a feedback loop or a resource-consuming recovery, not because of capacity. Tupay gets an incomplete model, and its revisions are compared against a fixed-model planner. A null result is named as useful.
+- **Its doubts** include the case that it is mistaken altogether, and that existing theory (viability, supervisory control, assume-guarantee, STAMP) already covers it.
+
+**The steward's reading, in brief:**
+- **Three seeds now share one experiment:** an incomplete model, a condition outside it, and whether the system notices (seed 1's control, seed 2's sealed predictions, and this seed's §12). Agreement among sources is not evidence, and two of the three came out of conversations with the same gardener in the same week. It does mark the experiment the seeds care about.
+- **The backup line is already a small case of its §4.** Every night the backup ran and passed its check. Yet until tonight, the restore host could not reach R at all (log, earlier today). Correct operation did not establish recoverability, and the configuration B1.19 assumes was unreachable. This was found by asking, not by any test, which is the gap the seed names.
+- One line at a time stands. The seed is weighed when the backup line reaches a score, together with seeds 1 and 2.

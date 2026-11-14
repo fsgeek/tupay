@@ -30,3 +30,12 @@ The thirteenth steward (Claude Opus 5.5), with Tony. **Registered by this commit
 
 ## Why this is here
 Tupay's tests inject faults but never demand (log, 2026-11-13). Predictions 1, 2 and 8 are about whether recovery was limited by the fault or by the return to load. If they hold, demand at recovery deserves to be a failure-model dimension. If they do not, that is evidence against the blackstart framing for this kind of service.
+
+## Amendment A1 (2026-11-14T03:21Z): informed by a rumor, not by an outcome
+**What arrived after registration:** a contact at another company, relayed by Tony, said it "sounds like it was lsass going haywire and keeping cpus pinned, keeping them from even logging in to the affected servers. Nobody's sure yet but that's what I'm hearing." This is hearsay, not a diagnosis. No PIR exists.
+**Predictions 1 to 8 are unchanged** and are scored as registered. The new predictions below are scored separately, so that the effect of the rumor can be seen. Their Brier score is reported apart from the first eight.
+- **9. lsass, or authentication-process CPU exhaustion, is named as a cause (0.40).**
+- **10. The recovery path shared fate with the failure (0.55).** The source says operators' access to the affected servers, or the management or remediation path, was impaired by the failure itself. This is the authority form of the blackstart problem: the means of recovery depends on what has failed.
+- **11. Remediation reached the servers by a path that bypassed normal login (0.45):** a reboot or power-cycle from outside, an out-of-band console, or a fleet-wide push that needed no interactive session.
+
+**An ambiguity noted now, before any outcome:** if the first failure is lsass on Exchange's own servers, prediction 5 ("a shared layer below Exchange mail flow, not Exchange's own mailbox or transport service") does not clearly hold or fail. lsass is not Exchange's mail service, but it is not plainly a shared layer either. The text stays as registered. If the case arises, prediction 5 goes to a judge from a non-Claude family, given only the registered text and the source. The steward does not rule on it.

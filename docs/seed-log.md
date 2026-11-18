@@ -1807,3 +1807,6 @@ The check (US$0.49) is kept as `docs/backup/review/kimi-w1/check-1.md`.
 - W1-5 is stated as a package comparison, not equal compute.
 
 The prose arm's worked-cases heading now repeats "each is also a test case". The **second and last check** under the stop rule is `scripts/steward/w1-check2.py` (Kimi; packet `7026d9838bf6d34c`).
+
+## 2026-11-18: context figure; the launch goes to the successor (03:22Z)
+**Context: 369.3k of 1M (37%), Tony's figure.** The handoff line is 450k. Launching W1 (five briefs and their leak review, the hold-outs and coverage matrix, the box rebuilt, five authors) will not fit in the roughly 80k left without crowding the handoff. **Decided:** this tenure disposes of the last check, registers contract v1 and W1 if they pass, and writes the handoff note with the launch steps. The successor launches.

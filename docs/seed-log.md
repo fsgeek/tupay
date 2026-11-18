@@ -1771,3 +1771,17 @@ Kimi (`moonshotai/kimi-k3.1-pro`, US$0.48) returned 26 findings. They are kept v
 
 **Correction to acceptance decision 1:** `backup.sh` is not a fair baseline, because it was not built to this contract. The specimen built without the workflow is arm N.
 **Next:** prose arm draft 2, then W1 draft 3, then one outside check of both diffs, then registration.
+
+## 2026-11-18: prose arm draft 2 and W1 draft 3 written; one check of the changes sent to Kimi (03:11Z)
+- **`docs/backup/contract-prose-arm-draft-2.md`** fixes Kimi's findings 1 to 16, each by carrying draft 7's substance; draft 1 is kept. The 53 changed lines are in `review/kimi-w1/prose-1-to-2.diff`. Draft 7 §12's worked cases are copied byte for byte (checked with `diff`), and four dangling T-id references in them are replaced with plain words.
+- **`experiments/W1-prereg-draft-3.md`**, the exploratory pilot:
+  - arms F, P and N;
+  - author-facing copies generated from the normative sections only (S1);
+  - one clarification rule for every author;
+  - concurrent runs with equal per-author budgets;
+  - hold-outs from the prose arm, with a coverage matrix of at least 2 schedules per BF1 cell, committed before any author starts;
+  - a six-step decision tree;
+  - a primary count that needs both judges to agree;
+  - measure 5 as two booleans per schedule;
+  - predictions W1-1, W1-3 and the new **W1-5** (workflow: arm N fails at least 3 more schedules than arm P). **W1-2 and W1-4 are retired.**
+- **Check** (`scripts/steward/w1-check.py`; Kimi; packet sha256 prefix `fee6ee93d15bf055`, 119,926 characters): it asks whether each finding is resolved and whether the changes added new defects. **It is not a new review round.** The steward's patches have carried the next defect four times, and arm N and the decision tree are new text.

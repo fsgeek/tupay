@@ -1796,3 +1796,14 @@ The check (US$0.49) is kept as `docs/backup/review/kimi-w1/check-1.md`.
 
 **Every new item lies in text the steward added in draft 3**, the fifth round in a row in which the steward's patch carried the next defect.
 **Stop rule (fixed now, before draft 4's check is seen):** draft 4 gets **one** check. After it, only blocking items are fixed, and each fix is registered without a further check. Anything else becomes a known limit in the registration.
+
+## 2026-11-18: W1 draft 4; the last check sent (03:21Z)
+`experiments/W1-prereg-draft-4.md` (draft 3 is kept) answers check items 19, 21 and 26 to 32:
+- **units** are (artifact, clause id) pairs taken from the `derives:` tags on assertions, so they are fixed before any run, and nobody groups after outcomes;
+- a qualifying finding is a failed tagged assertion or a divergence on a tagged observable, and "consequential" is dropped;
+- the permitted-reading test comes first, and a schedule that accepts one of several permitted readings is a test defect;
+- model expressibility is decided by each model's own runner before any hold-out outcome is read, and frozen;
+- *reported* means the channel's record holds a notice naming the clause within the event's own bound, with only the two reachability cases excused, and schedules run until every window has closed;
+- W1-5 is stated as a package comparison, not equal compute.
+
+The prose arm's worked-cases heading now repeats "each is also a test case". The **second and last check** under the stop rule is `scripts/steward/w1-check2.py` (Kimi; packet `7026d9838bf6d34c`).

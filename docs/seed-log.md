@@ -1745,3 +1745,13 @@ It is appended to `docs/backup/recovery-account.md` as a dated section, with the
 
 **Review:** `scripts/steward/w1-review.py` with `moonshotai/kimi-k3.1-pro` through OpenRouter, one call, no tools. The packet (57,105 characters, sha256 prefix `b0f120f2007287cf`) contains draft 7, the binding, the prose arm and W1 draft 2. Part A is equivalence clause by clause, and part B is an adversarial reading. The task names kinds of defect, never a suspected one.
 **Steward pre-review finding (not given to the reviewer):** draft 7 §8 ("What Arariwa observes, not normative") contains a steward hypothesis, "The steward expects it to raise three things unprompted…", and the prose arm has no counterpart. Author-facing, that is a hypothesis handed to arm F's authors only, which breaks the practice rule and the arms' symmetry. It is disposed of together with the review's findings. It falls in the class of W1's planned non-Claude leak review of the briefs.
+
+## 2026-11-18: practice audit (acceptance decision 4) (02:59Z)
+`docs/steward/practice-audit-2026-11-18.md` classifies the 37 rules of `steward-practice.md`:
+- 16 **method**;
+- 7 **mechanism**;
+- **4 failed**: no hypotheses to authors; never edit a running script; no host git in an author checkout; tracked processes. Each recurred after its rule, as the log shows;
+- **9 single-incident**;
+- 1 superseded.
+
+Tony's suspicion holds in part. 20 of 37 began as cautions. 13 are still kept in memory, and 4 of those failed. The method rules are not cautions. **Proposed, not yet applied:** a mechanism for each failed rule; single-incident cautions moved to their point of use, with one-line handles; START.md's entry ritual changed to method plus mechanisms, with error entries consulted when a task touches them. These are applied after the W1 review is disposed of.

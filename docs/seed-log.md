@@ -1813,3 +1813,22 @@ The prose arm's worked-cases heading now repeats "each is also a test case". The
 
 ## 2026-11-18: the restore host shares fate with S (03:24Z)
 Tony: ubuntu26-test runs under Hyper-V on **WAM-THREADRIPPER**, S's own machine. T4's data-path rule holds, but losing the machine loses S and the restore host together. The contract requires physical separation for R only (T3), so this is a **binding-level risk**, recorded in the recovery account. Until binding v2 puts a restore host on separate hardware (*pundit* first), recovery after machine loss rests on Tony's key reaching wam-nuc from wam-vector or the Mac, which is unverified. Verifying it is the successor's first owed check. **For v2's failure model:** the independence of the restore host is a property of the binding that no check tested. `restore-path-check.sh` tests the data path, not fate-sharing.
+
+## 2026-11-18: contract v1 and W1 registered (03:26Z)
+**Kimi's second and last check** (US$0.31; `docs/backup/review/kimi-w1/check-2.md`):
+- items 21, 27, 28 and 32 are resolved;
+- 19, 26, 29, 30 and 31 are resolved or partly resolved, with residual or new items 33 to 37;
+- **33 is blocking:** a schedule's end depended on windows closing, so a channel that never returns leaves no end, and "at least" a tail lets the horizon be chosen after outcomes.
+
+**Under the stop rule (fixed before the check was seen):**
+- 33 is fixed. Every schedule states its own **fixed scoring horizon**, committed with its hash. *Recoverable* is evaluated there. *Reported* is false only for deadlines due and unmet by the horizon. Later windows are **censored**.
+- 34 to 37 are registered as **known limits**: simplified reporting rules; *unclassified* units, kept out of every count; raw counts not adjusted for exposure; and non-expressible schedules reported beside measure 2.
+- No further check.
+
+**Registered by this commit:**
+- **Backup contract v1** = `docs/backup/contract-draft-7.md`, sha256 `aa782b31fb1ffd98a7c4c3e60982ff02a52da6e30b8a61b911f61ece0094f42a` (arm F).
+- Its prose arm, `docs/backup/contract-prose-arm-draft-2.md`, sha256 `b58691939e326a1566fd5570285d057d0ee3ae3bc4abe16586636d0e22e54c54` (arms P and N). Kimi found it obligation-equivalent to v1.
+- **Binding v1**, `docs/backup/binding-tupay.md`, sha256 `2a70b3473c60c334664b2a5b29ae401c22decb706f9550fc328a31638cfec3d3` (the host before the move).
+- **W1**, `experiments/W1-prereg.md`, sha256 `58f9040f7576a07c23784344472013faf3c36a34650ad17394fbf37316ded6c5`: an exploratory pilot with arms F, P and N, and predictions W1-1 (form), W1-3 (cost) and W1-5 (workflow).
+
+From now on, an interpretation chooses only among readings the text permits, and any change of obligation is a new version (CHANNEL.md amendment 1). **Not launched:** the launch steps are in the handoff note. The families were named to Tony in chat on 11-18 (W1 § Families), and are named to him again at launch. The OpenRouter spend for this review cycle was US$1.27 over three Kimi calls.

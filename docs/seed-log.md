@@ -1662,3 +1662,12 @@ A contact at another company, relayed by Tony, reported hearsay: lsass pinning C
 1. **Contract v1 does not change.** Adding a cell now would be new text in a contract whose last four patches each carried the next defect.
 2. **The recovery account, which describes today rather than the contract, gets a dependency inventory:** each restore step with what it transitively needs, marked where that need could share fate with the failure. This uses Tony's knowledge of which accounts use email codes.
 3. **v2's planned failure-model change** joins encryption (the key holder is itself a recovery-path dependency) with a new kind of cell: *a dependency of the recovery path is unavailable, possibly because of the failure itself.* This is not a parameter like X2, nor only a new locus like X3. It may be the substantial failure-model change on which Tony's adapt-or-regenerate hyperplane needs a test.
+
+## 2026-11-17: M365 predictions scored provisionally against Microsoft's preliminary PIR (00:27Z)
+The scoring rule for a preliminary, third-party-hosted PIR was fixed (A2, commit `31a6125`) **before the PDF was opened**. The PDF presents itself as Microsoft's PIR for EX1550543/MO1550821 and counts. The score is in `experiments/M365-2026-11-provisional-score.md`:
+- **held:** 1, 2, 3, 5, 8 and 10;
+- **not held:** 6, 7 and 9;
+- **to a judge:** 4 (the latent change against the day's trigger);
+- **not determinable:** 11.
+
+The Brier score on 1 to 8 is 0.23 to 0.26, against the 0.25 baseline, so **at chance**. The most confident prediction (7, at 0.85) failed. The rumor's predictions: 0.18 over two. **Owed:** a non-Claude judge for prediction 4, a non-steward review before the score is final, and the final PIR (due about 11-20). Beside the score: the PIR states that recovery was prolonged by waiting traffic, and that the resiliency mechanisms (failover, redirection) drove the cascade. That supports demand, and recovery mechanisms as fault sources, as v2 failure-model cells. The PDF is in `tupay-private/` because its notice forbids reproduction.

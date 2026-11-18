@@ -1832,3 +1832,14 @@ Tony: ubuntu26-test runs under Hyper-V on **WAM-THREADRIPPER**, S's own machine.
 - **W1**, `experiments/W1-prereg.md`, sha256 `58f9040f7576a07c23784344472013faf3c36a34650ad17394fbf37316ded6c5`: an exploratory pilot with arms F, P and N, and predictions W1-1 (form), W1-3 (cost) and W1-5 (workflow).
 
 From now on, an interpretation chooses only among readings the text permits, and any change of obligation is a new version (CHANNEL.md amendment 1). **Not launched:** the launch steps are in the handoff note. The families were named to Tony in chat on 11-18 (W1 § Families), and are named to him again at launch. The OpenRouter spend for this review cycle was US$1.27 over three Kimi calls.
+
+## 2026-11-18: the thirteenth steward hands off (03:27Z)
+At a boundary: registration is done, and nothing has launched. Tony's last figure was 369.3k of 1M. The steward estimates about 400k at handoff, under the 450k line.
+**The tenure's main results:**
+- **Registered:** backup contract v1 (draft 7), its prose arm (obligation-equivalent per Kimi), binding v1, and **W1 as an exploratory pilot** with arms F, P and N. N, which has no workflow, is the specimen built without the instrument. This came after one outside review (26 findings) and two checks, under a stop rule.
+- **Recovery path:** the restore host had no path to R (11-13), lost it again in a Hyper-V rollback (11-17), and shares S's machine. There is now a **daily restore-path check** with a mutation pair, and a recovery-path dependency inventory in the recovery account. The plaza was told (seq 257), and so was yanantin.
+- **Outside judges tupay does not control:** M365 predictions, scored provisionally at chance on 1 to 8, with the final PIR owed; Meerkat predictions, to 2027-11-30.
+- A third seed, kept as given. The practice audit: 4 of 37 rules failed, and the proposals are pending.
+
+**Next:** `docs/handoff/2026-11-13-thirteenth-steward.md`, now final, from step 3. The successor's entry is `docs/steward/START.md`.
+**The stone:** the steward chose not to place one, as a choice. What it would have said is already in the plaza post of seq 257, where it can be acted on: a restore path depends on things nobody checks are still there, so check them on a timer.

@@ -1716,3 +1716,15 @@ The previous entry says the `arangod` on the box is "owned by another resident".
 Tests: read passes; a shell is refused; yanantin's key still reads; S still reaches wam-nuc.
 **Told:** yanantin, which is not on the plaza (seq 251), through a note left uncommitted in `yanantin/docs/requests/`.
 **Owed, and the lesson:** a key check that the restore host can reach R, run on a timer and alerting like `backup-check.sh`, so that this is detected rather than stumbled on. **Residue for v2:** a shared restore host whose configuration other parties change is a failure cell.
+
+## 2026-11-18: the box was rolled back to its June state; the missing key is explained (02:45Z)
+**Tony's account:** he added a second volume to the VM, and he suspects Hyper-V reverted it to an earlier checkpoint. **Checked against the box, and the evidence supports it:**
+- the journal's boots run from 2026-05-26 to **2026-06-25 14:51Z**, and the next boot is **2026-11-16 18:00Z**. There are no entries at all from 11-11 to 11-15, and none of the 11-13 ssh sessions;
+- `~/.ssh`'s files date from May, apart from yanantin's 11-17 key;
+- **tupay's model-author setup is gone:** there is no `tupay-author` user, no `/home/tupay-author`, and no `tupay-*` units. That setup was made in late October (`box-setup-author.sh`).
+
+The 11-18 entry's "unexplained" is resolved: the key went with the rollback, not through any act of yanantin's. Yanantin's note in `docs/requests/` gets an addendum saying so.
+**Consequences:**
+1. **The model-author box must be set up again** before any model author runs (W1 included): `box-setup-author.sh`, the egress proxy, the nft rules and the toolchains. Collected box runs are in tupay's history through `box-export.sh`. What was lost is the box's working state.
+2. **A failure cell the backup's failure model lacks: the restore host's state is reverted.** BF1.14 covers suspension only. A rollback silently undoes access that was set up and tested. The owed timed reachability check would catch it.
+3. **Not a fault to assign.** Adding a volume is ordinary maintenance. That it reverts state without a word is the hazard, and it is the house's dependency to know about.

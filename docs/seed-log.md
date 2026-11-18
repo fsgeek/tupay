@@ -1671,3 +1671,6 @@ The scoring rule for a preliminary, third-party-hosted PIR was fixed (A2, commit
 - **not determinable:** 11.
 
 The Brier score on 1 to 8 is 0.23 to 0.26, against the 0.25 baseline, so **at chance**. The most confident prediction (7, at 0.85) failed. The rumor's predictions: 0.18 over two. **Owed:** a non-Claude judge for prediction 4, a non-steward review before the score is final, and the final PIR (due about 11-20). Beside the score: the PIR states that recovery was prolonged by waiting traffic, and that the resiliency mechanisms (failover, redirection) drove the cascade. That supports demand, and recovery mechanisms as fault sources, as v2 failure-model cells. The PDF is in `tupay-private/` because its notice forbids reproduction.
+
+## 2026-11-18: M365 amendment A3: Tony's bounded-pool hypothesis, for the final PIR (00:34Z)
+Reading the preliminary PIR, Tony recognised cross-component thread-pool deadlocks, "where queuing to a pool with a fixed cap on its size looks just like an allocation failure", the class his patent US 9,535,759 addresses. A contact at another company called it "such a vanilla outage". Registered as prediction 12, **informed by the preliminary PIR**, and scored only against the final PIR. The steward gives it 0.30, with the reason stated first: pinned CPU argues against a pure blocked-pool deadlock.

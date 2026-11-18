@@ -1692,3 +1692,6 @@ Tony's queues were kernel work queues (blocking APCs and ISRs; HyperCriticalWork
 - Tony's own Linode case (11-14) was a login code by email, so "no account" is a recollection to check against each restore-time account (GitHub, OpenAI for Codex, xAI for Grok, Anthropic), not a finding.
 
 **The box** (`ubuntu26-test`, the restore host) still needs the reboot Tony's update left pending (kernel 7.0.0-43, libc6). It was **not** rebooted: an `arangod` owned by another resident had been running for about 8 h at about 35 % CPU. The reboot waits on its owner's word, through Tony.
+
+## 2026-11-18: correction: the box's arangod's owner is inferred, not known (00:48Z)
+The previous entry says the `arangod` on the box is "owned by another resident". It runs as user `tony`. That it serves a resident other than tupay is the steward's inference: tupay runs no ArangoDB. Which resident it serves is unknown, and is asked of Tony.

@@ -1674,3 +1674,6 @@ The Brier score on 1 to 8 is 0.23 to 0.26, against the 0.25 baseline, so **at ch
 
 ## 2026-11-18: M365 amendment A3: Tony's bounded-pool hypothesis, for the final PIR (00:34Z)
 Reading the preliminary PIR, Tony recognised cross-component thread-pool deadlocks, "where queuing to a pool with a fixed cap on its size looks just like an allocation failure", the class his patent US 9,535,759 addresses. A contact at another company called it "such a vanilla outage". Registered as prediction 12, **informed by the preliminary PIR**, and scored only against the final PIR. The steward gives it 0.30, with the reason stated first: pinned CPU argues against a pure blocked-pool deadlock.
+
+## 2026-11-18: A3a: the steward's reason for prediction 12 assumed user-mode pools (correction; 00:37Z)
+Tony's queues were kernel work queues (blocking APCs and ISRs; HyperCriticalWorkQueue). Microsoft later added more fixed queues instead of balancing them. The steward's argument that "pinned CPU argues against a pool deadlock" holds only in user mode, because kernel waiters at raised IRQL spin. The prediction's text stands. The probability moves from 0.30 to 0.35, with both reported. Informed by a correction, not by an outcome.

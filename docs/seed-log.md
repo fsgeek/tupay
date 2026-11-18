@@ -1695,3 +1695,8 @@ Tony's queues were kernel work queues (blocking APCs and ISRs; HyperCriticalWork
 
 ## 2026-11-18: correction: the box's arangod's owner is inferred, not known (00:48Z)
 The previous entry says the `arangod` on the box is "owned by another resident". It runs as user `tony`. That it serves a resident other than tupay is the steward's inference: tupay runs no ArangoDB. Which resident it serves is unknown, and is asked of Tony.
+
+## 2026-11-18: Tony's answers: the box's arangod, the GPG key, login codes (00:51Z)
+- The `arangod` on the box is another project's backup-verification run. The box reboot waits until Tony returns to that project.
+- The GPG keys are believed saved, by a separate process. **If they are lost, they are regenerated and the new key is put on GitHub.** For the signing key, regeneration is the accepted recovery. History stays attested by the OTS proofs, which do not depend on the key. A regeneration updates `NOTICE` and keeps the old public key published, so old signatures remain checkable.
+- Login codes: Akamai uses email, and Tony avoids email codes elsewhere. He holds a stash of **backup codes**. The inventory's question for each restore-time account is therefore one line: can Tony log in with S gone and email down, and from where?

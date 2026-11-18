@@ -1755,3 +1755,19 @@ It is appended to `docs/backup/recovery-account.md` as a dated section, with the
 - 1 superseded.
 
 Tony's suspicion holds in part. 20 of 37 began as cautions. 13 are still kept in memory, and 4 of those failed. The method rules are not cautions. **Proposed, not yet applied:** a mechanism for each failed rule; single-incident cautions moved to their point of use, with one-line handles; START.md's entry ritual changed to method plus mechanisms, with error entries consulted when a task touches them. These are applied after the W1 review is disposed of.
+
+## 2026-11-18: Kimi's review: 26 findings, all accepted; W1 becomes an exploratory pilot with an arm N; acceptance decision 1 corrected (03:09Z)
+Kimi (`moonshotai/kimi-k3.1-pro`, US$0.48) returned 26 findings. They are kept verbatim in `docs/backup/review/kimi-w1/review.md`, with dispositions in `DISPOSITIONS.md`.
+- **Part A (16 findings, equivalence):** all accepted, and fixed in the prose arm only. The patch is checked once more, for those changes only, because the steward's patches have carried the next defect four rounds in a row.
+- **Part B (10 findings, 4 blocking):** all accepted. W1 is **reclassified as an exploratory, descriptive pilot**:
+  - a pre-registered decision tree for the primary count;
+  - the primary count needs both judges to agree;
+  - a supported-reading divergence class;
+  - a separate contract-defect adjudication;
+  - a fixed hold-out coverage matrix;
+  - one rule for clarifying questions, the same for every author;
+  - W1-2 and W1-4 withdrawn.
+- **Arm N added (Kimi's fix for finding 25):** a Codex implementation author with the prose arm and the binding, and no workflow. P against N tests the workflow, and F against P tests the form.
+
+**Correction to acceptance decision 1:** `backup.sh` is not a fair baseline, because it was not built to this contract. The specimen built without the workflow is arm N.
+**Next:** prose arm draft 2, then W1 draft 3, then one outside check of both diffs, then registration.

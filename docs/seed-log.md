@@ -1785,3 +1785,14 @@ Kimi (`moonshotai/kimi-k3.1-pro`, US$0.48) returned 26 findings. They are kept v
   - measure 5 as two booleans per schedule;
   - predictions W1-1, W1-3 and the new **W1-5** (workflow: arm N fails at least 3 more schedules than arm P). **W1-2 and W1-4 are retired.**
 - **Check** (`scripts/steward/w1-check.py`; Kimi; packet sha256 prefix `fee6ee93d15bf055`, 119,926 characters): it asks whether each finding is resolved and whether the changes added new defects. **It is not a new review round.** The steward's patches have carried the next defect four times, and arm N and the decision tree are new text.
+
+## 2026-11-18: Kimi's check: prose arm equivalent; W1 draft 3 not yet fit (2 blocking); a stop rule, fixed before the next check (03:20Z)
+The check (US$0.49) is kept as `docs/backup/review/kimi-w1/check-1.md`.
+- **Findings 1 to 16 are resolved.** No hunk introduced a new difference of obligation. **The prose arm (draft 2) is obligation-equivalent to draft 7.** One editorial item: P's worked-cases heading should repeat "each is also a test case".
+- **W1 draft 3:**
+  - resolved: 17, 18, 20, 22 to 25;
+  - partly resolved: 19, 21, 26;
+  - **new: 27 (blocking:** the primary intersection has no stable unit, and the steward groups after outcomes); 28 ("consequential by construction" is asserted, not defined); 29 (step 2 exits before the supported-reading test); 30 (model expressibility is an unfixed exclusion); **31 (blocking for W1-5:** "reported" is not determinate); 32 (minor: W1-5 compares packages, not equal compute).
+
+**Every new item lies in text the steward added in draft 3**, the fifth round in a row in which the steward's patch carried the next defect.
+**Stop rule (fixed now, before draft 4's check is seen):** draft 4 gets **one** check. After it, only blocking items are fixed, and each fix is registered without a further check. Anything else becomes a known limit in the registration.

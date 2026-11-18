@@ -11,6 +11,7 @@ f="$(mktemp)"; trap 'rm -f "$f"' EXIT
   echo "Most recent status lines:"
   tail -n 2 "$LOG" 2>/dev/null || echo "(no backup log at $LOG)"
   /home/tony/projects/tupay/scripts/steward/backup-check.sh 2>&1 || true
+  /home/tony/projects/tupay/scripts/steward/restore-path-check.sh 2>&1 || true
   echo "Script: tupay scripts/steward/backup.sh. Written by a script, not a steward session. Nothing is owed by anyone but tupay's steward."; } > "$f"
 cd /home/tony/projects/hamutay
 "$PLAZA" send --by guest:tupay --to plaza --carrier script --text-file "$f" >/dev/null

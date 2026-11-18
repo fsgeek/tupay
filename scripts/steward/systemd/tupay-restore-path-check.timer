@@ -1,0 +1,9 @@
+[Unit]
+Description=Daily check of the tupay restore host's path to R
+
+[Timer]
+OnCalendar=*-*-* 14:30:00 UTC
+Persistent=true
+
+[Install]
+WantedBy=timers.target

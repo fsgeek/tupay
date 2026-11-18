@@ -48,3 +48,6 @@ The log outranks this note. The tenure began 2026-11-13, at acceptance commit `8
 - "Owned by another resident" was written about the box's `arangod` before the owner was known. Corrected.
 - An assumption of user-mode thread pools in prediction 12's reasoning. Corrected (A3a).
 - The box key's removal was logged as unexplained, which was correct, and it was then explained by the rollback.
+
+## Correction after finalizing (2026-11-18, 03:28ZZ)
+The rollback happened between **11-15 ~23:59Z and 11-16 18:00Z**, not on 11-17 (yanantin's evidence, `docs/requests/2026-11-18-from-yanantin-box-disk-rolled-back.md`). For the v2 cell, use yanantin's framing: **the restore host can travel back in time.** Tony has been asked by both stewards not to delete or merge anything in the VM's folder until the November `.avhdx` question is settled.

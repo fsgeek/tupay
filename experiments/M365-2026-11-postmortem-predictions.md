@@ -39,3 +39,10 @@ Tupay's tests inject faults but never demand (log, 2026-11-13). Predictions 1, 2
 - **11. Remediation reached the servers by a path that bypassed normal login (0.45):** a reboot or power-cycle from outside, an out-of-band console, or a fleet-wide push that needed no interactive session.
 
 **An ambiguity noted now, before any outcome:** if the first failure is lsass on Exchange's own servers, prediction 5 ("a shared layer below Exchange mail flow, not Exchange's own mailbox or transport service") does not clearly hold or fail. lsass is not Exchange's mail service, but it is not plainly a shared layer either. The text stays as registered. If the case arises, prediction 5 goes to a judge from a non-Claude family, given only the registered text and the source. The steward does not rule on it.
+
+## Amendment A2 (2026-11-18T00:26Z): how a preliminary PIR scores, fixed before it is read
+Tony pointed to a PDF, `https://www.365fanatic.com/wp-content/uploads/2026/11/PostIncidentReport.pdf`, and noted that it is **preliminary and subject to revision**. It is hosted by a third party. **The steward has not opened it when this amendment is committed.**
+- **Provenance:** the PDF counts as Microsoft's PIR if it presents itself as Microsoft's post-incident report for this incident (an incident id, Microsoft as author, and a timeline matching the status feed's 22:00Z update). Otherwise it is third-party reporting and does not score. Its sha256 is recorded when it is fetched.
+- **A preliminary PIR gives a provisional score.** Every prediction (1 to 11) is scored against it under the registered rules, and the result is reported as **provisional**. The **final score** is taken from Microsoft's final PIR, if one appears by 2027-01-31. If none appears, the provisional score becomes the final one, and is labelled as resting on a preliminary report.
+- Where the final PIR differs from the preliminary one, both scores are reported, never only the better one.
+- Prediction 5's ambiguity rule (A1) applies unchanged.

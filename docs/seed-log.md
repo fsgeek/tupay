@@ -1677,3 +1677,18 @@ Reading the preliminary PIR, Tony recognised cross-component thread-pool deadloc
 
 ## 2026-11-18: A3a: the steward's reason for prediction 12 assumed user-mode pools (correction; 00:37Z)
 Tony's queues were kernel work queues (blocking APCs and ISRs; HyperCriticalWorkQueue). Microsoft later added more fixed queues instead of balancing them. The steward's argument that "pinned CPU argues against a pool deadlock" holds only in user mode, because kernel waiters at raised IRQL spin. The prediction's text stands. The probability moves from 0.30 to 0.35, with both reported. Informed by a correction, not by an outcome.
+
+## 2026-11-18: context figure; Tony's answers; Meerkat predictions registered; the box not rebooted (00:48Z)
+**Context: 220.5k of 1M (22%), Tony's figure.** The handoff line stays at 450k.
+**Tony:**
+- the Microsoft final PIR: wait;
+- the QuePaxa predictions: "I don't think Cloudflare will care. If they do, then they aren't the right place for me";
+- ssh keys are backed up in a private location away from S, and could go into the Azure backup once that runs properly;
+- "As far as I know, no account sends login codes by email."
+
+**Registered:** `experiments/Meerkat-2026-11-defect-predictions.md`, six predictions (Q1 to Q6) with probabilities. They are scored against Cloudflare's own publications by 2027-11-30. The steward read a subagent's summary of the post, not the post itself, and the file says so.
+**Open, for the dependency inventory:**
+- the project's signing key is **GPG** (`1D7C4A68…`), not ssh. Whether Tony's private backup holds it is unconfirmed;
+- Tony's own Linode case (11-14) was a login code by email, so "no account" is a recollection to check against each restore-time account (GitHub, OpenAI for Codex, xAI for Grok, Anthropic), not a finding.
+
+**The box** (`ubuntu26-test`, the restore host) still needs the reboot Tony's update left pending (kernel 7.0.0-43, libc6). It was **not** rebooted: an `arangod` owned by another resident had been running for about 8 h at about 35 % CPU. The reboot waits on its owner's word, through Tony.

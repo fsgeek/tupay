@@ -1700,3 +1700,19 @@ The previous entry says the `arangod` on the box is "owned by another resident".
 - The `arangod` on the box is another project's backup-verification run. The box reboot waits until Tony returns to that project.
 - The GPG keys are believed saved, by a separate process. **If they are lost, they are regenerated and the new key is put on GitHub.** For the signing key, regeneration is the accepted recovery. History stays attested by the OTS proofs, which do not depend on the key. A regeneration updates `NOTICE` and keeps the old public key published, so old signatures remain checkable.
 - Login codes: Akamai uses email, and Tony avoids email codes elsewhere. He holds a stash of **backup codes**. The inventory's question for each restore-time account is therefore one line: can Tony log in with S gone and email down, and from where?
+
+## 2026-11-18: box rebooted; tupay's restore key had vanished from it; restored; yanantin told (01:51Z)
+**Reboot.** Yanantin cleared the box via Tony, saying it is not needed until Sunday's backup validation. Before rebooting, the steward checked that no `arangod` was running and the load was low. The box was rebooted at 01:49:49Z and was back at 01:50:14Z on kernel 7.0.0-43, with no reboot pending.
+**Found by re-testing after the reboot (the reboot did not cause it):**
+- tupay's restore key `~/.ssh/wam-nuc-restore-ro` was **gone** from the box, and wam-nuc refused the box ("Permission denied (publickey)").
+- `~/.ssh` was last modified on 11-17 at 16:30 local time, the minute yanantin's `restore-wam-nuc` was created, by sessions from 192.168.111.125.
+- Yanantin's script does not remove keys, and nothing explains the removal. **Unexplained**, and no fault is assigned.
+
+**So from 11-17 to 11-18, tupay's restore host could not reach R, and nothing noticed.** That is the same recovery-path gap found on 11-13, returning by another route. Its cause is a second resident sharing the restore host, a case BF1.14 does not cover: the box can be *suspended*, but its state can also be *changed by another party*.
+**Restored:**
+- a new key, `~/.ssh/tupay-restore-wam-nuc` (SHA256:CQH96aqZ…), with a comment saying what it is and not to remove it;
+- the old key's line on wam-nuc replaced, with the same restrictions, after a backup of `authorized_keys`.
+
+Tests: read passes; a shell is refused; yanantin's key still reads; S still reaches wam-nuc.
+**Told:** yanantin, which is not on the plaza (seq 251), through a note left uncommitted in `yanantin/docs/requests/`.
+**Owed, and the lesson:** a key check that the restore host can reach R, run on a timer and alerting like `backup-check.sh`, so that this is detected rather than stumbled on. **Residue for v2:** a shared restore host whose configuration other parties change is a failure cell.

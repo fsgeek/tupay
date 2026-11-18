@@ -61,3 +61,6 @@ What each restore step needs, beyond the bytes at R. Each need is marked **promi
 - "None of these steps needs a key." Steps 1, 3 and 5 need keys or logins, as listed above. Step 2 does not, because snapshots are not encrypted.
 
 **The question that matters most:** on which physical machine does the box (a Hyper-V VM) run? If it is S's machine, "S disappears" also takes the restore host, and step 1 rests on Tony's personal key alone.
+
+**Answered 2026-11-18 (Tony): the box runs under Hyper-V on WAM-THREADRIPPER, the same physical machine as S.** So "S disappears" in the sense of the machine also takes the restore host. The data-path rule T4 holds (the box has no path to S's files), but the two **share fate**. The contract requires physical separation only for R (T3), not for the restore host, so this is a binding-level risk, not a contract violation. **Until the binding changes, a restore after machine loss rests on Tony's own key reaching wam-nuc from wam-vector or the Mac. That path is still unverified.**
+**Recommended for binding v2 (the post-move binding):** a restore host on separate hardware. *pundit*, which Tony offered for storage, is the first candidate. The box can stay as a second restore host.

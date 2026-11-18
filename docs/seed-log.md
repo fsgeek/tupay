@@ -1810,3 +1810,6 @@ The prose arm's worked-cases heading now repeats "each is also a test case". The
 
 ## 2026-11-18: context figure; the launch goes to the successor (03:22Z)
 **Context: 369.3k of 1M (37%), Tony's figure.** The handoff line is 450k. Launching W1 (five briefs and their leak review, the hold-outs and coverage matrix, the box rebuilt, five authors) will not fit in the roughly 80k left without crowding the handoff. **Decided:** this tenure disposes of the last check, registers contract v1 and W1 if they pass, and writes the handoff note with the launch steps. The successor launches.
+
+## 2026-11-18: the restore host shares fate with S (03:24Z)
+Tony: ubuntu26-test runs under Hyper-V on **WAM-THREADRIPPER**, S's own machine. T4's data-path rule holds, but losing the machine loses S and the restore host together. The contract requires physical separation for R only (T3), so this is a **binding-level risk**, recorded in the recovery account. Until binding v2 puts a restore host on separate hardware (*pundit* first), recovery after machine loss rests on Tony's key reaching wam-nuc from wam-vector or the Mac, which is unverified. Verifying it is the successor's first owed check. **For v2's failure model:** the independence of the restore host is a property of the binding that no check tested. `restore-path-check.sh` tests the data path, not fate-sharing.

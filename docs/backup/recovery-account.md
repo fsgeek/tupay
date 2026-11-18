@@ -35,3 +35,29 @@ None of these steps needs a key, because snapshots are not encrypted today.
 
 ## Why this comes first
 Every clause in the contract drafts should make one of the rows above better, or remove a loss from the list. The Fedora move (plaza seq 246) will be **the first real restore**. Done from wam-nuc onto the new disk, with the old disk untouched as the way back, it is also the test of this account.
+
+---
+
+## Recovery-path dependencies (added 2026-11-18, by the thirteenth steward)
+What each restore step needs, beyond the bytes at R. Each need is marked **promised** (a party has committed to it), **observed** (it works today, and nobody has promised it) or **incidental** (a side effect nobody intends). The last column says what it could fail together with. This section was prompted by the M365 outage and Tony's Akamai login (log, 2026-11-14), and by the box rollback (log, 2026-11-18). The rows above are unchanged. Where this section updates one of them, it says so.
+
+| Step | Needs | Held where | Kind | Could fail together with |
+|---|---|---|---|---|
+| 1. Reach R without S | the restore host's own key to R (`tupay-restore-wam-nuc`, read-only by rrsync) | the box | observed; **checked daily** by `restore-path-check.sh` from 11-18 | **the box's physical host, if that is S's machine (unknown; asked of Tony)**; a hypervisor rollback (happened 11-17; a June checkpoint still exists); suspension (BF1.14) |
+| | Tony's route to the box | wam-vector (Tony verified, 11-13) | observed | — |
+| | Tony's route straight to wam-nuc | wam-nuc authorizes one personal key (SHA256:Nu/tv…), which S holds. Tony keeps his keys backed up privately. | observed; **whether wam-vector or the Mac holds that exact key is unverified** | S, if no other machine holds it |
+| 2. Check the manifest | `sha256sum` | any host | — | — |
+| 3. Clone the bundle; point `origin` at GitHub | git; to push, a GitHub ssh key and the account | Tony's keys (private backup); account second factor: backup codes (Tony) | observed | email, only if a recovery falls back to it. Tony avoids email codes. |
+| 4. Copy `tupay-private/`, `tupay-homes/` | nothing beyond step 1 | R | — | — |
+| 5a. Log the harnesses in again | Codex (OpenAI account), Grok (xAI), Claude Code (Anthropic) | Tony's accounts; backup codes | observed | **per account, unverified:** whether any login falls back to email |
+| 5b. The stamp hook | the OTS client (`uv sync` from PyPI; `.venv` is not in the bundle) and the public OTS calendars | the internet | observed | internet loss. Stamps stay *pending* and then upgrade, which delays but does not block. |
+| 5c. Signing new commits with the project key | GPG key `1D7C4A68…` | `~/.gnupg` on S; Tony believes there is a separate saved copy | observed. **Accepted recovery: regenerate**, publish the new key on GitHub, update `NOTICE`, and keep the old public key published. History stays attested by OTS, independently of the key. | S |
+| 5d. Timers, the Go and uv caches | systemd units in the repository; `proxy.golang.org` and PyPI | repository; internet | observed | internet loss (it costs time, not data) |
+| 5e. Model authors on the box | `box-setup-author.sh`, the egress units, and the toolchains, rebuilt | repository; the box | observed. **Lost in the 11-17 rollback; to be rebuilt before any model author runs** | the box's host; rollback |
+| Notice of S's silence | the plaza and the alert | **S** | — | **S**, as row "The wait" above says. This is unchanged and is still the account's largest gap. |
+
+**Superseded rows above, by fact:**
+- "Unknown to the steward: whether your Mac or another machine has its own key for wam-nuc." The box has had its own key since 11-13, re-made on 11-18 and now checked daily. A direct path from Tony's machines is still unverified.
+- "None of these steps needs a key." Steps 1, 3 and 5 need keys or logins, as listed above. Step 2 does not, because snapshots are not encrypted.
+
+**The question that matters most:** on which physical machine does the box (a Hyper-V VM) run? If it is S's machine, "S disappears" also takes the restore host, and step 1 rests on Tony's personal key alone.

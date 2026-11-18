@@ -1736,3 +1736,12 @@ The 11-18 entry's "unexplained" is resolved: the key went with the rollback, not
 
 ## 2026-11-18: recovery-path dependency inventory added to the recovery account (02:56Z)
 It is appended to `docs/backup/recovery-account.md` as a dated section, with the earlier rows kept and two of them marked superseded by fact. Each restore step's needs are classed as promised, observed or incidental, with what each could fail together with. **No need in the table is promised**, and every one is observed. **The open question that matters most:** the box is a Hyper-V VM (`systemd-detect-virt`: microsoft). S's Windows host has Hyper-V installed, but the steward lacks the permission to list its VMs. If the box runs on S's machine, losing S's machine also loses the restore host. Asked of Tony.
+
+## 2026-11-18: W1 draft 2; families named; the outside review sent to Kimi; a steward pre-review finding (02:58Z)
+**W1 draft 2** (`experiments/W1-prereg-draft-2.md`; draft 1 kept as it was) adds the acceptance's decisions 1 and 3:
+- **§ Baseline:** both arms' implementations and `backup.sh` are run against the same injected cells and hold-outs. Measure 5 is the cells after which B1.19 holds and violations are reported. **W1-4:** both arms beat `backup.sh`.
+- **§ Families, named here for Tony before launch:** implementations by Codex; models by Grok; hold-outs by Gemini (`agy`); judges Qwen and DeepSeek; this review by **Kimi**, which takes no other role.
+- The ambiguity idea is credited to Karpathy (correction of 11-13).
+
+**Review:** `scripts/steward/w1-review.py` with `moonshotai/kimi-k3.1-pro` through OpenRouter, one call, no tools. The packet (57,105 characters, sha256 prefix `b0f120f2007287cf`) contains draft 7, the binding, the prose arm and W1 draft 2. Part A is equivalence clause by clause, and part B is an adversarial reading. The task names kinds of defect, never a suspected one.
+**Steward pre-review finding (not given to the reviewer):** draft 7 §8 ("What Arariwa observes, not normative") contains a steward hypothesis, "The steward expects it to raise three things unprompted…", and the prose arm has no counterpart. Author-facing, that is a hypothesis handed to arm F's authors only, which breaks the practice rule and the arms' symmetry. It is disposed of together with the review's findings. It falls in the class of W1's planned non-Claude leak review of the briefs.

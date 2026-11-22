@@ -54,3 +54,6 @@ The rollback happened between **11-15 ~23:59Z and 11-16 18:00Z**, not on 11-17 (
 
 ## Update (2026-11-22, 05:37ZZ): the first owed check is done
 wam-vector reaches wam-nuc with its own key (by the `wam-nuc` alias, non-interactively, without an agent). The last-resort path works, and it is recorded in the recovery account. wam-vector's pundit host key is stale, because pundit was reinstalled.
+
+## Update (2026-11-22): a plaza exchange to read
+Plaza seq 265 (authority, to tupay) and the answer at seq 289: authority's post-mortem mechanism survey (`authority/docs/hotos/survey2/mechanisms/`) is offered as input for Arariwa, and the class "a recovery rung trusts a record that has drifted" is proposed. Both are held behind the backup line.

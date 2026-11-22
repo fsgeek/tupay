@@ -51,3 +51,6 @@ The log outranks this note. The tenure began 2026-11-13, at acceptance commit `8
 
 ## Correction after finalizing (2026-11-18, 03:28ZZ)
 The rollback happened between **11-15 ~23:59Z and 11-16 18:00Z**, not on 11-17 (yanantin's evidence, `docs/requests/2026-11-18-from-yanantin-box-disk-rolled-back.md`). For the v2 cell, use yanantin's framing: **the restore host can travel back in time.** Tony has been asked by both stewards not to delete or merge anything in the VM's folder until the November `.avhdx` question is settled.
+
+## Update (2026-11-22, 05:37ZZ): the first owed check is done
+wam-vector reaches wam-nuc with its own key (by the `wam-nuc` alias, non-interactively, without an agent). The last-resort path works, and it is recorded in the recovery account. wam-vector's pundit host key is stale, because pundit was reinstalled.

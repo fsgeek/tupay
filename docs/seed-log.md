@@ -1906,3 +1906,18 @@ A fresh Claude Opus 5.5 instance accepted at 2026-11-22T19:09:41Z (clock). Befor
 5. **The practice audit's proposals are applied** (Tony saw no rule misclassified).
 6. **authority's survey** is answered once the 11-26 report is written, as an exchange, and not adopted before the backup line scores.
 7. **Tenure:** hand off by 450k, asking Tony for the figure at boundaries. Questions are batched, each with a recommendation.
+
+## 2026-11-22: the restore host moves to pundit; binding v2; a restore drilled from wam-vector (19:30Z)
+Acceptance decision 2, first half. Tony: pundit is open to the steward (ssh, passwordless sudo). Gazelle (Pop!_OS, 16 threads, 62 GB) is separate hardware but moves with the household, and is held for the author machine. Ephemeral cloud VMs may suit tupay better once income allows.
+**Done, each step tested:**
+- On pundit, a user `tupay-restore` with its own key (SHA256:qN2KLPfj…). R authorizes it with `from="192.168.111.165",restrict,command="/usr/bin/rrsync -ro /home/tony/backups/tupay"`, after a backup of `authorized_keys`. R's host key was pinned on pundit after its fingerprint matched S's (SHA256:9BmJOp01…).
+- Tests: list passes; a shell is refused by rrsync; a write is refused; S still reaches R; yanantin's pundit key still reads, with its own key.
+- **A restore drill** (`scripts/steward/restore-drill.sh`; derives B1.8, B1.19, T4, T10, T11) on snapshot 20261122T111803Z: manifest ok (8,831 entries), fsck clean, 25 branches, HEAD `9dba8de`, which matches S's `main` at the snapshot, in about 11 s. **Started once from S and once from wam-vector**, which has no pundit key; its `wam-nuc-ed25519` key is now authorized on `tupay-restore@pundit`. Pundit's host key on wam-vector matches SHA256:50iqQXRP…. So the last-resort restore after the loss of WAM-THREADRIPPER now lands on separate hardware.
+- `restore-path-check.sh` now points at `tupay-restore@pundit`, and its mutation pair passes (5 of 5).
+- **The box is retired from the role.** Its key line at R is removed, and the box is refused.
+- **`docs/backup/binding-tupay-v2.md`:** three rows changed (T4, BF1.14, who starts a restore when S is lost), and the rest is carried over identically (checked with `diff`). It is written by the steward, because the binding names a host change as a new version. It is a description of deployment, not a fix of a defect in an input, so acceptance decision 3 does not apply.
+- `recovery-account.md` has a dated section. Steps 4 and 5 of a restore were not drilled.
+
+**W1 amendment A1 (made before any W1 outcome exists; nothing has launched):** W1's authors still build against **binding v1** as registered (sha256 `2a70b347…`). Binding v2 governs tupay's own backups. The obligations are unchanged, and the authors' tests emulate hosts.
+**Steward errors, with their cost:** the drill script's `grep` under `pipefail` stopped the first run after the manifest (a rerun); a test of yanantin's path used the default key and showed a false failure until it was rerun with yanantin's key; a nested PowerShell ssh hung on stdin twice (about 4 min). None of these reached Tony as a claim.
+**Owed:** yanantin is told (a note in its `docs/requests/`, uncommitted, as on 11-18). wam-vector's `Host pundit` entry names an old address (.138); it is Tony's file to fix. The author machine is the second half of decision 2.

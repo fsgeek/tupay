@@ -7,7 +7,7 @@
 # the place a restore runs can still get at them.
 # Overrides for the mutation pair (restore-path-check-check.sh): BOX, KEY, R, LOG, SNAP.
 set -euo pipefail
-BOX="${BOX:-ubuntu26-test}"
+BOX="${BOX:-tupay-restore@pundit}"                # binding v2 (2026-11-22): pundit, separate hardware; was ubuntu26-test
 KEY="${KEY:-~/.ssh/tupay-restore-wam-nuc}"          # a path on the restore host, not on S
 R="${R:-tony@192.168.111.160}"                       # R as the restore host reaches it
 LOG="${LOG:-/home/tony/backups/tupay/backup-log.jsonl}"

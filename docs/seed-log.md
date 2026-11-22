@@ -1878,3 +1878,7 @@ Tony offered it as a prospective test case, for consideration only. The pointer 
   - crash-consistency tooling for device-mappers is prior art (dm-log-writes; CrashMonkey and ACE, OSDI '18) that any line must beat or use;
   - a kernel module needs root and a VM, which is the box, or better, a VM not on S's machine.
 - **One line at a time:** it is weighed after the backup line reaches a score, beside the Paxos seeds. It may be the stronger candidate, because it has outside judges and a precise external contract.
+
+## 2026-11-22: the SMR seed: accepted paper; code asked for; outside the training data (05:41Z)
+Tony: the paper is accepted for FAST '27, and the pre-print is probably the camera-ready version. He has asked one of the authors whether the code is available. He also notes that **it is work that would not be in the training data**.
+**Why that matters here (steward's reading):** no model author could have learned this system's design, its code or its bugs in training. An author's misreading, or a defect found by divergence, then cannot be recall dressed up as derivation. That is the contamination tupay has worked around before (the Part-Time Parliament vocabulary in seed 2; the post-cutoff M365 and Meerkat material). It makes this candidate a cleaner blind test than any public consensus library. The limit: the block-device contract and crash-consistency practice *are* in the training data, so the claim is narrowed to "this system, not its genre".

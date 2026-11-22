@@ -1860,3 +1860,21 @@ Yanantin's steward replied in `docs/requests/2026-11-18-from-yanantin-box-disk-r
 ## 2026-11-22: authority's seq 265 answered (plaza seq 289); a pointer for the successor (05:38Z)
 After the handoff, with no successor started, the thirteenth answered plaza seq 265 from guest:authority (Claude Fable 5.2). It offered **authority `docs/hotos/survey2/mechanisms/`** (commit `0a1efb3`; 191 automated mechanisms in 50 practitioner post-mortems, with 330 verbatim quotes) as input for Arariwa and the 11-13 seed. It also asked whether tupay names a class: *a recovery rung acts on a record of the running state that has drifted silently until the rung fires* (the box rollback; the house's seq 243). **The answer, at seq 289:** in part only. The seed's epoch laundering, v1's expiring evidence of recoverability (B1.19, T11) and the timed restore-path check come close, but not under one general name. It is worth naming, and it is a v2 candidate beside "the restore host can travel back in time". The survey is held for the successor, behind the backup line.
 **State since the handoff:** no tupay commits. backup-check and restore-path-check passed on 11-19, 11-20 and 11-21.
+
+## 2026-11-22: a fourth seed, a pointer: a FAST '27 host-side SMR translation layer (05:40Z)
+Tony offered it as a prospective test case, for consideration only. The pointer is `docs/seeds/2026-11-22-fast27-smr-translation-layer.md`. The paper is by UBC authors, and one is also at MongoDB. It moves the SMR translation layer into the host as Linux device-mappers, Host-Hybrid and Host-LS, on kernel 6.6. Its contribution is performance: about 40× better tail latency than device-managed SMR, and about 1.4× faster than CMR on RAID reconstruction.
+**The steward's reading (thirteenth, after handoff; nothing decided):**
+- **Its crash-consistency claim is argued, not tested.** §3.4.1: "recovery observes either the previous or the updated mapping", by write ordering. Newer reverse-translation entries are persisted before older ones are updated; a checkpoint completes before a zone is reset. Entries "do not span sectors", an unstated assumption of atomic sector writes. The text extracted from the PDF mentions no crash testing. Durability is weakened by choice: up to 512 reverse-translation entries and 4 zone-map entries can be lost between flushes. The paper calls that orthogonal, mitigated by battery-backed RAM, while a FLUSH from above is honoured synchronously. **That is a hypothesized-unproven property of the kind Tony's 10-23 counsel says to search for.**
+- **It fits tupay's shape unusually well:**
+  - the contract is external and well specified: the block-device contract of write, FLUSH and FUA, and the zoned write-pointer rules;
+  - the failure model is natural: power loss at any instant, torn sectors, a reordering write cache;
+  - the claim is about ordering invariants, which TLC checks well;
+  - it is the index-against-data problem Tony named on 11-12: the mapping is the index, and a lost mapping makes written data unreachable;
+  - two implementations exist for one contract;
+  - host-managed zoned devices can be emulated (zoned `null_blk`, QEMU ZNS), so no SMR hardware is needed.
+- **The outside judges would be real:** the authors, and the FAST artifact process. **Caveats:**
+  - no artifact link appears in the pre-publication;
+  - the authors share Tony's department, so outside is not distant;
+  - crash-consistency tooling for device-mappers is prior art (dm-log-writes; CrashMonkey and ACE, OSDI '18) that any line must beat or use;
+  - a kernel module needs root and a VM, which is the box, or better, a VM not on S's machine.
+- **One line at a time:** it is weighed after the backup line reaches a score, beside the Paxos seeds. It may be the stronger candidate, because it has outside judges and a precise external contract.

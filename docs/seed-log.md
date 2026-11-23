@@ -2022,3 +2022,13 @@ StepFun-F's reply mentions the section in an overview list item at line 15 (`5. 
 **What it changes:** nothing registered. For a contract v2 it is evidence for keeping the four-part form, and the 36 + 18 + 18 questions it gathered are v2's material. W1 stays suspended.
 
 **Correction to the previous entry:** the questions gathered are 46 on P (8 + 28 + 10) and 26 on F (8 + 8 + 10), 72 in all. "36 + 18 + 18" was the steward's arithmetic error.
+
+## 2026-11-23: the backup line closes as a study; the service stays; W1 closed unlaunched; context 420.1k (20:06Z)
+**Tony:** "How much more is there to gain from the backup study? It is a single event. We have robust backups, complete with tests that actually verify our ability to restore from it."
+**Agreed and decided:**
+1. **The backup line closes as a line of study.** The service, its timers (`backup`, `backup-check`, `restore-path-check`) and the recovery account stay: they are the ayllu's. Restore host: pundit (binding v2).
+2. **W1 is closed unlaunched.** Its registration (`d65e9b4`) stands as record. **W1-1, W1-3 and W1-5 are never scored**, and that is reported as such, not as nulls. Amendment A2's interface, Kimi's check and the 72 contract questions (46 on P, 26 on F; `experiments/W1/interface/`, `experiments/W2/`) are kept as material for any v2. No v2 is planned.
+3. **What the line gave**, for the 12-31 decision:
+   - *Operational:* the restore host off S's machine; a drill started from wam-vector; timed checks that caught real drift twice; a dependency inventory. All of these were found by asking, not derived from the contract.
+   - *Method:* deriving tests after registration found the contract untestable, which parallel drafting would have caught early; W2's weak support for the four-part form; eight rounds of steward patches carrying the next defect.
+4. **Context: 420.1k of 1M (Tony's /context).** The handoff line is 450k, so the fourteenth hands off now. The next line is the successor's to choose. The fourteenth's recommendation is in the handoff note.

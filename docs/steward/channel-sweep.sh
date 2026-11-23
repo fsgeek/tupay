@@ -24,6 +24,10 @@ for l in sys.stdin:
 else echo "-- plaza: nothing after seq $last (or unreadable: check plaza_status)"; fi
 # Practice rule 53 (audit 2026-11-18, proposal 1): author processes that no harness of this session tracks. A steward
 # seeing any here must find the run it belongs to in the log and attach a tracked watcher, or stop it.
-au=$(ps -eo pid,etimes,args | grep -E 'bwrap .*tupay-homes|tupay-author-' | grep -v grep)
-units=$(systemctl --user list-units --no-legend 'tupay-author-*' 2>/dev/null; ssh -o BatchMode=yes -o ConnectTimeout=5 ubuntu26-test "systemctl list-units --no-legend 'tupay-author-*'" 2>/dev/null)
+# Author argv is author-controlled, so it is never printed (security review 2026-11-23): only pid, elapsed seconds and a
+# name matched by a strict pattern (the author home, or the unit name).
+au=$(ps -eo pid=,etimes=,args= | grep -E 'bwrap .*tupay-homes|tupay-author-' | grep -v grep | while read -r pid et rest; do
+  nm=$(grep -o -E 'tupay-homes/[A-Za-z0-9_.-]{1,64}|tupay-author-[A-Za-z0-9_.-]{1,64}' <<<"$rest" | head -1)
+  echo "  pid $pid, ${et}s, ${nm:-unnamed}"; done)
+units=$({ systemctl --user list-units --no-legend --plain 'tupay-author-*' 2>/dev/null; ssh -o BatchMode=yes -o ConnectTimeout=5 ubuntu26-test "systemctl list-units --no-legend --plain 'tupay-author-*'" 2>/dev/null; } | grep -o -E '^tupay-author-[A-Za-z0-9_.-]{1,64}\.(service|scope)' | sed 's/^/  unit /')
 [ -n "$au$units" ] && { echo "-- author processes running (attach a watcher or account for them):"; echo "$au"; echo "$units"; } || echo "-- author processes: none running"

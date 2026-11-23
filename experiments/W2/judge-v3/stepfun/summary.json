@@ -1,0 +1,18 @@
+{
+ "family": "stepfun",
+ "status": "ok",
+ "list1": "F",
+ "n": {
+  "F": 8,
+  "P": 10
+ },
+ "grounded": {
+  "F": 8,
+  "P": 10
+ },
+ "matched_pairs": 3,
+ "I": {
+  "F": 5,
+  "P": 8
+ }
+}

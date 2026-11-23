@@ -2009,3 +2009,14 @@ StepFun-F's reply mentions the section in an overview list item at line 15 (`5. 
 **On the record:** W2 was built so that the steward could not steer the count after outcomes. The steward's scripts have now needed two amendments informed by outcomes. Both amendments correct section detection only: each turns a 0 that the text plainly contradicts into a count of numbered items. Neither changes what counts as an item. The registered result is reported first in every case.
 
 **Correction to the previous entry:** at the moment of commit, only StepFun-P had a `cell.json`. Mistral-F was still running. The rest of the entry stands.
+
+## 2026-11-23: W2 scored: both predictions hold, registered and amended; the steward's forecast was wrong in direction (19:30Z)
+`experiments/W2-result.md` (final). Contract questions, P against F: **GLM 8 against 8** (registered F 0, an artifact), **StepFun 10 against 8** (registered F 0, an artifact), **Mistral 28 against 10**.
+- **W2-1** (fewer on F in a majority of families): holds, registered (3 of 3) and amended (2 of 3, GLM tied).
+- **W2-2** (more unmatched issues on P): holds, registered (43 against 7) and amended (37 against 17), mostly from Mistral.
+
+**The steward gave W2-1 0.40, reasoning that F's length would raise more questions. That was wrong in direction.** The forms provoke largely different questions: 2 to 5 matched pairs per family.
+**Measured, not anticipated:** the judge varies at temperature 0 on byte-identical input (Mistral: 3 against 5 pairs).
+**Reading:** this is weak, exploratory support for the idea behind W1-1 (Karpathy's). Readers building tests listed fewer open points from the four-part form, and never more. Questions are not misreadings, so it says nothing about authors.
+**Result review:** Kimi, artifacts and arithmetic only. One minor finding (a cost total from rounded parts), answered. Cost: W2 US$0.57, and the review US$0.29.
+**What it changes:** nothing registered. For a contract v2 it is evidence for keeping the four-part form, and the 36 + 18 + 18 questions it gathered are v2's material. W1 stays suspended.

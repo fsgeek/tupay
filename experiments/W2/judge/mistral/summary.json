@@ -1,0 +1,18 @@
+{
+ "family": "mistral",
+ "status": "ok",
+ "list1": "P",
+ "n": {
+  "P": 28,
+  "F": 10
+ },
+ "grounded": {
+  "P": 28,
+  "F": 10
+ },
+ "matched_pairs": 3,
+ "I": {
+  "P": 25,
+  "F": 7
+ }
+}

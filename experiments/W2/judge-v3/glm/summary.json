@@ -1,0 +1,18 @@
+{
+ "family": "glm",
+ "status": "ok",
+ "list1": "F",
+ "n": {
+  "F": 8,
+  "P": 8
+ },
+ "grounded": {
+  "F": 8,
+  "P": 8
+ },
+ "matched_pairs": 2,
+ "I": {
+  "F": 6,
+  "P": 6
+ }
+}

@@ -1,0 +1,3 @@
+1. **Minor — Cost, “W2 total: US$0.57.”** The total does not reconcile with the stated figures. The exact new-cell costs sum to  
+   \(0.079002672 + 0.0868721 + 0.069617 + 0.0698745 = 0.305366272\).  
+   Adding the reported judge cost of US$0.09 and review cost of US$0.18 gives **US$0.575366272**, which rounds to **US$0.58**. The displayed cent-rounded components likewise sum to \(0.08+0.09+0.07+0.07+0.09+0.18=\mathbf{0.58}\). If US$0.57 instead comes from unrounded judge or review response-file costs, those exact amounts are not supplied, so that reconciliation cannot be verified here. This does not affect either prediction’s arithmetic.

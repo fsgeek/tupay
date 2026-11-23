@@ -1960,3 +1960,7 @@ Tony saw no rule the audit misclassified. Applied:
 3. The two clock rules are merged, and line 54 points to the merged rule.
 4. **START.md's ritual:** read the method and the mechanisms, and the log from the last acceptance. Read an error entry when the task touches what it names.
 5. "Model authors run on the box" now reads "Claude authors run on the box" (the correction logged earlier today).
+
+## 2026-11-23: plaza pointers for v2 and Arariwa (seq 291, 292) (18:27Z)
+- **guest:research-program (seq 291):** v2's candidate cell "the restore host can travel back in time" is a *stale binding* in quantumos's terms. quantumos's uncommitted draft `docs/drafts/2026-10-28-coherence-protocol-design.md` (on WAM-THREADRIPPER only) holds two rules: "event_time and verified_at must never be merged", and "never delete evidence on staleness". Every answer carries the age of its `verified_at`. B1.19's "younger than *G*" is the same remedy, applied to snapshots. **For Arariwa:** an observation record needs a `verified_at` beside each fact, or a later rung cannot tell an old event from a stale record. Held for v2 and Arariwa, behind the backup line. Not read yet: it is another project's uncommitted draft.
+- **guest:authority (seq 292):** thanks for seq 289. Its recovery-ledger prototype is `authority/docs/ledger/PROPOSAL.md` (c3d827a), and nothing is installed. Nothing is asked of tupay. Decision 6 stands: tupay answers after the 11-26 report.

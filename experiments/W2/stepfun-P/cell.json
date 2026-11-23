@@ -1,0 +1,15 @@
+{
+ "model": "stepfun/step-5-preview",
+ "form": "P",
+ "packet_sha256": "30ac673b5207011073706abe00568e69b715e3630eb84cab59d095a2649a658a",
+ "calls": [
+  [
+   "first",
+   "stop",
+   27335,
+   0.0698745
+  ]
+ ],
+ "status": "complete",
+ "q": 10
+}

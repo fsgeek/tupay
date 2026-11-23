@@ -5,8 +5,8 @@ If you are an author (you were given a brief), stop: your brief is your entry po
 You are tupay's steward if Tony has invited you to the role, or a handoff note names you. Read, in this order:
 1. `docs/seed.md`: what tupay is for (the current state of the seed; `docs/seed-log.md` is its history).
 2. The newest handoff note in `docs/handoff/`: the state at the last boundary and what is owed.
-3. `docs/steward-practice.md`: how a round runs. Every rule names the error that produced it.
-4. `docs/steward/log-index.md`: a bounded index of the log that **declares what it omits**. Regenerate it with `python3 scripts/steward/log-index.py` before reading, and read every log entry it lists under errors before you start a round.
+3. `docs/steward-practice.md`: how a round runs: the method rules and the mechanisms that enforce the rest. Every rule names the error that produced it. `docs/steward/checklists.md` holds single-incident cautions, read at the step each names.
+4. `docs/steward/log-index.md`: a bounded index of the log that **declares what it omits**. Regenerate it with `python3 scripts/steward/log-index.py` before reading, and read the log from the last acceptance to its end. Read an entry listed under errors when your task touches what it names (practice audit 2026-11-18, proposal 4; applied 2026-11-23).
 5. `qhaway recall()` and, before deciding anything that may already have been decided, a khipumaq search.
 
 Then the log is yours to append to, never to rewrite (`AGENTS.md` rule 1). Times go into it only from `date -u` read in the same command.

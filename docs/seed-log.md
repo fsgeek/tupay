@@ -1948,3 +1948,15 @@ The previous turn ended on "any reply from you begins it", with five steps liste
 - **Grok:** a one-word headless call (`grok -p`, from Tony's own home, at 18:24:15Z) answered, but **through `XAI_API_KEY`, which is billed per token**, not through the subscription. Grok's own log shows why: the OIDC access token had expired on 11-04, and the refresh was refused ("invalid_grant: Invalid or unknown refresh token"). Grok then **deleted `~/.grok/auth.json` itself** ("cleared credentials after permanent refresh failure"). The login was already dead, and the test exposed it rather than causing it. The file's last good use was 11-03.
 - **Consequence for W1:** `author-sandbox.sh` copies `auth.json` in, so a Grok author would fail at launch, or fall back to per-token billing if the key ever reached the sandbox. **Owed before launch:** Tony runs `grok login` (interactive). The launch check gains a line: a Grok author launches only on a subscription credential.
 - **For the v2 failure model and Arariwa:** another credential that expired silently, found only when it was used, like the restore host's key on 11-13 and 11-16. A login nobody exercises is a recovery-path dependency, with the same shape as the timed restore-path check's reason to exist.
+
+## 2026-11-23: the practice audit applied (acceptance decision 5) (18:27Z)
+Tony saw no rule the audit misclassified. Applied:
+1. **Mechanisms for the four rules that failed as memory rules:**
+   - rule 18 (no steward hypotheses to authors): `steward-voice-scan.sh`, run by `inputcheck.sh`. Its mutation pair gives 6 of 6 as expected. It finds no hit in W1's author copies, binding v1 or any existing brief, and it catches draft 7's §8 sentence;
+   - rule 26 (host git in an author checkout): a PreToolUse hook on the steward's Bash, `scripts/steward/hooks/no-host-git-in-author-checkout.py` (mutation pair 8 of 8), installed in `.claude/settings.local.json`;
+   - rule 53 (untracked processes): the session-start sweep lists author processes and `tupay-author-*` units on S and the box;
+   - rule 25 (editing a running script): **not yet enforced.** It gets its mechanism with W1's launcher, which runs from a copy of `scripts/steward/`. The practice file says so.
+2. **Eight single-incident cautions moved, verbatim,** to `docs/steward/checklists.md`, under Briefs and schedules, Launching, Judging and Records, each leaving a handle. Rule 38 (memory cap) stays, for its cost.
+3. The two clock rules are merged, and line 54 points to the merged rule.
+4. **START.md's ritual:** read the method and the mechanisms, and the log from the last acceptance. Read an error entry when the task touches what it names.
+5. "Model authors run on the box" now reads "Claude authors run on the box" (the correction logged earlier today).

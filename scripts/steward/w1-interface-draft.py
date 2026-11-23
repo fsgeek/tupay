@@ -35,6 +35,7 @@ packet = ''.join(parts); (out / 'packet.md').write_text(packet)
 h = hashlib.sha256(packet.encode()).hexdigest()[:16]
 if os.environ.get('DRY'): print(len(packet), 'chars; packet sha256', h, '(dry run)'); sys.exit()
 req = {'model': model, 'messages': [{'role': 'user', 'content': packet}], 'temperature': 0}
+if os.environ.get('REASONING_MAX'): req['reasoning'] = {'max_tokens': int(os.environ['REASONING_MAX'])}   # GLM attempt 1 spent all output on reasoning (2026-11-23)
 r = urllib.request.Request('https://openrouter.ai/api/v1/chat/completions', data=json.dumps(req).encode(),
     headers={'Authorization': 'Bearer ' + os.environ['OPENROUTER_API_KEY'], 'Content-Type': 'application/json'})
 resp = json.load(urllib.request.urlopen(r, timeout=3600))

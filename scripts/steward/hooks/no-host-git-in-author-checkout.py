@@ -40,7 +40,11 @@ if "git" not in flat.lower():
     sys.exit(0)
 a = cwd_author(cwd)
 if a: block(f"'git' in a command while the working directory is in author checkout {a}")
-for name in re.findall(r"tupay-[A-Za-z0-9._-]+", flat):
+for name in re.findall(r"tupay-[A-Za-z0-9._*?\[\]{},-]*", flat):
     name = name.rstrip("./")
+    if re.search(r"[*?\[{]", name) or name == "tupay-":   # a glob or a bare prefix could expand to an author checkout
+        block(f"'git' in a command with a pattern that may match an author checkout ({name})")
     if is_author(name): block(f"'git' in a command that names author checkout {name}")
+# Known limit (accepted 2026-11-23, after three automated reviews): a name assembled at run time from pieces that never
+# contain "tupay-" evades this text check. The guard is against lapses; the boundary is author-export.sh.
 sys.exit(0)

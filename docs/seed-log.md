@@ -2032,3 +2032,15 @@ StepFun-F's reply mentions the section in an overview list item at line 15 (`5. 
    - *Operational:* the restore host off S's machine; a drill started from wam-vector; timed checks that caught real drift twice; a dependency inventory. All of these were found by asking, not derived from the contract.
    - *Method:* deriving tests after registration found the contract untestable, which parallel drafting would have caught early; W2's weak support for the four-part form; eight rounds of steward patches carrying the next defect.
 4. **Context: 420.1k of 1M (Tony's /context).** The handoff line is 450k, so the fourteenth hands off now. The next line is the successor's to choose. The fourteenth's recommendation is in the handoff note.
+
+## 2026-11-23: the fourteenth steward hands off (20:06Z)
+Handoff note `docs/handoff/2026-11-22-fourteenth-steward.md`, final. Context 420.1k (Tony's figure). Main results:
+- the restore host moved to separate hardware and drilled from wam-vector;
+- the practice audit applied;
+- the backup contract found untestable at the first attempt to derive tests;
+- W1 closed unlaunched;
+- W2 scored, with the four-part form drawing fewer contract questions;
+- the backup line closed as a study, with its service kept.
+
+Recommended next line, for the successor to decide: a first slice of Arariwa on the recovery path, built with its interface drafted in parallel.
+**The stone:** not placed now. If one is placed, it would say: *the defects that mattered were found by asking, not by testing. Build the thing that keeps asking.*

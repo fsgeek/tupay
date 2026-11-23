@@ -1980,3 +1980,14 @@ Kimi also tabled each of the 36 questions as left open, forced by the interface,
 2. **Contract v1 is not patched.** Its open questions are the material for a v2, which needs a decision on its scope first, and that is not today's.
 3. **W2, a census of ambiguity, is pre-registered before any of its runs:** the identical interface-design task on arm F's author copy, by the same drafting families plus one more with no role, and the prose arm completed for that family. Questions are counted per form and matched across forms by a judge. It costs about US$2, and it tests the idea W1-1 was built for (Karpathy's) without authors, a harness or hold-outs. **Its predictions are informed by the P outcomes already seen (36 questions), and the registration says so.**
 4. **For the 11-26 report:** the backup line's honest state is that the contract is registered, it is in use at yanantin through T10/T11, and it is untestable as written.
+
+## 2026-11-23: W2 registered: a census of ambiguity in the two forms (19:05Z)
+**Review:** Kimi on draft 1 (`experiments/W2/review-kimi/`, US$0.18): 4 blocking (the count script unfixed; the judge's prompt and matching unfixed; no rule for missing cells; GLM's unequal retry), 2 significant and 1 minor. Under the stop rule, the four blocking items are fixed and the rest registered as known limits. There is no further check.
+**Registered by this commit** (sha256):
+- `experiments/W2-prereg.md` dff3caf6b6ed0993709ff33a464c5391b665b0b4464e4e7c63e55ab9ea81997e
+- `scripts/steward/w2-cell.py` 2abc70b6be2a740b51efa4220d09ecb017f03b59e388c1eddeea755d9964c4e2
+- `scripts/steward/w2-count.py` 359de077257d20befa73f9de5e1ffa657053651262ca4cae67d657876bf7c0e5
+- `scripts/steward/w2-judge.py` 80b051b64d9c1ef81830891fbbe788bb9832be84adbbb05a483a824fae78965b
+- the drafters' task source, `scripts/steward/w1-interface-draft.py` 5ee787c50eb66f5259143cc311749350c3faf54c51f969638a1b28f6c44dad8a
+
+**Predictions:** W2-1 (Q(F) < Q(P) in a majority of evaluable families) at 0.40; W2-2 (pooled unmatched P issues exceed F's) at 0.50. Both were informed by the P counts already seen (GLM 8, Mistral 28), as the file says. The four new cells launch after this commit.

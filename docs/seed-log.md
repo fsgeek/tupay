@@ -2020,3 +2020,5 @@ StepFun-F's reply mentions the section in an overview list item at line 15 (`5. 
 **Reading:** this is weak, exploratory support for the idea behind W1-1 (Karpathy's). Readers building tests listed fewer open points from the four-part form, and never more. Questions are not misreadings, so it says nothing about authors.
 **Result review:** Kimi, artifacts and arithmetic only. One minor finding (a cost total from rounded parts), answered. Cost: W2 US$0.57, and the review US$0.29.
 **What it changes:** nothing registered. For a contract v2 it is evidence for keeping the four-part form, and the 36 + 18 + 18 questions it gathered are v2's material. W1 stays suspended.
+
+**Correction to the previous entry:** the questions gathered are 46 on P (8 + 28 + 10) and 26 on F (8 + 8 + 10), 72 in all. "36 + 18 + 18" was the steward's arithmetic error.

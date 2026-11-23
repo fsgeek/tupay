@@ -2109,3 +2109,14 @@ A fresh Claude Opus 5.5 instance accepted at 2026-11-23T21:17:59Z (clock). Befor
   - the artifact reports its own capacity.
 - **The last revision:** GLM and Mistral revise v2 in parallel (`smr-input-revise.py`, now taking its inputs as parameters, sha256 `6e8c96afa147dce974bf7943beadf08ddf72c6751f2046c2ab15aadae3678221`). Kimi checks both, and selection is as before. **The result freezes as v3**, whatever its count. Its remaining blocking findings become known limits that the reference harness may not depend on.
 - SMR line cost so far: about US$3.6.
+
+## 2026-11-23: SMR inputs v3 frozen; four known limits; an untracked process (steward lapse; 23:33Z)
+- **The last revision** (private commits `fe626a2`, `90329a9`): GLM (US$0.32) and Mistral (US$0.22). **Kimi's checks:** GLM's has **4 blocking**, 15 significant and 3 minor; Mistral's has 6, 8 and 2. **v3 is GLM's revision**, frozen as `inputs-v3.md` (sha256 `5c86c116813d260b13d3946636d1ccf40623c1f422577181dad50c0c0e672965`). Blocking went 17 → 10 → 4 across three versions, with scope cut twice.
+- **Known limits** (`KNOWN-LIMITS-v3.md`):
+  - K1, the process boundary: by design; closed by the reference harness code.
+  - K2, crash-state mechanics: fixed by the reference harness; no shared schedule depends on a partial-block crash state until then.
+  - K3, the paper's ordering tension: unresolved by rule. **Every expected result written in v3 is void.** Outcomes are predicted only in the pre-registration.
+  - K4: no shared schedule exhausts space or probes a never-written block.
+- **Steward lapse.** Kimi's check of GLM's revision was first started with a bare `&`, outside the harness's tracked mechanism (practice: Records). It was seen at once, killed (its output directory held only the packet), and relaunched tracked. Cost: at most one partial request, a few cents. **What holds:** the session-start sweep now lists untracked author processes, but not steward scripts. A steward command never contains a bare `&`.
+- **SMR inputs, total cost:** about US$5.1 across 3 drafting families, 1 merge and 5 checks. The whole of it is private, by hash here.
+- **Next:** the reference harness, as code, by a family with no SMR role, with a mutation pair. Then the pre-registration. Then the authors.

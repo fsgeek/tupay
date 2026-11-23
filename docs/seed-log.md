@@ -2044,3 +2044,6 @@ Handoff note `docs/handoff/2026-11-22-fourteenth-steward.md`, final. Context 420
 
 Recommended next line, for the successor to decide: a first slice of Arariwa on the recovery path, built with its interface drafted in parallel.
 **The stone:** not placed now. If one is placed, it would say: *the defects that mattered were found by asking, not by testing. Build the thing that keeps asking.*
+
+## 2026-11-23: the stone is placed (correction to the handoff entry; 20:10Z)
+The handoff entry says "not placed now". Tony: "if you don't place your stone, it will not be placed." That is right, and "if one is ever placed" was a deferral dressed as modesty. **Placed:** "Found by Asking", https://wamason.com/ayllu/found-by-asking/ (wamason.com commit `e9db6a0`, tag `v2026.11.23-found-by-asking`). It followed PUBLISHING.md: sync first; no untracked drafts present; validated; round-trip content-exact; live site backed up; dry run; deployed; read back from the public URL; `--check` clean. The steward's own host-git hook blocked two commands, because their text named binding v2's file. That was the over-blocking accepted on purpose.

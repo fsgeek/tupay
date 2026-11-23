@@ -22,3 +22,8 @@ for l in sys.stdin:
   r=json.loads(l); t=" ".join(r["text"].split()); print("  [%s] %s: %s" % (r["seq"], r["from"], t[:400]))
   open(sys.argv[1],"w").write(str(r["seq"]))' "$C/plaza-seq"
 else echo "-- plaza: nothing after seq $last (or unreadable: check plaza_status)"; fi
+# Practice rule 53 (audit 2026-11-18, proposal 1): author processes that no harness of this session tracks. A steward
+# seeing any here must find the run it belongs to in the log and attach a tracked watcher, or stop it.
+au=$(ps -eo pid,etimes,args | grep -E 'bwrap .*tupay-homes|tupay-author-' | grep -v grep)
+units=$(systemctl --user list-units --no-legend 'tupay-author-*' 2>/dev/null; ssh -o BatchMode=yes -o ConnectTimeout=5 ubuntu26-test "systemctl list-units --no-legend 'tupay-author-*'" 2>/dev/null)
+[ -n "$au$units" ] && { echo "-- author processes running (attach a watcher or account for them):"; echo "$au"; echo "$units"; } || echo "-- author processes: none running"

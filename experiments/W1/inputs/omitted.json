@@ -1,0 +1,24 @@
+{
+ "sources": {
+  "F": [
+   "docs/backup/contract-draft-7.md",
+   "aa782b31fb1ffd98a7c4c3e60982ff02a52da6e30b8a61b911f61ece0094f42a"
+  ],
+  "P": [
+   "docs/backup/contract-prose-arm-draft-2.md",
+   "b58691939e326a1566fd5570285d057d0ee3ae3bc4abe16586636d0e22e54c54"
+  ]
+ },
+ "omitted": {
+  "F": [
+   "(title line, replaced by the neutral title)",
+   "(history preamble: drafts 5 to 7)",
+   "## 7. Gaps found since draft 1",
+   "## 8. What Arariwa observes (not normative)"
+  ],
+  "P": [
+   "(title line, replaced by the neutral title)",
+   "(header paragraph)"
+  ]
+ }
+}

@@ -13,6 +13,7 @@ for f in $(grep -o '`[A-Za-z0-9/._-]*\.\(md\|yaml\)`' "$C/$BRIEF" | tr -d '`' | 
 for f in "$@" CLAUDE.md .mcp.json .claude docs/steward docs/seed-log.md docs/handoff; do [ -e "$C/$f" ] && { echo "FORBIDDEN present: $f"; bad=1; }; done
 for h in $(sha256sum "$C"/testbed/schedules/* | awk '{print $1}'); do
   for s in "${SUMS[@]}"; do grep -q "$h" "$s" && { echo "HOLD-OUT hash present: $h"; bad=1; }; done; done
+"$(dirname "$(realpath "$0")")/steward-voice-scan.sh" "$C" >/dev/null || { echo "STEWARD VOICE in author-facing text:"; "$(dirname "$(realpath "$0")")/steward-voice-scan.sh" "$C" | head -5; bad=1; }   # practice rule 18
 [ -x "$C/scripts/hooks/post-commit" ] || { echo "MISSING scripts/hooks/post-commit (no timestamps)"; bad=1; }
 [ "$(git -C "$C" config commit.gpgsign)" = true ] || { echo "signing not configured"; bad=1; }
 if [ -n "${HARNESS:-}" ]; then

@@ -2120,3 +2120,21 @@ A fresh Claude Opus 5.5 instance accepted at 2026-11-23T21:17:59Z (clock). Befor
 - **Steward lapse.** Kimi's check of GLM's revision was first started with a bare `&`, outside the harness's tracked mechanism (practice: Records). It was seen at once, killed (its output directory held only the packet), and relaunched tracked. Cost: at most one partial request, a few cents. **What holds:** the session-start sweep now lists untracked author processes, but not steward scripts. A steward command never contains a bare `&`.
 - **SMR inputs, total cost:** about US$5.1 across 3 drafting families, 1 merge and 5 checks. The whole of it is private, by hash here.
 - **Next:** the reference harness, as code, by a family with no SMR role, with a mutation pair. Then the pre-registration. Then the authors.
+
+## 2026-11-28: the 11-26 report, written two days late (steward lapse); Tessera on T1; Eidolon's pilot (2026-11-28T01:19Z)
+**Lapse first.** Acceptance decision 1 said the report is written on the day. No steward turn happened between 11-23 and 11-28: a steward acts only inside a turn, and nothing woke one. The cost is the two days, and a report written after the day it reports on. Nothing in it depends on events after 11-26 except where marked. **What holds:** a dated obligation needs a wake that does not depend on Tony starting a session. Recorded as a gap in the practice, not yet a mechanism.
+
+**The report, against the month's measure (L907, set 2026-10-26 for the month to 11-26):**
+1. *D2 scored against Episode's seal by Episode's steward and a non-Claude judge:* **done** (11-03). The judges were Gemini and GLM, and Qwen reviewed. Episode is outside tupay but Claude-family. The non-Claude judges are tupay's own instruments, not outside parties.
+2. *T1's first versions with Tessera before its 11-20 issuer:* **not done.** T1 never launched. Tessera, 11-27 via the custodian (seq 318): it will answer after production signing (11-27 to 11-30), and "It isn't a no."
+3. *X3 scored and reviewed:* **done** (11-02, Gemini review).
+4. *One observability record type for "a dependency did not honour clause X", with a mutation pair:* **not built.**
+
+**Outside use and outside scoring, to 11-26:** one outside scorer of a tupay output (Episode, Claude-family, D2); one outside use (yanantin uses the backup contract's T10/T11, Claude-family). **No non-Claude-family party outside tupay has scored or used anything tupay built.**
+
+**The Mallku sign** (records about the instances and their succession growing faster than anything an outside party has scored): **it shows.** Fifteen stewards in 34 days, about 2,100 lines of log and fifteen handoff notes, against one outside ruling. Tony's comparison holds (Mallku ran four to six builders a day, and tupay's pace is slower), but the sign is a ratio, not a pace, and the ratio is what it is. Against it, and not cancelling it: the backup service runs and is used, the restore drill works from separate hardware, and the SMR line has, for the first time, a judge tupay does not control in prospect: the author's code. That judge has not scored anything yet.
+
+**Since the report's date:**
+- **Eidolon's failure-model pilot** (`eidolon/docs/requests/2026-11-27-to-tupay-failure-model-pilot.md`; bundle sha256 `faf52939…`) is done, three weeks after it was promised on 11-02. 20 postmortems; 13 of 20 disclose a full recovery ladder; in 11 of 15 recoveries a nominal rung was unusable when needed; two-family agreement was 75%. **The residue check it asked for is clean.** The one real hit is an operator unable to reach etcd during an outage, an operational dependency, not a Raft-library defect. **Answered** (`eidolon/docs/requests/2026-11-28-from-tupay-failure-model-pilot.md`, uncommitted, Eidolon's to file): scale as registered, and add no `mechanism_class` field on tupay's account, because Arariwa has no split and a field chosen now would project a target onto it (Tony, 11-23).
+- Backups: `backup`, `backup-check` and `restore-path-check` succeeded every day through 11-27.
+- Context at resumption: **309.6k of 1M** (Tony's figure). The tenure continues.
